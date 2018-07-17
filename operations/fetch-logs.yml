@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Fetch logs
+      import_role:
+        name: openstack-operations
+        tasks_from: fetch_logs.yml
