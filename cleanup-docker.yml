@@ -1,8 +1,9 @@
-- name: Cleanup dangling and dead images, containers, and volumes
-  hosts: all
+- name: Cleanup Docker
+  hosts: "{{ target_hosts | default('all') }}"
+  become: yes
+
   tasks:
     - name: Cleanup unused Docker images, containers, and volumes
       import_role:
-        name: openstack-operations
+        name: openstack-ops
         tasks_from: cleanup_docker.yml
-
