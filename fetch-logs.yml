@@ -1,0 +1,9 @@
+- name: Fetch logs
+  hosts: "{{ target_hosts | default('all') }}"
+  become: yes
+
+  tasks:
+    - name: Fetch logs from remote systems
+      import_role:
+        name: openstack-ops
+        tasks_from: fetch_logs.yml

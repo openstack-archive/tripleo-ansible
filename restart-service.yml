@@ -1,0 +1,9 @@
+- name: Restart OpenStack services
+  hosts: "{{ target_hosts | default('all') }}"
+  become: yes
+
+  tasks:
+    - name: Restart services
+      import_role:
+        name: openstack-ops
+        tasks_from: restart_service.yml
