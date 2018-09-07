@@ -1,9 +1,0 @@
-- name: Cleanup Docker
-  hosts: "{{ target_hosts | default('all') }}"
-  become: yes
-
-  tasks:
-    - name: Cleanup unused Docker images, containers, and volumes
-      import_role:
-        name: openstack-ops
-        tasks_from: cleanup_docker.yml

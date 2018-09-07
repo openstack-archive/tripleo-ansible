@@ -5,5 +5,5 @@
   tasks:
     - name: Restart services
       import_role:
-        name: openstack-ops
+        name: openstack-operations
         tasks_from: restart_service.yml

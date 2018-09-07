@@ -5,5 +5,5 @@
   tasks:
     - name: Fetch logs from remote systems
       import_role:
-        name: openstack-ops
+        name: openstack-operations
         tasks_from: fetch_logs.yml

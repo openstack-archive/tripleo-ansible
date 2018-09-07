@@ -1,0 +1,6 @@
+# These are required here because ansible can't be in global-requirements due
+# to licensing conflicts. But we sill need to be able to pull them in for
+# lint checks and want to document these as ansible specific things that may
+# be required for this repository.
+ansible
+ansible-lint

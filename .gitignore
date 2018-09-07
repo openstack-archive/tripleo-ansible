@@ -1,0 +1,21 @@
+*.py[cod]
+
+# Testing cruft
+.tox
+.venv
+*.egg*
+egg
+.coverage
+cover
+.tox
+nosetests.xml
+.testrepository
+.venv
+
+# Editors
+*~
+.*.swp
+.*sw?
+
+# Playbook retry files
+*.retry

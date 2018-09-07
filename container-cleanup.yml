@@ -1,0 +1,9 @@
+- name: Cleanup container items
+  hosts: "{{ target_hosts | default('all') }}"
+  become: yes
+
+  tasks:
+    - name: Cleanup unused images, containers, and volumes
+      import_role:
+        name: openstack-operations
+        tasks_from: container_cleanup.yml
