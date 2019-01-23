@@ -80,7 +80,9 @@ class PodmanContainerInstance(object):
         self.parameters = None
         self.name = name
         output = subprocess.check_output(
-            ['podman', 'container', 'inspect', self.name])
+            ['podman', 'container', 'inspect', self.name],
+            universal_newlines=True
+        )
         self.parameters = json.loads(output)[0]
 
 
