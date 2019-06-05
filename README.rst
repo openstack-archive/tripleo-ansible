@@ -1,14 +1,30 @@
+========================
+Team and repository tags
+========================
+
+.. image:: https://governance.openstack.org/tc/badges/tripleo-ansible.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
+
+.. Change things from this point on
+
 ===============
 TripleO Ansible
 ===============
 
-TripleO Ansible project repository.  Contains playbooks for use with TripleO OpenStack deployments.
+TripleO Ansible project repository. Contains Ansible playbooks, roles, and
+plugins for use with TripleO.
 
-An inventory file can be obtained by running::
+Documentation for the project can be found at:
+`<https://docs.openstack.org/tripleo-docs/latest/>`_
 
-    tripleo-ansible-inventory
+Release notes for the project can be found at:
+`<https://docs.openstack.org/tripleo-docs/latest/>`_
 
-Operations Playbooks
---------------------
+The project source code repository is located at:
+`<https://opendev.org/openstack/tripleo-ansible/>`_
 
-Contains playbooks for performing common cloud operations tasks.
+The project home is at:
+`<https://launchpad.net/tripleo>`_
+
+The project bug tracker is located at:
+`< https://bugs.launchpad.net/tripleo>`_
