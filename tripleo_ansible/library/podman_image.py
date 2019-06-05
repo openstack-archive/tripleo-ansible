@@ -399,10 +399,11 @@ class PodmanImageManager(object):
                             split_on=' ', maxsplit=1):
         layer_ids = []
         for line in lines.splitlines():
-            if startswith and line.startswith(startswith) \
-                or contains and contains in line:
-                    splitline = line.rsplit(split_on, maxsplit)
-                    layer_ids.append(splitline[1])
+            _condition1 = (startswith and line.startswith(startswith))
+            _condition2 = (contains and contains in line)
+            if _condition1 or _condition2:
+                splitline = line.rsplit(split_on, maxsplit)
+                layer_ids.append(splitline[1])
 
         return(layer_ids[-1])
 

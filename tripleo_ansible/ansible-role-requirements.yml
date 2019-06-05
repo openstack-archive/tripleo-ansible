@@ -14,11 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Restart OpenStack services
-  hosts: "{{ target_hosts | default('all') }}"
-  become: true
-  tasks:
-    - name: Restart services
-      import_role:
-        name: openstack-operations
-        tasks_from: restart_service.yml
+- name: openstack-operations
+  scm: git
+  src: https://github.com/openstack/ansible-role-openstack-operations
+  version: master
+  trackbranch: master

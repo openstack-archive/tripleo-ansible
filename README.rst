@@ -6,7 +6,7 @@ TripleO Ansible project repository.  Contains playbooks for use with TripleO Ope
 
 An inventory file can be obtained by running::
 
-    tripleo-ansible-inventory 
+    tripleo-ansible-inventory
 
 Operations Playbooks
 --------------------
