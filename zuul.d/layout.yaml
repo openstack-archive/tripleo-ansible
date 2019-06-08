@@ -3,6 +3,7 @@
     check:
       jobs:
         - openstack-tox-linters
+        - tripleo-ansible-centos-7-molecule-test_deps
     gate:
       jobs:
         - openstack-tox-linters
