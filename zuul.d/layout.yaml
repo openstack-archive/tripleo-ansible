@@ -4,6 +4,7 @@
       jobs:
         - openstack-tox-linters
         - tripleo-ansible-centos-7-molecule-test_deps
+        - tripleo-ansible-centos-7-molecule-tuned
     gate:
       jobs:
         - openstack-tox-linters

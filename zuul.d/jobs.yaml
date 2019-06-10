@@ -14,3 +14,14 @@
       - ^tripleo_ansible/roles/test_deps/.*
     vars:
       tox_envlist: mol-test_deps
+
+- job:
+    name: tripleo-ansible-centos-7-molecule-tuned
+    parent: tripleo-ansible-centos
+    description: |
+      Run molecule tests. Uses tox with the ``mol-tuned`` environment.
+    voting: true
+    files:
+      - ^tripleo_ansible/roles/tuned/.*
+    vars:
+      tox_envlist: mol-tuned
