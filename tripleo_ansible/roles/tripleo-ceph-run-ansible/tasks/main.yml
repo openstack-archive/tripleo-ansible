@@ -1,0 +1,79 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: set ceph-ansible playbook list
+  set_fact:
+    ceph_ansible_playbooks: >
+      {%- if ceph_ansible_playbooks_param != ['default'] -%}
+        {{ ceph_ansible_playbooks_param }}
+      {%- else -%}
+        {{ ceph_ansible_playbooks_default|default(['/usr/share/ceph-ansible/site-container.yml.sample']) }}
+      {%- endif -%}
+
+- name: set ceph-ansible command list
+  set_fact:
+    ceph_ansible_command_list:
+      - ANSIBLE_ACTION_PLUGINS=/usr/share/ceph-ansible/plugins/actions/
+      - ANSIBLE_CALLBACK_PLUGINS=/usr/share/ceph-ansible/plugins/callback/
+      - ANSIBLE_ROLES_PATH=/usr/share/ceph-ansible/roles/
+      - ANSIBLE_LOG_PATH="{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log"
+      - ANSIBLE_LIBRARY=/usr/share/ceph-ansible/library/
+      - ANSIBLE_CONFIG=/usr/share/ceph-ansible/ansible.cfg
+      - ANSIBLE_REMOTE_TEMP=/tmp/ceph_ansible_tmp
+      - ANSIBLE_FORKS=25
+      - ANSIBLE_GATHER_TIMEOUT=60
+      - "{{ ceph_ansible_environment_variables|join(' ') }}"
+      - ansible-playbook
+      - '{% if ceph_ansible_private_key_file is defined %}--private-key {{ ceph_ansible_private_key_file }}{% endif %}'
+      - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
+      - '-{%- for number in range(0, ceph_ansible_playbook_verbosity) -%}v{% endfor %}'
+      - '{% if ceph_ansible_skip_tags is defined %}--skip-tags {{ ceph_ansible_skip_tags }}{% endif %}'
+      - '-i'
+      - '{{ playbook_dir }}/ceph-ansible/inventory.yml'
+      - '--extra-vars'
+      - '@{{ playbook_dir }}/ceph-ansible/extra_vars.yml'
+
+- name: save ceph-ansible playbook command(s) to shell script
+  copy:
+    dest: "{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.sh"
+    mode: '0755'
+    content: |
+      #!/usr/bin/env bash
+      set -e
+      {% for playbook in ceph_ansible_playbooks %}
+      echo "Running ceph-ansible playbook {{ playbook }}"
+      {{ ceph_ansible_command_list|join(' ') }} {{ playbook }} 2>&1
+      {% endfor %}
+
+- name: run ceph-ansible (immediate log at {{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log)
+  # Needs become to be able to read the ssh private key
+  become: true
+  shell: "{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.sh"
+  # We want the output chunked into bits to prevent
+  # overflowing Zaqar message size
+  no_log: true
+  failed_when: false
+  register: outputs
+  tags: run_ceph_ansible
+
+- name: print ceph-ansible output in case of failure
+  debug:
+    var: outputs.stdout_lines | default([]) | union(outputs.stderr_lines | default([]))
+  failed_when: outputs.rc != 0
+  when:
+    - outputs is changed
+    - outputs.rc != 0
+  tags: run_ceph_ansible

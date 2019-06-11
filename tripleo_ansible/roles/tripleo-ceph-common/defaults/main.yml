@@ -1,0 +1,145 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# todo(fultonj): evolve this to derive more of these values from facts
+
+ceph_ansible_group_vars_all:
+  ceph_conf_overrides:
+    global:
+      osd_max_backfills: 1
+      osd_pool_default_pg_num: 32
+      osd_pool_default_pgp_num: 32
+      osd_pool_default_size: 3
+      osd_recovery_max_active: 3
+      osd_recovery_op_priority: 3
+      rgw_keystone_accepted_admin_roles: ResellerAdmin
+      rgw_keystone_accepted_roles: Member, admin
+      rgw_keystone_admin_domain: default
+      rgw_keystone_admin_password: fEoaZFe0C5ZQ1hvFo7yfxutan
+      rgw_keystone_admin_project: service
+      rgw_keystone_admin_user: swift
+      rgw_keystone_api_version: 3
+      rgw_keystone_implicit_tenants: 'true'
+      rgw_keystone_revocation_interval: '0'
+      rgw_keystone_url: http://192.168.24.18:5000
+      rgw_s3_auth_use_keystone: 'true'
+      rgw_swift_versioning_enabled: 'true'
+  ceph_docker_image: ceph/daemon
+  ceph_docker_image_tag: v4.0.0-stable-4.0-nautilus-centos-7-x86_64
+  ceph_docker_registry: 192.168.24.1:8787
+  ceph_origin: distro
+  ceph_stable: true
+  cluster: ceph
+  cluster_network: 192.168.24.0/24
+  containerized_deployment: true
+  docker: true
+  fsid: b8df929e-7c29-11e9-b1bd-244253215215
+  generate_fsid: false
+  ip_version: ipv4
+  keys:
+    - caps:
+        mgr: allow *
+        mon: profile rbd
+        osd: profile rbd pool=volumes, profile rbd pool=backups, profile rbd pool=vms,
+          profile rbd pool=images
+      key: AQCwmeRcAAAAABAA6SQU/bGqFjlfLro5KxrB1Q==
+      mode: '0600'
+      name: client.openstack
+    - caps:
+        mds: allow *
+        mgr: allow *
+        mon: allow r, allow command 'auth del', allow command 'auth caps', allow
+          command 'auth get', allow command 'auth get-or-create'
+        osd: allow rw
+      key: AQCwmeRcAAAAABAAiglHZveUQUmoSsYbZcbMEA==
+      mode: '0600'
+      name: client.manila
+    - caps:
+        mgr: allow *
+        mon: allow rw
+        osd: allow rwx
+      key: AQCwmeRcAAAAABAAvd9OK2qeXNaD4rL/wP7D0Q==
+      mode: '0600'
+  name: client.radosgw
+  monitor_address_block: 192.168.24.0/24
+  ntp_service_enabled: false
+  openstack_config: true
+  openstack_keys:
+    - caps:
+        mgr: allow *
+        mon: profile rbd
+        osd: profile rbd pool=volumes, profile rbd pool=backups, profile rbd pool=vms,
+          profile rbd pool=images
+      key: AQCwmeRcAAAAABAA6SQU/bGqFjlfLro5KxrB1Q==
+      mode: '0600'
+      name: client.openstack
+    - caps:
+        mds: allow *
+        mgr: allow *
+        mon: allow r, allow command 'auth del', allow command 'auth caps', allow
+          command 'auth get', allow command 'auth get-or-create'
+        osd: allow rw
+      key: AQCwmeRcAAAAABAAiglHZveUQUmoSsYbZcbMEA==
+      mode: '0600'
+      name: client.manila
+    - caps:
+        mgr: allow *
+        mon: allow rw
+        osd: allow rwx
+      key: AQCwmeRcAAAAABAAvd9OK2qeXNaD4rL/wP7D0Q==
+      mode: '0600'
+      name: client.radosgw
+  openstack_pools:
+    - application: rbd
+      name: images
+      pg_num: 32
+      rule_name: replicated_rule
+    - application: rbd
+      name: backups
+      pg_num: 32
+      rule_name: replicated_rule
+    - application: rbd
+      name: vms
+      pg_num: 32
+      rule_name: replicated_rule
+    - application: rbd
+      name: volumes
+      pg_num: 32
+      rule_name: replicated_rule
+  pools: []
+  public_network: 192.168.24.0/24
+  user_config: true
+blacklisted_hostnames: []
+ceph_ansible_extra_vars:
+  ireallymeanit: 'yes'
+  container_binary: 'podman'
+uuid_content: ''
+ceph_ansible_playbook_verbosity: 3
+ceph_ansible_playbooks_param: ['default']
+local_ceph_ansible_fetch_directory_backup: "{{ playbook_dir }}/ceph-ansible/fetch_backup"
+swift_get_url: ''
+swift_put_url: ''
+ceph_ansible_skip_tags: 'package-install,with_pkg'
+ceph_ansible_environment_variables: {}
+docker: true
+containerized_deployment: true
+user_config: true
+ceph_stable: true
+ceph_origin: distro
+openstack_config: true
+pools: []
+ntp_service_enabled: false
+generate_fsid: false
