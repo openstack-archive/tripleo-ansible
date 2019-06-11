@@ -5,3 +5,7 @@ rules:
   line-length:
     # matches hardcoded 160 value from ansible-lint
     max: 160
+
+ignore: |
+  zuul.d/jobs.yaml
+  zuul.d/layout.yaml
