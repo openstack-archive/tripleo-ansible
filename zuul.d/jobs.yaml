@@ -23,6 +23,15 @@
       tox_envlist: mol-test_deps
 
 - job:
+    name: tripleo-ansible-centos-7-molecule-test_package_action
+    parent: tripleo-ansible-centos
+    files:
+      - ^tripleo_ansible/roles/test_package_action/.*
+      - ^tripleo-ansible/tripleo_ansible/ansible_plugins/action/package.py
+    vars:
+      tox_envlist: mol-test_package_action
+
+- job:
     name: tripleo-ansible-centos-7-molecule-tuned
     parent: tripleo-ansible-centos
     description: |

@@ -12,17 +12,8 @@
 # limitations under the License.
 
 
-import subprocess
-
-import pytest
+import os
 
 
-def test_molecule(pytestconfig):
-    cmd = ['python', '-m', 'molecule', 'test']
-    scenario = pytestconfig.getoption("scenario")
-    if scenario:
-        cmd.extend(['--scenario-name', scenario])
-    else:
-        cmd.append('--all')
-
-    assert subprocess.call(cmd) == 0
+def pytest_addoption(parser):
+    parser.addoption('--scenario', help='scenario setting')

@@ -26,6 +26,20 @@ the `tox.ini` file as an test scenario.
       python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py
 
 
+If a given role has more than one scenario to test, the `--scenario` argument
+can be used to set the scenario accordingly.
+
+.. code-block:: ini
+
+    [testenv:mol-${NEWROLENAME}-${SCENARIO_2}]
+    basepython={[testenv:mol-${NEWROLENAME}]basepython}
+    deps={[testenv:mol-${NEWROLENAME}]deps}
+    changedir = {[testenv:mol-${NEWROLENAME}]changedir}
+    envdir = {[testenv:mol-${NEWROLENAME}]envdir}
+    commands =
+      python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py --scenario=${SCENARIO_2}
+
+
 When the role is ready for CI add a jobs entry into the `zuul.d/jobs.yaml`.
 
 .. code-block:: yaml
