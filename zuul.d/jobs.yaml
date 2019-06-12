@@ -15,6 +15,14 @@
       - ^tripleo_ansible/README.rst
 
 - job:
+    name: tripleo-ansible-centos-7-molecule-aide
+    parent: tripleo-ansible-centos
+    files:
+      - ^tripleo_ansible/roles/aide/.*
+    vars:
+      tox_envlist: mol-aide
+
+- job:
     name: tripleo-ansible-centos-7-molecule-test_deps
     parent: tripleo-ansible-centos
     files:
