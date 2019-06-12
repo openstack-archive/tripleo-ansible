@@ -2,15 +2,11 @@
 Installation
 ============
 
-At the command line::
-
-    $ pip install tripleo-ansible
-
-Or, if you have virtualenvwrapper installed::
-
-    $ python -m virtualenv tripleo-ansible
-    $ pip install tripleo-ansible
-
-Or, using the package manager::
+At the command line using `yum`::
 
     $ yum install tripleo-ansible
+
+
+At the command line using `dnf`::
+
+    $ dnf install tripleo-ansible
