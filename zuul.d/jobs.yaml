@@ -1,0 +1,16 @@
+---
+- job:
+    name: tripleo-ansible-centos
+    parent: tox-molecule
+    description: Basic tripleo-ansible tox job
+    timeout: 900
+    nodeset: centos-7
+    voting: true
+
+- job:
+    name: tripleo-ansible-centos-7-molecule-test_deps
+    parent: tripleo-ansible-centos
+    files:
+      - ^tripleo_ansible/roles/test_deps/.*
+    vars:
+      tox_envlist: mol-test_deps
