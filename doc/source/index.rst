@@ -13,6 +13,7 @@ Contents:
 
    installation
    contributing
+   usage
 
 Indices and tables
 ==================

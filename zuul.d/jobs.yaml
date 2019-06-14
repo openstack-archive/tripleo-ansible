@@ -8,6 +8,13 @@
     voting: true
 
 - job:
+    name: tripleo-ansible-docs
+    parent: openstack-tox-docs
+    files:
+      - ^tripleo_ansible/doc/.*
+      - ^tripleo_ansible/README.rst
+
+- job:
     name: tripleo-ansible-centos-7-molecule-test_deps
     parent: tripleo-ansible-centos
     files:

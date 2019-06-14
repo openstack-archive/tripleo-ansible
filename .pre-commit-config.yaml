@@ -11,7 +11,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: flake8
-        entry: flake8 --ignore=E24,E121,E123,E124,E126,E226,E305,E402,F401,F405,E501,E704,F403,F841,W503
+        entry: flake8 --ignore=E24,E121,E122,E123,E124,E126,E226,E265,E305,E402,F401,F405,E501,E704,F403,F841,W503
         # TODO(cloudnull): These codes were added to pass the lint check.
         #                  All of these ignore codes should be resolved in
         #                  future PRs.
