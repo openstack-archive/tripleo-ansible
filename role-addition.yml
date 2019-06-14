@@ -101,3 +101,32 @@
           {% endfor %}
           {{ layouts | to_nice_yaml(indent=2, width=1337) }}
         dest: zuul.d/layout.yaml
+
+    - name: Create role documentation
+      copy:
+        content: |
+          {% set opening = 'TripleO-Ansible Role - ' ~ role_name %}
+          {{ '=' * (opening | length) }}
+          {{ opening }}
+          {{ '=' * (opening | length) }}
+
+          This role provides for the following services:
+
+              * {{ role_name }}
+
+
+          Default variables
+          ~~~~~~~~~~~~~~~~~
+
+          .. literalinclude:: ../../../tripleo_ansible/roles/{{ role_name }}/defaults/main.yml
+            :language: yaml
+            :start-after: under the License.
+
+
+          Example playbook
+          ~~~~~~~~~~~~~~~~
+
+          .. literalinclude:: ../../../tripleo_ansible/roles/{{ role_name }}/molecule/default/playbook.yml
+            :language: yaml
+            :start-after: under the License.
+        dest: "doc/source/roles/role-{{ role_name }}.rst"

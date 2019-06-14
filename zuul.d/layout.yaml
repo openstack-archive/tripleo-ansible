@@ -2,16 +2,16 @@
 - project:
     check:
       jobs:
-        - openstack-tox-linters
-        - tripleo-ansible-centos-7-molecule-test_deps
-        - tripleo-ansible-centos-7-molecule-tuned
-        - tripleo-ansible-docs
+      - openstack-tox-linters
+      - tripleo-ansible-centos-7-molecule-test_deps
+      - tripleo-ansible-centos-7-molecule-tuned
+      - tripleo-ansible-docs
     gate:
       jobs:
-        - openstack-tox-linters
+      - openstack-tox-linters
     post:
       jobs:
-        - publish-openstack-python-branch-tarball
+      - publish-openstack-python-branch-tarball
     templates:
-      - publish-openstack-docs-pti
-      - release-notes-jobs-python3
+    - publish-openstack-docs-pti
+    - release-notes-jobs-python3

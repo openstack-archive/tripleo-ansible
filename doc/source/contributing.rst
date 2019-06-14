@@ -39,7 +39,7 @@ When the role is ready for CI add a jobs entry into the `zuul.d/jobs.yaml`.
           tox_envlist: mol-${NEWROLENAME}
 
 
-And finally add the job into the `zuul.d/layout.yaml` file.
+Add the job into the `zuul.d/layout.yaml` file.
 
 .. code-block:: yaml
 
@@ -47,6 +47,13 @@ And finally add the job into the `zuul.d/layout.yaml` file.
         check:
           jobs:
             - tripleo-ansible-centos:mol-${NEWROLENAME}
+
+
+And finally add a role documentation file at
+`doc/source/roles/role-${NEWROLENAME}.rst`. This file will need to contain
+a title, a literal include of the defaults yaml and a literal include of
+the molecule playbook used to test the role, which is noted as an "example"
+playbook.
 
 
 The role addition process is also automated using ansible. If ansible is

@@ -14,6 +14,7 @@ Contents:
    installation
    contributing
    usage
+   roles
 
 Indices and tables
 ==================
