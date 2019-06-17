@@ -5,6 +5,7 @@
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_package_action
+      - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
     gate:
@@ -12,6 +13,7 @@
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_package_action
+      - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
     name: tripleo-ansible-molecule-jobs
@@ -37,6 +39,14 @@
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-test_package_action
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-bootstrap/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-bootstrap
+    parent: tripleo-ansible-centos
+    timeout: 1800
+    vars:
+      tox_envlist: mol-tripleo-bootstrap
 - job:
     files:
     - ^roles/tuned/.*

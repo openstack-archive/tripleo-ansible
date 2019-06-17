@@ -1,0 +1,117 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+# "tripleo-bootstrap" will search for and load any operating system variable file
+
+# found within the "vars/" path. If no OS files are found the task will skip.
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - skip: true
+      files:
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+        - "{{ ansible_os_family | lower }}.yml"
+  tags:
+    - always
+
+- name: Deploy required packages to bootstrap TripleO
+  become: true
+  package:
+    name: "{{ tripleo_bootstrap_packages_bootstrap }}"
+    state: present
+
+- name: Create /var/lib/heat-config/tripleo-config-download directory for deployment data
+  become: true
+  file:
+    path: /var/lib/heat-config/tripleo-config-download
+    state: directory
+
+- name: Deploy and enable network service
+  become: true
+  when:
+    - (tripleo_bootstrap_legacy_network_packages | length) > 0
+  block:
+    - name: Deploy network-scripts required for deprecated network service
+      package:
+        name: "{{ tripleo_bootstrap_legacy_network_packages }}"
+        state: present
+
+    - name: Ensure network service is enabled
+      systemd:
+        name: network
+        enabled: true
+
+- name: Find all installed puppet modules under /usr/share/openstack-puppet/modules
+  find:
+    paths:
+      - /usr/share/openstack-puppet/modules
+    file_type: directory
+  register: find_openstack_puppet_modules
+
+- name: Symlink puppet modules under /etc/puppet/modules
+  become: true
+  file:
+    state: link
+    src: "{{ item.path }}"
+    path: "/etc/puppet/modules/{{ item.path | basename }}"
+  loop: "{{ find_openstack_puppet_modules.files }}"
+  loop_control:
+    label: "/etc/puppet/modules/{{ item.path | basename }} -> {{ item.path }}"
+
+- name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
+  become: true
+  ignore_errors: "{{ (((ansible_os_family | lower) ~ '-' ~ ansible_distribution_major_version) == 'redhat-7') | bool }}"
+  copy:
+    dest: "{{ item }}"
+    content: "# empty ruleset created by deployed-server bootstrap"
+  loop:
+    - /etc/sysconfig/iptables
+    - /etc/sysconfig/ip6tables
+
+- name: Check if /usr/bin/ansible-playbook exists
+  stat:
+    path: /usr/bin/ansible-playbook
+  register: stat_ansible_playbook
+
+- name: Check if /usr/bin/ansible-playbook-3 exists
+  stat:
+    path: /usr/bin/ansible-playbook-3
+  register: stat_ansible_playbook_3
+
+- name: Symlink /usr/local/bin/ansible-playbook to /usr/bin/ansible-playbook-3
+  become: true
+  file:
+    state: link
+    src: /usr/bin/ansible-playbook-3
+    path: /usr/local/bin/ansible-playbook
+  when:
+    - not stat_ansible_playbook.stat.exists
+    - stat_ansible_playbook_3.stat.exists
+
+- name: Symlink /usr/local/bin/ansible-playbook-3 to /usr/bin/ansible-playbook
+  become: true
+  file:
+    state: link
+    src: /usr/bin/ansible-playbook
+    path: /usr/local/bin/ansible-playbook-3
+  when:
+    - stat_ansible_playbook.stat.exists
+    - not stat_ansible_playbook_3.stat.exists
