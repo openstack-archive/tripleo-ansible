@@ -31,14 +31,6 @@
       tox_envlist: mol-test_deps
 
 - job:
-    name: tripleo-ansible-centos-7-molecule-test_json_error_callback
-    parent: tripleo-ansible-centos
-    files:
-      - ^tripleo_ansible/roles/test_json_error_callback/.*
-    vars:
-      tox_envlist: mol-test_json_error_callback
-
-- job:
     name: tripleo-ansible-centos-7-molecule-test_package_action
     parent: tripleo-ansible-centos
     files:
@@ -50,6 +42,9 @@
 - job:
     name: tripleo-ansible-centos-7-molecule-tuned
     parent: tripleo-ansible-centos
+    description: |
+      Run molecule tests. Uses tox with the ``mol-tuned`` environment.
+    voting: true
     files:
       - ^tripleo_ansible/roles/tuned/.*
     vars:

@@ -5,7 +5,6 @@
       - openstack-tox-linters
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
-      - tripleo-ansible-centos-7-molecule-test_json_error_callback
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-docs
