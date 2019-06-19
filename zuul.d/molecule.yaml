@@ -9,6 +9,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
+      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -18,17 +19,18 @@
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
+      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
-    - ^roles/aide/.*
+    - ^tripleo_ansible/roles/aide/.*
     name: tripleo-ansible-centos-7-molecule-aide
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-aide
 - job:
     files:
-    - ^roles/test_deps/.*
+    - ^tripleo_ansible/roles/test_deps/.*
     name: tripleo-ansible-centos-7-molecule-test_deps
     parent: tripleo-ansible-centos
     vars:
@@ -43,7 +45,7 @@
 - job:
     files:
     - ^ansible_plugins/action/package.py
-    - ^roles/test_package_action/.*
+    - ^tripleo_ansible/roles/test_package_action/.*
     name: tripleo-ansible-centos-7-molecule-test_package_action
     parent: tripleo-ansible-centos
     vars:
@@ -58,16 +60,24 @@
       tox_envlist: mol-tripleo-bootstrap
 - job:
     files:
-    - ^roles/tuned/.*
+    - ^tripleo_ansible/roles/tuned/.*
     name: tripleo-ansible-centos-7-molecule-tuned
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-tuned
 - job:
     files:
-      - ^_skeleton_role_/.*
-      - ^role-addition.yml
+    - ^_skeleton_role_/.*
+    - ^role-addition.yml
     name: tripleo-ansible-centos-7-role-addition
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: role-addition
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-create-admin/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-create-admin
+    parent: tripleo-ansible-centos
+    timeout: 1800
+    vars:
+      tox_envlist: mol-tripleo-create-admin
