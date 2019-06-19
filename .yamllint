@@ -7,5 +7,4 @@ rules:
     max: 160
 
 ignore: |
-  zuul.d/jobs.yaml
-  zuul.d/layout.yaml
+  zuul.d/*.yaml

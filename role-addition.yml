@@ -50,57 +50,50 @@
         - key: "commands"
           value: "python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py"
 
-    - name: Read zuul jobs file
+    - name: Read zuul molecule file
       slurp:
-        src: zuul.d/jobs.yaml
-      register: jobs_yaml
+        src: zuul.d/molecule.yaml
+      register: molecule_yaml
 
-    - name: Create jobs entry
+    - name: Create molecule entry
       copy:
         content: |-
           ---
-          {% set jobs = jobs_yaml['content'] | b64decode | from_yaml %}
+          {% set items = molecule_yaml['content'] | b64decode | from_yaml %}
           {% set job_index = [] %}
-          {% for job in jobs %}
-          {%   if job.job.name == "tripleo-ansible-centos:mol-" ~ role_name %}
-          {%     set _ = job_index.append("tripleo-ansible-centos:mol-" ~ role_name) %}
+          {% set new_job_name = "tripleo-ansible-centos-7-molecule-" ~ role_name %}
+          {% for item in items %}
+          {%   if 'project-template' in item %}
+          {%     if item['project-template']['name'] == "tripleo-ansible-molecule-jobs" %}
+          {%       if not (new_job_name in item['project-template']['check']['jobs']) %}
+          {%         set _ = item['project-template']['check']['jobs'].append(new_job_name) %}
+          {%       endif %}
+          {%       if not (new_job_name in item['project-template']['gate']['jobs']) %}
+          {%         set _ = item['project-template']['gate']['jobs'].append(new_job_name) %}
+          {%       endif %}
+          {%     endif %}
+          {%   else %}
+          {%     if item['job']['name'] == new_job_name %}
+          {%       set _ = job_index.append(new_job_name) %}
+          {%     endif %}
           {%   endif %}
           {% endfor %}
           {% if (job_index | length) < 1 %}
           {%   set new_job = {
-                  "name": "tripleo-ansible-centos-7-molecule-" ~ role_name,
+                  "name": new_job_name,
                   "parent": "tripleo-ansible-centos",
                   "files": [
-                    "^tripleo_ansible/roles/" ~ role_name ~ "/.*"
+                    "^roles/" ~ role_name ~ "/.*"
                   ],
                   "vars": {
                     "tox_envlist": "mol-" ~ role_name
                   }
                }
           %}
-          {%   set _ = jobs.append({"job": new_job}) %}
+          {%   set _ = items.append({"job": new_job}) %}
           {% endif %}
-          {{ jobs | to_nice_yaml(indent=2, width=1337) }}
-        dest: zuul.d/jobs.yaml
-
-    - name: Read zuul layout file
-      slurp:
-        src: zuul.d/layout.yaml
-      register: layout_yaml
-
-    - name: Create jobs entry
-      copy:
-        content: |-
-          ---
-          {% set layouts = layout_yaml['content'] | b64decode | from_yaml %}
-          {% set new_job_name = "tripleo-ansible-centos-7-molecule-" ~ role_name %}
-          {% for layout in layouts %}
-          {%   if not (new_job_name in layout.project.check.jobs) %}
-          {%     set _ = layout.project.check.jobs.append(new_job_name) %}
-          {%   endif %}
-          {% endfor %}
-          {{ layouts | to_nice_yaml(indent=2, width=1337) }}
-        dest: zuul.d/layout.yaml
+          {{ items | to_nice_yaml(indent=2, width=1337) }}
+        dest: zuul.d/molecule.yaml
 
     - name: Create role documentation
       copy:

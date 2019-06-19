@@ -1,0 +1,44 @@
+---
+- project-template:
+    check:
+      jobs:
+      - tripleo-ansible-centos-7-molecule-aide
+      - tripleo-ansible-centos-7-molecule-test_deps
+      - tripleo-ansible-centos-7-molecule-test_package_action
+      - tripleo-ansible-centos-7-molecule-tuned
+    gate:
+      jobs:
+      - tripleo-ansible-centos-7-molecule-aide
+      - tripleo-ansible-centos-7-molecule-test_deps
+      - tripleo-ansible-centos-7-molecule-test_package_action
+      - tripleo-ansible-centos-7-molecule-tuned
+    name: tripleo-ansible-molecule-jobs
+- job:
+    files:
+    - ^roles/aide/.*
+    name: tripleo-ansible-centos-7-molecule-aide
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-aide
+- job:
+    files:
+    - ^roles/test_deps/.*
+    name: tripleo-ansible-centos-7-molecule-test_deps
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-test_deps
+- job:
+    files:
+    - ^ansible_plugins/action/package.py
+    - ^roles/test_package_action/.*
+    name: tripleo-ansible-centos-7-molecule-test_package_action
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-test_package_action
+- job:
+    files:
+    - ^roles/tuned/.*
+    name: tripleo-ansible-centos-7-molecule-tuned
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-tuned

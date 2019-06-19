@@ -1,0 +1,14 @@
+---
+- job:
+    name: tripleo-ansible-centos
+    parent: tox-molecule
+    description: Basic tripleo-ansible tox job
+    timeout: 900
+    nodeset: centos-7
+    voting: true
+- job:
+    name: tripleo-ansible-docs
+    parent: openstack-tox-docs
+    files:
+    - ^doc/.*
+    - ^README.rst
