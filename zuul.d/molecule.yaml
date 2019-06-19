@@ -6,12 +6,14 @@
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tuned
+      - tripleo-ansible-centos-7-role-addition
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tuned
+      - tripleo-ansible-centos-7-role-addition
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -42,3 +44,11 @@
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-tuned
+- job:
+    files:
+      - ^_skeleton_role_/.*
+      - ^role-addition.yml
+    name: tripleo-ansible-centos-7-role-addition
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: role-addition

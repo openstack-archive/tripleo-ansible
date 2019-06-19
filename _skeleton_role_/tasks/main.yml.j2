@@ -16,6 +16,7 @@
 
 
 # "{{ role_name }}" will search for and load any operating system variable file
+{% raw %}
 # found within the "vars/" path. If no OS files are found the task will skip.
 - name: Gather variables for each operating system
   include_vars: "{{ item }}"
@@ -30,3 +31,4 @@
         - "{{ ansible_os_family | lower }}.yml"
   tags:
     - always
+{% endraw %}
