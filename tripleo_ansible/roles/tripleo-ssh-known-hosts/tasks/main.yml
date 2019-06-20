@@ -1,0 +1,65 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Add host keys in /etc/ssh/ssh_known_hosts for live/cold-migration
+  become: true
+  check_mode: false
+  block:
+    - name: Create temporary file for ssh_known_hosts
+      tempfile:
+        state: file
+      register: ssh_known_hosts_tmp
+
+    - name: Check for ssh_known_hosts file
+      stat:
+        path: /etc/ssh/ssh_known_hosts
+      register: _ssh_known_hosts
+
+    - name: Create a temporary copy of ssh_known_hosts
+      slurp:
+        src: "/etc/ssh/ssh_known_hosts"
+      register: existing_ssh_known_hosts
+      when:
+        - _ssh_known_hosts.stat.exists | bool
+
+    - name: Write temporary file
+      copy:
+        content: "{{ existing_ssh_known_hosts['content'] | b64decode }}"
+        dest: "{{ ssh_known_hosts_tmp.path }}"
+      when:
+        - _ssh_known_hosts.stat.exists | bool
+
+    - name: Add host keys to temporary ssh_known_hosts
+      lineinfile:
+        path: "{{ ssh_known_hosts_tmp.path }}"
+        line: "{{ tripleo_ssh_known_hosts[(hostvars[item]['ansible_hostname'] | lower)] ~ ' ssh-rsa ' ~ hostvars[item]['ansible_ssh_host_key_rsa_public'] }}"
+        create: true
+      with_items: "{{ groups['overcloud'] | intersect(play_hosts) }}"
+
+    # Workaround https://bugs.launchpad.net/tripleo/+bug/1810932
+    # Ansible modules perform a replace instead of in-place modification.
+    # This breaks propagation of changes to containers that bind mount ssh_known_hosts
+    - name: In-place update of /etc/ssh_known_hosts
+      shell: |-
+        cat '{{ ssh_known_hosts_tmp.path }}' > /etc/ssh/ssh_known_hosts
+
+    - name: Remove temp file
+      file:
+        path: "{{ ssh_known_hosts_tmp.path }}"
+        state: absent
+  tags:
+    - tripleo_ssh_known_hosts

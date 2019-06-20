@@ -1,0 +1,62 @@
+---
+driver:
+  name: docker
+
+log: true
+
+platforms:
+  - name: centos7
+    hostname: centos7
+    image: centos:7
+    dockerfile: Dockerfile
+    pkg_extras: python-setuptools
+    easy_install:
+      - pip
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+
+  - name: fedora28
+    hostname: fedora28
+    image: fedora:28
+    dockerfile: Dockerfile
+    pkg_extras: python*-setuptools
+    environment:
+      <<: *env
+
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      all:
+        vars:
+          tripleo_ssh_known_hosts:
+            "centos7": '[10.0.0.0]*,[test-0.localdomain]*,[test-0]*'
+            "fedora28": '[10.0.0.0]*,[test-0.localdomain]*,[test-0]*'
+        children:
+          overcloud:
+            hosts:
+              fedora28:
+                ansible_ssh_host_key_rsa_public: AAAATEST
+              centos7:
+                ansible_ssh_host_key_rsa_public: AAAATEST
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - verify
+    - destroy
+
+lint:
+  enabled: false
+
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
