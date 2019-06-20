@@ -98,7 +98,7 @@
     - name: Create role documentation
       copy:
         content: |
-          {% set opening = 'TripleO-Ansible Role - ' ~ role_name %}
+          {% set opening = 'Role - ' ~ role_name %}
           {{ '=' * (opening | length) }}
           {{ opening }}
           {{ '=' * (opening | length) }}

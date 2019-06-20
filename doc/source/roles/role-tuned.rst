@@ -1,6 +1,6 @@
-============================
-TripleO-Ansible Role - tuned
-============================
+============
+Role - tuned
+============
 
 This role provides for the following services:
 

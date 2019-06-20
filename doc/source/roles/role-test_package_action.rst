@@ -1,6 +1,6 @@
-==========================================
-TripleO-Ansible Role - test_package_action
-==========================================
+==========================
+Role - test_package_action
+==========================
 
 This role provides for the following services:
 

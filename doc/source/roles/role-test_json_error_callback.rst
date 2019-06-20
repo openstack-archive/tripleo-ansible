@@ -1,6 +1,6 @@
-===============================================
-TripleO-Ansible Role - test_json_error_callback
-===============================================
+===============================
+Role - test_json_error_callback
+===============================
 
 This role provides for the following services:
 

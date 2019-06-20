@@ -1,6 +1,6 @@
-========================================
-TripleO-Ansible Role - tripleo-bootstrap
-========================================
+========================
+Role - tripleo-bootstrap
+========================
 
 This role provides for the following services:
 

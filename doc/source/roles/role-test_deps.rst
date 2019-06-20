@@ -1,6 +1,6 @@
-================================
-TripleO-Ansible Role - test_deps
-================================
+================
+Role - test_deps
+================
 
 This role provides for the following services:
 

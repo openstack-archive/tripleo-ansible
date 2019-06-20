@@ -1,6 +1,6 @@
-===========================
-TripleO-Ansible Role - aide
-===========================
+===========
+Role - aide
+===========
 
 This role provides for the following services:
 
