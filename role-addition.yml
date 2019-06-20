@@ -83,7 +83,7 @@
                   "name": new_job_name,
                   "parent": "tripleo-ansible-centos",
                   "files": [
-                    "^roles/" ~ role_name ~ "/.*"
+                    "^tripleo_ansible/roles/" ~ role_name ~ "/.*"
                   ],
                   "vars": {
                     "tox_envlist": "mol-" ~ role_name
