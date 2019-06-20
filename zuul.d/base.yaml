@@ -7,6 +7,13 @@
     nodeset: centos-7
     voting: true
 - job:
+    name: tripleo-ansible-centos-sudo
+    parent: openstack-tox-with-sudo
+    description: Basic tripleo-ansible tox job with sudo
+    timeout: 900
+    nodeset: centos-7
+    voting: true
+- job:
     name: tripleo-ansible-docs
     parent: openstack-tox-docs
     files:

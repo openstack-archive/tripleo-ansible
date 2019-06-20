@@ -12,6 +12,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-create-admin
       - tripleo-ansible-centos-7-molecule-tripleo-module-load
       - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
+      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -24,6 +25,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-create-admin
       - tripleo-ansible-centos-7-molecule-tripleo-module-load
       - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
+      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -99,3 +101,10 @@
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-tripleo-ssh-known-hosts
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-tag/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
+    parent: tripleo-ansible-centos-sudo
+    vars:
+      tox_envlist: mol-tripleo-container-tag

@@ -32,11 +32,17 @@
     - always
 
 - name: install deplorean repo
+  become: true
   get_url:
     url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/current-tripleo/delorean.repo"
     dest: /etc/yum.repos.d/delorean.repo
+  when:
+    - (ansible_os_family | lower) == 'redhat'
 
 - name: install deplorean-deps repo
+  become: true
   get_url:
     url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/delorean-deps.repo"
     dest: /etc/yum.repos.d/delorean-deps.repo
+  when:
+    - (ansible_os_family | lower) == 'redhat'
