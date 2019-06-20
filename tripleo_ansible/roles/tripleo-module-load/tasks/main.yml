@@ -1,0 +1,76 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+# "tripleo-module-load" will search for and load any operating system variable file
+
+- name: Check whether /etc/modules-load.d exists
+  stat:
+    path: /etc/modules-load.d
+  register: modules_load_stat
+
+- name: Check whether /etc/modules-load.d exists
+  stat:
+    path: /etc/modules
+  register: modules_file
+
+- name: "Load modules"
+  become: true
+  modprobe:
+    name: "{{ item.name }}"
+    params: "{{ item.params | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ tripleo_modules }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: "Persist modules via modules-load.d"
+  become: true
+  template:
+    dest: "/etc/modules-load.d/{{ item.name }}.conf"
+    src: module-load.conf.j2
+  loop: "{{ tripleo_modules }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - modules_load_stat.stat.exists | bool
+    - (item.state | default('present')) == 'present'
+
+- name: "Drop module persistence"
+  become: true
+  file:
+    path: "/etc/modules-load.d/{{ item.name }}.conf"
+    state: absent
+  loop: "{{ tripleo_modules }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - modules_load_stat.stat.exists | bool
+    - (item.state | default('present')) == 'absent'
+
+- name: "Set modules persistence via /etc/modules"
+  become: true
+  lineinfile:
+    dest: /etc/modules
+    line: "{{ item.name }} {{ item.params | default('') }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ tripleo_modules }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - modules_file.stat.exists | bool
+    - (modules_file.stat.isdir is defined) and
+      not (modules_file.stat.isdir | bool)
