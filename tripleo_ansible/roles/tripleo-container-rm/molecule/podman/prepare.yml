@@ -15,15 +15,29 @@
 # under the License.
 
 
-- name: Converge
-  become: true
-  hosts: all
-  roles:
-    - role: tripleo-container-rm
-      tripleo_containers_to_rm:
-        - docker-container1
-        - docker-container2
-      tripleo_container_cli: docker
+- import_playbook: ../pre-prepare.yml
 
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
   vars:
-    ansible_python_interpreter: /opt/tripleo-ansible/bin/python
+    required_packages:
+      - podman
+  roles:
+    - role: test_deps
+  post_tasks:
+    - name: Install podman
+      become: true
+      package:
+        name: "{{ required_packages }}"
+        state: latest
+
+    - name: Pull container image
+      command: "podman pull fedora:28"
+
+    - name: Create test containers
+      command: "podman run -itd --systemd --name {{ item }} fedora bash"
+      with_items:
+        - podman-container1
+        - podman-container2

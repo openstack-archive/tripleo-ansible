@@ -26,7 +26,7 @@
 #                  is no longer in use.
 #
 # Set the container command line entry-point
-tripleo_container_cli: "{{ container_cli | default('podman') }}"
+tripleo_container_cli: "{{ container_cli | default('docker') }}"
 
 # List of containers to delete
 tripleo_containers_to_rm: "{{ containers_to_rm | default([]) }}"

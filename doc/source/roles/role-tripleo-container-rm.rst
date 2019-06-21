@@ -1,6 +1,6 @@
-===========================================
-TripleO-Ansible Role - tripleo-container-rm
-===========================================
+===========================
+Role - tripleo-container-rm
+===========================
 
 This role provides for the following services:
 
@@ -26,6 +26,6 @@ Example default playbook
 Example docker playbook
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../../tripleo_ansible/roles/tripleo-container-rm/molecule/docker/playbook.yml
+.. literalinclude:: ../../../tripleo_ansible/roles/tripleo-container-rm/molecule/podman/playbook.yml
   :language: yaml
   :start-after: under the License.

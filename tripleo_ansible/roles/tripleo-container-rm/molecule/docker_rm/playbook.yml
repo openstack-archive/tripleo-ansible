@@ -15,15 +15,16 @@
 # under the License.
 
 
+# NOTE(Cloudnull): This role is a linked role to `tripleo-container-rm`. This role and exists
+#                  to ensure we're providing a stable interface as we transition. In a future
+#                  release this link will be removed in favor of using the stable role,
+#                  `tripleo-container-rm`.
 - name: Converge
   become: true
   hosts: all
   roles:
-    - role: tripleo-container-rm
-      tripleo_containers_to_rm:
+    - role: tripleo-docker-rm
+      container_cli: docker
+      containers_to_rm:
         - docker-container1
         - docker-container2
-      tripleo_container_cli: docker
-
-  vars:
-    ansible_python_interpreter: /opt/tripleo-ansible/bin/python
