@@ -15,6 +15,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-tag
       - tripleo-ansible-centos-7-molecule-tripleo-container-rm
       - tripleo-ansible-centos-7-molecule-tripleo-image-serve
+      - tripleo-ansible-centos-7-molecule-tripleo-transfer
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -30,6 +31,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-tag
       - tripleo-ansible-centos-7-molecule-tripleo-container-rm
       - tripleo-ansible-centos-7-molecule-tripleo-image-serve
+      - tripleo-ansible-centos-7-molecule-tripleo-transfer
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -126,3 +128,10 @@
     parent: tripleo-ansible-centos
     vars:
       tox_envlist: mol-tripleo-image-serve
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-transfer/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-transfer
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-tripleo-transfer
