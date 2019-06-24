@@ -1,6 +1,6 @@
-==========================================
-TripleO-Ansible Role - tripleo-module-load
-==========================================
+==========================
+Role - tripleo-module-load
+==========================
 
 This role provides for the following services:
 

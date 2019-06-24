@@ -1,6 +1,6 @@
-===========================================
-TripleO-Ansible Role - tripleo-create-admin
-===========================================
+===========================
+Role - tripleo-create-admin
+===========================
 
 This role provides for the following services:
 

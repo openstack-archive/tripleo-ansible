@@ -1,6 +1,6 @@
-==============================================
-TripleO-Ansible Role - tripleo-ssh-known-hosts
-==============================================
+==============================
+Role - tripleo-ssh-known-hosts
+==============================
 
 This role provides for the following services:
 
