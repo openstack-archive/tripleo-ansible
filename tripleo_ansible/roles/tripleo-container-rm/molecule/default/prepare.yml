@@ -23,21 +23,62 @@
   gather_facts: true
   vars:
     required_packages:
-      - podman
+      - docker
+      - python-docker-py
+      - python-virtualenv
+  pre_tasks:
+    - name: Set current user fact
+      set_fact:
+        current_user: "{{ lookup('env','USER') }}"
   roles:
     - role: test_deps
   post_tasks:
-    - name: Install podman
-      become: true
-      package:
-        name: "{{ required_packages }}"
-        state: latest
+    - name: Docker block
+      block:
+        - name: Install docker
+          package:
+            name: "{{ required_packages }}"
+            state: latest
 
-    - name: Pull container image
-      command: "podman pull fedora:28"
+        - name: Ensure "docker" group exists
+          group:
+            name: docker
+            state: present
 
-    - name: Create test containers
-      command: "podman run -itd --systemd --name {{ item }} fedora bash"
+        - name: Ensure the ansible user can access docker
+          user:
+            name: "{{ ansible_user | default(current_user) }}"
+            groups: docker
+
+        - name: Start docker
+          systemd:
+            name: docker
+            state: started
+
+        - name: Install python-docker in venv
+          pip:
+            name: "docker"
+            virtualenv: /opt/tripleo-ansible
+            virtualenv_site_packages: true
+
+    - name: reset ssh connection to allow user changes to take affect
+      meta: reset_connection
+
+    - name: pull an image
+      vars:
+        ansible_python_interpreter: /opt/tripleo-ansible/bin/python
+      docker_image:
+        name: fedora:28
+        source: pull
+
+    - name: Create a data container
+      vars:
+        ansible_python_interpreter: /opt/tripleo-ansible/bin/python
+      docker_container:
+        name: "{{ item }}"
+        image: fedora:28
+        detach: true
+        command: sleep 1d
       with_items:
-        - podman-container1
-        - podman-container2
+        - docker-container1
+        - docker-container2
