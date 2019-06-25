@@ -14,6 +14,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
       - tripleo-ansible-centos-7-molecule-tripleo-container-tag
       - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -28,6 +29,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
       - tripleo-ansible-centos-7-molecule-tripleo-container-tag
       - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -117,3 +119,10 @@
     parent: tripleo-ansible-centos-sudo
     vars:
       tox_envlist: mol-tripleo-container-rm
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-image-serve/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-image-serve
+    parent: tripleo-ansible-centos
+    vars:
+      tox_envlist: mol-tripleo-image-serve
