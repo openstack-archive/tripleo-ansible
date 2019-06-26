@@ -1,6 +1,6 @@
-=======================================
-TripleO-Ansible Role - tripleo-transfer
-=======================================
+=======================
+Role - tripleo-transfer
+=======================
 
 This role provides for the following services:
 
