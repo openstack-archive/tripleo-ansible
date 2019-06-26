@@ -98,6 +98,7 @@
     - ^tripleo_ansible/roles/tripleo-module-load/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-module-load
     parent: tripleo-ansible-centos
+    timeout: 1800
     vars:
       tox_envlist: mol-tripleo-module-load
 - job:
