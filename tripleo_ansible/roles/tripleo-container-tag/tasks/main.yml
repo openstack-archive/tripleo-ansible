@@ -17,6 +17,13 @@
 
 # "tripleo-container-tag" will search for and load any operating system variable file
 
+- name: Fail if container image is undefined
+  fail:
+    msg: >-
+      The variable `tripleo_container_image` is an empty set. Check the settings.
+  when:
+    - (tripleo_container_image | length) < 1
+
 - name: Pull {{ tripleo_container_image }} image
   shell: "{{ tripleo_container_cli }} pull {{ tripleo_container_image }}"
   when:

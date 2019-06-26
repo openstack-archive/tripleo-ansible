@@ -35,3 +35,6 @@ tripleo_container_pull_image: "{{ pull_image | default(true) }}"
 
 # Name of the tag
 tripleo_container_image_latest: "{{ container_image_latest | default('latest') }}"
+
+# Set the default container image if undefined
+tripleo_container_image: "{{ container_image | default('') }}"
