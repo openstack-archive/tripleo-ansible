@@ -8,10 +8,13 @@
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
+      - tripleo-ci-centos-7-scenario001-standalone
+
     gate:
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
+      - tripleo-ci-centos-7-scenario001-standalone
     post:
       jobs:
       - publish-openstack-python-branch-tarball
