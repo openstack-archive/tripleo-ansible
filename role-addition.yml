@@ -34,22 +34,6 @@
       args:
         creates: "tripleo_ansible/roles/{{ role_name }}"
 
-    - name: Add tox config
-      ini_file:
-        path: tox.ini
-        section: "testenv:mol-{{ role_name }}"
-        option: "{{ item.key }}"
-        value: "{{ item.value }}"
-      with_items:
-        - key: "basepython"
-          value: "{[testenv:mol]basepython}"
-        - key: "deps"
-          value: "{[testenv:mol]deps}"
-        - key: "changedir"
-          value: "{toxinidir}/tripleo_ansible/roles/{{ role_name }}"
-        - key: "commands"
-          value: "python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py"
-
     - name: Read zuul molecule file
       slurp:
         src: zuul.d/molecule.yaml
@@ -86,7 +70,7 @@
                     "^tripleo_ansible/roles/" ~ role_name ~ "/.*"
                   ],
                   "vars": {
-                    "tox_envlist": "mol-" ~ role_name
+                    "tripleo_role_name": role_name
                   }
                }
           %}

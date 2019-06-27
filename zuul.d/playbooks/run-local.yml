@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  tasks:
+    - name: set basic zuul fact
+      set_fact:
+        zuul:
+          project:
+            src_dir: "{{ tripleo_src }}"
+        ansible_connection: ssh
+
+- import_playbook: pre.yml
+
+- import_playbook: run.yml

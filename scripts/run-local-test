@@ -54,12 +54,11 @@ PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
 
 # Run local test
 source "${PROJECT_DIR}/ansible-test-env.rc"
+export ANSIBLE_ROLES_PATH="${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
 ansible-playbook -i "${PROJECT_DIR}/tests/hosts.ini" \
+                 -e "tripleo_src=$(realpath --relative-to="${HOME}" "${PROJECT_DIR}")" \
+                 -e "tripleo_role_name=${ROLE_NAME}" \
                  -e "ansible_user=${USER}" \
                  -e "ansible_user_dir=${HOME}" \
-                 "${PROJECT_DIR}/tripleo_ansible/playbooks/prepare-test-host.yml"
-
-# Run test
-pushd "${PROJECT_DIR}/tripleo_ansible/roles/${ROLE_NAME}"
-    molecule test --all
-popd
+                 "${PROJECT_DIR}/tripleo_ansible/playbooks/prepare-test-host.yml" \
+                 "${PROJECT_DIR}/zuul.d/playbooks/run-local.yml"
