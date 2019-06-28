@@ -95,3 +95,62 @@ the virtual environment before running the playbook.
 
     $ . ~/bin/venvs/ansible/bin/activate
     (ansible)$ ansible-playbook -i localhost, role-addition.yml -e role_name=${NEWROLENAME}
+
+
+Local testing of new roles
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Role based testing with molecule can be executed from within the
+role directory.
+
+.. note::
+
+    Most tests require docker for container based testing. If Docker
+    is not available on the local workstation it will need to be
+    installed prior to executing most molecule based tests.
+
+
+.. note::
+
+    The script `bindep-install`, in the **scripts** path, is
+    available and will install all system dependencies.
+
+
+Before running basic molecule tests, it is recommended to install all
+of the python dependencies in a virtual environment.
+
+.. code-block:: console
+
+    $ python -m virtualenv --system-site-packages "${HOME}/test-python"
+    $ ${HOME}/test-python/bin/pip install -r requirements.txt \
+                                          -r test-requirements.txt
+    $ source ${HOME}/test-python/bin/activate
+
+
+To run a basic molecule test, simply source the `ansibe-test-env.rc`
+file from the project root, and then execute the following commands.
+
+.. code-block:: console
+
+    (test-python) $ cd tripleo_ansible/roles/${NEWROLENAME}/
+    (test-python) $ molecule test --all
+
+
+If a role has more than one scenario, a specific scenario can be
+specified on the command line. Running specific scenarios will
+help provide developer feedback faster. To pass-in a scenario use
+the `--scenario-name` flag with the name of the desired scenario.
+
+.. code-block:: console
+
+    (test-python) $ cd tripleo_ansible/roles/${NEWROLENAME}/
+    (test-python) $ molecule test --scenario-name ${EXTRA_SCENARIO_NAME}
+
+
+When debugging molecule tests its sometimes useful to use the
+`--debug` flag. This flag will provide extra verbose output about
+test being executed and running the environment.
+
+.. code-block:: console
+
+    (test-python) $ molecule --debug test
