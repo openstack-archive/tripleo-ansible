@@ -22,7 +22,7 @@ _tripleo_bootstrap_packages_bootstrap:
   - os-net-config
   - openvswitch
   - openstack-selinux
-  - libselinux-python
+  - python3-libselinux
 
 _tripleo_bootstrap_legacy_network_packages:
   - network-scripts
