@@ -34,6 +34,9 @@
     src: "{{ inventory_file }}"
     dest: "{{ playbook_dir }}/ceph-ansible/inventory.yml"
     state: link
+  tags:
+    - run_uuid_ansible
+    - run_ceph_ansible
 
 - name: generate ceph-ansible group vars all
   copy:

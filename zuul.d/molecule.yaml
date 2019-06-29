@@ -18,6 +18,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-transfer
       - tripleo-ansible-centos-7-molecule-tripleo-podman
       - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -36,6 +37,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-transfer
       - tripleo-ansible-centos-7-molecule-tripleo-podman
       - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -154,3 +156,11 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-persist
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ceph-run-ansible/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-ceph-run-ansible
+      tripleo_job_ansible_args: '-v --skip-tags=run_uuid_ansible,run_ceph_ansible'

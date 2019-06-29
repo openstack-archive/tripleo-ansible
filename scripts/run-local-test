@@ -24,6 +24,7 @@ set -xeuo
 
 export PROJECT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/../"
 export ROLE_NAME="${ROLE_NAME:-$1}"
+export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-"-v"}
 
 ## Main ----------------------------------------------------------------------
 
@@ -42,22 +43,27 @@ esac
 # Create a virtual env
 "${PYTHON_EXEC}" -m virtualenv --system-site-packages "${HOME}/test-python"
 
+# Run bindep
+"${HOME}/test-python/bin/pip" install pip setuptools bindep --upgrade
+"${PROJECT_DIR}/scripts/bindep-install"
+
 # Install local requirements
+if [[ -d "${HOME}/.cache/pip/wheels" ]]; then
+    rm -rf "${HOME}/.cache/pip/wheels"
+fi
 "${HOME}/test-python/bin/pip" install \
                               -r "${PROJECT_DIR}/requirements.txt" \
                               -r "${PROJECT_DIR}/test-requirements.txt" \
                               -r "${PROJECT_DIR}/molecule-requirements.txt"
 
-# Run bindep
-PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
-"${PROJECT_DIR}/scripts/bindep-install"
-
 # Run local test
+PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
 source "${PROJECT_DIR}/ansible-test-env.rc"
 export ANSIBLE_ROLES_PATH="${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
 ansible-playbook -i "${PROJECT_DIR}/tests/hosts.ini" \
                  -e "tripleo_src=$(realpath --relative-to="${HOME}" "${PROJECT_DIR}")" \
                  -e "tripleo_role_name=${ROLE_NAME}" \
+                 -e "tripleo_job_ansible_args='${TRIPLEO_JOB_ANSIBLE_ARGS}'" \
                  -e "ansible_user=${USER}" \
                  -e "ansible_user_dir=${HOME}" \
                  "${PROJECT_DIR}/tripleo_ansible/playbooks/prepare-test-host.yml" \
