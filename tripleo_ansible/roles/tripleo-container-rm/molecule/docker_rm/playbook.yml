@@ -28,3 +28,6 @@
       containers_to_rm:
         - docker-container1
         - docker-container2
+
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"

@@ -26,4 +26,4 @@
       tripleo_container_cli: docker
 
   vars:
-    ansible_python_interpreter: /opt/tripleo-ansible/bin/python
+    ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"

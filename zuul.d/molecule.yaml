@@ -112,6 +112,8 @@
     - ^tripleo_ansible/roles/tripleo-container-tag/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
     parent: tripleo-ansible-centos-sudo
+    pre-run:
+      - tripleo_ansible/playbooks/prepare-test-host.yml
     vars:
       tox_envlist: mol-tripleo-container-tag
 - job:
@@ -119,6 +121,8 @@
     - ^tripleo_ansible/roles/tripleo-container-rm/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-container-rm
     parent: tripleo-ansible-centos-sudo
+    pre-run:
+      - tripleo_ansible/playbooks/prepare-test-host.yml
     vars:
       tox_envlist: mol-tripleo-container-rm
 - job:

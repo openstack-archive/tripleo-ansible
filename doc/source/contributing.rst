@@ -100,8 +100,24 @@ the virtual environment before running the playbook.
 Local testing of new roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Role based testing with molecule can be executed from within the
-role directory.
+Local testing of new roles can be done in any number of ways, however,
+the easiest way is via the script `run-local-test`. This script
+will setup the local work environment to execute tests mimicking what
+Zuul does.
+
+.. warning::
+
+    This script makes the assumption the executing user has the
+    ability to escalate privileges and will modify the local system.
+
+To use this script execute the following command.
+
+.. code-block:: console
+
+    $ scripts/run-local-test ${NEWROLENAME}
+
+Role based testing with molecule can be executed directly from within
+the role directory.
 
 .. note::
 
