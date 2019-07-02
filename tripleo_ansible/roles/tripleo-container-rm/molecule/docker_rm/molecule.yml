@@ -23,6 +23,10 @@ platforms:
 
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp/molecule/facts
   inventory:
     hosts:
       all:
@@ -32,6 +36,7 @@ provisioner:
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
 
 scenario:
   name: docker

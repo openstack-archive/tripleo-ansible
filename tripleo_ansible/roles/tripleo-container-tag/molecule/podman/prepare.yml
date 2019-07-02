@@ -15,8 +15,6 @@
 # under the License.
 
 
-- import_playbook: ../pre-prepare.yml
-
 - name: Prepare
   hosts: all
   become: true

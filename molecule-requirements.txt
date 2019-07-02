@@ -1,0 +1,9 @@
+ansible
+ansi2html
+docker
+pytest
+pytest-cov
+pytest-html
+pytest-xdist
+mock
+molecule>=2.22rc1

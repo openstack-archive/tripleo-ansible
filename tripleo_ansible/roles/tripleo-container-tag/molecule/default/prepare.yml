@@ -15,64 +15,57 @@
 # under the License.
 
 
-- import_playbook: ../pre-prepare.yml
-
 - name: Prepare
   hosts: all
   become: true
   gather_facts: true
-  vars:
-    required_packages:
-      - docker
-      - python-virtualenv
   pre_tasks:
-    - name: Set current user fact
+    - name: Check for docker cli
+      command: "command -v docker"
+      register: docker_cli
+      failed_when: false
+      changed_when: false
+
+    - name: Check for docker connection
+      command: "docker ps"
+      register: docker_ps
+      failed_when: false
+      changed_when: false
+
+    - name: set basic user fact
       set_fact:
-        current_user: "{{ lookup('env','USER') }}"
+        ansible_user: "{{ lookup('env', 'USER') }}"
+      when:
+        - ansible_user is undefined
+
+    - name: set basic home fact
+      set_fact:
+        ansible_user_dir: "{{ lookup('env', 'HOME') }}"
+      when:
+        - ansible_user_dir is undefined
   roles:
     - role: test_deps
+    - role: install-docker
+      when:
+        - (docker_cli.rc != 0) or
+          (docker_ps.rc != 0)
   post_tasks:
-    - name: Docker block
-      block:
-        - name: Install docker
-          package:
-            name: "{{ required_packages }}"
-            state: latest
-
-        - name: Ensure "docker" group exists
-          group:
-            name: docker
-            state: present
-
-        - name: Ensure the ansible user can access docker
-          user:
-            name: "{{ ansible_user | default(current_user) }}"
-            groups: docker
-
-        - name: Start docker
-          systemd:
-            name: docker
-            state: started
-
-        - name: Install python-docker in venv
-          pip:
-            name: "docker"
-            virtualenv: /opt/tripleo-ansible
-            virtualenv_site_packages: true
-
-    - name: reset ssh connection to allow user changes to take affect
-      meta: reset_connection
+    - name: Install docker-sdk
+      pip:
+        name: docker
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_site_packages: true
 
     - name: pull an image
-      vars:
-        ansible_python_interpreter: /opt/tripleo-ansible/bin/python
       docker_image:
         name: fedora:28
         source: pull
+      vars:
+        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
 
     - name: Create a data container
-      vars:
-        ansible_python_interpreter: /opt/tripleo-ansible/bin/python
       docker_container:
         name: test-container
         image: fedora:28
+      vars:
+        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
