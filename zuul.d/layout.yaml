@@ -1,41 +1,48 @@
 ---
 - project:
     templates:
-    - publish-openstack-docs-pti
-    - release-notes-jobs-python3
     - tripleo-ansible-molecule-jobs
     check:
       jobs:
+      - build-reno-releasenotes
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
-          files:
-            - ^tripleo_ansible/.*
-            - requirements.txt
+          files: &scenario004
+          - ^tripleo_ansible/.*
+          irrelevant-files: &irrelevant_scenario_files
+          - .*.md$
+          - .*.rst$
+          - .*.txt$
+          - ^tripleo_ansible/.*molecule.*
+          - ^tripleo_ansible/.*meta.*
       - tripleo-ci-centos-7-scenario010-standalone:
-          files:
-            - ^tripleo_ansible/.*octavia.*
+          files: &scenario010
+          - ^tripleo_ansible/.*octavia.*
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario003-standalone:
-          files:
-            - ^tripleo_ansible/roles/tripleo-create-admin/.*
+          files: &scenario003
+          - ^tripleo_ansible/roles/tripleo-create-admin/.*
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario012-standalone:
-          files:
-            - ^tripleo_ansible/roles/tripleo-module-load/.*
-
+          files: &scenario012
+          - ^tripleo_ansible/roles/tripleo-module-load/.*
+          irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
+      - build-reno-releasenotes
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
-          files:
-            - ^tripleo_ansible/.*
-            - requirements.txt
+          files: *scenario004
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario010-standalone:
-          files:
-            - ^tripleo_ansible/.*octavia.*
+          files: *scenario010
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario003-standalone:
-          files:
-            - ^tripleo_ansible/roles/tripleo-create-admin/.*
+          files: *scenario003
+          irrelevant-files: *irrelevant_scenario_files
     post:
       jobs:
       - publish-openstack-python-branch-tarball
+      - publish-openstack-releasenotes-python3
