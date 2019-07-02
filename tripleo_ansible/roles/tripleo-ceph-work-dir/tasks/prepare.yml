@@ -1,0 +1,46 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: create ceph-ansible temp dirs
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+  with_items:
+    - "{{ playbook_dir }}/ceph-ansible"
+    - "{{ playbook_dir }}/ceph-ansible/group_vars"
+    - "{{ playbook_dir }}/ceph-ansible/host_vars"
+    - "{{ playbook_dir }}/ceph-ansible/fetch_dir"
+
+- name: symbolic link to tripleo inventory from ceph-ansible work directory
+  # If we call ceph-ansible with the same inventory as the calling
+  # playbook, then config-download/groups_vars will be used instead
+  # of config-download/ceph-ansible/group_vars.
+  file:
+    src: "{{ inventory_file }}"
+    dest: "{{ playbook_dir }}/ceph-ansible/inventory.yml"
+    state: link
+
+- name: generate ceph-ansible group vars all
+  copy:
+    dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
+    content: "{{ ceph_ansible_group_vars_all|to_nice_yaml }}"
+
+- name: generate ceph-ansible extra vars
+  copy:
+    dest: "{{ playbook_dir }}/ceph-ansible/extra_vars.yml"
+    content: "{{ ceph_ansible_extra_vars|to_nice_yaml }}"
