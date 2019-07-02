@@ -8,13 +8,34 @@
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
-      - tripleo-ci-centos-7-scenario001-standalone
+      - tripleo-ci-centos-7-scenario004-standalone:
+          files:
+            - ^tripleo_ansible/.*
+            - requirements.txt
+      - tripleo-ci-centos-7-scenario010-standalone:
+          files:
+            - ^tripleo_ansible/.*octavia.*
+      - tripleo-ci-centos-7-scenario003-standalone:
+          files:
+            - ^tripleo_ansible/roles/tripleo-create-admin/.*
+      - tripleo-ci-centos-7-scenario012-standalone:
+          files:
+            - ^tripleo_ansible/roles/tripleo-module-load/.*
 
     gate:
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
-      - tripleo-ci-centos-7-scenario001-standalone
+      - tripleo-ci-centos-7-scenario004-standalone:
+          files:
+            - ^tripleo_ansible/.*
+            - requirements.txt
+      - tripleo-ci-centos-7-scenario010-standalone:
+          files:
+            - ^tripleo_ansible/.*octavia.*
+      - tripleo-ci-centos-7-scenario003-standalone:
+          files:
+            - ^tripleo_ansible/roles/tripleo-create-admin/.*
     post:
       jobs:
       - publish-openstack-python-branch-tarball
