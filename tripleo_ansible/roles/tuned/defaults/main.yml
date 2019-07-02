@@ -17,9 +17,6 @@
 
 # All variables intended for modification should place placed in this file.
 
-# All variables within this role should have a prefix of "tuned"
-tuned_debug: false
-
 tuned_profile: "throughput-performance"
 tuned_custom_profile: ""
 

@@ -7,14 +7,6 @@ This role provides for the following services:
     * test_deps
 
 
-Default variables
-~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../../../tripleo_ansible/roles/test_deps/defaults/main.yml
-  :language: yaml
-  :start-after: under the License.
-
-
 Example playbook
 ~~~~~~~~~~~~~~~~
 

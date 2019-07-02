@@ -17,9 +17,6 @@
 
 # All variables intended for modification should place placed in this file.
 
-# All variables within this role should have a prefix of "aide"
-aide_debug: false
-
 # Packages installed on the local system. Allows user to define this list
 # otherwise it will inherit from the OS specific variable file(s).
 aide_system_packages: "{{ _aide_system_packages | default([]) }}"
