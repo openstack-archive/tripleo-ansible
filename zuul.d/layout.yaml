@@ -4,7 +4,9 @@
     - tripleo-ansible-molecule-jobs
     check:
       jobs:
-      - build-reno-releasenotes
+      - build-reno-releasenotes:
+          vars:
+            sphinx_python: python3
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
@@ -30,7 +32,9 @@
           irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
-      - build-reno-releasenotes
+      - build-reno-releasenotes:
+          vars:
+            sphinx_python: python3
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
