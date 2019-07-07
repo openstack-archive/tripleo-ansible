@@ -18,11 +18,28 @@ import pytest
 
 
 def test_molecule(pytestconfig):
-    cmd = ['python', '-m', 'molecule', 'test']
+    cmd = ['python', '-m', 'molecule']
     scenario = pytestconfig.getoption("scenario")
-    if scenario:
-        cmd.extend(['--scenario-name', scenario])
-    else:
-        cmd.append('--all')
+    ansible_args = pytestconfig.getoption("ansible_args")
 
-    assert subprocess.call(cmd) == 0
+    if ansible_args:
+        cmd.append('converge')
+        if scenario:
+            cmd.extend(['--scenario-name', scenario])
+        cmd.append('--')
+        cmd.extend(ansible_args.split())
+    else:
+        cmd.append('test')
+        if scenario:
+            cmd.extend(['--scenario-name', scenario])
+        else:
+            cmd.append('--all')
+
+    try:
+        assert subprocess.call(cmd) == 0
+    finally:
+        if ansible_args:
+            cmd = ['python', '-m', 'molecule', 'destroy']
+            if scenario:
+                cmd.extend(['--scenario-name', scenario])
+            subprocess.call(cmd)

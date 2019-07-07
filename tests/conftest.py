@@ -17,3 +17,4 @@ import os
 
 def pytest_addoption(parser):
     parser.addoption('--scenario', help='scenario setting')
+    parser.addoption('--ansible-args', help='ansible args passed into test runner.')
