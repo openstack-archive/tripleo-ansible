@@ -1,0 +1,18 @@
+---
+
+- hosts: all
+  environment:
+    ANSIBLE_LOG_PATH: "{{ ansible_user_dir }}/zuul-output/logs/ansible-execution.log"
+  tasks:
+    - name: Run role test job
+      shell: |-
+        . {{ ansible_user_dir }}/test-python/bin/activate
+        . {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/ansible-test-env.rc
+        pytest --color=no \
+               --html={{ ansible_user_dir }}/zuul-output/logs/reports.html \
+               --self-contained-html \
+               -s \
+               {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tests/test_molecule.py
+      args:
+        chdir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tripleo_ansible/roles/{{ tripleo_role_name }}"
+        executable: /bin/bash

@@ -37,106 +37,101 @@
     files:
     - ^tripleo_ansible/roles/aide/.*
     name: tripleo-ansible-centos-7-molecule-aide
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-aide
+      tripleo_role_name: aide
 - job:
     files:
     - ^tripleo_ansible/roles/test_deps/.*
     name: tripleo-ansible-centos-7-molecule-test_deps
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-test_deps
+      tripleo_role_name: test_deps
 - job:
     files:
     - ^tripleo_ansible/roles/test_json_error_callback/.*
     name: tripleo-ansible-centos-7-molecule-test_json_error_callback
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-test_json_error_callback
+      tripleo_role_name: test_json_error_callback
 - job:
     files:
     - ^tripleo_ansible/ansible_plugins/action/package.py
     - ^tripleo_ansible/roles/test_package_action/.*
     name: tripleo-ansible-centos-7-molecule-test_package_action
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-test_package_action
+      tripleo_role_name: test_package_action
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-bootstrap/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-bootstrap
-    parent: tripleo-ansible-centos
-    timeout: 1800
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-bootstrap
+      tripleo_role_name: tripleo-bootstrap
 - job:
     files:
     - ^tripleo_ansible/roles/tuned/.*
     name: tripleo-ansible-centos-7-molecule-tuned
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tuned
+      tripleo_role_name: tuned
 - job:
     files:
     - ^_skeleton_role_/.*
     - ^role-addition.yml
     name: tripleo-ansible-centos-7-role-addition
-    parent: tripleo-ansible-centos
+    nodeset: centos-7
+    parent: openstack-tox
+    timeout: 1800
     vars:
       tox_envlist: role-addition
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-create-admin/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-create-admin
-    parent: tripleo-ansible-centos
-    timeout: 1800
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-create-admin
+      tripleo_role_name: tripleo-create-admin
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-module-load/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-module-load
-    parent: tripleo-ansible-centos
-    timeout: 1800
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-module-load
+      tripleo_role_name: tripleo-module-load
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-ssh-known-hosts/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-ssh-known-hosts
+      tripleo_role_name: tripleo-ssh-known-hosts
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-tag/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
-    parent: tripleo-ansible-centos-sudo
-    pre-run:
-      - tripleo_ansible/playbooks/prepare-test-host.yml
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-container-tag
+      tripleo_role_name: tripleo-container-tag
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-rm/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-container-rm
-    parent: tripleo-ansible-centos-sudo
-    pre-run:
-      - tripleo_ansible/playbooks/prepare-test-host.yml
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-container-rm
+      tripleo_role_name: tripleo-container-rm
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-image-serve/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-image-serve
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-image-serve
+      tripleo_role_name: tripleo-image-serve
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-transfer/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-transfer
-    parent: tripleo-ansible-centos
+    parent: tripleo-ansible-centos-7-base
     vars:
-      tox_envlist: mol-tripleo-transfer
+      tripleo_role_name: tripleo-transfer

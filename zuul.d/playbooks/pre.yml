@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  pre_tasks:
+    - name: Ensure output dirs
+      file:
+        path: "{{ ansible_user_dir }}/zuul-output/logs"
+        state: directory
+
+    - name: Setup bindep
+      pip:
+        name: "bindep"
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_site_packages: true
+
+    - name: Run bindep
+      shell: |-
+        . {{ ansible_user_dir }}/test-python/bin/activate
+        {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/scripts/bindep-install
+      become: true
+
+    - name: Setup test-python
+      pip:
+        requirements: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/molecule-requirements.txt"
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_site_packages: true
+  roles:
+    - role: install-docker

@@ -14,34 +14,8 @@ From with the project root, creating a skeleton for the new role.
 
     $ ansible-galaxy init --role-skeleton=_skeleton_role_ --init-path=tripleo_ansible/roles ${NEWROLENAME}
 
-
-Once the new role has been created, and is ready for testing add the role into
-the `tox.ini` file as an test scenario.
-
-.. code-block:: ini
-
-    [testenv:mol-${NEWROLENAME}]
-    basepython={[testenv:mol]basepython}
-    deps={[testenv:mol]deps}
-    changedir = {toxinidir}/tripleo_ansible/roles/${NEWROLENAME}
-    envdir = {toxworkdir}/mol
-    commands = python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py
-
-
-If a given role has more than one scenario to test, the `--scenario` argument
-can be used to set the scenario accordingly.
-
-.. code-block:: ini
-
-    [testenv:mol-${NEWROLENAME}-${SCENARIO_2}]
-    basepython={[testenv:mol-${NEWROLENAME}]basepython}
-    deps={[testenv:mol-${NEWROLENAME}]deps}
-    changedir = {[testenv:mol-${NEWROLENAME}]changedir}
-    envdir = {[testenv:mol-${NEWROLENAME}]envdir}
-    commands = python -m pytest --color=yes --html={envlogdir}/reports.html --self-contained-html {tty:-s} {toxinidir}/tests/test_molecule.py --scenario=${SCENARIO_2}
-
-
-When the role is ready for CI, add a **job** entry into the `zuul.d/molecule.yaml`.
+When the role is ready for CI, add a **job** entry into the
+`zuul.d/molecule.yaml`.
 
 .. code-block:: yaml
 
@@ -54,8 +28,8 @@ When the role is ready for CI, add a **job** entry into the `zuul.d/molecule.yam
           tox_envlist: mol-${NEWROLENAME}
 
 
-Make sure to add the **job** name into the check and gate section at the top of
-the `molecule.yaml` file.
+Make sure to add the **job** name into the check and gate section at the top
+of the `molecule.yaml` file.
 
 .. code-block:: yaml
 
@@ -88,8 +62,8 @@ will perform the basic tasks noted above.
     $ ansible-playbook -i localhost, role-addition.yml -e role_name=${NEWROLENAME}
 
 
-If this playbook is being executed from a virtual-environment be sure to activate
-the virtual environment before running the playbook.
+If this playbook is being executed from a virtual-environment be sure to
+activate the virtual environment before running the playbook.
 
 .. code-block:: console
 

@@ -1,21 +1,19 @@
 ---
 - job:
-    name: tripleo-ansible-centos
-    parent: tox-molecule
-    description: Basic tripleo-ansible tox job
-    timeout: 900
+    description: Base tripleo-ansible job
+    name: tripleo-ansible-centos-7-base
     nodeset: centos-7
+    parent: base
+    pre-run:
+    - tripleo_ansible/playbooks/prepare-test-host.yml
+    - zuul.d/playbooks/pre.yml
+    run:
+    - zuul.d/playbooks/run.yml
+    timeout: 1800
     voting: true
 - job:
-    name: tripleo-ansible-centos-sudo
-    parent: openstack-tox-with-sudo
-    description: Basic tripleo-ansible tox job with sudo
-    timeout: 900
-    nodeset: centos-7
-    voting: true
-- job:
-    name: tripleo-ansible-docs
-    parent: openstack-tox-docs
     files:
     - ^doc/.*
     - ^README.rst
+    name: tripleo-ansible-docs
+    parent: openstack-tox-docs
