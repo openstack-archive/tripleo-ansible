@@ -65,7 +65,7 @@
           {% if (job_index | length) < 1 %}
           {%   set new_job = {
                   "name": new_job_name,
-                  "parent": "tripleo-ansible-centos",
+                  "parent": "tripleo-ansible-centos-7-base",
                   "files": [
                     "^tripleo_ansible/roles/" ~ role_name ~ "/.*"
                   ],
