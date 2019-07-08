@@ -50,3 +50,4 @@
       jobs:
       - publish-openstack-python-branch-tarball
       - publish-openstack-releasenotes-python3
+      - publish-openstack-sphinx-docs
