@@ -20,6 +20,61 @@ import os
 import ansible.plugins.action as action
 
 
+DOCUMENTATION = """
+---
+module: package
+author:
+    - Kevin Carter (@cloudnull)
+version_added: '2.8'
+short_description: Tripleo action plugin to evaluate package installations
+notes: []
+description:
+  - This is an action plugin shim that will intercept the use of
+    the standard package module. The intention of this shim is to ensure the
+    package module respects the option `tripleo_enable_package_install`
+    which is used to control the installation of packages through a
+    deployment.
+
+    This plugin will do nothing if `tripleo_enable_package_install`
+    is unset thereby allowing ansible to function normally. When the global
+    option is present the plugin will evaluate its truthiness and react
+    accordingly.
+
+    * False - No action taken, task will be marked as skipped.
+
+    * True - Package installation happens normally.
+
+    If this module encounters an error while processesing the module will
+    proceed as if the option `tripleo_enable_package_install` is unset which
+    ensures ansible tasks are handled correctly no matter the context in
+    which they are executed.
+
+    Anytime this module results in a "skip" a message will be made available
+    which indicates why it was skipped. Messages will only be visualized
+    when debug mode has been enabled or through registering a variable and
+    using it a task which can print messages; e.g. `debug` or `fail`.
+options:
+  tripleo_enable_package_install:
+    description:
+      - Boolean option to enable or disable package installations. This option
+        can be passed in as a task var, groupvar, or hostvar. This option is
+        **NOT** a module argument.
+    required: True
+    default: True
+"""
+
+
+EXAMPLES = """
+# Run package install
+- name: Run Package Installation
+  package:
+    name: mypackage
+    state: present
+  vars:
+    tripleo_enable_package_install: true
+"""
+
+
 # NOTE(cloudnull): imp is being used because core action plugins are not
 #                  importable in py27. Once we get to the point where we
 #                  no longer support py27 these lines should be converted
@@ -63,32 +118,6 @@ def _bool_set(bool_opt):
 
 
 class ActionModule(PKG.ActionModule):
-    """Tripleo action plugin made to evaluate package installations.
-
-    This is an action plugin shim that will intercept the use of
-    the standard package module. The intention of this shim is to ensure the
-    package module respects the option `tripleo_enable_package_install`
-    which is used to control the installation of packages through a deployment.
-
-    This plugin will do nothing if the option `tripleo_enable_package_install`
-    is unset thereby allowing ansible to function normally. When the global
-    option is present the plugin will evaluate its truthiness and react
-    accordingly.
-
-    * False: No action taken, task will be marked as skipped.
-    * True: Package installation happens normally.
-
-    If this module encounters an error while processesing the module will
-    proceed as if the option `tripleo_enable_package_install` is unset which
-    ensures ansible tasks are handled correctly no matter the context in which
-    they are executed.
-
-    Anytime this module results in a "skip" a message will be made available
-    which indicates why it was skipped. Messages will only be visualized when
-    debug mode has been enabled or through registering a variable and using it
-    a task which can print messages; e.g. `debug` or `fail`.
-    """
-
     def run(self, tmp=None, task_vars=None):
         """Shim for tripleo package operations.
 

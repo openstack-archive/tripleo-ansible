@@ -15,6 +15,7 @@ Contents:
    contributing
    usage
    roles
+   modules
 
 Indices and tables
 ==================

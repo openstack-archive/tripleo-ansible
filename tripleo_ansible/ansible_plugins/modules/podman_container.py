@@ -55,7 +55,7 @@ options:
   restart:
     description:
       - Use with started state to force a matching container to be stopped
-      and restarted.
+        and restarted.
 """
 
 EXAMPLES = """

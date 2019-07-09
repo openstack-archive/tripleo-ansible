@@ -144,3 +144,34 @@ test being executed and running the environment.
 .. code-block:: console
 
     (test-python) $ molecule --debug test
+
+
+Contributing plugins
+~~~~~~~~~~~~~~~~~~~~
+
+All plugins contributed to the TripleO-Ansible can be found in the
+`tripleo_ansible/ansible_plugins` directory, from the root of this project.
+When contributing a plugin, make sure to also add documentation in the
+`doc/source/modules` folder. All documentation added to this folder will be
+automatically indexed and rendered via `sphinx`.
+
+If a contributed plugin is following the Ansible practice of placing
+documentation within the plugin itself, the following snippet can be used in a
+sphinx template to auto-render the in-code documentation.
+
+.. code-block:: rst
+
+    .. ansibleautoplugin::
+       :module: tripleo_ansible/ansible_plugins/${DIRECTORY}/${PLUGINFILE}
+       :documentation: true
+       :examples: true
+
+The snippet can take two options, `documentation` and `examples`. If a given
+plugin does not have either of these in-code documentation objects,
+documentation for either type can be disabled by omitting the option.
+
+.. code-block:: rst
+
+    .. ansibleautoplugin::
+       :module: tripleo_ansible/ansible_plugins/${DIRECTORY}/${PLUGINFILE}
+       :documentation: true

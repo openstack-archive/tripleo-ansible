@@ -26,12 +26,14 @@ sys.path.insert(0, os.path.join(os.path.abspath('.'), '_exts'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'openstackdocstheme',
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'ansible-module-autodoc'
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
 # execute "export SPHINX_DEBUG=1" in your terminal to disable
+# autodoc_mock_imports = ["django"]
 
 # The suffix of source filenames.
 source_suffix = '.rst'
