@@ -48,12 +48,6 @@
           irrelevant-files: *irrelevant_scenario_files
     post:
       jobs:
-      - publish-openstack-python-branch-tarball:
-          files:
-          - ^tripleo_ansible/.*
-      - publish-openstack-releasenotes-python3:
-          files:
-          - ^releasenotes/.*
-      - publish-openstack-sphinx-docs:
-          files:
-          - ^doc/.*
+      - publish-openstack-python-branch-tarball
+      - publish-openstack-releasenotes-python3
+      - publish-openstack-sphinx-docs
