@@ -9,12 +9,6 @@ Requirements
 
 This section needs to be documented.
 
-Role variables
---------------
-
-- ssh_known_hosts: -- Dict of hostname to ssh_known_hosts entries for a given
-  host
-
 Dependencies
 ------------
 

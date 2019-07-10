@@ -24,5 +24,6 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 def test_host_key_add(host):
-    assert '[10.0.0.0]*,[test-0.localdomain]*,[test-0]* ssh-rsa AAAATEST' \
-        in host.file("/etc/ssh/ssh_known_hosts").content_string
+    hostname = host.ansible.get_variables()['inventory_hostname']
+    line = '[10.0.0.0]*,[%s.localdomain]*,[%s]* ssh-rsa AAAATEST' % (hostname, hostname)
+    assert line in host.file("/etc/ssh/ssh_known_hosts").content_string
