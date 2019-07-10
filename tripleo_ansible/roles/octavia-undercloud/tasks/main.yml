@@ -4,7 +4,7 @@
   set_fact:
     image_filename: "{{ amp_image_filename }}"
   when:
-    - amp_image_filename is defined and
+    - amp_image_filename is defined
     - not ((amp_image_filename | length) < 1)
 
 - name: set location if CentOS
