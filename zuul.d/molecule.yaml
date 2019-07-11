@@ -80,9 +80,10 @@
     files:
     - ^_skeleton_role_/.*
     - ^role-addition.yml
+    - ^tox.ini
     name: tripleo-ansible-centos-7-role-addition
     nodeset: centos-7
-    parent: openstack-tox
+    parent: tox-molecule
     timeout: 1800
     vars:
       tox_envlist: role-addition
