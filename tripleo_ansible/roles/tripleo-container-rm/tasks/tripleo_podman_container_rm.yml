@@ -73,11 +73,7 @@
   register: stat_container
 
 - name: Stop and remove container
+  command: "podman container rm --force {{ container }}"
+  changed_when: true
   when:
     - stat_container.rc == 0
-  block:
-    - name: Stop container
-      command: podman container kill "{{ container }}"
-
-    - name: "remove {{ container }} container"
-      command: "podman container rm {{ container }}"
