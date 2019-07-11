@@ -2,11 +2,9 @@
 - project:
     templates:
     - tripleo-ansible-molecule-jobs
+    - release-notes-jobs-python3
     check:
       jobs:
-      - build-reno-releasenotes:
-          vars:
-            sphinx_python: python3
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
@@ -32,9 +30,6 @@
           irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
-      - build-reno-releasenotes:
-          vars:
-            sphinx_python: python3
       - openstack-tox-linters
       - tripleo-ansible-docs
       - tripleo-ci-centos-7-scenario004-standalone:
@@ -49,5 +44,4 @@
     post:
       jobs:
       - publish-openstack-python-branch-tarball
-      - publish-openstack-releasenotes-python3
-      - publish-openstack-sphinx-docs
+      - publish-openstack-tox-docs
