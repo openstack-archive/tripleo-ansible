@@ -31,4 +31,7 @@
 #   overcloud-novacompute-1: '[172.17.25.248]*,[overcloud-novacompute-1.localdomain]*,[overcloud-novacompute-1]*,...'
 #   overcloud-novacompute-2: '[172.17.25.249]*,[overcloud-novacompute-2.localdomain]*,[overcloud-novacompute-2]*,...'
 #
+# tripleo_ssh_known_hosts_use_template: false
+
 tripleo_ssh_known_hosts: "{{ ssh_known_hosts | default({}) }}"
+tripleo_ssh_known_hosts_use_template: false

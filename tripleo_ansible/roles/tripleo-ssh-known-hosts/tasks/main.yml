@@ -43,12 +43,40 @@
       when:
         - _ssh_known_hosts.stat.exists | bool
 
+    - name: Set ssh_known_hosts fact
+      run_once: true
+      set_fact:
+        ssh_known_hosts_lines: |-
+          {%- for host in groups['overcloud'] | intersect(play_hosts) %}
+          [{{ ctlplane_ip }}]*,[{{ host }}.{{ cloud_domain }}]*,[{{ host }}]*{%- if enabled_networks | length > 0 %},{% endif %}
+          {%- for network in enabled_networks %}
+          {%- if network in role_networks %}
+          [{{ hostvars[host][networks[network]['name'] ~ '_ip'] }}]*,[{{ host }}.{{ networks[network]['name'] }}]*,{% if 1 %}{% endif %}
+          [{{ host }}.{{ networks[network]['name'] }}.{{ cloud_domain }}]*{% if not loop.last %},{% endif %}
+          {%- endif -%}
+          {%- endfor -%}
+          {{ ' ssh-rsa ' ~ hostvars[host]['ansible_ssh_host_key_rsa_public'] }}
+          {% endfor %}
+      when:
+        - tripleo_ssh_known_hosts_use_template | bool
+
+    - name: Add host keys to temporary ssh_known_hosts from rendered template
+      lineinfile:
+        path: "{{ ssh_known_hosts_tmp.path }}"
+        line: "{{ item }}"
+        create: true
+      with_items: "{{ ssh_known_hosts_lines.splitlines() }}"
+      when:
+        - tripleo_ssh_known_hosts_use_template | bool
+
     - name: Add host keys to temporary ssh_known_hosts
       lineinfile:
         path: "{{ ssh_known_hosts_tmp.path }}"
         line: "{{ tripleo_ssh_known_hosts[(hostvars[item]['ansible_hostname'] | lower)] ~ ' ssh-rsa ' ~ hostvars[item]['ansible_ssh_host_key_rsa_public'] }}"
         create: true
       with_items: "{{ groups['overcloud'] | intersect(play_hosts) }}"
+      when:
+        - not (tripleo_ssh_known_hosts_use_template | bool)
 
     # Workaround https://bugs.launchpad.net/tripleo/+bug/1810932
     # Ansible modules perform a replace instead of in-place modification.
