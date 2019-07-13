@@ -2,14 +2,5 @@
 Role - test_package_action
 ==========================
 
-This role provides for the following services:
-
-    * test_package_action
-
-
-Example playbook
-~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../../../tripleo_ansible/roles/test_package_action/molecule/default/playbook.yml
-  :language: yaml
-  :start-after: under the License.
+.. ansibleautoplugin::
+   :role: tripleo_ansible/roles/test_package_action
