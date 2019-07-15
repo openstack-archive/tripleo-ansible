@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.join(os.path.abspath('.'), '_exts'))
 extensions = [
     'openstackdocstheme',
     'sphinx.ext.autodoc',
-    'ansible-module-autodoc'
+    'ansible-autodoc'
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
