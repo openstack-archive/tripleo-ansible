@@ -16,22 +16,3 @@
 
 
 # All variables intended for modification should place placed in this file.
-
-# NOTE(cloudnull): This role used to use a non-namespaced option, which has a high
-#                  probability of creating conflicts with other roles in the greater
-#                  ansible ecosystem. To ensure that we're able to retain existing
-#                  variable functionality the "ssh_known_hosts" option will supersede
-#                  "tripleo_ssh_known_hosts" if defined. This default should be removed
-#                  just as soon as we're validate that the non-namespaced option is
-#                  no longer in use.
-#
-# tripleo_ssh_known_hosts:
-#   overcloud-controller-0: '[172.17.25.246]*,[overcloud-controller-0.localdomain]*,[overcloud-controller-0]*,...'
-#   overcloud-novacompute-0: '[172.17.25.247]*,[overcloud-novacompute-0.localdomain]*,[overcloud-novacompute-0]*,...'
-#   overcloud-novacompute-1: '[172.17.25.248]*,[overcloud-novacompute-1.localdomain]*,[overcloud-novacompute-1]*,...'
-#   overcloud-novacompute-2: '[172.17.25.249]*,[overcloud-novacompute-2.localdomain]*,[overcloud-novacompute-2]*,...'
-#
-# tripleo_ssh_known_hosts_use_template: false
-
-tripleo_ssh_known_hosts: "{{ ssh_known_hosts | default({}) }}"
-tripleo_ssh_known_hosts_use_template: false

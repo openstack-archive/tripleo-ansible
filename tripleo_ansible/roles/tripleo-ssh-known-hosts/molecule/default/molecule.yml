@@ -30,9 +30,10 @@ provisioner:
     hosts:
       all:
         vars:
-          tripleo_ssh_known_hosts:
-            "centos7": '[10.0.0.0]*,[test-0.localdomain]*,[test-0]*'
-            "fedora28": '[10.0.0.0]*,[test-0.localdomain]*,[test-0]*'
+          ctlplane_ip: 10.0.0.0
+          cloud_domain: localdomain
+          enabled_networks: []
+          role_networks: []
         children:
           overcloud:
             hosts:

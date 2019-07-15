@@ -57,26 +57,13 @@
           {%- endfor -%}
           {{ ' ssh-rsa ' ~ hostvars[host]['ansible_ssh_host_key_rsa_public'] }}
           {% endfor %}
-      when:
-        - tripleo_ssh_known_hosts_use_template | bool
 
-    - name: Add host keys to temporary ssh_known_hosts from rendered template
+    - name: Add host keys to temporary ssh_known_hosts
       lineinfile:
         path: "{{ ssh_known_hosts_tmp.path }}"
         line: "{{ item }}"
         create: true
       with_items: "{{ ssh_known_hosts_lines.splitlines() }}"
-      when:
-        - tripleo_ssh_known_hosts_use_template | bool
-
-    - name: Add host keys to temporary ssh_known_hosts
-      lineinfile:
-        path: "{{ ssh_known_hosts_tmp.path }}"
-        line: "{{ tripleo_ssh_known_hosts[(hostvars[item]['ansible_hostname'] | lower)] ~ ' ssh-rsa ' ~ hostvars[item]['ansible_ssh_host_key_rsa_public'] }}"
-        create: true
-      with_items: "{{ groups['overcloud'] | intersect(play_hosts) }}"
-      when:
-        - not (tripleo_ssh_known_hosts_use_template | bool)
 
     # Workaround https://bugs.launchpad.net/tripleo/+bug/1810932
     # Ansible modules perform a replace instead of in-place modification.
