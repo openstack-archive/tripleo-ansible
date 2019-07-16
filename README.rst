@@ -15,10 +15,10 @@ TripleO Ansible project repository. Contains Ansible playbooks, roles, and
 plugins for use with TripleO.
 
 Documentation for the project can be found at:
-`<https://docs.openstack.org/tripleo-docs/latest/>`_
+`<https://docs.openstack.org/tripleo-ansible/latest/>`_
 
 Release notes for the project can be found at:
-`<https://docs.openstack.org/tripleo-docs/latest/>`_
+`<https://docs.openstack.org/releasenotes/tripleo-ansible/>`_
 
 The project source code repository is located at:
 `<https://opendev.org/openstack/tripleo-ansible/>`_
