@@ -15,7 +15,13 @@
 # under the License.
 
 
+- name: Check for {{ tripleo_container_cli }} cli
+  command: "command -v {{ tripleo_container_cli }}"
+  register: check_container_cli
+  failed_when: false
+
 - include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
   vars:
     container: "{{ item }}"
   with_items: "{{ tripleo_containers_to_rm }}"
+  when: check_container_cli.rc == 0

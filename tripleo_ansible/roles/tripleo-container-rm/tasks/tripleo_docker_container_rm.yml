@@ -14,8 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: "Check if {{ container }} is running in docker backend"
+  command: "docker inspect --type container --format exists {{ container }}"
+  register: stat_docker_container
+  failed_when: false
 
 - name: remove "{{ container }}" container
   docker_container:
     name: "{{ container }}"
     state: absent
+  when:
+    - stat_docker_container.rc == 0
