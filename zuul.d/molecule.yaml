@@ -21,6 +21,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-7-molecule-login-defs
       - tripleo-ansible-centos-7-molecule-tripleo-time
+      - tripleo-ansible-centos-7-molecule-tripleo-config
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -42,6 +43,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-7-molecule-login-defs
       - tripleo-ansible-centos-7-molecule-tripleo-time
+      - tripleo-ansible-centos-7-molecule-tripleo-config
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -182,3 +184,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-time
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-config/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-config
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-config

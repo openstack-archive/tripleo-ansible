@@ -14,15 +14,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: openstack-operations
-  scm: git
-  src: https://opendev.org/openstack/ansible-role-openstack-operations
-  version: master
-  trackbranch: master
+- name: Check for a configured destination
+  fail:
+    msg: >-
+      The option `tripleo_config_dest` is undefined. Check your settings.
+  when:
+    - tripleo_config_dest is undefined
 
-# ansible-config_template action plugin
-- name: config_template
-  scm: git
-  src: https://opendev.org/openstack/ansible-config_template
-  version: master
-  trackbranch: master
+- name: "Generate {{ tripleo_config_dest }} config"
+  config_template:
+    src: "{{ tripleo_config_type }}-config.j2"
+    dest: "{{ tripleo_config_dest }}"
+    owner: "{{ tripleo_config_owner }}"
+    group: "{{ tripleo_config_group }}"
+    mode: "{{ tripleo_config_mode }}"
+    config_overrides: "{{ tripleo_config_overrides }}"
+    config_type: "{{ tripleo_config_type }}"
