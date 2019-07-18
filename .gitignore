@@ -19,3 +19,6 @@ nosetests.xml
 
 # Playbook retry files
 *.retry
+
+# roles
+tripleo_ansible/roles.galaxy/*

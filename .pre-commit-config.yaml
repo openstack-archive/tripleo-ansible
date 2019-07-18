@@ -31,11 +31,10 @@ repos:
         files: \.(yaml|yml)$
         entry: >-
           ansible-lint --force-color -v -x "ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016"
-          --exclude=tripleo_ansible/roles/openstack-operations/tasks/restore_galera.yml
-          --exclude=tripleo_ansible/roles/openstack-operations/tasks/restore_redis.yml
+          --exclude=tripleo_ansible/roles.galaxy
         # TODO(cloudnull): These codes were added to pass the lint check.
-        #                  All of these ignore codes should be resolved in
-        #                  future PRs.
+        #                  Things found within roles.galaxy are external
+        #                  and not something maintained here.
   - repo: https://github.com/openstack-dev/bashate.git
     rev: 0.6.0
     hooks:
