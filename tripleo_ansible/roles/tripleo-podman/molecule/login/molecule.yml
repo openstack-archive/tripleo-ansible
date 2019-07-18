@@ -1,0 +1,54 @@
+---
+driver:
+  name: delegated
+  options:
+    managed: false
+    login_cmd_template: >-
+      ssh
+      -o UserKnownHostsFile=/dev/null
+      -o StrictHostKeyChecking=no
+      -o Compression=no
+      -o TCPKeepAlive=yes
+      -o VerifyHostKeyDNS=no
+      -o ForwardX11=no
+      -o ForwardAgent=no
+      {instance}
+    ansible_connection_options:
+      ansible_connection: ssh
+
+log: true
+
+platforms:
+  - name: instance
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp/molecule/facts
+  inventory:
+    hosts:
+      all:
+        hosts:
+          instance:
+            ansible_host: localhost
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
+
+scenario:
+  name: login
+  test_sequence:
+    - prepare
+    - converge
+    - verify
+
+lint:
+  enabled: false
+
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

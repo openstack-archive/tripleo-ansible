@@ -1,0 +1,51 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Install block
+  become: true
+  block:
+    - name: ensure podman and deps are installed
+      package:
+        name: "{{ tripleo_podman_packages }}"
+        state: latest
+
+    - name: Check for cni0 interface
+      command: ip link show cni0
+      changed_when: false
+      failed_when: false
+      register: cni0_interface
+
+    - name: Delete cni0 interface
+      command: ip link delete cni0
+      when:
+        - cni0_interface.rc == 0
+
+    - name: Remove default cni config for cni0 if exists
+      copy:
+        dest: /etc/cni/net.d/87-podman-bridge.conflist
+        content: ''
+        force: true
+      ignore_errors: true
+
+    - name: configure insecure registries /etc/containers/registries.conf
+      ini_file:
+        path: /etc/containers/registries.conf
+        section: 'registries.insecure'
+        option: registries
+        value: "{{ tripleo_container_registry_insecure_registries }}"
+      when:
+        - (tripleo_container_registry_insecure_registries | length) > 0

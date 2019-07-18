@@ -1,0 +1,62 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: set basic user fact
+      set_fact:
+        ansible_user: "{{ lookup('env', 'USER') }}"
+      when:
+        - ansible_user is undefined
+
+    - name: set basic home fact
+      set_fact:
+        ansible_user_dir: "{{ lookup('env', 'HOME') }}"
+      when:
+        - ansible_user_dir is undefined
+
+  roles:
+    - role: test_deps
+    - role: install-docker
+
+  tasks:
+    - name: Create a docker registry
+      become: true
+      shell: |-
+        docker pull ubuntu:16.04
+        docker tag ubuntu:16.04 localhost:5000/my-ubuntu
+        mkdir auth
+        docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
+        docker container stop registry
+        docker run -d -p 5000:5000 --restart=always \
+                                   --name registry \
+                                   -v "$(pwd)"/auth:/auth \
+                                   -e "REGISTRY_AUTH=htpasswd" \
+                                   -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+                                   -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+                                   registry:2
+      args:
+        creates: /root/auth/htpasswd
+
+    - name: Run install
+      include_role:
+        name: tripleo-podman
+        tasks_from: tripleo_podman_install.yml
+        vars_from: "redhat.yml"
