@@ -20,8 +20,6 @@
   failed_when: false
 
 - name: remove "{{ container }}" container
-  docker_container:
-    name: "{{ container }}"
-    state: absent
+  command: "docker rm --force {{ container }}"
   when:
     - stat_docker_container.rc == 0
