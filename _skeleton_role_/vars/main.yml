@@ -19,4 +19,4 @@
 # vars, items within this path are considered part of the role and not
 # intended to be modified.
 
-# All variables within this role should have a prefix of "{{ role_name }}"
+# All variables within this role should have a prefix of "tripleo_{{ role_name | replace('-', '_') }}"
