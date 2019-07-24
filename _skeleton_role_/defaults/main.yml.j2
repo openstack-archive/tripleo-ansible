@@ -17,6 +17,6 @@
 
 # All variables intended for modification should place placed in this file.
 
-# All variables within this role should have a prefix of "{{ role_name }}"
-{{ role_name }}_debug: false
+# All variables within this role should have a prefix of "tripleo_{{ role_name | replace('-', '_') }}"
+tripleo_{{ role_name | replace('-', '_') }}_debug: false
 
