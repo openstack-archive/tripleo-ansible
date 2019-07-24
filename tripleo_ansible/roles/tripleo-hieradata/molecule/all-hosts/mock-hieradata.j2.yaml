@@ -1,0 +1,1111 @@
+---
+datafiles:
+  extraconfig: {}
+  service_configs:
+    apache::default_vhost: false
+    apache::ip: '%{hiera(''ctlplane'')}'
+    apache::mod::alias::icons_options: None
+    apache::mod::prefork::maxclients: 256
+    apache::mod::prefork::serverlimit: 256
+    apache::mod::remoteip::proxy_ips:
+      - 192.168.24.2/24
+    apache::server_signature: 'Off'
+    apache::server_tokens: Prod
+    apache::trace_enable: 'Off'
+    cinder::api::bind_host: '%{hiera(''fqdn_ctlplane'')}'
+    cinder::api::default_volume_type: tripleo
+    cinder::api::enable_proxy_headers_parsing: true
+    cinder::api::nova_catalog_info: compute:nova:internalURL
+    cinder::api::os_region_name: regionOne
+    cinder::api::service_name: httpd
+    cinder::ceilometer::notification_driver: messagingv2
+    cinder::config:
+      DEFAULT/swift_catalog_info:
+        value: object-store:swift:internalURL
+    cinder::cron::db_purge::age: '30'
+    cinder::cron::db_purge::destination: /var/log/cinder/cinder-rowsflush.log
+    cinder::cron::db_purge::hour: '0'
+    cinder::cron::db_purge::max_delay: '3600'
+    cinder::cron::db_purge::minute: '1'
+    cinder::cron::db_purge::month: '*'
+    cinder::cron::db_purge::monthday: '*'
+    cinder::cron::db_purge::user: cinder
+    cinder::cron::db_purge::weekday: '*'
+    cinder::database_connection: >-
+      mysql+pymysql://cinder:x@192.168.24.2/cinder?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    cinder::db::database_db_max_retries: -1
+    cinder::db::database_max_retries: -1
+    cinder::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    cinder::db::mysql::dbname: cinder
+    cinder::db::mysql::host: 192.168.24.2
+    cinder::db::mysql::password: oZzyrfo77XIrMgnyrbqn2D4t0
+    cinder::db::mysql::user: cinder
+    cinder::glance::glance_api_servers: http://192.168.24.2:9292
+    cinder::keystone::auth::admin_url: http://192.168.24.2:8776/v1/%(tenant_id)s
+    cinder::keystone::auth::admin_url_v2: http://192.168.24.2:8776/v2/%(tenant_id)s
+    cinder::keystone::auth::admin_url_v3: http://192.168.24.2:8776/v3/%(tenant_id)s
+    cinder::keystone::auth::internal_url: http://192.168.24.2:8776/v1/%(tenant_id)s
+    cinder::keystone::auth::internal_url_v2: http://192.168.24.2:8776/v2/%(tenant_id)s
+    cinder::keystone::auth::internal_url_v3: http://192.168.24.2:8776/v3/%(tenant_id)s
+    cinder::keystone::auth::password: oZzyrfo77XIrMgnyrbqn2D4t0
+    cinder::keystone::auth::public_url: http://192.168.24.2:8776/v1/%(tenant_id)s
+    cinder::keystone::auth::public_url_v2: http://192.168.24.2:8776/v2/%(tenant_id)s
+    cinder::keystone::auth::public_url_v3: http://192.168.24.2:8776/v3/%(tenant_id)s
+    cinder::keystone::auth::region: regionOne
+    cinder::keystone::auth::tenant: service
+    cinder::keystone::authtoken::auth_uri: http://192.168.24.2:5000
+    cinder::keystone::authtoken::auth_url: http://192.168.24.2:5000
+    cinder::keystone::authtoken::password: oZzyrfo77XIrMgnyrbqn2D4t0
+    cinder::keystone::authtoken::project_domain_name: Default
+    cinder::keystone::authtoken::project_name: service
+    cinder::keystone::authtoken::region_name: regionOne
+    cinder::keystone::authtoken::user_domain_name: Default
+    cinder::keystone::authtoken::www_authenticate_uri: http://192.168.24.2:5000
+    cinder::logging::debug: true
+    cinder::nova::auth_type: password
+    cinder::nova::auth_url: http://192.168.24.2:5000/
+    cinder::nova::interface: admin
+    cinder::nova::password: h394xFqQIyNp3zKTApR0kbwdr
+    cinder::nova::project_name: service
+    cinder::policy::policies: {}
+    cinder::rabbit_heartbeat_timeout_threshold: 60
+    cinder::scheduler::scheduler_driver: cinder.scheduler.filter_scheduler.FilterScheduler
+    cinder::storage_availability_zone: nova
+    cinder::wsgi::apache::bind_host: '%{hiera(''ctlplane'')}'
+    cinder::wsgi::apache::servername: '%{hiera(''fqdn_ctlplane'')}'
+    cinder::wsgi::apache::ssl: false
+    cinder::wsgi::apache::workers: '%{::os_workers}'
+    cold_migration_ssh_inbound_addr: '%{hiera(''ctlplane'')}'
+    compute_enable_ksm: false
+    enable_galera: true
+    glance::api::authtoken::auth_uri: http://192.168.24.2:5000
+    glance::api::authtoken::auth_url: http://192.168.24.2:5000
+    glance::api::authtoken::password: eUBg3LjB9UVrvBwdgevwMOviM
+    glance::api::authtoken::project_name: service
+    glance::api::authtoken::region_name: regionOne
+    glance::api::bind_host: '%{hiera(''ctlplane'')}'
+    glance::api::bind_port: '9292'
+    glance::api::database_connection: >-
+      mysql+pymysql://glance:x@192.168.24.2/glance?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    glance::api::enable_proxy_headers_parsing: true
+    glance::api::enable_v1_api: false
+    glance::api::enable_v2_api: true
+    glance::api::enabled_import_methods:
+      - web-download
+    glance::api::ignore_user_roles:
+      - admin
+    glance::api::image_conversion_output_format: raw
+    glance::api::image_import_plugins:
+      - image_conversion
+    glance::api::image_member_quota: 128
+    glance::api::inject_metadata_properties: []
+    glance::api::logging::debug: true
+    glance::api::node_staging_uri: file:///var/lib/glance/staging
+    glance::api::os_region_name: regionOne
+    glance::api::pipeline: keystone
+    glance::api::show_image_direct_url: true
+    glance::api::show_multiple_locations: true
+    glance::api::sync_db: false
+    glance::backend::rbd::rbd_store_ceph_conf: /etc/ceph/ceph.conf
+    glance::backend::rbd::rbd_store_pool: images
+    glance::backend::rbd::rbd_store_user: openstack
+    glance::backend::swift::swift_store_auth_address: http://192.168.24.2:5000/v3
+    glance::backend::swift::swift_store_auth_version: 3
+    glance::backend::swift::swift_store_create_container_on_put: true
+    glance::backend::swift::swift_store_key: eUBg3LjB9UVrvBwdgevwMOviM
+    glance::backend::swift::swift_store_user: service:glance
+    glance::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    glance::db::mysql::dbname: glance
+    glance::db::mysql::host: 192.168.24.2
+    glance::db::mysql::password: eUBg3LjB9UVrvBwdgevwMOviM
+    glance::db::mysql::user: glance
+    glance::keystone::auth::admin_url: http://192.168.24.2:9292
+    glance::keystone::auth::internal_url: http://192.168.24.2:9292
+    glance::keystone::auth::password: eUBg3LjB9UVrvBwdgevwMOviM
+    glance::keystone::auth::public_url: http://192.168.24.2:9292
+    glance::keystone::auth::region: regionOne
+    glance::keystone::auth::tenant: service
+    glance::keystone::authtoken::project_domain_name: Default
+    glance::keystone::authtoken::user_domain_name: Default
+    glance::notify::rabbitmq::notification_driver: messagingv2
+    glance::policy::policies: {}
+    glance_backend: rbd
+    glance_log_file: ''
+    glance_notifier_strategy: noop
+    horizon::allowed_hosts:
+      - '*'
+    horizon::bind_address: '%{hiera(''ctlplane'')}'
+    horizon::cache_backend: django.core.cache.backends.memcached.MemcachedCache
+    horizon::customization_module: ''
+    horizon::disable_password_reveal: true
+    horizon::disallow_iframe_embed: true
+    horizon::django_debug: true
+    horizon::django_session_engine: django.contrib.sessions.backends.cache
+    horizon::enable_secure_proxy_ssl_header: true
+    horizon::enforce_password_check: true
+    horizon::horizon_ca: /etc/ipa/ca.crt
+    horizon::keystone_url: http://192.168.24.2:5000/v3
+    horizon::listen_ssl: false
+    horizon::password_validator: ''
+    horizon::password_validator_help: ''
+    horizon::secret_key: KCJZe5lLuK
+    horizon::secure_cookies: false
+    horizon::servername: '%{hiera(''fqdn_ctlplane'')}'
+    horizon::timezone: UTC
+    horizon::vhost_extra_params:
+      access_log_format: '%a %l %u %t \"%r\" %>s %b \"%%{}{Referer}i\" \"%%{}{User-Agent}i\"'
+      add_listen: true
+      options:
+        - FollowSymLinks
+        - MultiViews
+      priority: 10
+    kernel_modules:
+      nf_conntrack: {}
+    keystone::admin_bind_host: '%{hiera(''fqdn_ctlplane'')}'
+    keystone::admin_password: T65kUrDRVCjSEeZUi6c2PaPZl
+    keystone::admin_port: '35357'
+    keystone::admin_token: ozgltQyymaJ0B2bmE1jCnVxKr
+    keystone::config::keystone_config:
+      ec2/driver:
+        value: keystone.contrib.ec2.backends.sql.Ec2
+    keystone::credential_keys:
+      /etc/keystone/credential-keys/0:
+        content: 9T7xVi2GGlWiJl5goN8VyvhJdbV24kbsEZg6nBRwdRI=
+      /etc/keystone/credential-keys/1:
+        content: Kai2wqK79vmuDbaHrHsx4KQFmNQ1wsoXpP5EJ4kKPvw=
+    keystone::cron::token_flush::destination: /var/log/keystone/keystone-tokenflush.log
+    keystone::cron::token_flush::ensure: present
+    keystone::cron::token_flush::hour:
+      - '*'
+    keystone::cron::token_flush::maxdelay: 0
+    keystone::cron::token_flush::minute:
+      - '1'
+    keystone::cron::token_flush::month:
+      - '*'
+    keystone::cron::token_flush::monthday:
+      - '*'
+    keystone::cron::token_flush::user: keystone
+    keystone::cron::token_flush::weekday:
+      - '*'
+    keystone::database_connection: >-
+      mysql+pymysql://keystone:x@192.168.24.2/keystone?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    keystone::db::database_db_max_retries: -1
+    keystone::db::database_max_retries: -1
+    keystone::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    keystone::db::mysql::dbname: keystone
+    keystone::db::mysql::host: 192.168.24.2
+    keystone::db::mysql::password: ozgltQyymaJ0B2bmE1jCnVxKr
+    keystone::db::mysql::user: keystone
+    keystone::enable_credential_setup: true
+    keystone::enable_fernet_setup: true
+    keystone::enable_proxy_headers_parsing: true
+    keystone::enable_ssl: false
+    keystone::endpoint::admin_url: http://192.168.24.2:35357
+    keystone::endpoint::internal_url: http://192.168.24.2:5000
+    keystone::endpoint::public_url: http://192.168.24.2:5000
+    keystone::endpoint::region: regionOne
+    keystone::endpoint::version: ''
+    keystone::fernet_keys:
+      /etc/keystone/fernet-keys/0:
+        content: oxZcZ-VW-EWyyZGbtYNVnIHXOuuwhkgvZPKDcbGzf2U=
+      /etc/keystone/fernet-keys/1:
+        content: MPSoYf6XnfGrx_yvjMT0sMRxL3KnqhdJyhET447MrAk=
+    keystone::fernet_max_active_keys: 5
+    keystone::fernet_replace_keys: true
+    keystone::logging::debug: true
+    keystone::notification_driver: messagingv2
+    keystone::notification_format: basic
+    keystone::policy::policies: {}
+    keystone::public_bind_host: '%{hiera(''fqdn_ctlplane'')}'
+    keystone::rabbit_heartbeat_timeout_threshold: 60
+    keystone::roles::admin::admin_tenant: admin
+    keystone::roles::admin::email: admin@example.com
+    keystone::roles::admin::password: T65kUrDRVCjSEeZUi6c2PaPZl
+    keystone::roles::admin::service_tenant: service
+    keystone::service_name: httpd
+    keystone::token_expiration: 3600
+    keystone::token_provider: fernet
+    keystone::wsgi::apache::api_port:
+      - 5000
+      - '35357'
+    keystone::wsgi::apache::bind_host:
+      - '%{hiera(''ctlplane'')}'
+      - '%{hiera(''ctlplane'')}'
+    keystone::wsgi::apache::servername: '%{hiera(''fqdn_ctlplane'')}'
+    keystone::wsgi::apache::servername_admin: '%{hiera(''fqdn_ctlplane'')}'
+    keystone::wsgi::apache::ssl: false
+    keystone::wsgi::apache::threads: 1
+    keystone::wsgi::apache::workers: '%{::os_workers}'
+    keystone_enable_db_purge: true
+    keystone_enable_member: true
+    keystone_ssl_certificate: ''
+    keystone_ssl_certificate_key: ''
+    live_migration_ssh_inbound_addr: '%{hiera(''ctlplane'')}'
+    localhost_address: localhost
+    memcached::disable_cachedump: true
+    memcached::listen_ip: '%{hiera(''ctlplane'')}'
+    memcached::listen_ip_uri: '%{hiera(''ctlplane_uri'')}'
+    memcached::max_memory: 50%
+    memcached::udp_port: 0
+    memcached::verbosity: vv
+    memcached_ipv6: false
+    mysql::server::manage_config_file: true
+    mysql::server::package_name: mariadb-galera-server
+    mysql::server::root_password: Bv2PBHraHd
+    mysql_bind_host: '%{hiera(''ctlplane'')}'
+    mysql_clustercheck_password: mQ1zv8k87pC4Ns1HTBeBxcA15
+    mysql_ipv6: false
+    mysql_max_connections: 4096
+    neutron::agents::ovn_metadata::auth_password: SmzeVqkpnfK0HGDXDxd5SYvAS
+    neutron::agents::ovn_metadata::auth_tenant: service
+    neutron::agents::ovn_metadata::auth_url: http://192.168.24.2:5000
+    neutron::agents::ovn_metadata::debug: true
+    neutron::agents::ovn_metadata::metadata_host: '%{hiera(''cloud_name_ctlplane'')}'
+    neutron::agents::ovn_metadata::metadata_ip: '%{hiera(''nova_metadata_vip'')}'
+    neutron::agents::ovn_metadata::metadata_protocol: http
+    neutron::agents::ovn_metadata::ovsdb_connection_timeout: 180
+    neutron::agents::ovn_metadata::shared_secret: 83FhfOLJYdypn8u1hG6RexYal
+    neutron::allow_overlapping_ips: true
+    neutron::bind_host: '%{hiera(''ctlplane'')}'
+    neutron::core_plugin: ml2
+    neutron::db::database_db_max_retries: -1
+    neutron::db::database_max_retries: -1
+    neutron::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    neutron::db::mysql::dbname: ovs_neutron
+    neutron::db::mysql::host: 192.168.24.2
+    neutron::db::mysql::password: SmzeVqkpnfK0HGDXDxd5SYvAS
+    neutron::db::mysql::user: neutron
+    neutron::db::sync::db_sync_timeout: 300
+    neutron::db::sync::extra_params: ''
+    neutron::dhcp_agent_notification: true
+    neutron::dns_domain: localdomain
+    neutron::global_physnet_mtu: 1500
+    neutron::host: '%{hiera(''fqdn_canonical'')}'
+    neutron::keystone::auth::admin_url: http://192.168.24.2:9696
+    neutron::keystone::auth::internal_url: http://192.168.24.2:9696
+    neutron::keystone::auth::password: SmzeVqkpnfK0HGDXDxd5SYvAS
+    neutron::keystone::auth::public_url: http://192.168.24.2:9696
+    neutron::keystone::auth::region: regionOne
+    neutron::keystone::auth::tenant: service
+    neutron::keystone::authtoken::auth_uri: http://192.168.24.2:5000
+    neutron::keystone::authtoken::auth_url: http://192.168.24.2:5000
+    neutron::keystone::authtoken::password: SmzeVqkpnfK0HGDXDxd5SYvAS
+    neutron::keystone::authtoken::project_domain_name: Default
+    neutron::keystone::authtoken::project_name: service
+    neutron::keystone::authtoken::region_name: regionOne
+    neutron::keystone::authtoken::user_domain_name: Default
+    neutron::keystone::authtoken::www_authenticate_uri: http://192.168.24.2:5000
+    neutron::logging::debug: true
+    neutron::notification_driver: messagingv2
+    neutron::plugins::ml2::extension_drivers:
+      - qos
+      - port_security
+    neutron::plugins::ml2::firewall_driver: iptables_hybrid
+    neutron::plugins::ml2::flat_networks:
+      - datacentre
+    neutron::plugins::ml2::max_header_size: 38
+    neutron::plugins::ml2::mechanism_drivers:
+      - ovn
+    neutron::plugins::ml2::network_vlan_ranges:
+      - datacentre:1:1000
+    neutron::plugins::ml2::overlay_ip_version: 4
+    neutron::plugins::ml2::ovn::dns_servers: []
+    neutron::plugins::ml2::ovn::dvr_enabled: true
+    neutron::plugins::ml2::ovn::neutron_sync_mode: log
+    neutron::plugins::ml2::ovn::ovn_l3_mode: true
+    neutron::plugins::ml2::ovn::ovn_metadata_enabled: true
+    neutron::plugins::ml2::ovn::ovsdb_connection_timeout: 180
+    neutron::plugins::ml2::ovn::vif_type: ovs
+    neutron::plugins::ml2::tenant_network_types:
+      - geneve
+    neutron::plugins::ml2::tunnel_id_ranges:
+      - 1:4094
+    neutron::plugins::ml2::type_drivers:
+      - geneve
+      - vlan
+      - flat
+    neutron::plugins::ml2::vni_ranges:
+      - 1:65536
+    neutron::policy::policies: {}
+    neutron::purge_config: false
+    neutron::quota::quota_port: '500'
+    neutron::rabbit_heartbeat_timeout_threshold: 60
+    neutron::server::allow_automatic_l3agent_failover: 'True'
+    neutron::server::database_connection: >-
+      mysql+pymysql://neutron:x@192.168.24.2/ovs_neutron?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    neutron::server::enable_proxy_headers_parsing: true
+    neutron::server::notifications::auth_url: http://192.168.24.2:5000
+    neutron::server::notifications::endpoint_type: internal
+    neutron::server::notifications::password: h394xFqQIyNp3zKTApR0kbwdr
+    neutron::server::notifications::project_name: service
+    neutron::server::notifications::region_name: regionOne
+    neutron::server::notifications::tenant_name: service
+    neutron::server::placement::auth_type: password
+    neutron::server::placement::auth_url: http://192.168.24.2:5000
+    neutron::server::placement::password: h394xFqQIyNp3zKTApR0kbwdr
+    neutron::server::placement::project_domain_name: Default
+    neutron::server::placement::project_name: service
+    neutron::server::placement::region_name: regionOne
+    neutron::server::placement::user_domain_name: Default
+    neutron::server::placement::username: nova
+    neutron::server::placement::www_authenticate_uri: http://192.168.24.2:5000
+    neutron::server::qos_notification_drivers: ovn-qos
+    neutron::server::sync_db: true
+    neutron::service_plugins:
+      - qos
+      - ovn-router
+      - trunk
+      - segments
+    neutron::vlan_transparent: false
+    nfs_backend_enable: false
+    nfs_options: context=system_u:object_r:nfs_t:s0
+    nfs_share: ''
+    nfs_vers: '4'
+    nova::api::api_bind_address: '%{hiera(''fqdn_ctlplane'')}'
+    nova::api::default_floating_pool: public
+    nova::api::enable_proxy_headers_parsing: true
+    nova::api::enabled: true
+    nova::api::instance_name_template: instance-%08x
+    nova::api::neutron_metadata_proxy_shared_secret: 83FhfOLJYdypn8u1hG6RexYal
+    nova::api::service_name: httpd
+    nova::api::sync_db_api: true
+    nova::api_database_connection: >-
+      mysql+pymysql://nova_api:x@192.168.24.2/nova_api?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    nova::cell0_database_connection: >-
+      mysql+pymysql://nova:x@192.168.24.2/nova_cell0?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    nova::cinder::auth_type: v3password
+    nova::cinder::auth_url: http://192.168.24.2:5000/v3
+    nova::cinder::password: oZzyrfo77XIrMgnyrbqn2D4t0
+    nova::cinder::project_name: service
+    nova::cinder::region_name: regionOne
+    nova::cinder::username: cinder
+    nova::cinder_catalog_info: volumev3:cinderv3:internalURL
+    nova::compute::consecutive_build_service_disable_threshold: '10'
+    nova::compute::cpu_shared_set: []
+    nova::compute::instance_usage_audit: true
+    nova::compute::instance_usage_audit_period: hour
+    nova::compute::libvirt::file_backed_memory: 0
+    nova::compute::libvirt::libvirt_enabled_perf_events: []
+    nova::compute::libvirt::libvirt_hw_machine_type: >-
+      x86_64=pc-i440fx-rhel7.6.0,aarch64=virt-rhel7.6.0,ppc64=pseries-rhel7.6.0,ppc64le=pseries-rhel7.6.0
+    nova::compute::libvirt::libvirt_virt_type: kvm
+    nova::compute::libvirt::manage_libvirt_services: false
+    nova::compute::libvirt::mem_stats_period_seconds: 10
+    nova::compute::libvirt::migration_support: false
+    nova::compute::libvirt::num_pcie_ports: 16
+    nova::compute::libvirt::qemu::configure_qemu: true
+    nova::compute::libvirt::qemu::max_files: 32768
+    nova::compute::libvirt::qemu::max_processes: 131072
+    nova::compute::libvirt::qemu::memory_backing_dir: ''
+    nova::compute::libvirt::rx_queue_size: 512
+    nova::compute::libvirt::services::libvirt_virt_type: kvm
+    nova::compute::libvirt::tx_queue_size: 512
+    nova::compute::libvirt::vncserver_listen: '%{hiera(''ctlplane'')}'
+    nova::compute::libvirt::volume_use_multipath: false
+    nova::compute::live_migration_wait_for_vif_plug: false
+    nova::compute::neutron::libvirt_vif_driver: ''
+    nova::compute::neutron_physnets_numa_nodes_mapping: {}
+    nova::compute::neutron_tunnel_numa_nodes: []
+    nova::compute::pci::passthrough: ''
+    nova::compute::rbd::ephemeral_storage: true
+    nova::compute::rbd::libvirt_images_rbd_ceph_conf: /etc/ceph/ceph.conf
+    nova::compute::rbd::libvirt_images_rbd_pool: vms
+    nova::compute::rbd::libvirt_rbd_secret_key: AQCfJTpdAAAAABAAFXy6NxAX+NLafeeoG8PJyQ==
+    nova::compute::rbd::libvirt_rbd_secret_uuid: 1953d132-af27-11e9-b0aa-525401f8c930
+    nova::compute::rbd::libvirt_rbd_user: openstack
+    nova::compute::rbd::rbd_keyring: client.openstack
+    nova::compute::reserved_host_memory: 4096
+    nova::compute::resume_guests_state_on_host_boot: false
+    nova::compute::sync_power_state_interval: 0
+    nova::compute::vcpu_pin_set: []
+    nova::compute::verify_glance_signatures: false
+    nova::compute::vncproxy_host: 192.168.24.2
+    nova::compute::vncserver_proxyclient_address: '%{hiera(''ctlplane'')}'
+    nova::cron::archive_deleted_rows::destination: /var/log/nova/nova-rowsflush.log
+    nova::cron::archive_deleted_rows::hour: '0'
+    nova::cron::archive_deleted_rows::max_rows: '100'
+    nova::cron::archive_deleted_rows::maxdelay: '3600'
+    nova::cron::archive_deleted_rows::minute: '1'
+    nova::cron::archive_deleted_rows::month: '*'
+    nova::cron::archive_deleted_rows::monthday: '*'
+    nova::cron::archive_deleted_rows::purge: false
+    nova::cron::archive_deleted_rows::until_complete: true
+    nova::cron::archive_deleted_rows::user: nova
+    nova::cron::archive_deleted_rows::weekday: '*'
+    nova::cron::purge_shadow_tables::age: 14
+    nova::cron::purge_shadow_tables::all_cells: false
+    nova::cron::purge_shadow_tables::destination: /var/log/nova/nova-rowspurge.log
+    nova::cron::purge_shadow_tables::hour: '5'
+    nova::cron::purge_shadow_tables::minute: '0'
+    nova::cron::purge_shadow_tables::month: '*'
+    nova::cron::purge_shadow_tables::monthday: '*'
+    nova::cron::purge_shadow_tables::user: nova
+    nova::cron::purge_shadow_tables::verbose: false
+    nova::cron::purge_shadow_tables::weekday: '*'
+    nova::database_connection: >-
+      mysql+pymysql://nova:x@192.168.24.2/nova?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    nova::db::database_db_max_retries: -1
+    nova::db::database_max_retries: -1
+    nova::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    nova::db::mysql::dbname: nova
+    nova::db::mysql::host: 192.168.24.2
+    nova::db::mysql::password: h394xFqQIyNp3zKTApR0kbwdr
+    nova::db::mysql::user: nova
+    nova::db::mysql_api::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    nova::db::mysql_api::dbname: nova_api
+    nova::db::mysql_api::host: 192.168.24.2
+    nova::db::mysql_api::password: h394xFqQIyNp3zKTApR0kbwdr
+    nova::db::mysql_api::setup_cell0: true
+    nova::db::mysql_api::user: nova_api
+    nova::db::sync::db_sync_timeout: 300
+    nova::db::sync_api::db_sync_timeout: 300
+    nova::glance_api_servers: http://192.168.24.2:9292
+    nova::host: '%{hiera(''fqdn_canonical'')}'
+    nova::keystone::auth::admin_url: http://192.168.24.2:8774/v2.1
+    nova::keystone::auth::internal_url: http://192.168.24.2:8774/v2.1
+    nova::keystone::auth::password: h394xFqQIyNp3zKTApR0kbwdr
+    nova::keystone::auth::public_url: http://192.168.24.2:8774/v2.1
+    nova::keystone::auth::region: regionOne
+    nova::keystone::auth::tenant: service
+    nova::keystone::authtoken::auth_uri: http://192.168.24.2:5000
+    nova::keystone::authtoken::auth_url: http://192.168.24.2:35357
+    nova::keystone::authtoken::password: h394xFqQIyNp3zKTApR0kbwdr
+    nova::keystone::authtoken::project_domain_name: Default
+    nova::keystone::authtoken::project_name: service
+    nova::keystone::authtoken::region_name: regionOne
+    nova::keystone::authtoken::user_domain_name: Default
+    nova::keystone::authtoken::www_authenticate_uri: http://192.168.24.2:5000
+    nova::logging::debug: true
+    nova::metadata::dhcp_domain: ''
+    nova::metadata::enable_proxy_headers_parsing: true
+    nova::metadata::neutron_metadata_proxy_shared_secret: 83FhfOLJYdypn8u1hG6RexYal
+    nova::migration::libvirt::live_migration_inbound_addr: '%{hiera(''fqdn_ctlplane'')}'
+    nova::migration::live_migration_tunnelled: true
+    nova::migration::qemu::configure_qemu: true
+    nova::migration::qemu::migration_port_max: 61215
+    nova::migration::qemu::migration_port_min: 61152
+    nova::my_ip: '%{hiera(''ctlplane'')}'
+    nova::network::neutron::neutron_auth_type: v3password
+    nova::network::neutron::neutron_auth_url: http://192.168.24.2:5000/v3
+    nova::network::neutron::neutron_ovs_bridge: br-int
+    nova::network::neutron::neutron_password: SmzeVqkpnfK0HGDXDxd5SYvAS
+    nova::network::neutron::neutron_project_name: service
+    nova::network::neutron::neutron_region_name: regionOne
+    nova::network::neutron::neutron_username: neutron
+    nova::notification_driver: messagingv2
+    nova::notification_format: unversioned
+    nova::notify_on_state_change: vm_and_task_state
+    nova::os_region_name: regionOne
+    nova::ovsdb_connection: ''
+    nova::placement::auth_url: http://192.168.24.2:5000
+    nova::placement::password: NeIqTAUTKw4SgOJrFpO24LOFf
+    nova::placement::project_name: service
+    nova::placement::region_name: regionOne
+    nova::placement::valid_interfaces: internal
+    nova::policy::policies: {}
+    nova::purge_config: false
+    nova::rabbit_heartbeat_timeout_threshold: 60
+    nova::rabbit_use_ssl: 'False'
+    nova::ram_allocation_ratio: '1.0'
+    nova::scheduler::discover_hosts_in_cells_interval: -1
+    nova::scheduler::filter::scheduler_available_filters: []
+    nova::scheduler::filter::scheduler_default_filters: []
+    nova::scheduler::filter::scheduler_max_attempts: 3
+    nova::scheduler::limit_tenants_to_placement_aggregate: false
+    nova::scheduler::query_placement_for_image_type_support: true
+    nova::use_ipv6: false
+    nova::vncproxy::common::vncproxy_host: 192.168.24.2
+    nova::vncproxy::common::vncproxy_port: '6080'
+    nova::vncproxy::common::vncproxy_protocol: http
+    nova::vncproxy::enabled: true
+    nova::vncproxy::host: '%{hiera(''ctlplane'')}'
+    nova::workarounds::enable_numa_live_migration: false
+    nova::wsgi::apache_api::bind_host: '%{hiera(''ctlplane'')}'
+    nova::wsgi::apache_api::servername: '%{hiera(''fqdn_ctlplane'')}'
+    nova::wsgi::apache_api::ssl: false
+    nova::wsgi::apache_metadata::api_port: '8775'
+    nova::wsgi::apache_metadata::bind_host: '%{hiera(''ctlplane'')}'
+    nova::wsgi::apache_metadata::servername: '%{hiera(''fqdn_ctlplane'')}'
+    nova::wsgi::apache_metadata::ssl: false
+    nova_enable_db_archive: true
+    nova_enable_db_purge: true
+    nova_is_additional_cell: false
+    nova_metadata_wsgi_enabled: true
+    nova_wsgi_enabled: true
+    oslo_messaging_notify_password: Ad0ES3lVFkiFpd8Cc8rieyCgY
+    oslo_messaging_notify_port: 5672
+    oslo_messaging_notify_scheme: rabbit
+    oslo_messaging_notify_use_ssl: 'False'
+    oslo_messaging_notify_user_name: guest
+    oslo_messaging_rpc_password: Ad0ES3lVFkiFpd8Cc8rieyCgY
+    oslo_messaging_rpc_port: 5672
+    oslo_messaging_rpc_scheme: rabbit
+    oslo_messaging_rpc_use_ssl: 'False'
+    oslo_messaging_rpc_user_name: guest
+    ovn::controller::enable_hw_offload: false
+    ovn::controller::hostname: '%{hiera(''fqdn_canonical'')}'
+    ovn::controller::ovn_bridge: br-int
+    ovn::controller::ovn_bridge_mappings:
+      - datacentre:br-ctlplane
+    ovn::controller::ovn_cms_options: ''
+    ovn::controller::ovn_encap_ip: '%{hiera(''ctlplane'')}'
+    ovn::northbound::port: 6641
+    ovn::northd::dbs_listen_ip: '%{hiera(''ctlplane'')}'
+    ovn::southbound::port: 6642
+    placement::db::database_connection: >-
+      mysql+pymysql://placement:x@192.168.24.2/placement?read_default_group=tripleo&read_default_file=/etc/my.cnf.d/tripleo.cnf
+    placement::db::mysql::allowed_hosts:
+      - '%'
+      - '%{hiera(''mysql_bind_host'')}'
+    placement::db::mysql::dbname: placement
+    placement::db::mysql::host: 192.168.24.2
+    placement::db::mysql::password: NeIqTAUTKw4SgOJrFpO24LOFf
+    placement::db::mysql::user: placement
+    placement::keystone::auth::admin_url: http://192.168.24.2:8778/placement
+    placement::keystone::auth::internal_url: http://192.168.24.2:8778/placement
+    placement::keystone::auth::password: NeIqTAUTKw4SgOJrFpO24LOFf
+    placement::keystone::auth::public_url: http://192.168.24.2:8778/placement
+    placement::keystone::auth::region: regionOne
+    placement::keystone::auth::tenant: service
+    placement::keystone::authtoken::auth_uri: http://192.168.24.2:5000
+    placement::keystone::authtoken::auth_url: http://192.168.24.2:5000
+    placement::keystone::authtoken::password: NeIqTAUTKw4SgOJrFpO24LOFf
+    placement::keystone::authtoken::project_name: service
+    placement::keystone::authtoken::www_authenticate_uri: http://192.168.24.2:5000
+    placement::wsgi::apache::api_port: '8778'
+    placement::wsgi::apache::bind_host: '%{hiera(''ctlplane'')}'
+    placement::wsgi::apache::servername: '%{hiera(''fqdn_ctlplane'')}'
+    placement::wsgi::apache::ssl: false
+    rabbit_ipv6: false
+    rabbitmq::admin_enable: false
+    rabbitmq::collect_statistics_interval: 30000
+    rabbitmq::config_management_variables:
+      rates_mode: none
+    rabbitmq::default_pass: Ad0ES3lVFkiFpd8Cc8rieyCgY
+    rabbitmq::default_user: guest
+    rabbitmq::delete_guest_user: false
+    rabbitmq::erlang_cookie: tuUwS7YJ4PSxIGygyhaB
+    rabbitmq::file_limit: 65536
+    rabbitmq::interface: '%{hiera(''ctlplane'')}'
+    rabbitmq::management_enable: true
+    rabbitmq::management_ip_address: 127.0.0.1
+    rabbitmq::nr_ha_queues: 0
+    rabbitmq::package_provider: yum
+    rabbitmq::package_source: undef
+    rabbitmq::port: 5672
+    rabbitmq::repos_ensure: false
+    rabbitmq::ssl: false
+    rabbitmq::ssl_depth: 1
+    rabbitmq::ssl_erl_dist: false
+    rabbitmq::ssl_interface: '%{hiera(''ctlplane'')}'
+    rabbitmq::ssl_only: false
+    rabbitmq::ssl_port: 5672
+    rabbitmq::tcp_keepalive: true
+    rabbitmq::use_config_file_for_plugins: true
+    rabbitmq::wipe_db_on_cookie_change: true
+    rabbitmq_config_variables:
+      cluster_partition_handling: ignore
+      loopback_users: '[]'
+      queue_master_locator: <<"min-masters">>
+    rabbitmq_environment:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      NODE_IP_ADDRESS: ''
+      NODE_PORT: ''
+      RABBITMQ_NODENAME: rabbit@%{::hostname}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '''+sbwt none'''
+      RABBITMQ_SERVER_ERL_ARGS: '"+K true +P 1048576 -kernel inet_default_connect_options
+        [{nodelay,true}]"'
+      export ERL_EPMD_ADDRESS: '%{hiera(''rabbitmq::interface'')}'
+    rabbitmq_kernel_variables:
+      inet_dist_listen_max: '25672'
+      inet_dist_listen_min: '25672'
+      net_ticktime: 15
+    rbd_persistent_storage: true
+    snmp::agentaddress:
+      - udp:161
+      - udp6:[::1]:161
+    snmp::snmpd_options: -LS0-5d
+    swift::keystone::auth::admin_url: http://192.168.24.2:8080
+    swift::keystone::auth::admin_url_s3: http://192.168.24.2:8080
+    swift::keystone::auth::configure_s3_endpoint: false
+    swift::keystone::auth::internal_url: http://192.168.24.2:8080/v1/AUTH_%(tenant_id)s
+    swift::keystone::auth::internal_url_s3: http://192.168.24.2:8080
+    swift::keystone::auth::operator_roles:
+      - admin
+      - swiftoperator
+      - ResellerAdmin
+    swift::keystone::auth::password: nV40MDtEbpvokWhEKmoDE52TV
+    swift::keystone::auth::public_url: http://192.168.24.2:8080/v1/AUTH_%(tenant_id)s
+    swift::keystone::auth::public_url_s3: http://192.168.24.2:8080
+    swift::keystone::auth::region: regionOne
+    swift::keystone::auth::tenant: service
+    swift::proxy::account_autocreate: true
+    swift::proxy::authtoken::auth_uri: http://192.168.24.2:5000
+    swift::proxy::authtoken::auth_url: http://192.168.24.2:5000
+    swift::proxy::authtoken::password: nV40MDtEbpvokWhEKmoDE52TV
+    swift::proxy::authtoken::project_name: service
+    swift::proxy::keystone::operator_roles:
+      - admin
+      - swiftoperator
+      - ResellerAdmin
+    swift::proxy::node_timeout: 60
+    swift::proxy::pipeline:
+      - catch_errors
+      - healthcheck
+      - proxy-logging
+      - cache
+      - ratelimit
+      - bulk
+      - tempurl
+      - formpost
+      - authtoken
+      - s3api
+      - s3token
+      - keystone
+      - staticweb
+      - copy
+      - container_quotas
+      - account_quotas
+      - slo
+      - dlo
+      - versioned_writes
+      - proxy-logging
+      - proxy-server
+    swift::proxy::port: '8080'
+    swift::proxy::proxy_local_net_ip: '%{hiera(''ctlplane'')}'
+    swift::proxy::s3token::auth_uri: http://192.168.24.2:5000/v3
+    swift::proxy::staticweb::url_base: http://192.168.24.2:8080
+    swift::proxy::versioned_writes::allow_versioned_writes: true
+    swift::storage::all::account_pipeline:
+      - healthcheck
+      - account-server
+    swift::storage::all::container_pipeline:
+      - healthcheck
+      - container-server
+    swift::storage::all::incoming_chmod: Du=rwx,g=rx,o=rx,Fu=rw,g=r,o=r
+    swift::storage::all::mount_check: false
+    swift::storage::all::object_pipeline:
+      - healthcheck
+      - recon
+      - object-server
+    swift::storage::all::outgoing_chmod: Du=rwx,g=rx,o=rx,Fu=rw,g=r,o=r
+    swift::storage::all::storage_local_net_ip: '%{hiera(''ctlplane'')}'
+    swift::storage::disks::args: {}
+    swift::swift_hash_path_suffix: Go8IO3qI6N4oN4ogtOToa6hrK
+    sysctl_settings:
+      fs.inotify.max_user_instances:
+        value: 1024
+      fs.suid_dumpable:
+        value: 0
+      kernel.dmesg_restrict:
+        value: 1
+      kernel.pid_max:
+        value: 1048576
+      net.core.netdev_max_backlog:
+        value: 10000
+      net.ipv4.conf.all.arp_accept:
+        value: 1
+      net.ipv4.conf.all.arp_notify:
+        value: 1
+      net.ipv4.conf.all.log_martians:
+        value: 1
+      net.ipv4.conf.all.secure_redirects:
+        value: 0
+      net.ipv4.conf.all.send_redirects:
+        value: 0
+      net.ipv4.conf.default.accept_redirects:
+        value: 0
+      net.ipv4.conf.default.log_martians:
+        value: 1
+      net.ipv4.conf.default.secure_redirects:
+        value: 0
+      net.ipv4.conf.default.send_redirects:
+        value: 0
+      net.ipv4.ip_forward:
+        value: 1
+      net.ipv4.ip_nonlocal_bind:
+        value: 1
+      net.ipv4.neigh.default.gc_thresh1:
+        value: 1024
+      net.ipv4.neigh.default.gc_thresh2:
+        value: 2048
+      net.ipv4.neigh.default.gc_thresh3:
+        value: 4096
+      net.ipv4.tcp_keepalive_intvl:
+        value: 1
+      net.ipv4.tcp_keepalive_probes:
+        value: 5
+      net.ipv4.tcp_keepalive_time:
+        value: 5
+      net.ipv6.conf.all.accept_ra:
+        value: 0
+      net.ipv6.conf.all.accept_redirects:
+        value: 0
+      net.ipv6.conf.all.autoconf:
+        value: 0
+      net.ipv6.conf.all.disable_ipv6:
+        value: 0
+      net.ipv6.conf.all.ndisc_notify:
+        value: 1
+      net.ipv6.conf.default.accept_ra:
+        value: 0
+      net.ipv6.conf.default.accept_redirects:
+        value: 0
+      net.ipv6.conf.default.autoconf:
+        value: 0
+      net.ipv6.conf.default.disable_ipv6:
+        value: 0
+      net.ipv6.conf.lo.disable_ipv6:
+        value: 0
+      net.ipv6.ip_nonlocal_bind:
+        value: 1
+      net.netfilter.nf_conntrack_max:
+        value: 500000
+      net.nf_conntrack_max:
+        value: 500000
+    tripleo::ceph_mgr::firewall_rules:
+      113 ceph_mgr:
+        dport:
+          - 6800-7300
+    tripleo::ceph_mon::firewall_rules:
+      110 ceph_mon:
+        dport:
+          - 6789
+          - 3300
+    tripleo::ceph_osd::firewall_rules:
+      111 ceph_osd:
+        dport:
+          - 6800-7300
+    tripleo::cinder_api::firewall_rules:
+      119 cinder:
+        dport:
+          - 8776
+          - 13776
+    tripleo::cinder_volume::firewall_rules:
+      120 iscsi initiator:
+        dport: 3260
+    tripleo::docker_registry::firewall_rules:
+      155 docker-registry:
+        dport:
+          - 8787
+          - 13787
+    tripleo::firewall::manage_firewall: true
+    tripleo::firewall::purge_firewall_rules: false
+    tripleo::glance_api::firewall_rules:
+      112 glance_api:
+        dport:
+          - 9292
+          - 13292
+    tripleo::haproxy::ovn_dbs_manage_lb: true
+    tripleo::horizon::firewall_rules:
+      126 horizon:
+        dport:
+          - 80
+          - 443
+    tripleo::keystone::firewall_rules:
+      111 keystone:
+        dport:
+          - 5000
+          - 13000
+          - '35357'
+    tripleo::memcached::firewall_rules:
+      121 memcached 192.168.24.2/24:
+        dport: 11211
+        proto: tcp
+        source: 192.168.24.2/24
+    tripleo::mysql::firewall_rules:
+      104 mysql galera:
+        dport:
+          - 873
+          - 3306
+          - 4444
+          - 4567
+          - 4568
+          - 9200
+    tripleo::neutron_api::firewall_rules:
+      114 neutron api:
+        dport:
+          - 9696
+          - 13696
+    tripleo::nova_api::firewall_rules:
+      113 nova_api:
+        dport:
+          - 8774
+          - 13774
+    tripleo::nova_libvirt::firewall_rules:
+      200 nova_libvirt:
+        dport:
+          - 16514
+          - 61152-61215
+          - 5900-6923
+    tripleo::nova_metadata::firewall_rules:
+      139 nova_metadata:
+        dport:
+          - 8775
+          - 13775
+    tripleo::nova_migration_target::firewall_rules:
+      113 nova_migration_target:
+        dport:
+          - 2022
+    tripleo::nova_vnc_proxy::firewall_rules:
+      137 nova_vnc_proxy:
+        dport:
+          - 6080
+          - 13080
+    tripleo::ntp::firewall_rules:
+      105 ntp:
+        dport: 123
+        proto: udp
+    tripleo::oslo_messaging_rpc::firewall_rules:
+      109 rabbitmq:
+        dport:
+          - 4369
+          - 5672
+          - 25672
+    tripleo::ovn_controller::firewall_rules:
+      118 neutron vxlan networks:
+        dport: 4789
+        proto: udp
+      119 neutron geneve networks:
+        dport: 6081
+        proto: udp
+    tripleo::ovn_dbs::firewall_rules:
+      121 OVN DB server ports:
+        dport:
+          - 6641
+          - 6642
+        proto: tcp
+    tripleo::packages::enable_install: true
+    tripleo::placement::firewall_rules:
+      138 placement:
+        dport:
+          - 8778
+          - 13778
+    tripleo::profile::base::cinder::cinder_enable_db_purge: true
+    tripleo::profile::base::cinder::volume::cinder_enable_iscsi_backend: false
+    tripleo::profile::base::cinder::volume::cinder_enable_nfs_backend: false
+    tripleo::profile::base::cinder::volume::cinder_enable_rbd_backend: true
+    tripleo::profile::base::cinder::volume::cinder_volume_cluster: ''
+    tripleo::profile::base::cinder::volume::iscsi::cinder_iscsi_address: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::cinder::volume::iscsi::cinder_iscsi_helper: lioadm
+    tripleo::profile::base::cinder::volume::iscsi::cinder_iscsi_protocol: iscsi
+    tripleo::profile::base::cinder::volume::iscsi::cinder_lvm_loop_device_size: 10280
+    tripleo::profile::base::cinder::volume::nfs::cinder_nas_secure_file_operations: 'False'
+    tripleo::profile::base::cinder::volume::nfs::cinder_nas_secure_file_permissions: 'False'
+    tripleo::profile::base::cinder::volume::nfs::cinder_nfs_mount_options: ''
+    tripleo::profile::base::cinder::volume::nfs::cinder_nfs_servers: []
+    tripleo::profile::base::cinder::volume::nfs::cinder_nfs_snapshot_support: true
+    tripleo::profile::base::cinder::volume::rbd::cinder_rbd_ceph_conf: /etc/ceph/ceph.conf
+    tripleo::profile::base::cinder::volume::rbd::cinder_rbd_extra_pools: []
+    tripleo::profile::base::cinder::volume::rbd::cinder_rbd_pool_name: volumes
+    tripleo::profile::base::cinder::volume::rbd::cinder_rbd_secret_uuid: 1953d132-af27-11e9-b0aa-525401f8c930
+    tripleo::profile::base::cinder::volume::rbd::cinder_rbd_user_name: openstack
+    tripleo::profile::base::database::mysql::bind_address: '%{hiera(''fqdn_ctlplane'')}'
+    tripleo::profile::base::database::mysql::client::enable_ssl: false
+    tripleo::profile::base::database::mysql::client::mysql_client_bind_address: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::database::mysql::client::ssl_ca: /etc/ipa/ca.crt
+    tripleo::profile::base::database::mysql::client_bind_address: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::database::mysql::generate_dropin_file_limit: true
+    tripleo::profile::base::database::mysql::mysql_server_options:
+      mysqld:
+        pid-file: /var/lib/mysql/mariadb.pid
+      mysqld_safe:
+        pid-file: /var/lib/mysql/mariadb.pid
+    tripleo::profile::base::glance::api::tls_proxy_bind_ip: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::glance::api::tls_proxy_fqdn: '%{hiera(''fqdn_ctlplane'')}'
+    tripleo::profile::base::glance::api::tls_proxy_port: '9292'
+    tripleo::profile::base::keystone::extra_notification_topics: []
+    tripleo::profile::base::logging::logrotate::maxsize: 10M
+    tripleo::profile::base::logging::logrotate::purge_after_days: '14'
+    tripleo::profile::base::logging::logrotate::rotate: '14'
+    tripleo::profile::base::logging::logrotate::rotation: daily
+    tripleo::profile::base::lvm::enable_udev: false
+    tripleo::profile::base::neutron::agents::ovn::ovn_db_host: 192.168.24.2
+    tripleo::profile::base::neutron::container_cli: podman
+    tripleo::profile::base::neutron::ovn_metadata::ovn_db_host: 192.168.24.2
+    tripleo::profile::base::neutron::ovn_metadata_agent_wrappers::debug: true
+    tripleo::profile::base::neutron::ovn_metadata_agent_wrappers::enable_haproxy_wrapper: true
+    tripleo::profile::base::neutron::ovn_metadata_agent_wrappers::haproxy_image: >-
+      docker.io/tripleomaster/centos-binary-neutron-metadata-agent-ovn:current-tripleo
+    tripleo::profile::base::neutron::ovn_metadata_agent_wrappers::haproxy_process_wrapper: /var/lib/neutron/ovn_metadata_haproxy_wrapper
+    tripleo::profile::base::neutron::server::l3_ha_override: ''
+    tripleo::profile::base::neutron::server::tls_proxy_bind_ip: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::neutron::server::tls_proxy_fqdn: '%{hiera(''fqdn_ctlplane'')}'
+    tripleo::profile::base::neutron::server::tls_proxy_port: '9696'
+    tripleo::profile::base::nova::compute::cinder_nfs_backend: false
+    tripleo::profile::base::nova::compute::nova_nfs_enabled: false
+    tripleo::profile::base::nova::migration::client::libvirt_enabled: true
+    tripleo::profile::base::nova::migration::client::nova_compute_enabled: true
+    tripleo::profile::base::nova::migration::client::ssh_port: 2022
+    tripleo::profile::base::nova::migration::client::ssh_private_key: '-----BEGIN
+      RSA PRIVATE KEY-----
+
+      MIIEowIBAAKCAQEAruCFZsiDGTHk3ThZeS+/9TsRlf729wnzsLFVjhMJ8Fa4E2vv
+
+      9ibMgxEW5tsgy4axd7D/HfvC1VucIEVyX73sE8iGUl1qf0q7ZrpzWqKXDiWaLFzv
+
+      HTJ7OMtnprP/7GndMgqinBLZLnMRdNFp/e9k9oRZjbnPX/B8WVVyJ8vfWohCU7LL
+
+      1Kcm0rjqu0tuTAnVYNeUYhGBxo+x6UneEmrc3Qj4GOXVug/dkEAQVe87NG0qwvSX
+
+      ceN0KGO3k347e48KC2HPjd9i/Ta7elQIQ4xW/dJuo2N8TMq51lsUSJubnkzWB68F
+
+      28dwGrXdueNdUIdkl+ykzn9sh1qbXfmDegVZdQIDAQABAoIBADJa1i7Vd+JuWn9U
+
+      tXbOyBBeFN9DDmvuAqyTM5Z4Zvk8jz6QawVPAL6Q0i5hVJ0mSL21SpCgqOZ0vY0R
+
+      UjC9aFf9+qeG3J6Qr0uSTpr/jE13iGBT1kpq+c5Ny6fV1tCFXzsEkvQr/TuByLoB
+
+      fuqu3zyYuYy0v0DZ54R1tSw+aS8Q6SJRxYAxpjlGz0a7YZgYtQlyioJLbCJuDB6F
+
+      PBPpnX720/YIURYYaYLtkA4gBdUf4kVifgG+PNb3et2loeMAsPQHoQx9ekCzH8Nh
+
+      aK30YnoLHDFZwnFYJ9InRX0UaowOD2OLJXhvtTL77NndZiIjMZsfjy2DFNDSWSY6
+
+      Uwez81UCgYEA4gdlq4P3QgPBNkNRHjTr+wPkAhraLfKuatnuTxnA8XaUfrrAaa//
+
+      /te5vU6iETVUVtIGr+vkpnzgc//7NPMlHDac86AnHzReoSpj3pUWpuucXRPhSAvP
+
+      8Iol/bgltniVI1nSzy0Nyao61hpr5yTNsQ6yMsmWlhWbrjt2J/0Ex2cCgYEAxhDD
+
+      JqoY3659mvigdlNmHbqMLG2wi6cjNqM/QIunOlvbD0IPrKk/8F2CxTPSwrDk4Q48
+
+      EK3HzL6mVXRG0DTy/5Q3Dgn71uczA7D1VKA2+xkDZa0AU/uYmEs6uQl3+cm/MZ6e
+
+      WnmIBJOZySDQJCUPZl6aM8PKS/Bd3Q0x4LQ3GsMCgYEAhLSvHsp2S44EzKUtZTzR
+
+      KCmanxnA66VGfnnBjzOhsqNagCWJfwPUm31xEhKu2Mek4uyg/HzVXGKJLdInXWk8
+
+      apouAGQRVCLdRGatCCwkhpBi18sqQ7Cbv7B8qcCKc93MQlskiHr9U1/c94O/wpA7
+
+      LC9itKri/O9m3h8POl81hRUCgYBqBYUBCGJCMfwoXVg/nor19OqdyaWMS85sq9vq
+
+      6BZ/BbZwJ3OOgBaqytN6TjBOaTRLSDxczTk7Xv5YleJmB0HgD22dBTkaoy3Klwnr
+
+      38suhAguf/nB+taHBxYLAIeJXTYMEJVBZvapRH04jWj9QB1LNe6jMPXzylnkPvDp
+
+      EG7C0wKBgFjEa7ElbdNEu05VuqD19PLQTM2rc6v4j3WwnQbzGDk7JiCgASaBxLt9
+
+      rRRi0Sn/E44WKUnJoSGBF0PhzXRFYHU++NGIT4HnTPh1TNt34LAKRnyrTJSqPcXH
+
+      xBNtIzdco6nTGob+KhvOEukfr2UcavrBhu5C8odWksHYtVqlAavt
+
+      -----END RSA PRIVATE KEY-----
+
+      '
+    tripleo::profile::base::nova::migration::target::ssh_authorized_keys:
+      - ssh-rsa AAAA Generated by TripleO
+    tripleo::profile::base::nova::migration::target::ssh_localaddrs:
+      - '%{hiera(''cold_migration_ssh_inbound_addr'')}'
+      - '%{hiera(''live_migration_ssh_inbound_addr'')}'
+    tripleo::profile::base::rabbitmq::enable_internal_tls: false
+    tripleo::profile::base::snmp::snmpd_password: ZkddlmhkuIlSEtarb13ZXwXOj
+    tripleo::profile::base::snmp::snmpd_user: ro_snmp_user
+    tripleo::profile::base::sshd::bannertext: ''
+    tripleo::profile::base::sshd::motd: ''
+    tripleo::profile::base::sshd::options:
+      AcceptEnv:
+        - LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+        - LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+        - LC_IDENTIFICATION LC_ALL LANGUAGE
+        - XMODIFIERS
+      AuthorizedKeysFile: .ssh/authorized_keys
+      ChallengeResponseAuthentication: 'no'
+      GSSAPIAuthentication: 'yes'
+      GSSAPICleanupCredentials: 'no'
+      HostKey:
+        - /etc/ssh/ssh_host_rsa_key
+        - /etc/ssh/ssh_host_ecdsa_key
+        - /etc/ssh/ssh_host_ed25519_key
+      Subsystem: sftp  /usr/libexec/openssh/sftp-server
+      SyslogFacility: AUTHPRIV
+      UseDNS: 'no'
+      UsePAM: 'yes'
+      UsePrivilegeSeparation: sandbox
+      X11Forwarding: 'yes'
+    tripleo::profile::base::sshd::password_authentication: 'no'
+    tripleo::profile::base::sshd::port:
+      - 22
+    tripleo::profile::base::swift::proxy::ceilometer_enabled: false
+    tripleo::profile::base::swift::proxy::ceilometer_messaging_use_ssl: 'False'
+    tripleo::profile::base::swift::proxy::tls_proxy_bind_ip: '%{hiera(''ctlplane'')}'
+    tripleo::profile::base::swift::proxy::tls_proxy_fqdn: '%{hiera(''fqdn_ctlplane'')}'
+    tripleo::profile::base::swift::proxy::tls_proxy_port: '8080'
+    tripleo::profile::base::swift::ringbuilder::build_ring: true
+    tripleo::profile::base::swift::ringbuilder::min_part_hours: 1
+    tripleo::profile::base::swift::ringbuilder::part_power: 10
+    tripleo::profile::base::swift::ringbuilder::raw_disk_prefix: r1z1-
+    tripleo::profile::base::swift::ringbuilder::raw_disks:
+      - :%PORT%/d1
+    tripleo::profile::base::swift::ringbuilder::replicas: 1
+    tripleo::profile::base::swift::ringbuilder::swift_ring_get_tempurl: ''
+    tripleo::profile::base::swift::ringbuilder::swift_ring_put_tempurl: ''
+    tripleo::profile::base::swift::ringbuilder:skip_consistency_check: true
+    tripleo::profile::base::swift::storage::use_local_dir: true
+    tripleo::rabbitmq::firewall_rules:
+      109 rabbitmq:
+        dport:
+          - 4369
+          - 5672
+          - 25672
+    tripleo::snmp::firewall_rules:
+      124 snmp 192.168.24.2/24:
+        dport: 161
+        proto: udp
+        source: 192.168.24.2/24
+    tripleo::sshd::firewall_rules:
+      003 accept ssh from all:
+        dport: 22
+        proto: tcp
+    tripleo::swift_proxy::firewall_rules:
+      122 swift proxy:
+        dport:
+          - 8080
+          - 13808
+    tripleo::swift_storage::firewall_rules:
+      123 swift storage:
+        dport:
+          - 873
+          - 6000
+          - 6001
+          - 6002
+    tripleo::tripleo_firewall::firewall_rules:
+      003 accept ssh from ctlplane subnet 192.168.24.2/24:
+        dport: 22
+        proto: tcp
+        source: 192.168.24.2/24
+    tripleo::trusted_cas::ca_map: {}
+    vhostuser_socket_group: qemu
+  standalone_extraconfig:
+    sensu::subscriptions:
+      - overcloud-cinder-api
+      - overcloud-cinder-scheduler
+      - overcloud-cinder-volume
+      - overcloud-glance-api
+      - overcloud-horizon
+      - overcloud-keystone
+      - overcloud-memcached
+      - overcloud-neutron-server
+      - overcloud-nova-api
+      - overcloud-nova-compute
+      - overcloud-nova-conductor
+      - overcloud-nova-libvirt
+      - overcloud-nova-metadata
+      - overcloud-nova-scheduler
+      - overcloud-ovn-metadata
+      - overcloud-rabbitmq
+      - overcloud-swift-proxy
+type: json

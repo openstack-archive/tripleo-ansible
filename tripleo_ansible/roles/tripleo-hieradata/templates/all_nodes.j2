@@ -1,0 +1,42 @@
+{% set all_nodes = {} %}
+{% set _ = all_nodes.__setitem__('enabled_services', (enabled_services | unique)) %}
+{% for service in enabled_services %}
+{# <service>_enabled: true #}
+{%   set _ = all_nodes.__setitem__((service ~ '_enabled'), true) %}
+{# <service>_node_ips: <list of ips> #}
+{%   set _ = all_nodes.__setitem__((service ~ '_node_ips'), (groups[service] | default ([]) | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_ip') | list)) %}
+{%   if nova_additional_cell %}
+{#     <service>_cell_node_names: <list of hostnames> #}
+{%     set _ = all_nodes.__setitem__((service ~ '_cell_node_names'), (groups[service] | default ([]) | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_hostname') | list)) %}
+{%   else %}
+{#     <service>_node_names: <list of hostnames> #}
+{%     set _ = all_nodes.__setitem__((service ~ '_node_names'), (groups[service] | default ([]) | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_hostname') | list)) %}
+{%   endif %}
+{# <service>_short_node_names: <list of hostnames> #}
+{%   set _ = all_nodes.__setitem__((service ~ '_short_node_names'), (groups[service] | default ([]) | map('extract', hostvars, 'inventory_hostname') | list)) %}
+{# <service>_short_bootstrap_node_name: hostname #}
+{%   set services = (groups[service] | default ([]) | map('extract', hostvars, 'inventory_hostname')) | list %}
+{%   if (services | length) > 0 %}
+{%     set _ = all_nodes.__setitem__((service ~ '_short_bootstrap_node_name'), (services | first)) %}
+{%   endif %}
+{# <service>_bootstrap_node_ip: hostname #}
+{%   set services = (groups[service] | default ([]) | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_ip')) | list %}
+{%   if (services | length) > 0 %}
+{%     set _ = all_nodes.__setitem__((service ~ '_bootstrap_node_ip'), (services | first)) %}
+{%   endif %}
+{% endfor %}
+{# <service>_network: <network> #}
+{% for key, value in service_net_map.items() %}
+{%   set _ = all_nodes.__setitem__(key, value) %}
+{% endfor %}
+{% if 'redis' in enabled_services %}
+{%   set _ = all_nodes.__setitem__('redis_vip', (net_vip_map.redis)) %}
+{% endif %}
+{% set _ = all_nodes.__setitem__('deploy_identifier', deploy_identifier) %}
+{% set _ = all_nodes.__setitem__('stack_action', stack_action) %}
+{% set _ = all_nodes.__setitem__('stack_update_type', stack_update_type) %}
+{% set _ = all_nodes.__setitem__('container_cli', container_cli) %}
+{% set _ = all_nodes.__setitem__('controller_node_ips', (groups[primary_role_name] | default([]) | map('extract', hostvars, 'ctlplane_ip') | list | join(','))) %}
+{% set _ = all_nodes.__setitem__('controller_node_names', (groups[primary_role_name] | default([]) | map('extract', hostvars, 'inventory_hostname') | list | join(','))) %}
+{# RENDER #}
+{{ all_nodes | to_nice_json }}

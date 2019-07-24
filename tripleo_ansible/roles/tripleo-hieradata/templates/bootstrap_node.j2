@@ -1,0 +1,4 @@
+{% set boostrap_node = {} %}
+{% set _ = boostrap_node.__setitem__('boostrap_node_id', bootstrap_nodeid) %}
+{# RENDER #}
+{{ boostrap_node | to_nice_json }}

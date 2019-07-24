@@ -1,0 +1,45 @@
+{% set vip_data = {} %}
+{% set _ = vip_data.__setitem__('controller_virtual_ip', control_virtual_ip) %}
+{% set _ = vip_data.__setitem__('keystone_admin_api_vip', (net_vip_map[service_net_map['keystone_admin_api_network']])) %}
+{% set _ = vip_data.__setitem__('keystone_public_api_vip', (net_vip_map[service_net_map['keystone_public_api_network']])) %}
+{% if 'External' in enabled_networks %}
+{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
+{% else %}
+{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map.ctlplane)) %}
+{% endif %}
+{% if 'InternalApi' in enabled_networks %}
+{# the internal_api_virtual_ip is needed for contrail only #}
+{%   set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[networks['InternalApi']['name_lower']])) %}
+{% endif %}
+{% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
+{% for network in enabled_networks %}
+{%   if network == 'StorageNFS' %}
+{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[storagenfs_net_name])) %}
+{%   endif %}
+{% endfor %}
+{# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
+{% if 'External' in enabled_networks %}
+{%   set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
+{%   set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
+{% else %}
+{%   set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map.ctlplane)) %}
+{%   set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map.ctlplane)) %}
+{% endif %}
+{% set _ = vip_data.__setitem__('tripleo::haproxy::controller_virtual_ip', (net_vip_map.ctlplane)) %}
+{% set _ = vip_data.__setitem__('tripleo::keepalived::controller_virtual_ip', (net_vip_map.ctlplane)) %}
+{% set _ = vip_data.__setitem__('tripleo::keepalived::redis_virtual_ip', (net_vip_map.redis)) %}
+{% set _ = vip_data.__setitem__('tripleo::redis_notification::haproxy_monitor_ip', (net_vip_map.ctlplane)) %}
+{% for key, value in cloud_names.items() %}
+{%   set _ = vip_data.__setitem__(key, value) %}
+{% endfor %}
+{% set _ = vip_data.__setitem__('enable_internal_tls', (enable_internal_tls | lower | bool)) %}
+{% for service in enabled_services %}
+{%   if service_net_map.get(service ~ '_network', 'noop') in net_vip_map %}
+{# we set explicit vips for these services, no need to calculate them dynamically #}
+{%     if service not in ['redis', 'ganesha', 'keystone_admin_api_vip', 'keystone_public_api_vip'] %}
+{%       set _ = vip_data.__setitem__((service ~ '_vip'), (net_vip_map[service_net_map[service ~ '_network']])) %}
+{%     endif %}
+{%   endif %}
+{% endfor %}
+{# RENDER #}
+{{ vip_data | to_nice_json }}

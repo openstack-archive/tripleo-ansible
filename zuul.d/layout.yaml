@@ -7,40 +7,55 @@
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
-      - tripleo-ci-centos-7-scenario004-standalone:
-          files: &scenario004
-          - ^tripleo_ansible/.*
+      - tripleo-ci-centos-7-containers-multinode: &containers_multinode
+          files:
+          - ^tripleo_ansible/roles/tripleo-hieradata/.*
+          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: &irrelevant_scenario_files
           - .*.md$
           - .*.rst$
           - .*.txt$
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
-      - tripleo-ci-centos-7-scenario010-standalone:
-          files: &scenario010
+      - tripleo-ci-centos-7-scenario001-standalone: &scenario001
+          files:
+          - ^tripleo_ansible/roles/tripleo-hieradata/.*
+          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+          irrelevant-files: *irrelevant_scenario_files
+      - tripleo-ci-centos-7-scenario002-standalone: &scenario002
+          files:
+          - ^tripleo_ansible/roles/tripleo-hieradata/.*
+          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+          irrelevant-files: *irrelevant_scenario_files
+      - tripleo-ci-centos-7-scenario003-standalone: &scenario003
+          files:
+          - ^tripleo_ansible/roles/tripleo-create-admin/.*
+          - ^tripleo_ansible/roles/tripleo-hieradata/.*
+          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+          irrelevant-files: *irrelevant_scenario_files
+      - tripleo-ci-centos-7-scenario004-standalone: &scenario004
+          files:
+          - ^tripleo_ansible/.*
+          irrelevant-files: *irrelevant_scenario_files
+      - tripleo-ci-centos-7-scenario010-standalone: &scenario010
+          files:
           - ^tripleo_ansible/.*octavia.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario003-standalone:
-          files: &scenario003
-          - ^tripleo_ansible/roles/tripleo-create-admin/.*
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario012-standalone:
-          files: &scenario012
-          - ^tripleo_ansible/roles/tripleo-module-load/.*
+      - tripleo-ci-centos-7-standalone-upgrade: &standalone_upgrade
+          files:
+          - ^tripleo_ansible/roles/tripleo-hieradata/.*
+          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
       - openstack-tox-linters
       - tripleo-ansible-docs
-      - tripleo-ci-centos-7-scenario004-standalone:
-          files: *scenario004
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario010-standalone:
-          files: *scenario010
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario003-standalone:
-          files: *scenario003
-          irrelevant-files: *irrelevant_scenario_files
+      - tripleo-ci-centos-7-containers-multinode: *containers_multinode
+      - tripleo-ci-centos-7-scenario001-standalone: *scenario001
+      - tripleo-ci-centos-7-scenario002-standalone: *scenario002
+      - tripleo-ci-centos-7-scenario003-standalone: *scenario003
+      - tripleo-ci-centos-7-scenario004-standalone: *scenario004
+      - tripleo-ci-centos-7-scenario010-standalone: *scenario010
     post:
       jobs:
       - publish-openstack-python-branch-tarball
