@@ -279,12 +279,31 @@ class AnsibleAutoPluginDirective(Directive):
 
         self.run_returns.append(section)
 
-    def _run_module(self, module):
+        # Document any libraries nested within the role
+        library_path = os.path.join(role, 'library')
+        if os.path.exists(library_path):
+            self.options['documentation'] = True
+            self.options['examples'] = True
+            for lib in os.listdir(library_path):
+                if lib.endswith('.py'):
+                    self._run_module(
+                        module=self.load_module(
+                            filename=os.path.join(
+                                library_path,
+                                lib
+                            )
+                        ),
+                        module_title='Embedded module: {}'.format(lib),
+                        example_title='Examples for embedded module'
+                    )
+
+    def _run_module(self, module, module_title="Module Documentation",
+                    example_title="Example Tasks"):
         if self.options.get('documentation'):
             docs = self.build_documentation(module=module)
             self.run_returns.append(
                 self.make_node(
-                    title="Module Documentation",
+                    title=module_title,
                     contents=docs
                 )
             )
@@ -293,7 +312,7 @@ class AnsibleAutoPluginDirective(Directive):
             examples = self.build_examples(module=module)
             self.run_returns.append(
                 self.make_node(
-                    title="Example Tasks",
+                    title=example_title,
                     contents=examples,
                     content_type='yaml'
                 )
