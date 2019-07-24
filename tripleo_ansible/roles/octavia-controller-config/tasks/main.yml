@@ -6,7 +6,9 @@
 
 - include_tasks: certificate.yml
   when:
-    - generate_certs | bool
+    - private_key_content|length > 0
+    - ca_cert_content|length > 0
+    - service_pem_content|length > 0
 
 - include_tasks: netport.yml
 
