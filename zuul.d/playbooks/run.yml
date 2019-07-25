@@ -12,6 +12,7 @@
                --html={{ ansible_user_dir }}/zuul-output/logs/reports.html \
                --self-contained-html \
                -s \
+               --ansible-args='{{ tripleo_job_ansible_args | default("-v") }}' \
                {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tests/test_molecule.py
       args:
         chdir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tripleo_ansible/roles/{{ tripleo_role_name }}"

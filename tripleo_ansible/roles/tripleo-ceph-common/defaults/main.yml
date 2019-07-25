@@ -126,7 +126,7 @@ blacklisted_hostnames: []
 ceph_ansible_extra_vars:
   ireallymeanit: 'yes'
   container_binary: 'podman'
-uuid_content: ''
+uuid_content: {}
 ceph_ansible_playbook_verbosity: 3
 ceph_ansible_playbooks_param: ['default']
 local_ceph_ansible_fetch_directory_backup: "{{ playbook_dir }}/ceph-ansible/fetch_backup"

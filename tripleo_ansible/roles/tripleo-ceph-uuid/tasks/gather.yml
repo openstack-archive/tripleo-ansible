@@ -33,3 +33,5 @@
   # needs become to be able to read the ssh private key
   become: true
   shell: "{{ nodes_uuid_list|join(' ') }}"
+  tags:
+    - run_uuid_ansible

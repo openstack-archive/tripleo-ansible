@@ -76,4 +76,5 @@
   when:
     - outputs is changed
     - outputs.rc != 0
-  tags: run_ceph_ansible
+  tags:
+    - run_ceph_ansible

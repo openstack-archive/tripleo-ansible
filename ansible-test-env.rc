@@ -9,6 +9,7 @@ export ANSIBLE_ROLES_PATH="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/roles.gal
 export ANSIBLE_INVENTORY="${TRIPLEO_ANSIBLE_WORKPATH}/tests/hosts.ini"
 export ANSIBLE_RETRY_FILES_ENABLED="0"
 export ANSIBLE_LOAD_CALLBACK_PLUGINS="1"
+export ANSIBLE_HOST_KEY_CHECKING=False
 
 function unset-ansible-test-env {
   for i in $(env | grep ANSIBLE_ | awk -F'=' '{print $1}'); do
