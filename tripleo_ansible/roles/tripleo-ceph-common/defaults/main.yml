@@ -37,16 +37,16 @@ ceph_ansible_group_vars_all:
       rgw_keystone_url: http://192.168.24.18:5000
       rgw_s3_auth_use_keystone: 'true'
       rgw_swift_versioning_enabled: 'true'
-  ceph_docker_image: ceph/daemon
-  ceph_docker_image_tag: v4.0.0-stable-4.0-nautilus-centos-7-x86_64
-  ceph_docker_registry: 192.168.24.1:8787
+      rgw_swift_account_in_url: 'true'
+  ceph_container_image: ceph/daemon
+  ceph_container_image_tag: v4.0.1-stable-4.0-nautilus-centos-7-x86_64
+  ceph_container_registry: 192.168.24.1:8787
   ceph_origin: distro
   ceph_stable: true
   cluster: ceph
   cluster_network: 192.168.24.0/24
   containerized_deployment: true
   configure_firewall: false
-  docker: true
   fsid: b8df929e-7c29-11e9-b1bd-244253215215
   generate_fsid: false
   ip_version: ipv4
@@ -135,7 +135,6 @@ swift_get_url: ''
 swift_put_url: ''
 ceph_ansible_skip_tags: 'package-install,with_pkg'
 ceph_ansible_environment_variables: {}
-docker: true
 containerized_deployment: true
 configure_firewall: false
 user_config: true
