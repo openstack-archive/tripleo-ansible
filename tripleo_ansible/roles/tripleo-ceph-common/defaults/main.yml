@@ -45,6 +45,7 @@ ceph_ansible_group_vars_all:
   cluster: ceph
   cluster_network: 192.168.24.0/24
   containerized_deployment: true
+  configure_firewall: false
   docker: true
   fsid: b8df929e-7c29-11e9-b1bd-244253215215
   generate_fsid: false
@@ -136,6 +137,7 @@ ceph_ansible_skip_tags: 'package-install,with_pkg'
 ceph_ansible_environment_variables: {}
 docker: true
 containerized_deployment: true
+configure_firewall: false
 user_config: true
 ceph_stable: true
 ceph_origin: distro
