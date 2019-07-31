@@ -21,6 +21,21 @@
       stat: path="{{ local_ceph_ansible_fetch_directory_backup }}"
       register: local_backup_directory
       ignore_errors: true
+    - name: fail if ansible does not have necessary permissions on local_backup_directory
+      fail:
+        msg: >-
+          The user running Ansible needs to be able to read and write to
+          the '{{ local_ceph_ansible_fetch_directory_backup }}' directory.
+          Please set the LocalCephAnsibleFetchDirectoryBackup Heat parameter or
+          the local_ceph_ansible_fetch_directory_backup Ansible parameter to a
+          directory the user '{{ lookup('env','USER') }}' can read and write to.
+      when:
+        - (local_backup_directory.msg is defined and
+           local_backup_directory.msg == "Permission denied")
+          or
+          (local_backup_directory.stat is defined and
+           local_backup_directory.stat.exists and
+           not local_backup_directory.stat.writeable)
     - name: autocreate new directory for ceph-ansible fetch directory backup
       become: true
       file:
@@ -28,7 +43,9 @@
         state: directory
         owner: "{{ ansible_user }}"
         mode: 0700
-      when: not local_backup_directory.stat.exists
+      when:
+        - local_backup_directory.stat is defined
+        - not local_backup_directory.stat.exists
     - name: look for tarball of ceph-ansible fetch directory in local backup
       stat: path="{{ local_ceph_ansible_fetch_directory_backup }}/{{ ceph_ansible_tarball_name }}"
       register: local_backup_file
@@ -39,7 +56,9 @@
         /usr/bin/gtar --gzip --extract --file \
            {{ local_ceph_ansible_fetch_directory_backup }}/{{ ceph_ansible_tarball_name }} \
            -C {{ playbook_dir }}/ceph-ansible/fetch_dir
-      when: local_backup_file.stat.exists
+      when:
+        - local_backup_file.stat is defined
+        - local_backup_file.stat.exists
 
 # swift backup
 - when: local_ceph_ansible_fetch_directory_backup | length == 0
