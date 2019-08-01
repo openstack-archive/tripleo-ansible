@@ -2,6 +2,18 @@
 
 - hosts: all
   pre_tasks:
+    - name: Set project path fact
+      set_fact:
+        tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+
+    - name: Set action plugin path fact
+      set_fact:
+        tripleo_action_plugins_paths:
+          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
+          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
+          - "/usr/share/ansible/plugins/action"
+          - "/usr/share/ansible/tripleo-plugins/action"
+
     - name: Ensure output dirs
       file:
         path: "{{ ansible_user_dir }}/zuul-output/logs"
@@ -16,13 +28,21 @@
     - name: Run bindep
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
-        {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/scripts/bindep-install
+        {{ tripleo_ansible_project_path }}/scripts/bindep-install
       become: true
 
     - name: Setup test-python
       pip:
-        requirements: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/molecule-requirements.txt"
+        requirements: "{{ tripleo_ansible_project_path }}/molecule-requirements.txt"
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_site_packages: true
+  tasks:
+    - name: Get Ansible Galaxy roles
+      command: >-
+        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy install
+        -fr
+        {{ tripleo_ansible_project_path }}/tripleo_ansible/ansible-role-requirements.yml
+      environment:
+        ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
     - role: install-docker

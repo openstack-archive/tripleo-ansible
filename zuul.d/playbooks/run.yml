@@ -3,17 +3,31 @@
 - hosts: all
   environment:
     ANSIBLE_LOG_PATH: "{{ ansible_user_dir }}/zuul-output/logs/ansible-execution.log"
+  pre_tasks:
+    - name: Set project path fact
+      set_fact:
+        tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+
+    - name: Set action plugin path fact
+      set_fact:
+        tripleo_action_plugins_paths:
+          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
+          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
+          - "/usr/share/ansible/plugins/action"
+          - "/usr/share/ansible/tripleo-plugins/action"
   tasks:
     - name: Run role test job
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
-        . {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/ansible-test-env.rc
+        . {{ tripleo_ansible_project_path }}/ansible-test-env.rc
         pytest --color=no \
                --html={{ ansible_user_dir }}/zuul-output/logs/reports.html \
                --self-contained-html \
                -s \
                --ansible-args='{{ tripleo_job_ansible_args | default("-v") }}' \
-               {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tests/test_molecule.py
+               {{ tripleo_ansible_project_path }}/tests/test_molecule.py
       args:
-        chdir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tripleo_ansible/roles/{{ tripleo_role_name }}"
+        chdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles/{{ tripleo_role_name }}"
         executable: /bin/bash
+      environment:
+        ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"

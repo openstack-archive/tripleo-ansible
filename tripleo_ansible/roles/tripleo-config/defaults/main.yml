@@ -14,15 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: openstack-operations
-  scm: git
-  src: https://opendev.org/openstack/ansible-role-openstack-operations
-  version: master
-  trackbranch: master
 
-# ansible-config_template action plugin
-- name: config_template
-  scm: git
-  src: https://opendev.org/openstack/ansible-config_template
-  version: master
-  trackbranch: master
+# All variables intended for modification should place placed in this file.
+
+# All variables within this role should have a prefix of "tripleo-config"
+tripleo_config_type: ini
+tripleo_config_owner: root
+tripleo_config_group: root
+tripleo_config_mode: 0644
+tripleo_config_overrides: {}
