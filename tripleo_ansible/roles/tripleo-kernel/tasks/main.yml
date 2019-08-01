@@ -1,0 +1,47 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+# "tripleo-kernel" will search for and load any operating system variable file
+
+- name: Kernel tuning block
+  become: true
+  block:
+    - name: Set default sysctl options
+      template:
+        src: "tripleo-sysctl.conf.j2"
+        dest: "/etc/sysctl.d/99-tripleo.conf"
+      notify:
+        - Sysctl reload
+
+    - name: Set extra sysctl options
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.opt.value }}"
+        sysctl_set: "{{ item.opt.set | default(true) }}"
+        state: "{{ item.opt.state | default('present') }}"
+        sysctl_file: "/etc/sysctl.d/99-tripleo.conf"
+        reload: false
+      loop: "{{ tripleo_kernel_sysctl_extra_settings | dict2items(key_name='key', value_name='opt') }}"
+      notify:
+        - Sysctl reload
+
+    - name: Write list of modules to load at boot
+      template:
+        src: "tripleo-modprobe.conf.j2"
+        dest: "/etc/modules-load.d/99-tripleo.conf"
+      notify:
+        - Modules reload
