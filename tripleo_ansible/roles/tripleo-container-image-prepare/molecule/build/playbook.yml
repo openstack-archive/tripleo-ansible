@@ -1,0 +1,91 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Converge
+  hosts: all
+  serial: 1
+  roles:
+    - role: "tripleo-container-image-prepare"
+      when:
+        - inventory_hostname != "registry"
+      tripleo_container_image_prepare_debug: true
+      tripleo_container_image_prepare_content:
+        parameter_defaults:
+          AdditionalArchitectures: []
+          ContainerImagePrepare:
+            - modify_append_tag: -updated-TEST
+              modify_only_with_labels:
+                - kolla_version
+              modify_role: tripleo-modify-image
+              modify_vars:
+                tasks_from: yum_update.yml
+                update_repo: gating-repo,delorean-current,quickstart-centos-ceph-nautilus
+                yum_repos_dir_path: /etc/yum.repos.d
+              push_destination: "{{ hostvars['registry']['ansible_default_ipv4']['address'] }}:5000"
+              set:
+                ceph_alertmanager_image: alertmanager
+                ceph_alertmanager_namespace: docker.io/prom
+                ceph_alertmanager_tag: latest
+                ceph_grafana_image: grafana
+                ceph_grafana_namespace: docker.io/grafana
+                ceph_grafana_tag: latest
+                ceph_image: daemon
+                ceph_namespace: docker.io/ceph
+                ceph_node_exporter_image: node-exporter
+                ceph_node_exporter_namespace: docker.io/prom
+                ceph_node_exporter_tag: latest
+                ceph_prometheus_image: prometheus
+                ceph_prometheus_namespace: docker.io/prom
+                ceph_prometheus_tag: latest
+                ceph_tag: v4.0.0-stable-4.0-nautilus-centos-7-x86_64
+                name_prefix: centos-binary-
+                name_suffix: ''
+                namespace: docker.io/tripleomaster
+                neutron_driver: ovn
+                tag: master
+              tag_from_label: null
+          ContainerImageRegistryCredentials: {}
+          DockerInsecureRegistryAddress:
+            - "{{ hostvars['registry']['ansible_default_ipv4']['address'] }}:5000"
+          DockerRegistryMirror: "https://registry-1.docker.io/"
+          NeutronMechanismDrivers:
+            - ovn
+          StandaloneCount: 1
+          StandaloneServices:
+            - OS::TripleO::Services::CACerts
+      tripleo_container_image_prepare_roles:
+        - CountDefault: 1
+          ServicesDefault:
+            - OS::TripleO::Services::CACerts
+          description: 'Testing'
+          disable_constraints: true
+          name: Standalone
+          networks:
+          External:
+            subnet: external_subnet
+          InternalApi:
+            subnet: internal_api_subnet
+          Storage:
+            subnet: storage_subnet
+          StorageMgmt:
+            subnet: storage_mgmt_subnet
+          Tenant:
+            subnet: tenant_subnet
+          tags:
+            - primary
+            - controller
+            - standalone

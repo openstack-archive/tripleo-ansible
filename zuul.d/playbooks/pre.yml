@@ -46,3 +46,18 @@
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
     - role: install-docker
+  post_tasks:
+    - name: Run docker vfs setup
+      shell: |-
+        . {{ ansible_user_dir }}/test-python/bin/activate
+        . {{ tripleo_ansible_project_path }}/ansible-test-env.rc
+        ansible-playbook -i 'localhost,' \
+                         -e tripleo_docker_enable_vfs={{ tripleo_docker_enable_vfs }} \
+                         docker-vfs-setup.yml
+      args:
+        chdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/playbooks"
+        executable: /bin/bash
+      environment:
+        ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
+      when:
+        - tripleo_docker_enable_vfs is defined
