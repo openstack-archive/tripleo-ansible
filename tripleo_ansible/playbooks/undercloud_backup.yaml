@@ -1,0 +1,139 @@
+---
+#   Copyright 2019 Red Hat, Inc.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+
+- name: TripleO Undercloud backup workflows
+  hosts: undercloud
+  gather_facts: false
+  any_errors_fatal: true
+  max_fail_percentage: 0
+  vars:
+    sources_path: '/home/stack/'
+  handlers:
+    # Perform some cleanup
+    - name: cleanup the backup
+      become: true
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ bkp_path }}"
+        - "{{ tmpdir.path }}/"
+
+  pre_tasks:
+    # Action to know if there is enough available space
+    # to run the Undercloud backup
+    - name: Get free space
+      shell: |
+        set -o pipefail
+        if [[ $(df -T /var/tmp | tail -n 1 | awk '{print $2}') == "btrfs" ]]; then
+          btrfs fi usage --gbytes / | awk '/^.*Free / {print $3}'| sed 's/\..*//'
+        else
+          df -BG /var/tmp | awk '!/^Filesystem/ {print $4}' | sed 's/G//'
+        fi
+      register: var_space_available
+
+    - name: Fail if any of the volumes are too small
+      fail:
+        msg: >
+          Minimum free space required for /var/tmp: 10G
+          - current free space: {{ var_space_available.stdout|int  |round(1) }}G
+      when:
+        - (var_space_available.stdout | int) < 10
+  tasks:
+    - name: Create a timestamp variable
+      set_fact:
+        timestamp: "{{ lookup('pipe','date +%Y%m%d%H%M%S') }}"
+
+    - name: Create staging directory
+      tempfile:
+        state: directory
+        prefix: "undercloud-backup-"
+        path: "/var/tmp"
+      register: tmpdir
+      notify:
+        - cleanup the backup
+
+    # The Undercloud database password for the root
+    # user is stored in a Mistral environment, we
+    # need the password in order to run the database dump
+    - name: get_database_credentials
+      shell: |-
+        set -o pipefail
+        mistral environment-get tripleo.undercloud-config -f json | jq -r ".Variables" | jq -r ".undercloud_db_password"
+      register: undercloud_db_password
+
+    - name: Create the names for the temporary backup files
+      set_fact:
+        db_path: "{{ tmpdir.path }}/all-databases-{{ timestamp }}.sql.gz"
+        fs_path: "{{ tmpdir.path }}/filesystem-{{ timestamp }}.sql.gz"
+        bkp_path: "/tmp/UC-backup-{{ timestamp }}.tar"
+
+    # We use the undercloud database password for the root
+    # to backup the databases
+    - name: Backup the databases
+      become: true
+      shell: |-
+        set -o pipefail
+        podman exec -i mysql mysqldump -u root -p{{ undercloud_db_password.stdout }} --opt --all-databases | gzip > {{ db_path }}
+
+    - name: Backup the filesystem
+      become: true
+      shell: |
+        tar --xattrs --ignore-failed-read -C / -cf {{ fs_path }} {{ sources_path }}
+        chown stack. {{ fs_path }}
+
+    - name: compress all the files in tar.gz
+      archive:
+        path: "{{ tmpdir.path }}"
+        dest: "{{ bkp_path }}"
+        format: tar
+      notify:
+        - cleanup the backup
+
+    - name: Swift save block
+      when:
+        - save_swift is defined and save_swift
+      block:
+        - name: Save the backup to swift
+          shell: |-
+            swift upload --header "X-Delete-After: 86400" undercloud-backups {{ bkp_path }}
+
+        - name: Backup saved
+          debug:
+            msg: "The undercloud backup was saved to swift"
+
+    - name: Local save block
+      when:
+        - save_swift is not defined or not save_swift
+      block:
+        - name: Create the backup directory
+          become: true
+          file:
+            path: /var/lib/tripleo/backups
+            state: directory
+            mode: '0755'
+
+        - name: Copy backup file
+          become: true
+          copy:
+            src: "{{ bkp_path }}"
+            dest: "/var/lib/tripleo/backups/{{ bkp_path | basename }}"
+            remote_src: true
+
+        - name: Print out the backup location
+          debug:
+            msg: >-
+              The undercloud backup was saved in
+              "/var/lib/tripleo/backups/{{ bkp_path | basename }}"
