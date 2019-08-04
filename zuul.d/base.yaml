@@ -4,6 +4,8 @@
     name: tripleo-ansible-centos-7-base
     nodeset: centos-7
     parent: base
+    success-url: "reports.html"
+    failure-url: "reports.html"
     pre-run:
     - tripleo_ansible/playbooks/prepare-test-host.yml
     - zuul.d/playbooks/pre.yml
