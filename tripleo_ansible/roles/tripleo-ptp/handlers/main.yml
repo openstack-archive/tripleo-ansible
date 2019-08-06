@@ -25,11 +25,3 @@
     name: phc2sys
     state: restarted
     enabled: true
-
-- name: Restart time services
-  service:
-    name: "{{ item }}"
-    state: restarted
-  with_items:
-    - rsyslog
-    - crond

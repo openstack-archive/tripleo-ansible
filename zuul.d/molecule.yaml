@@ -20,7 +20,8 @@
       - tripleo-ansible-centos-7-molecule-tripleo-persist
       - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-7-molecule-login-defs
-      - tripleo-ansible-centos-7-molecule-tripleo-time
+      - tripleo-ansible-centos-7-molecule-tripleo-ptp
+      - tripleo-ansible-centos-7-molecule-tripleo-timezone
       - tripleo-ansible-centos-7-molecule-tripleo-config
     gate:
       jobs:
@@ -42,7 +43,8 @@
       - tripleo-ansible-centos-7-molecule-tripleo-persist
       - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-7-molecule-login-defs
-      - tripleo-ansible-centos-7-molecule-tripleo-time
+      - tripleo-ansible-centos-7-molecule-tripleo-ptp
+      - tripleo-ansible-centos-7-molecule-tripleo-timezone
       - tripleo-ansible-centos-7-molecule-tripleo-config
     name: tripleo-ansible-molecule-jobs
 - job:
@@ -168,8 +170,8 @@
     name: tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
     parent: tripleo-ansible-centos-7-base
     vars:
+      tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
       tripleo_role_name: tripleo-ceph-run-ansible
-      tripleo_job_ansible_args: '-v --skip-tags=run_uuid_ansible,run_ceph_ansible'
 - job:
     files:
     - ^tripleo_ansible/roles/login-defs/.*
@@ -179,11 +181,18 @@
       tripleo_role_name: login-defs
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo-time/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-time
+    - ^tripleo_ansible/roles/tripleo-ptp/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ptp
     parent: tripleo-ansible-centos-7-base
     vars:
-      tripleo_role_name: tripleo-time
+      tripleo_role_name: tripleo-ptp
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-timezone/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-timezone
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-timezone
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-config/.*

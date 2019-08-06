@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-time" will search for and load any operating system variable file
+# "tripleo-ptp" will search for and load any operating system variable file
 
 # found within the "vars/" path. If no OS files are found the task will skip.
 - name: Gather variables for each operating system
@@ -32,14 +32,11 @@
   tags:
     - always
 
-- name: Set timezone
-  timezone:
-    name: "{{ tripleo_timezone }}"
-  notify:
-    - Restart time services
-
 - name: Run ptp tasks
   include_tasks: tripleo_ptp.yml
 
 - name: Run phc2sys tasks
   include_tasks: tripleo_phc2sys.yml
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers

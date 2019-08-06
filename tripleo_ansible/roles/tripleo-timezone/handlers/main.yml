@@ -15,20 +15,10 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
-
-tripleo_timezone: 'UTC'
-
-tripleo_ptp_slave_mode: 1
-tripleo_ptp_interfaces: ["{{ ansible_default_ipv4.interface }}"]
-tripleo_ptp_transport: UDPv4
-tripleo_ptp_hardware_offload: false
-
-tripleo_ptp_packages: "{{ _tripleo_ptp_packages | default([]) }}"
-
-# The phc2sys interface can be user defined. If this option is undefined, a
-# compatible interface will be chosen using the devices set in the device
-# array `tripleo_ptp_interfaces`.
-#
-# To set the phc2sys interface use the following option.
-#  tripleo_phc_interface: eth0
+- name: Restart time services
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - rsyslog
+    - crond

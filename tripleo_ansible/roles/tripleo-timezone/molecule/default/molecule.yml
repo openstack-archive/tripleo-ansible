@@ -1,0 +1,68 @@
+---
+driver:
+  name: docker
+
+log: true
+
+platforms:
+  - name: centos7
+    hostname: centos7
+    image: centos:7
+    dockerfile: Dockerfile
+    pkg_extras: python-setuptools cronie rsyslog
+    easy_install:
+      - pip
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - ALL  # CENT7 requires all due to the age of the software
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: fedora28
+    hostname: fedora28
+    image: fedora:28
+    dockerfile: Dockerfile
+    pkg_extras: python*-setuptools cronie rsyslog
+    environment:
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    command: /sbin/init
+    privileged: true
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+provisioner:
+  name: ansible
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - verify
+    - destroy
+
+lint:
+  enabled: false
+
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
