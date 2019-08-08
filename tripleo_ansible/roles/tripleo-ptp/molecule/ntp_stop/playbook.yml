@@ -20,5 +20,5 @@
   tasks:
     - name: Run ntp stop
       include_role:
-        name: tripleo-time
+        name: tripleo-ptp
         tasks_from: tripleo_ntp_stop.yml
