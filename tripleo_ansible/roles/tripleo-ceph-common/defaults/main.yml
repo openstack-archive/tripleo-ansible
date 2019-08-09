@@ -144,3 +144,4 @@ openstack_config: true
 pools: []
 ntp_service_enabled: false
 generate_fsid: false
+ceph_ansible_inherits_calling_ansible_environment: true
