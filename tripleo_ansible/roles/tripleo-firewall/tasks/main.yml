@@ -28,6 +28,18 @@
   tags:
     - always
 
+- name: Check rule set
+  fail:
+    msg: >-
+      `{{ item['rule_name'] }}` firewall rule cannot be created. TCP or UDP rules
+      for INPUT or OUTPUT need sport or dport defined.
+  when:
+    - ((item['rule']['proto'] | default('tcp')) in ['tcp', 'udp']) and
+      (item['rule']['dport'] is undefined) and
+      ((item['rule']['chain'] | default('INPUT')) != 'FORWARD') and
+      ((item['rule']['table'] | default('filter')) != 'nat')
+  loop: "{{ tripleo_firewall_rules | dict2items(key_name='rule_name', value_name='rule') }}"
+
 - name: Firewall add block
   become: true
   block:
@@ -46,12 +58,11 @@
       include_tasks: tripleo_firewall_add.yml
       when:
         - item['rule']['dport'] is defined
-        - tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] == 'present'
       loop: "{{ tripleo_firewall_rules | dict2items(key_name='rule_name', value_name='rule') }}"
 
-    - name: Disable filewall port config
-      include_tasks: tripleo_firewall_remove.yml
+    - name: Enable filewall protocol config
+      include_tasks: tripleo_firewall_protocol_rules.yml
       when:
-        - item['rule']['dport'] is defined
-        - tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] == 'absent'
+        - item['rule']['proto'] is defined
+        - item['rule']['dport'] is undefined
       loop: "{{ tripleo_firewall_rules | dict2items(key_name='rule_name', value_name='rule') }}"

@@ -45,3 +45,19 @@
           extras:
             ensure: 'absent'
           chain: test-chain
+        '004 gre networks':
+          proto: 'gre'
+          extras:
+            ensure: 'absent'
+        '005 vrrp networks':
+          proto: 'vrrp'
+          extras:
+            ensure: 'absent'
+        '006 neutron-test':
+          dport: 2211
+          extras:
+            ensure: 'absent'
+        '006 ironic-inspector':
+          dport: 2212
+          extras:
+            ensure: 'absent'

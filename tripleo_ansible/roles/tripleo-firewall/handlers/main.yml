@@ -31,6 +31,7 @@
     enabled: true
     name: tripleo-iptables.service
   failed_when: false
+  become: true
   listen: Save firewall rules
 
 - name: Enable tripleo-ip6tables service
@@ -38,4 +39,24 @@
     enabled: true
     name: tripleo-ip6tables.service
   failed_when: false
+  become: true
+  listen: Save firewall rules
+
+- name: Find non-persistent rules
+  command: egrep -l 'comment.*(neutron-|ironic-inspector)' /etc/sysconfig/iptables /etc/sysconfig/ip6tables
+  failed_when: false
+  changed_when: false
+  register: neutron_rules
+  become: true
+  listen: Save firewall rules
+
+- name: Remove non-persistent line(s)
+  lineinfile:
+    path: "{{ item }}"
+    state: absent
+    regexp: 'comment.*(neutron-|ironic-inspector)'
+  when:
+    - item.find('v=' ~ '^/') == -1
+  loop: "{{ neutron_rules.stdout_lines }}"
+  become: true
   listen: Save firewall rules

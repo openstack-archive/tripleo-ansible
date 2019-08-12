@@ -39,3 +39,11 @@
             - 12123
             - 12200-12210
           chain: test-chain
+        '004 gre networks':
+          proto: 'gre'
+        '005 vrrp networks':
+          proto: 'vrrp'
+        '006 neutron-test':
+          dport: 2211
+        '006 ironic-inspector':
+          dport: 2212

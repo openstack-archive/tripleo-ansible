@@ -15,46 +15,36 @@
 # under the License.
 
 
-- name: Remove firewall service rule (ipv4)
+- include_tasks: tripleo_firewall_state.yml
+
+- name: Firewall protocol rule (ipv4)
   iptables:
     table: "{{ item['rule']['table'] | default(omit) }}"
     chain: "{{ item['rule']['chain'] | default('INPUT') }}"
     in_interface: "{{ item['rule']['interface'] | default(omit) }}"
-    protocol: "{{ item['rule']['proto'] | default('tcp') }}"
-    destination_port: "{{ port | replace('-', ':') }}"
+    protocol: "{{ item['rule']['proto'] }}"
     source_port: "{{ item['rule']['sport'] | default(omit) | replace('-', ':') }}"
     source: "{{ item['rule']['source'] | default(omit) }}"
     comment: "{{ item['rule_name'] }} ipv4"
     jump: "{{ item['rule']['jump'] | default('ACCEPT') }}"
-    ctstate: "{{ item['rule']['ctstate'] | default('NEW') }}"
+    ctstate: "{{ tripleo_ctstate }}"
     ip_version: ipv4
-    state: "absent"
+    state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
-    - item['rule']['source'] | default('127.0.0.1') | ipv4
-  loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
-  loop_control:
-    loop_var: port
-  notify:
-    - Save firewall rules
+    - item['rule']['proto'] != 'ipv6'
 
-- name: Remove firewall service rule (ipv6)
+- name: Firewall protocol rule (ipv6)
   iptables:
     table: "{{ item['rule']['table'] | default(omit) }}"
     chain: "{{ item['rule']['chain'] | default('INPUT') }}"
     in_interface: "{{ item['rule']['interface'] | default(omit) }}"
-    protocol: "{{ item['rule']['proto'] | default('tcp') }}"
-    destination_port: "{{ port | replace('-', ':') }}"
+    protocol: "{{ item['rule']['proto'] }}"
     source_port: "{{ item['rule']['sport'] | default(omit) | replace('-', ':') }}"
     source: "{{ item['rule']['source'] | default(omit) }}"
-    comment: "{{ item['rule_name'] }} ipv6"
+    comment: "{{ item['rule_name'] }} ipv4"
     jump: "{{ item['rule']['jump'] | default('ACCEPT') }}"
-    ctstate: "{{ item['rule']['ctstate'] | default('NEW') }}"
+    ctstate: "{{ tripleo_ctstate }}"
     ip_version: ipv6
-    state: "absent"
+    state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
-    - item['rule']['source'] | default('::') | ipv6
-  loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
-  loop_control:
-    loop_var: port
-  notify:
-    - Save firewall rules
+    - item['rule']['proto'] != 'ipv4'

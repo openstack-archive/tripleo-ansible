@@ -36,11 +36,14 @@
     exit ${EXIT_CODE}
   when:
     - (item['rule']['chain'] | default('INPUT')) != 'INPUT'
+    - tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] == "present"
   register: iptables_chain
   changed_when: iptables_chain.rc == 99
   failed_when: not (iptables_chain.rc in [0, 99])
 
-- name: Add firewall service rule (ipv4)
+- include_tasks: tripleo_firewall_state.yml
+
+- name: Firewall port rule (ipv4)
   iptables:
     table: "{{ item['rule']['table'] | default(omit) }}"
     chain: "{{ item['rule']['chain'] | default('INPUT') }}"
@@ -51,10 +54,11 @@
     source: "{{ item['rule']['source'] | default(omit) }}"
     comment: "{{ item['rule_name'] }} ipv4"
     jump: "{{ item['rule']['jump'] | default('ACCEPT') }}"
-    ctstate: "{{ item['rule']['ctstate'] | default('NEW') }}"
+    ctstate: "{{ tripleo_ctstate }}"
     ip_version: ipv4
-    state: "present"
+    state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
+    - (item['rule']['proto'] | default('tcp')) != 'ipv6'
     - item['rule']['source'] | default('127.0.0.1') | ipv4
   loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
   loop_control:
@@ -62,7 +66,7 @@
   notify:
     - Save firewall rules
 
-- name: Add firewall service rule (ipv6)
+- name: Firewall port rule (ipv6)
   iptables:
     table: "{{ item['rule']['table'] | default(omit) }}"
     chain: "{{ item['rule']['chain'] | default('INPUT') }}"
@@ -73,10 +77,11 @@
     source: "{{ item['rule']['source'] | default(omit) }}"
     comment: "{{ item['rule_name'] }} ipv6"
     jump: "{{ item['rule']['jump'] | default('ACCEPT') }}"
-    ctstate: "{{ item['rule']['ctstate'] | default('NEW') }}"
+    ctstate: "{{ tripleo_ctstate }}"
     ip_version: ipv6
-    state: "present"
+    state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
+    - (item['rule']['proto'] | default('tcp')) != 'ipv4'
     - item['rule']['source'] | default('::') | ipv6
   loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
   loop_control:
