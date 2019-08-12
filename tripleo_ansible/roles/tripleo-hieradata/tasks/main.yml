@@ -35,40 +35,4 @@
       :json:
         :datadir: /etc/puppet/hieradata
       :hierarchy:
-      {{ hieradata_files }}
-
-- name: hieradata block
-  run_once: true
-  block:
-    - name: Create temporary file
-      tempfile:
-        state: file
-        suffix: temp
-      register: tempfile_1
-      changed_when: false
-      notify:
-        - Cleanup temp file
-
-    - name: Template hieradata file
-      template:
-        src: "{{ hieradata_template }}"
-        dest: "{{ tempfile_1.path }}"
-        variable_start_string: "{{ hieradata_variable_start_string }}"
-        variable_end_string: "{{ hieradata_variable_end_string }}"
-      changed_when: false
-      when:
-        - (hieradata_template | string)
-      notify:
-        - Cleanup temp file
-
-    - name: Read temp file
-      slurp:
-        src: "{{ tempfile_1.path }}"
-      register: tempfile_1_slurp
-      changed_when: false
-      notify:
-        - Cleanup temp file
-
-- include_tasks: "{{ (hieradata_per_host | bool) | ternary('per_host.yml', 'all_hosts.yml') }}"
-  vars:
-    hieradata_content: "{{ tempfile_1_slurp['content'] | b64decode | from_yaml }}"
+      {{ hieradata_files | to_nice_yaml if hieradata_files | type_debug == 'list' else hieradata_files }}
