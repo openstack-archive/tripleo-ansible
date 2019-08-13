@@ -43,6 +43,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
       - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
       - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -86,6 +87,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
       - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
       - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -389,3 +391,12 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-keystone-resources
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-nova-image-cache/.*
+    - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
+    name: tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-nova-image-cache
