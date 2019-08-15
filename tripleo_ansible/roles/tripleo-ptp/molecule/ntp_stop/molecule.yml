@@ -9,7 +9,7 @@ platforms:
     hostname: centos7
     image: centos:7
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools ntp
+    pkg_extras: python-setuptools ntp cronie rsyslog
     easy_install:
       - pip
     environment: &env
@@ -29,7 +29,7 @@ platforms:
     hostname: fedora28
     image: fedora:28
     dockerfile: Dockerfile
-    pkg_extras: python*-setuptools ntp
+    pkg_extras: python*-setuptools ntp cronie rsyslog
     environment:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"

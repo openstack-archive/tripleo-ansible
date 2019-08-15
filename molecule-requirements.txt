@@ -8,6 +8,7 @@ pytest-html
 pytest-xdist
 mock
 molecule>=2.22rc1
+netaddr
 
 # this is required for the docs build jobs
 sphinx
