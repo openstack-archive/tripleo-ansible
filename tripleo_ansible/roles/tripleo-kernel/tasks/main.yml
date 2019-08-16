@@ -39,6 +39,12 @@
       notify:
         - Sysctl reload
 
+    - name: Install additional packages
+      package:
+        name: "{{ item.key }}"
+        state: "{{ item.opt.state | default('present') }}"
+      loop: "{{ tripleo_kernel_extra_packages | dict2items(key_name='key', value_name='opt') }}"
+
     - name: Write list of modules to load at boot
       template:
         src: "tripleo-modprobe.conf.j2"

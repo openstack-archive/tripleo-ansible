@@ -17,4 +17,5 @@
 
 # All variables intended for modification should place placed in this file.
 tripleo_kernel_extra_modules: {}
+tripleo_kernel_extra_packages: {}
 tripleo_kernel_sysctl_extra_settings: {}

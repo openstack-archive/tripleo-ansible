@@ -20,7 +20,9 @@
   roles:
     - role: "tripleo-kernel"
       tripleo_kernel_extra_modules:
-        - dummy: {}
+        dummy: {}
+      tripleo_kernel_extra_packages:
+        'kmod-kvdo': {}
       tripleo_kernel_sysctl_extra_settings:
         kernel.ftrace_dump_on_oops:
           value: 1
