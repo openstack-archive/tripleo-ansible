@@ -31,25 +31,40 @@
   tags:
     - always
 
+- include_tasks: tripleo-setup.yml
+  when:
+    - (ansible_os_family | lower) == 'redhat'
+    - test_deps_setup_tripleo | bool
+
 - name: RHEL Block
   become: true
   when:
     - (ansible_os_family | lower) == 'redhat'
+    - not (test_deps_setup_tripleo | bool)
   block:
     - name: install deplorean repo
-      become: true
       get_url:
         url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/current-tripleo/delorean.repo"
         dest: /etc/yum.repos.d/delorean.repo
-      when:
-        - (ansible_os_family | lower) == 'redhat'
 
     - name: install deplorean-deps repo
       get_url:
         url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/delorean-deps.repo"
         dest: /etc/yum.repos.d/delorean-deps.repo
 
+- name: Package block
+  become: true
+  block:
     - name: Install selinux python libs
       package:
-        name: libselinux-python
+        name: "{{ test_deps_selinux_packages }}"
         state: present
+      when:
+        - (ansible_os_family | lower) == 'redhat'
+
+    - name: Install extra packages
+      package:
+        name: "{{ test_deps_extra_packages }}"
+        state: present
+      when:
+        - (test_deps_extra_packages | length) > 0

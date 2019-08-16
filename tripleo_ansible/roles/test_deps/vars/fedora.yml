@@ -14,19 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Check for a configured destination
-  fail:
-    msg: >-
-      The option `tripleo_config_dest` is undefined. Check your settings.
-  when:
-    - tripleo_config_dest is undefined
 
-- name: "Generate {{ tripleo_config_dest }} config"
-  config_template:
-    src: "{{ tripleo_config_src }}"
-    dest: "{{ tripleo_config_dest }}"
-    owner: "{{ tripleo_config_owner }}"
-    group: "{{ tripleo_config_group }}"
-    mode: "{{ tripleo_config_mode }}"
-    config_overrides: "{{ tripleo_config_overrides }}"
-    config_type: "{{ tripleo_config_type }}"
+test_deps_repo: https://trunk.rdoproject.org/fedora/current
+test_deps_selinux_packages:
+  - python3-libselinux
+  - python2-libselinux
+test_deps_tripleo_packages:
+  - python3-tripleoclient
+test_deps_tripleo_repos: current-tripleo

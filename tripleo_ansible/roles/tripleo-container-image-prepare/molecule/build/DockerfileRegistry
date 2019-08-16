@@ -1,4 +1,4 @@
----
+# Molecule managed
 # Copyright 2019 Red Hat, Inc.
 # All Rights Reserved.
 #
@@ -14,19 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Check for a configured destination
-  fail:
-    msg: >-
-      The option `tripleo_config_dest` is undefined. Check your settings.
-  when:
-    - tripleo_config_dest is undefined
 
-- name: "Generate {{ tripleo_config_dest }} config"
-  config_template:
-    src: "{{ tripleo_config_src }}"
-    dest: "{{ tripleo_config_dest }}"
-    owner: "{{ tripleo_config_owner }}"
-    group: "{{ tripleo_config_group }}"
-    mode: "{{ tripleo_config_mode }}"
-    config_overrides: "{{ tripleo_config_overrides }}"
-    config_type: "{{ tripleo_config_type }}"
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+RUN apk add python
+
+ENTRYPOINT ["/entrypoint.sh"]
