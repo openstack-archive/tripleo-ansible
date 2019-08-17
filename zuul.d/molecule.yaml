@@ -28,6 +28,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
       - tripleo-ansible-centos-7-molecule-tripleo-kernel
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-7-molecule-tripleo-firewall
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -56,6 +57,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
       - tripleo-ansible-centos-7-molecule-tripleo-kernel
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-7-molecule-tripleo-firewall
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -247,3 +249,10 @@
       tripleo_docker_enable_vfs: true
       tripleo_docker_temp_file: "{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json"
       tripleo_role_name: tripleo-container-image-prepare
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-firewall/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-firewall
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-firewall
