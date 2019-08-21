@@ -13,9 +13,3 @@
     - zuul.d/playbooks/run.yml
     timeout: 1800
     voting: true
-- job:
-    files:
-    - ^doc/.*
-    - ^README.rst
-    name: tripleo-ansible-docs
-    parent: openstack-tox-docs

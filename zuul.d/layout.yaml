@@ -6,7 +6,10 @@
     check:
       jobs:
       - openstack-tox-linters
-      - tripleo-ansible-docs
+      - openstack-tox-docs: &tripleo-docs
+          files:
+          - ^doc/.*
+          - ^README.rst
       - tripleo-ci-centos-7-containers-multinode: &containers_multinode
           files:
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
@@ -49,7 +52,7 @@
     gate:
       jobs:
       - openstack-tox-linters
-      - tripleo-ansible-docs
+      - openstack-tox-docs: *tripleo-docs
       - tripleo-ci-centos-7-containers-multinode: *containers_multinode
       - tripleo-ci-centos-7-scenario001-standalone: *scenario001
       - tripleo-ci-centos-7-scenario002-standalone: *scenario002
@@ -60,3 +63,6 @@
       jobs:
       - publish-openstack-python-branch-tarball
       - publish-openstack-tox-docs
+    promote:
+      jobs:
+      - promote-openstack-tox-docs: *tripleo-docs
