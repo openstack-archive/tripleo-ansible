@@ -1,0 +1,123 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Check valid input for tripleo_ovs_dpdk_pmd_core_list
+  fail:
+    msg: "List of PMD cores cannot be empty - tripleo_ovs_dpdk_pmd_core_list"
+  when: not tripleo_ovs_dpdk_pmd_core_list|string or tripleo_ovs_dpdk_pmd_core_list == 'null'
+
+- name: Check valid input for tripleo_ovs_dpdk_lcore_list
+  fail:
+    msg: "List of DPDK lcores cannot be empty - tripleo_ovs_dpdk_lcore_list"
+  when: not tripleo_ovs_dpdk_lcore_list|string or tripleo_ovs_dpdk_lcore_list == 'null'
+
+- name: Check valid input for tripleo_ovs_dpdk_socket_memory
+  fail:
+    msg: "Socket Memory cannot be empty - tripleo_ovs_dpdk_socket_memory"
+  when: not tripleo_ovs_dpdk_socket_memory|string or tripleo_ovs_dpdk_socket_memory == 'null'
+
+- name: Apply PMD cores config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-cpu-mask
+    value: "{{ tripleo_ovs_dpdk_pmd_core_list | cpu_mask }}"
+  when: tripleo_ovs_dpdk_pmd_core_list|string
+
+- name: Apply DPDK lcores config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-lcore-mask
+    value: "{{ tripleo_ovs_dpdk_lcore_list | cpu_mask }}"
+  when: tripleo_ovs_dpdk_lcore_list|string
+
+- name: Add memory channels to dpdk extra
+  set_fact:
+    tripleo_ovs_dpdk_extra_internal: "{{ tripleo_ovs_dpdk_extra }} -n {{ tripleo_ovs_dpdk_memory_channels }}"
+
+- name: Apply DPDK extra
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-extra
+    value: "'{{ tripleo_ovs_dpdk_extra_internal }}'"
+
+- name: Apply socket mem config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-socket-mem
+    value: "{{ tripleo_ovs_dpdk_socket_memory }}"
+  when: tripleo_ovs_dpdk_socket_memory|string
+
+- name: Apply Revalidator threads config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: n-revalidator-threads
+    value: "{{ tripleo_ovs_dpdk_revalidator_cores }}"
+  when: tripleo_ovs_dpdk_revalidator_cores|string
+
+- name: Remove Revalidator threads config
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: n-revalidator-threads
+  when: not tripleo_ovs_dpdk_revalidator_cores|string
+
+- name: Set Handler threads config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: n-handler-threads
+    value: "{{ tripleo_ovs_dpdk_handler_cores }}"
+  when: tripleo_ovs_dpdk_handler_cores|string
+
+- name: Remove Handler threads config
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: n-handler-threads
+  when: not tripleo_ovs_dpdk_handler_cores|string
+
+- name: Set EMC Insertion Probability config
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: emc-insert-inv-prob
+    value: "{{ tripleo_ovs_dpdk_emc_insertion_probablity }}"
+  when: tripleo_ovs_dpdk_emc_insertion_probablity|string
+
+- name: Remove EMC Insertion Probability config
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: emc-insert-inv-prob
+  when: not tripleo_ovs_dpdk_emc_insertion_probablity|string

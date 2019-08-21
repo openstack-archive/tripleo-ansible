@@ -22,3 +22,6 @@ nosetests.xml
 
 # roles
 tripleo_ansible/roles.galaxy/*
+
+ansible-errors.json
+pytestdebug.log

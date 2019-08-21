@@ -33,6 +33,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
       - tripleo-ansible-centos-7-molecule-tripleo-validations-package
+      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
     gate:
       jobs:
@@ -67,6 +68,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
       - tripleo-ansible-centos-7-molecule-tripleo-validations-package
+      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
     name: tripleo-ansible-molecule-jobs
 - job:
@@ -295,6 +297,13 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-validations-package
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ovs-dpdk/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-ovs-dpdk
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-sshd/.*
