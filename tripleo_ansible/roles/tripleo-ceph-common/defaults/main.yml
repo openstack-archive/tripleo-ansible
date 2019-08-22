@@ -19,12 +19,9 @@
 ceph_ansible_group_vars_all:
   ceph_conf_overrides:
     global:
-      osd_max_backfills: 1
       osd_pool_default_pg_num: 32
       osd_pool_default_pgp_num: 32
       osd_pool_default_size: 3
-      osd_recovery_max_active: 3
-      osd_recovery_op_priority: 3
       rgw_keystone_accepted_admin_roles: ResellerAdmin
       rgw_keystone_accepted_roles: Member, admin
       rgw_keystone_admin_domain: default
@@ -74,7 +71,7 @@ ceph_ansible_group_vars_all:
         osd: allow rwx
       key: AQCwmeRcAAAAABAAvd9OK2qeXNaD4rL/wP7D0Q==
       mode: '0600'
-  name: client.radosgw
+      name: client.radosgw
   monitor_address_block: 192.168.24.0/24
   ntp_service_enabled: false
   openstack_config: true
@@ -123,6 +120,7 @@ ceph_ansible_group_vars_all:
   pools: []
   public_network: 192.168.24.0/24
   user_config: true
+  dashboard_enabled: false
 blacklisted_hostnames: []
 ceph_ansible_extra_vars:
   ireallymeanit: 'yes'
@@ -135,13 +133,4 @@ swift_get_url: ''
 swift_put_url: ''
 ceph_ansible_skip_tags: 'package-install,with_pkg'
 ceph_ansible_environment_variables: {}
-containerized_deployment: true
-configure_firewall: false
-user_config: true
-ceph_stable: true
-ceph_origin: distro
-openstack_config: true
-pools: []
-ntp_service_enabled: false
-generate_fsid: false
 ceph_ansible_inherits_calling_ansible_environment: true
