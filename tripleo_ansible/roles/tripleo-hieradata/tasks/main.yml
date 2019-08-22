@@ -35,4 +35,4 @@
       :json:
         :datadir: /etc/puppet/hieradata
       :hierarchy:
-      {{ hieradata_files | to_nice_yaml if hieradata_files | type_debug == 'list' else hieradata_files }}
+      {{ hieradata_files | to_nice_yaml }}
