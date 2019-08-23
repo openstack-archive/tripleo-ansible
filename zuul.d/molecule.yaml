@@ -30,6 +30,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
+      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -60,6 +61,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
+      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -265,3 +267,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-securetty
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-cellv2/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-cellv2
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-cellv2
