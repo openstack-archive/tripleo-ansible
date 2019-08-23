@@ -15,12 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
-
-tuned_profile: "throughput-performance"
-tuned_custom_profile: ""
-tuned_isolated_cores: ""
-
-# Packages installed on the local system. Allows user to define this list
-# otherwise it will inherit from the OS specific variable file(s).
-tuned_system_packages: "{{ _tuned_system_packages | default([]) }}"
+- name: Prepare
+  hosts: all
+  roles:
+    - role: test_deps

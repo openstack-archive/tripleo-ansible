@@ -14,13 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-# All variables intended for modification should place placed in this file.
-
-tuned_profile: "throughput-performance"
-tuned_custom_profile: ""
-tuned_isolated_cores: ""
-
-# Packages installed on the local system. Allows user to define this list
-# otherwise it will inherit from the OS specific variable file(s).
-tuned_system_packages: "{{ _tuned_system_packages | default([]) }}"
+# Workaround to allow access of vhostuser sockets from OvS running host to qemu
+# running inside the kolla container. GID of the group 'hugetlbfs' is changed
+# to the same value as kolla's gid. Apply this workaround for all DPDK nodes,
+# along with reboot, so that OvS threads are restarted with this id.
+# NOTE: This will not be included in this roles's main.yml, as main.yml should
+# be executed after node reboot.
+- name: Update gid for hugetlbfs to kolla's gid
+  group:
+    name: hugetlbfs
+    gid: 42477

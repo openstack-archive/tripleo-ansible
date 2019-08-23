@@ -34,6 +34,27 @@
     src: "/etc/tuned/active_profile"
   register: tuned_active_profile
 
+- name: Check Tuned Configuration file exists
+  stat:
+    path: "/etc/tuned/{{ tuned_profile }}-variables.conf"
+  register: tuned_conf_stat_result
+
+- name: Fail if tuned profile conf is absent but isolated cores is provided
+  fail:
+    msg: "Tuned profile conf file is not available to configure isolated cores"
+  when:
+    - tuned_isolated_cores
+    - not tuned_conf_stat_result.stat.exists
+
+- name: "Configure isolated cores for profile {{ tuned_profile }}"
+  lineinfile:
+    dest: "/etc/tuned/{{ tuned_profile }}-variables.conf"
+    regexp: '^isolated_cores=.*'
+    line: 'isolated_cores={{ tuned_isolated_cores }}'
+  when:
+    - tuned_isolated_cores
+    - tuned_conf_stat_result.stat.exists
+
 - name: Enable tuned profile
   command: >-
     tuned-adm profile {{ tuned_profile }}

@@ -15,12 +15,16 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
-
-tuned_profile: "throughput-performance"
-tuned_custom_profile: ""
-tuned_isolated_cores: ""
-
-# Packages installed on the local system. Allows user to define this list
-# otherwise it will inherit from the OS specific variable file(s).
-tuned_system_packages: "{{ _tuned_system_packages | default([]) }}"
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check if the kernel args is applied to the grub file
+      lineinfile:
+        name: /etc/default/grub
+        line: 'TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" test=1 "'
+        state: present
+      check_mode: true
+      register: grub
+      failed_when: (grub is changed) or (grub is failed)

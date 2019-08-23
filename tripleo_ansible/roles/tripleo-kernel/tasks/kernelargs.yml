@@ -1,0 +1,64 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Get the command line args of the node
+  command: cat /proc/cmdline
+  register: cmdline
+
+# Kernel Args Configuration
+- block:
+    - name: Ensure the kernel args ( {{ tripleo_kernel_args }} ) is present as TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
+      lineinfile:
+        dest: /etc/default/grub
+        regexp: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
+        insertafter: '^GRUB_CMDLINE_LINUX.*'
+        line: 'TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" {{ tripleo_kernel_args }} "'
+    - name: Add TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS to the GRUB_CMDLINE_LINUX parameter
+      lineinfile:
+        dest: /etc/default/grub
+        line: 'GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX:+$GRUB_CMDLINE_LINUX }${TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS}"'
+        insertafter: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
+    - name: Generate grub config file
+      command: grub2-mkconfig -o /boot/grub2/grub.cfg
+    - name: Set reboot required fact
+      set_fact:
+        reboot_required: true
+  become: true
+  when:
+    - tripleo_kernel_args|string
+    - tripleo_kernel_args not in cmdline.stdout_lines[0]
+
+# Apply DPDK workarounds before reboot
+- name: Apply DPDK workarounds
+  include_role:
+    name: tripleo-ovs-dpdk
+    tasks_from: workarounds.yml
+  when: reboot_required is defined and reboot_required
+
+# Kernel modules loading
+- name: Load type1 IOMMU driver for VFIO on boot
+  import_role:
+    name: tripleo-module-load
+  vars:
+    modules:
+      - name: vfio_iommu_type1
+  when: tripleo_kernel_args is search("iommu")
+
+- name: Reboot and workaround block
+  include_tasks: reboot.yaml
+  when:
+    - reboot_required is defined and reboot_required
+    - not tripleo_kernel_defer_reboot|bool
