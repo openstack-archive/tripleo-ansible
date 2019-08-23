@@ -31,6 +31,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
+      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -62,6 +63,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
+      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -251,7 +253,7 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_docker_enable_vfs: true
-      tripleo_docker_temp_file: "{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json"
+      tripleo_docker_temp_file: '{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json'
       tripleo_role_name: tripleo-container-image-prepare
 - job:
     files:
@@ -274,3 +276,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-cellv2
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-clients-install/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-clients-install
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-clients-install
