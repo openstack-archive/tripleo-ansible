@@ -60,7 +60,7 @@
   when:
     - (item['rule']['proto'] | default('tcp')) != 'ipv6'
     - item['rule']['source'] | default('127.0.0.1') | ipv4
-  loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
+  loop: "{{ ((item['rule']['dport'] is iterable) and (item['rule']['dport'] is not string)) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
   loop_control:
     loop_var: port
   notify:
@@ -83,7 +83,7 @@
   when:
     - (item['rule']['proto'] | default('tcp')) != 'ipv4'
     - item['rule']['source'] | default('::') | ipv6
-  loop: "{{ (item['rule']['dport'] is iterable) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
+  loop: "{{ ((item['rule']['dport'] is iterable) and (item['rule']['dport'] is not string)) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
   loop_control:
     loop_var: port
   notify:

@@ -22,13 +22,13 @@
       tripleo_firewall_rules:
         '003 accept ftp from all':
           proto: 'tcp'
-          dport: 21
+          dport: "21"
           extras:
             ensure: 'absent'
         '003 accept custom from all':
           proto: 'udp'
           dport:
-            - 2121
+            - "2121"
             - 2122
             - 2123
             - 2200-2210
