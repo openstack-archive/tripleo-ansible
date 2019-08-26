@@ -20,18 +20,10 @@
 {%     set services = services + all_nodes_extra_map_data[service ~ '_short_bootstrap_node_name'] %}
 {%   endif %}
 {%   if (services | length) > 0 %}
-{%     if sorted_bootstrap_node | default(false) %}
-{%       set _ = all_nodes.__setitem__((service ~ '_short_bootstrap_node_name'), (services | sort | first)) %}
-{%     else %}
-{%       set _ = all_nodes.__setitem__((service ~ '_short_bootstrap_node_name'), (services | first)) %}
-{%     endif %}
+{%     set _ = all_nodes.__setitem__((service ~ '_short_bootstrap_node_name'), (services | sort | first)) %}
 {%   endif %}
 {# <service>_bootstrap_node_ip: hostname #}
-{%   if sorted_bootstrap_node | default(false) %}
-{%     set services = (groups[service] | default ([]) | sort | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_ip')) | list %}
-{%   else %}
-{%     set services = (groups[service] | default ([]) | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_ip')) | list %}
-{%   endif %}
+{%   set services = (groups[service] | default ([]) | sort | map('extract', hostvars, service_net_map[service ~ '_network'] | default('ctlplane') ~ '_ip')) | list %}
 {%   if all_nodes_extra_map_data[service ~ '_short_bootstrap_node_ip'] is defined %}
 {%     set services = services + [all_nodes_extra_map_data[service ~ '_short_bootstrap_node_ip']] %}
 {%   endif %}
