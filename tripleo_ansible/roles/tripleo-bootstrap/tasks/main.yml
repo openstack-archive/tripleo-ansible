@@ -32,15 +32,6 @@
   tags:
     - always
 
-- name: Create tripleo-ansible-env file
-  become: true
-  copy:
-    src: "tripleo-ansible-env.sh"
-    dest: "/etc/profile.d/tripleo-ansible-env.sh"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-
 - name: Deploy required packages to bootstrap TripleO
   become: true
   package:
