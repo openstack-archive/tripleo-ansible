@@ -41,6 +41,9 @@
 - name: Podman install
   import_tasks: tripleo_podman_install.yml
 
+- name: Rsyslog configuration
+  import_tasks: tripleo_podman_rsyslog.yml
+
 - name: Podman purge
   import_tasks: tripleo_podman_purge.yml
 
