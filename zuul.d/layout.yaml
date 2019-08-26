@@ -24,6 +24,7 @@
           files:
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+          - ^setup.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario002-standalone: &scenario002
           files:

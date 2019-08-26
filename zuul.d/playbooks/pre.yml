@@ -12,7 +12,6 @@
           - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
           - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
           - "/usr/share/ansible/plugins/action"
-          - "/usr/share/ansible/tripleo-plugins/action"
 
     - name: Ensure output dirs
       file:
