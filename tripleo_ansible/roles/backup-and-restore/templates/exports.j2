@@ -1,0 +1,8 @@
+# This configuration file is generated automatically
+# by the backup-and-restore role part of TripleO
+# Ansible. No not edit this file, all changes
+# will be lost. Refer to the following URL for
+# more information and implementation details:
+# https://opendev.org/openstack/tripleo-ansible
+
+{{ tripleo_backup_and_restore_nfs_storage_folder }} {% for net in tripleo_backup_and_restore_nfs_clients_nets %}{{ net }}(rw,sync,no_root_squash,no_subtree_check) {% endfor %}

@@ -34,6 +34,8 @@
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
       - tripleo-ansible-centos-7-molecule-tripleo-validations-package
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
+      - tripleo-ansible-centos-7-molecule-backup-and-restore
+
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -68,6 +70,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
       - tripleo-ansible-centos-7-molecule-tripleo-validations-package
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
+      - tripleo-ansible-centos-7-molecule-backup-and-restore
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -302,3 +305,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-sshd
+- job:
+    files:
+    - ^tripleo_ansible/roles/backup-and-restore/.*
+    name: tripleo-ansible-centos-7-molecule-backup-and-restore
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: backup-and-restore
