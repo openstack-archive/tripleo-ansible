@@ -195,6 +195,7 @@ provisioner:
             zaqar_api_network: ctlplane
           stack_action: CREATE
           stack_update_type: ''
+          tripleo_role_name: Standalone
           validate_controllers_icmp: true
           validate_fqdn: false
           validate_gateways_icmp: true
