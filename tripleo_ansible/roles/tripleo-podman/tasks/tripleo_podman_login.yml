@@ -27,3 +27,4 @@
     REGISTRY_PASSWORD: "{{ lookup('dict', item.value).value }}"
     REGISTRY: "{{ item.key }}"
   loop: "{{ query('dict', tripleo_container_registry_logins) }}"
+  register: registry_login_podman
