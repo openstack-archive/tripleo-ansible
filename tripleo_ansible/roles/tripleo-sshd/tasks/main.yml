@@ -39,17 +39,36 @@
       notify:
         - Restart sshd
 
-    - name: force systemd to reread configs
+    - name: Flush all handlers
       meta: flush_handlers
 
     - name: Adjust ssh server configuration
-      blockinfile:
+      template:
         dest: /etc/ssh/sshd_config
-        state: present
-        marker: "# {mark} MANAGED BY TRIPLEO-ANSIBLE"
-        insertafter: "EOF"
+        src: sshd_config_block.j2
         validate: '/usr/sbin/sshd -T -f %s'
-        block: "{{ lookup('template', 'sshd_config_block.j2') }}"
+      notify:
+        - Restart sshd
+
+    - name: PasswordAuthentication notice
+      debug:
+        msg: >-
+          Notice - The option `tripleo_sshd_password_authentication` is set to
+          "{{ tripleo_sshd_password_authentication }}" but `PermitRootLogin` is
+          undefined. While this may be perfectly valid, the sshd_config options
+          should be reviewed to ensure general user access is functional and
+          meeting expectations.
+      when:
+        - (tripleo_sshd_password_authentication != 'no') and
+          not (PermitRootLogin in tripleo_sshd_server_options)
+
+    - name: Adjust ssh server auth configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PasswordAuthentication.*'
+        line: 'PasswordAuthentication {{ tripleo_sshd_password_authentication }}'
+        validate: '/usr/sbin/sshd -T -f %s'
       notify:
         - Restart sshd
 
@@ -60,9 +79,36 @@
       when:
         - tripleo_sshd_banner_enabled | bool
 
+    - name: Adjust ssh server banner configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?Banner.*'
+        line: 'Banner /etc/issue'
+        validate: '/usr/sbin/sshd -T -f %s'
+      when:
+        - tripleo_sshd_banner_enabled | bool
+      notify:
+        - Restart sshd
+
     - name: Configure the motd banner
       copy:
         content: "{{ tripleo_sshd_message_of_the_day }}"
         dest: /etc/motd
       when:
         - tripleo_sshd_motd_enabled | bool
+
+    - name: Adjust ssh server motd configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PrintMotd.*'
+        line: 'PrintMotd yes'
+        validate: '/usr/sbin/sshd -T -f %s'
+      when:
+        - tripleo_sshd_motd_enabled | bool
+      notify:
+        - Restart sshd
+
+- name: Flush all handlers
+  meta: flush_handlers
