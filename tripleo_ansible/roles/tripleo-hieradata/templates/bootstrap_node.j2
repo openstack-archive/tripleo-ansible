@@ -1,8 +1,4 @@
 {% set boostrap_node = {} %}
-{% if sorted_bootstrap_node | default(false) %}
-{%   set _ = boostrap_node.__setitem__('boostrap_node_id', groups[tripleo_role_name] | sort | first) %}
-{% else %}
-{%   set _ = boostrap_node.__setitem__('boostrap_node_id', groups[tripleo_role_name] | first) %}
-{% endif %}
+{% set _ = boostrap_node.__setitem__('boostrap_node_id', groups[tripleo_role_name] | sort | first) %}
 {# RENDER #}
 {{ boostrap_node | to_nice_json }}
