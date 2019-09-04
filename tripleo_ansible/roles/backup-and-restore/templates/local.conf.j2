@@ -1,0 +1,17 @@
+# This configuration file is generated automatically
+# by the backup-and-restore role part of TripleO
+# Ansible. No not edit this file, all changes
+# will be lost. Refer to the following URL for
+# more information and implementation details:
+# https://opendev.org/openstack/tripleo-ansible
+
+OUTPUT=ISO
+OUTPUT_URL=nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups
+ISO_PREFIX={{ tripleo_backup_and_restore_hostname.stdout }}
+BACKUP=NETFS
+BACKUP_PROG_COMPRESS_OPTIONS=( --gzip )
+BACKUP_PROG_COMPRESS_SUFFIX=".gz"
+BACKUP_PROG_OPTIONS+=( --anchored --xattrs-include='*.*' --xattrs )
+BACKUP_PROG_EXCLUDE=( '/tmp/*' '/data/*' '{{ tripleo_backup_and_restore_nfs_storage_folder }}' )
+BACKUP_URL=nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups
+USING_UEFI_BOOTLOADER={{ tripleo_backup_and_restore_using_uefi_bootloader }}
