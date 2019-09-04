@@ -16,6 +16,9 @@
 {%   if network == 'StorageNFS' %}
 {%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[storagenfs_net_name])) %}
 {%   endif %}
+{%   if network == 'StorageDashboard' %}
+{%     set _ = vip_data.__setitem__('ceph_grafana_vip', (net_vip_map.storage_dashboard)) %}
+{%   endif %}
 {% endfor %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
 {% if 'External' in enabled_networks %}
@@ -36,7 +39,7 @@
 {% for service in enabled_services %}
 {%   if service_net_map.get(service ~ '_network', 'noop') in net_vip_map %}
 {# we set explicit vips for these services, no need to calculate them dynamically #}
-{%     if service not in ['redis', 'ganesha', 'keystone_admin_api_vip', 'keystone_public_api_vip'] %}
+{%     if service not in ['redis', 'ganesha', 'keystone_admin_api_vip', 'keystone_public_api_vip', 'ceph_grafana'] %}
 {%       set _ = vip_data.__setitem__((service ~ '_vip'), (net_vip_map[service_net_map[service ~ '_network']])) %}
 {%     endif %}
 {%   endif %}
