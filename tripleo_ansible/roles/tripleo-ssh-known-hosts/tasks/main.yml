@@ -61,11 +61,10 @@
           {% endfor %}
 
     - name: Add host keys to temporary ssh_known_hosts
-      lineinfile:
+      blockinfile:
         path: "{{ ssh_known_hosts_tmp.path }}"
-        line: "{{ item }}"
+        block: "{{ ssh_known_hosts_lines }}"
         create: true
-      with_items: "{{ ssh_known_hosts_lines.splitlines() }}"
 
     # Workaround https://bugs.launchpad.net/tripleo/+bug/1810932
     # Ansible modules perform a replace instead of in-place modification.
