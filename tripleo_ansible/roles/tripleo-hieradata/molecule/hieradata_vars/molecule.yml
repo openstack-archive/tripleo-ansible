@@ -31,7 +31,6 @@ provisioner:
       all:
         vars:
           all_nodes_extra_map_data: {}
-          bootstrap_nodeid: standalone
           cloud_domain: localdomain
           cloud_names:
             cloud_name_ctlplane: standalone.ctlplane.localdomain
