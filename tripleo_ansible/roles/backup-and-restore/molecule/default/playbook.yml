@@ -22,5 +22,6 @@
     - role: backup-and-restore
       tripleo_backup_and_restore_nfs_server: undercloud
       tripleo_backup_and_restore_rear_simulate: true
+      tripleo_backup_and_restore_hiera_config_file: "{{ ansible_user_dir }}/hiera.yaml"
   vars:
     ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"

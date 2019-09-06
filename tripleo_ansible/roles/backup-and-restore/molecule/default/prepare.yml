@@ -66,6 +66,13 @@
           - syslinux
           - genisoimage
           - kbd
+          - puppet
+          - hiera
+
+    - name: Create hiera config file
+      file:
+        path: "{{ ansible_user_dir }}/hiera.yaml"
+        state: touch
 
     - name: pull an image
       docker_image:

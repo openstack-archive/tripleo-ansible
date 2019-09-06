@@ -8,10 +8,12 @@
 OUTPUT=ISO
 OUTPUT_URL=nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups
 ISO_PREFIX={{ tripleo_backup_and_restore_hostname.stdout }}
+ISO_DEFAULT="automatic"
 BACKUP=NETFS
 BACKUP_PROG_COMPRESS_OPTIONS=( --gzip )
 BACKUP_PROG_COMPRESS_SUFFIX=".gz"
 BACKUP_PROG_OPTIONS+=( --anchored --xattrs-include='*.*' --xattrs )
-BACKUP_PROG_EXCLUDE=( '/tmp/*' '/data/*' '{{ tripleo_backup_and_restore_nfs_storage_folder }}' )
+BACKUP_PROG_EXCLUDE=( {{ tripleo_backup_and_restore_exclude_paths | sum(start=[]) | map('quote') | join(' ') }} )
 BACKUP_URL=nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups
 USING_UEFI_BOOTLOADER={{ tripleo_backup_and_restore_using_uefi_bootloader }}
+NETWORKING_PREPARATION_COMMANDS=( {% for command in tripleo_backup_and_restore_networking_preparation_commands %}'{{ command }}' {% endfor %} )
