@@ -1,9 +1,12 @@
-SyslogFacility AUTHPRIV
-AuthorizedKeysFile .ssh/authorized_keys
-ChallengeResponseAuthentication no
-GSSAPIAuthentication yes
-GSSAPICleanupCredentials no
-UsePAM yes
-UseDNS no
-X11Forwarding yes
-PasswordAuthentication {{ tripleo_sshd_password_authentication }}
+## {{ ansible_managed }}
+
+{% for k, v in tripleo_sshd_server_options.items() %}
+{%   if (v is iterable) and (v is not string) %}
+{%     set vars = (v | unique) %}
+{%     for var in vars %}
+{{ k }} {{ var }}
+{%     endfor %}
+{%   else %}
+{{ k }} {{ v }}
+{%   endif %}
+{% endfor %}

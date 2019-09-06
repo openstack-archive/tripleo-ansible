@@ -19,3 +19,5 @@
   hosts: all
   roles:
     - name: tripleo-sshd
+      tripleo_sshd_motd_enabled: true
+      tripleo_sshd_banner_enabled: true
