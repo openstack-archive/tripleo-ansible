@@ -43,20 +43,21 @@
 - name: Get local hostname
   command: hostname
   register: tripleo_backup_and_restore_hostname
+  when: tripleo_backup_and_restore_hostname is undefined
   tags:
     - bar_setup_rear
 
-- name: Get bootstrap_nodeid
+- name: Set bootstrap nodeid
   become: true
-  command: "hiera -c {{ tripleo_backup_and_restore_hiera_config_file }} bootstrap_nodeid"
-  register: tripleo_backup_and_restore_bootstrap_nodeid
+  set_fact:
+    tripleo_backup_and_restore_bootstrap_nodeid: "{{ lookup('hiera', 'bootstrap_nodeid _hierarchy_file=/etc/puppet/hiera.yml') }}"
   tags:
     - bar_setup_rear
 
-- name: Get enabled services by node
+- name: List enabled services by node
   become: true
-  command: "hiera -c {{ tripleo_backup_and_restore_hiera_config_file }} service_names"
-  register: tripleo_backup_and_restore_enabled_services
+  set_fact:
+    tripleo_backup_and_restore_restore_enabled_services: "{{ lookup('hiera', 'service_names _hierarchy_file=/etc/puppet/hiera.yml') }}"
   tags:
     - bar_setup_rear
 
@@ -65,13 +66,8 @@
   set_fact:
     tripleo_backup_and_restore_exclude_paths:
       - "{{ tripleo_backup_and_restore_exclude_paths_common }}"
-      - "{{ (tripleo_backup_and_restore_exclude_paths_compute) if
-        (tripleo_backup_and_restore_enabled_services.stdout is search('nova_compute')) else [] }}"
-      - "{{ (tripleo_backup_and_restore_exclude_paths_controller) if
-        (tripleo_backup_and_restore_bootstrap_nodeid.stdout != tripleo_backup_and_restore_hostname.stdout and
-        tripleo_backup_and_restore_enabled_services.stdout is search('pacemaker') and
-        tripleo_backup_and_restore_enabled_services.stdout is search('mysql') and
-        tripleo_backup_and_restore_exclude_paths_controller_non_bootrapnode) else [] }}"
+      - "{{ tripleo_backup_and_restore_exclude_paths_compute }}"
+      - "{{ tripleo_backup_and_restore_exclude_paths_controller }}"
   tags:
     - bar_setup_rear
 

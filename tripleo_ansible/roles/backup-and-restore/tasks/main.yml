@@ -38,5 +38,20 @@
 - name: Setup ReaR
   import_tasks: ../setup_rear/tasks/main.yml
 
+- name: Service management
+  import_tasks: ../backup/tasks/service_manager_pause.yml
+  when:
+    - tripleo_backup_and_restore_service_manager
+
+- name: Backup the database
+  import_tasks: ../backup/tasks/db_backup.yml
+  when:
+    - tripleo_backup_and_restore_service_manager
+
 - name: Create recovery images with ReaR
   import_tasks: ../backup/tasks/main.yml
+
+- name: Service management
+  import_tasks: ../backup/tasks/service_manager_unpause.yml
+  when:
+    - tripleo_backup_and_restore_service_manager
