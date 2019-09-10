@@ -30,3 +30,29 @@
 #   extras:
 #     ensure: 'absent'
 tripleo_firewall_rules: {}
+
+tripleo_firewall_default_rules:
+  '000 accept related established rules':
+    proto: all
+    state:
+      - RELATED
+      - ESTABLISHED
+  '001 accept all icmp':
+    proto: icmp
+  '002 accept all to lo interface':
+    proto: all
+    interface: lo
+  '004 accept ipv6 dhcpv6':
+    dport: 546
+    proto: udp
+    state:
+      - NEW
+    destination: 'fe80::/64'
+  '998 log all':
+    proto: all
+    jump: LOG
+    limit: 20/min
+    limit_burst: 15
+  '999 drop all':
+    proto: all
+    action: drop
