@@ -21,12 +21,20 @@
     - system_upgrade_prepare
   become: true
   block:
+    - name: Check if docker is enabled in the system
+      stat:
+        path: "/var/run/docker.sock"
+      register: check_docker
+      failed_when: false
+
     - name: Stop all services by stopping all Docker containers
       command: docker ps -aq
       register: running_containers
+      when: check_docker.stat.exists
 
     - name: Stop a container
       docker_container:
         name: "{{ item }}"
         state: stopped
       loop: "{{ running_containers.stdout_lines | default([]) }}"
+      when: check_docker.stat.exists
