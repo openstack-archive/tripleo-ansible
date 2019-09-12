@@ -41,6 +41,10 @@
 {% if 'ovn_dbs' in enabled_services and net_vip_map.ovn_dbs is defined %}
 {%   set _ = all_nodes.__setitem__('ovn_dbs_vip', (net_vip_map.ovn_dbs)) %}
 {% endif %}
+{% if hieradata_localhost_address is undefined %}
+{%   set hieradata_localhost_address = ('ipv6' in (ansible_lo | default({}))) | ternary('localhost', '127.0.0.1') %}
+{% endif %}
+{% set _ = all_nodes.__setitem__('localhost_address', hieradata_localhost_address) %}
 {% set _ = all_nodes.__setitem__('deploy_identifier', deploy_identifier) %}
 {% set _ = all_nodes.__setitem__('stack_action', stack_action) %}
 {% set _ = all_nodes.__setitem__('stack_update_type', stack_update_type) %}

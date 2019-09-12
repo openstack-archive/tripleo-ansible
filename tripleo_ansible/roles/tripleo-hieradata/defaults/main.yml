@@ -52,3 +52,7 @@ hieradata_templates_list:
   - bootstrap_node
   - all_nodes
   - vip_data
+# define a local address. If the ipv6 is found to be enable on the
+# loopback device the local address will be set to "localhost" otherwise
+# the local address will be defined as "127.0.0.1".
+hieradata_localhost_address: "{{ ('ipv6' in (ansible_lo | default({}))) | ternary('localhost', '127.0.0.1') }}"
