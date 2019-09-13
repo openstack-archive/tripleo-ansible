@@ -113,6 +113,7 @@ provisioner:
             ctlplane_subnet: 192.168.24.1/24
             ctlplane_uri: 192.168.24.1
             redis: 192.168.24.1
+            ovn_dbs: 192.168.24.1
           network_virtual_ips:
             ctlplane:
               index: 1
