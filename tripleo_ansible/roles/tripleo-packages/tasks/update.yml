@@ -1,0 +1,41 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Check for existing yum.pid
+  stat:
+    path: /var/run/yum.pid
+  register: yum_pid_file
+  when:
+    - ((step | int) == 0) or ((step | int) == 3)
+
+- name: Exit if existing yum process
+  fail:
+    msg: >-
+      ERROR existing yum.pid detected - can't continue! Please ensure there is no other
+      package update process for the duration of the minor update worfklow. Exiting.
+  when:
+    - (((step | int) == 0) or ((step | int) == 3)) and (yum_pid_file.stat.exists | bool)
+
+# Ansbile cannot upgrade itself as it will cause the current execution to fail.
+# https://github.com/ansible/ansible/issues/56636
+- name: Update all packages
+  when: step|int == 3
+  package:
+    name: '*'
+    state: latest
+    exclude: ansible
+  notify: start openvswitch
