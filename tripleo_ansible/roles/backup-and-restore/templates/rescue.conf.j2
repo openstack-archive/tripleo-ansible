@@ -6,3 +6,6 @@
 # https://opendev.org/openstack/tripleo-ansible
 
 BACKUP_PROG_OPTIONS+=( --anchored --xattrs-include='*.*' --xattrs )
+{% for item in (tripleo_backup_and_restore_rescue_config | dict2items) %}
+{{ item.key }}={{ item.value }}
+{% endfor %}
