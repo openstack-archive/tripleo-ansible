@@ -63,7 +63,6 @@
     post:
       jobs:
       - publish-openstack-python-branch-tarball
-      - publish-openstack-tox-docs
     promote:
       jobs:
       - promote-openstack-tox-docs: *tripleo-docs
