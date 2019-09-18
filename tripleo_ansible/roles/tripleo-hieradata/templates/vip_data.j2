@@ -32,6 +32,9 @@
 {% set _ = vip_data.__setitem__('tripleo::keepalived::controller_virtual_ip', (net_vip_map.ctlplane)) %}
 {% set _ = vip_data.__setitem__('tripleo::keepalived::redis_virtual_ip', (net_vip_map.redis)) %}
 {% set _ = vip_data.__setitem__('tripleo::redis_notification::haproxy_monitor_ip', (net_vip_map.ctlplane)) %}
+{% if 'ovn_dbs' in enabled_services and net_vip_map.ovn_dbs is defined %}
+{%   set _ = vip_data.__setitem__('tripleo::keepalived::ovndbs_virtual_ip', (net_vip_map.ovn_dbs)) %}
+{% endif %}
 {% for key, value in cloud_names.items() %}
 {%   set _ = vip_data.__setitem__(key, value) %}
 {% endfor %}
