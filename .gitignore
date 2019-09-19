@@ -23,5 +23,8 @@ nosetests.xml
 # roles
 tripleo_ansible/roles.galaxy/*
 
+# Sphinx
+doc/build
+
 ansible-errors.json
 pytestdebug.log
