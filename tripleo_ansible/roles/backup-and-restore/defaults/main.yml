@@ -29,5 +29,25 @@ tripleo_backup_and_restore_exclude_paths_common: ['/data/*', '/tmp/*', '{{ tripl
 tripleo_backup_and_restore_exclude_paths_controller_non_bootrapnode: true
 tripleo_backup_and_restore_exclude_paths_controller: ['/var/lib/mysql/*']
 tripleo_backup_and_restore_exclude_paths_compute: ['/var/lib/nova/instances/*']
-tripleo_backup_and_restore_networking_preparation_commands: []
 tripleo_backup_and_restore_hiera_config_file: "/etc/puppet/hiera.yaml"
+
+# This var is a dictionary of the configuration of the /etc/rear/local.conf
+# The key:value will be interpreted as key=value on the configuration file.
+# To set that the value is a string, it needs to be single quoted followed by
+# double quoted as it will be interpreted by BASH.
+tripleo_backup_and_restore_local_config:
+  ISO_DEFAULT: '"automatic"'
+  USING_UEFI_BOOTLOADER: 0
+  OUTPUT: ISO
+  BACKUP: NETFS
+  BACKUP_PROG_COMPRESS_OPTIONS: '( --gzip)'
+  BACKUP_PROG_COMPRESS_SUFFIX: '".gz"'
+
+# This var is a dictionary of the configuration of the /etc/rear/rescue.conf
+# The key:value will be interpreted as key=value on the configuration file.
+# To set that the value is a string, it needs to be single quoted followed by
+# double quoted as it will be interpreted by BASH.
+tripleo_backup_and_restore_rescue_config: {}
+
+tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
+tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
