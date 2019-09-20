@@ -12,8 +12,7 @@
           - ^README.rst
       - tripleo-ci-centos-7-containers-multinode: &containers_multinode
           files:
-          - ^tripleo_ansible/roles/tripleo-hieradata/.*
-          - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+          - ^tripleo_ansible/.*
           irrelevant-files: &irrelevant_scenario_files
           - .*.md$
           - .*.rst$
@@ -37,10 +36,6 @@
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario004-standalone: &scenario004
-          files:
-          - ^tripleo_ansible/.*
-          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario010-standalone: &scenario010
           files:
           - ^tripleo_ansible/.*octavia.*
@@ -58,7 +53,6 @@
       - tripleo-ci-centos-7-scenario001-standalone: *scenario001
       - tripleo-ci-centos-7-scenario002-standalone: *scenario002
       - tripleo-ci-centos-7-scenario003-standalone: *scenario003
-      - tripleo-ci-centos-7-scenario004-standalone: *scenario004
       - tripleo-ci-centos-7-scenario010-standalone: *scenario010
     post:
       jobs:
