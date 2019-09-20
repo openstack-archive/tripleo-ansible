@@ -39,4 +39,6 @@ galaxy_info:
     - tripleo
 
 dependencies:
-  - tripleo-ceph-common
+  - role: tripleo-ceph-common
+    when:
+      - ceph_common_done is undefined

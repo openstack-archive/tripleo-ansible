@@ -39,5 +39,9 @@ galaxy_info:
     - tripleo
 
 dependencies:
-  - tripleo-ceph-common
-  - tripleo-ceph-work-dir
+  - role: tripleo-ceph-common
+    when:
+      - ceph_common_done is undefined
+  - role: tripleo-ceph-work-dir
+    when:
+      - ceph_ansible_private_key_file is undefined

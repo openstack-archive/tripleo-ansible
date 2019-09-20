@@ -14,13 +14,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: detect private key file
-  stat:
-    path: "{{ playbook_dir }}/ssh_private_key"
-  register: detect_private_key_file
-
-- name: set private key file
-  set_fact:
-    ceph_ansible_private_key_file: "{{ playbook_dir }}/ssh_private_key"
-  when:
-    - detect_private_key_file.stat.exists | bool
+calling_ansible_environment_variables: []

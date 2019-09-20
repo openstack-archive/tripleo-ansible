@@ -34,6 +34,7 @@
     src: "{{ inventory_file }}"
     dest: "{{ playbook_dir }}/ceph-ansible/inventory.yml"
     state: link
+    force: true
   tags:
     - run_uuid_ansible
     - run_ceph_ansible
@@ -41,9 +42,9 @@
 - name: generate ceph-ansible group vars all
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
-    content: "{{ ceph_ansible_group_vars_all|to_nice_yaml }}"
+    content: "{{ ceph_ansible_group_vars_all | to_nice_yaml }}"
 
 - name: generate ceph-ansible extra vars
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/extra_vars.yml"
-    content: "{{ ceph_ansible_extra_vars|to_nice_yaml }}"
+    content: "{{ ceph_ansible_extra_vars | to_nice_yaml }}"

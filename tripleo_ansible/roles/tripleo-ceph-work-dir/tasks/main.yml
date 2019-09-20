@@ -16,3 +16,5 @@
 
 - import_tasks: prepare.yml
 - import_tasks: get_ssh_private_key.yml
+  when:
+    - ceph_ansible_private_key_file is undefined
