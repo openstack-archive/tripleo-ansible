@@ -59,22 +59,11 @@
         name: network
         enabled: true
 
-- name: Find all installed puppet modules under /usr/share/openstack-puppet/modules
-  find:
-    paths:
-      - /usr/share/openstack-puppet/modules
-    file_type: directory
-  register: find_openstack_puppet_modules
-
 - name: Symlink puppet modules under /etc/puppet/modules
-  become: true
-  file:
-    state: link
-    src: "{{ item.path }}"
-    path: "/etc/puppet/modules/{{ item.path | basename }}"
-  loop: "{{ find_openstack_puppet_modules.files }}"
-  loop_control:
-    label: "/etc/puppet/modules/{{ item.path | basename }} -> {{ item.path }}"
+  shell: >-
+    ln -f -s /usr/share/openstack-puppet/modules/* /etc/puppet/modules/
+  tags:
+    - skip_ansible_lint
 
 - name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
   become: true
