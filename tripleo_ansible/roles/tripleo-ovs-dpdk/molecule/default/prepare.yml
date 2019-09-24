@@ -16,6 +16,34 @@
 
 
 - name: Prepare
-  hosts: all
+  hosts: all:localhost
+  become: true
   roles:
     - role: test_deps
+  post_tasks:
+    - name: Install ovs
+      package:
+        name:
+          - openvswitch
+          - libibverbs
+        state: present
+
+    - name: Create ovs runtime directories
+      file:
+        path: "{{ item }}"
+        state: "directory"
+      loop:
+        - /var/log/openvswitch
+        - /var/run/openvswitch
+
+    - name: Add the openvswitch module
+      modprobe:
+        name: openvswitch
+        state: present
+
+    - name: Start ovs
+      systemd:
+        name: openvswitch
+        state: started
+      when:
+        - inventory_hostname != 'localhost'

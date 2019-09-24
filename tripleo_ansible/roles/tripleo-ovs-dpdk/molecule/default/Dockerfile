@@ -32,11 +32,3 @@ RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y pyth
 # install pip for centos where there is no python-pip rpm in default repos
 RUN easy_install {{ pkg }}
 {% endfor %}
-
-RUN echo $'\n\
-mkdir -p /var/log/openvswitch/ \n\
-mkdir -p /var/run/openvswitch/ \n\
-/usr/share/openvswitch/scripts/ovs-ctl --no-ovs-vswitchd --no-monitor --system-id=random start \n\
-ovs-vswitchd unix:/var/run/openvswitch/db.sock -vconsole:emer -vsyslog:err -vfile:info --mlockall --no-chdir --log-file=/var/log/openvswitch/ovs-vswitchd.log --pidfile=/var/run/openvswitch/ovs-vswitchd.pid \n\
-' > /tmp/ovs_start.sh
-
