@@ -69,7 +69,7 @@
     state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
     - item['rule']['dport'] is defined
-    - (item['rule']['proto'] | default('tcp')) != 'ipv6'
+    - (item['rule']['ipversion'] | default('ipv4')) != 'ipv6'
     - item['rule']['source'] | default('127.0.0.1') | ipv4
     - item['rule']['destination'] | default('127.0.0.1') | ipv4
   loop: "{{ ((item['rule']['dport'] is iterable) and (item['rule']['dport'] is not string)) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
@@ -104,7 +104,7 @@
     state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
     - item['rule']['dport'] is defined
-    - (item['rule']['proto'] | default('tcp')) != 'ipv4'
+    - (item['rule']['ipversion'] | default('ipv6')) != 'ipv4'
     - item['rule']['source'] | default('::') | ipv6
     - item['rule']['destination'] | default('::') | ipv6
   loop: "{{ ((item['rule']['dport'] is iterable) and (item['rule']['dport'] is not string)) | ternary(item['rule']['dport'], [item['rule']['dport']]) }}"
@@ -130,7 +130,7 @@
     ip_version: ipv4
     state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
-    - (item['rule']['proto'] | default('all')) != 'ipv6'
+    - (item['rule']['ipversion'] | default('ipv4')) != 'ipv6'
     - item['rule']['proto'] is defined
     - item['rule']['dport'] is undefined
 
@@ -143,7 +143,7 @@
     protocol: "{{ item['rule']['proto'] | default(omit) }}"
     source_port: "{{ item['rule']['sport'] | default(omit) | replace('-', ':') }}"
     source: "{{ item['rule']['source'] | default(omit) }}"
-    comment: "{{ item['rule_name'] }} ipv4"
+    comment: "{{ item['rule_name'] }} ipv6"
     jump: "{{ item['rule']['jump'] | default('ACCEPT') }}"
     ctstate: "{{ tripleo_ctstate }}"
     limit: "{{ item['rule']['limit'] | default(omit) }}"
@@ -151,6 +151,6 @@
     ip_version: ipv6
     state: "{{ tripleo_firewall_port_states[(item['rule']['extras'] | default({}))['ensure'] | default('enabled')] }}"
   when:
-    - (item['rule']['proto'] | default('all')) != 'ipv4'
+    - (item['rule']['ipversion'] | default('ipv6')) != 'ipv4'
     - item['rule']['proto'] is defined
     - item['rule']['dport'] is undefined
