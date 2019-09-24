@@ -142,48 +142,43 @@ class PaunchManager:
     def paunch_apply(self):
 
         self.results['action'].append('Applying config_id %s' % self.config_id)
-        if not self.module.check_mode:
-            stdout_list, stderr_list, rc = p.apply(
-                self.config_id,
-                self.config_yaml,
-                managed_by=self.managed_by,
-                labels=[],
-                cont_cmd=self.container_cli,
-                log_level=self.log_level,
-                log_file=self.log_file,
-                cont_log_path=self.container_log_stdout_path,
-                healthcheck_disabled=self.healthcheck_disabled
-            )
-            stdout, stderr = ["\n".join(i) for i in (stdout_list, stderr_list)]
+        stdout_list, stderr_list, rc = p.apply(
+            self.config_id,
+            self.config_yaml,
+            managed_by=self.managed_by,
+            labels=[],
+            cont_cmd=self.container_cli,
+            log_level=self.log_level,
+            log_file=self.log_file,
+            cont_log_path=self.container_log_stdout_path,
+            healthcheck_disabled=self.healthcheck_disabled
+        )
+        stdout, stderr = ["\n".join(i) for i in (stdout_list, stderr_list)]
 
-            # Test paunch idempotency how we can.
-            changed_strings = ['rm -f', 'Completed', 'Created']
-            if any(s in stdout for s in changed_strings):
-                self.results['changed'] = True
+        # Test paunch idempotency how we can.
+        changed_strings = ['rm -f', 'Completed', 'Created']
+        if any(s in stdout for s in changed_strings):
+            self.results['changed'] = True
 
-            self.results.update({"stdout": stdout, "stderr": stderr, "rc": rc})
-            if rc != 0:
-                self.module.fail_json(
-                    msg="Paunch failed with config_id %s" % self.config_id,
-                    stdout=stdout,
-                    stderr=stderr,
-                    rc=rc)
-        self.module.exit_json(**self.results)
+        self.results.update({"stdout": stdout, "stderr": stderr, "rc": rc})
+        if rc != 0:
+            self.module.fail_json(
+                msg="Paunch failed with config_id %s" % self.config_id,
+                stdout=stdout,
+                stderr=stderr,
+                rc=rc)
 
 
 def main():
     module = AnsibleModule(
         argument_spec=yaml.safe_load(DOCUMENTATION)['options'],
-        supports_check_mode=True,
+        supports_check_mode=False,
     )
 
     results = dict(
         changed=False,
         action=[]
     )
-
-    if module.check_mode:
-        return results
 
     PaunchManager(module, results)
 
