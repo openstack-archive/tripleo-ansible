@@ -38,7 +38,11 @@ tripleo_firewall_default_rules:
       - RELATED
       - ESTABLISHED
   '001 accept all icmp':
+    ipversion: ipv4
     proto: icmp
+  '001 accept all ipv6-icmp':
+    ipversion: ipv6
+    proto: ipv6-icmp
   '002 accept all to lo interface':
     proto: all
     interface: lo
