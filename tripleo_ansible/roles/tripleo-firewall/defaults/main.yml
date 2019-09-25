@@ -43,6 +43,7 @@ tripleo_firewall_default_rules:
     proto: all
     interface: lo
   '004 accept ipv6 dhcpv6':
+    ipversion: ipv6
     dport: 546
     proto: udp
     state:
