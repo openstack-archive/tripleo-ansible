@@ -4,9 +4,20 @@
   environment:
     ANSIBLE_LOG_PATH: "{{ ansible_user_dir }}/zuul-output/logs/ansible-execution.log"
   pre_tasks:
+
     - name: Set project path fact
       set_fact:
         tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+
+    - name: Set role or plugin path fact
+      set_fact:
+        triple_ansible_testdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles/{{ tripleo_role_name }}"
+      when: tripleo_role_name is defined and tripleo_role_name
+
+    - name: Set role or plugin path fact
+      set_fact:
+        triple_ansible_testdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/tests"
+      when: tripleo_role_name is not defined
 
     - name: Set action plugin path fact
       set_fact:
@@ -25,7 +36,7 @@
                --ansible-args='{{ tripleo_job_ansible_args | default('') }}' \
                {{ tripleo_ansible_project_path }}/tests/test_molecule.py
       args:
-        chdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles/{{ tripleo_role_name }}"
+        chdir: "{{ triple_ansible_testdir }}"
         executable: /bin/bash
       environment:
         ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"

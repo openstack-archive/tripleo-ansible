@@ -21,9 +21,10 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+from distutils.version import LooseVersion
 import yaml
 
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes, to_native
 
 ANSIBLE_METADATA = {
@@ -101,7 +102,7 @@ options:
         (Not available for remote commands) You can also override the default
         path of the authentication file by setting the ``REGISTRY_AUTH_FILE``
         environment variable. ``export REGISTRY_AUTH_FILE=path``
-    type: str
+    type: path
   blkio_weight:
     description:
       - Block IO weight (relative weight) accepts a weight value between 10 and
@@ -128,7 +129,22 @@ options:
         If the path is not absolute, the path is considered to be relative to
         the cgroups path of the init process. Cgroups will be created if they
         do not already exist.
+    type: path
+  cgroupns:
+    description:
+      - Path to cgroups under which the cgroup for the container will be
+        created.
     type: str
+  cgroups:
+    description:
+      - Determines whether the container will create CGroups.
+        Valid values are enabled and disabled, which the default being enabled.
+        The disabled option will force the container to not create CGroups,
+        and thus conflicts with CGroup options cgroupns and cgroup-parent.
+    type: str
+    choices:
+      - default
+      - disabled
   cidfile:
     description:
       - Write the container ID to the file
@@ -154,9 +170,17 @@ options:
     description:
       - Limit the CPU real-time period in microseconds
     type: int
+  cpu_rt_period:
+    description:
+      - Limit the CPU real-time period in microseconds.
+        Limit the container's Real Time CPU usage. This flag tell the kernel to
+        restrict the container's Real Time CPU usage to the period you specify.
+    type: int
   cpu_rt_runtime:
     description:
-      - Limit the CPU real-time runtime in microseconds
+      - Limit the CPU real-time runtime in microseconds.
+        This flag tells the kernel to limit the amount of time in a given CPU
+        period Real Time tasks may consume.
     type: int
   cpu_shares:
     description:
@@ -180,6 +204,11 @@ options:
       - Run container in detach mode
     type: bool
     default: True
+  debug:
+    description:
+      - Return additional information which can be helpful for investigations.
+    type: bool
+    default: False
   detach_keys:
     description:
       - Override the key sequence for detaching a container. Format is a single
@@ -190,27 +219,28 @@ options:
       - Add a host device to the container.
         The format is <device-on-host>[:<device-on-container>][:<permissions>]
         (e.g. device /dev/sdc:/dev/xvdc:rwm)
-    type: str
+    type: list
+    elements: str
   device_read_bps:
     description:
       - Limit read rate (bytes per second) from a device
         (e.g. device-read-bps /dev/sda:1mb)
-    type: str
+    type: list
   device_read_iops:
     description:
       - Limit read rate (IO per second) from a device
         (e.g. device-read-iops /dev/sda:1000)
-    type: str
+    type: list
   device_write_bps:
     description:
       - Limit write rate (bytes per second) to a device
         (e.g. device-write-bps /dev/sda:1mb)
-    type: str
+    type: list
   device_write_iops:
     description:
       - Limit write rate (IO per second) to a device
         (e.g. device-write-iops /dev/sda:1000)
-    type: str
+    type: list
   dns:
     description:
       - Set custom DNS servers
@@ -240,6 +270,11 @@ options:
     description:
       - Read in a line delimited file of environment variables
     type: path
+  env_host:
+    description:
+      - Use all current host environment variables in container.
+        Defaults to false.
+    type: bool
   etc_hosts:
     description:
       - Dict of host-to-IP mappings, where each host name is a key in the
@@ -271,7 +306,7 @@ options:
   group_add:
     description:
       - Add additional groups to run as
-    type: str
+    type: list
   healthcheck:
     description:
       - Set or alter a healthcheck command for a container.
@@ -356,6 +391,7 @@ options:
     description:
       - Kernel memory limit
         (format <number>[<unit>], where unit = b, k, m or g)
+        Note - idempotency is supported for integers only.
     type: str
   label:
     description:
@@ -385,10 +421,12 @@ options:
   memory:
     description:
       - Memory limit (format 10k, where unit = b, k, m or g)
+        Note - idempotency is supported for integers only.
     type: str
   memory_reservation:
     description:
       - Memory soft limit (format 100m, where unit = b, k, m or g)
+        Note - idempotency is supported for integers only.
     type: str
   memory_swap:
     description:
@@ -396,6 +434,7 @@ options:
         (--memory) flag.
         The swap LIMIT should always be larger than -m (--memory) value.
         By default, the swap LIMIT will be set to double the value of --memory
+        Note - idempotency is supported for integers only.
     type: str
   memory_swappiness:
     description:
@@ -419,7 +458,8 @@ options:
         * ns:<path> path to a network namespace to join
         * slirp4netns use slirp4netns to create a user network stack.
           This is the default for rootless containers
-    type: str
+    type: list
+    elements: str
     aliases:
       - net
   no_hosts:
@@ -512,7 +552,8 @@ options:
   security_opt:
     description:
       - Security Options. For example security_opt "seccomp=unconfined"
-    type: str
+    type: list
+    elements: str
   shm_size:
     description:
       - Size of /dev/shm. The format is <number><unit>. number must be greater
@@ -530,7 +571,7 @@ options:
   stop_signal:
     description:
       - Signal to stop a container. Default is SIGTERM.
-    type: str
+    type: int
   stop_timeout:
     description:
       - Timeout (in seconds) to stop a container. Default is 10.
@@ -813,9 +854,12 @@ class PodmanModuleParams:
            params {dict} -- dictionary of module parameters
 
        """
-    def __init__(self, action, params):
+
+    def __init__(self, action, params, podman_version, module):
         self.params = params
         self.action = action
+        self.podman_version = podman_version
+        self.module = module
 
     def construct_command_from_params(self):
         """Create a podman command from given module parameters.
@@ -828,8 +872,8 @@ class PodmanModuleParams:
         if self.action in ['create', 'run']:
             cmd = [self.action, '--name', self.params['name']]
             all_param_methods = [func for func in dir(self)
-                                 if callable(getattr(self, func)) and
-                                 func.startswith("addparam")]
+                                 if callable(getattr(self, func))
+                                 and func.startswith("addparam")]
             params_set = (i for i in self.params if self.params[i] is not None)
             for param in params_set:
                 func_name = "_".join(["addparam", param])
@@ -853,18 +897,25 @@ class PodmanModuleParams:
             cmd = ['rm', '-f', self.params['name']]
             return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
 
-    def addparam_detach(self, c):
-        return c + ['--detach=%s' % self.params['detach']]
-
-    def addparam_etc_hosts(self, c):
-        for host_ip in self.params['etc_hosts'].items():
-            c += ['--add-host', ':'.join(host_ip)]
-        return c
+    def check_version(self, param, minv=None, maxv=None):
+        if minv and LooseVersion(minv) > LooseVersion(
+                self.podman_version):
+            self.module.fail_json(msg="Parameter %s is supported from podman "
+                                  "version %s only! Current version is %s" % (
+                                      param, minv, self.podman_version))
+        if maxv and LooseVersion(maxv) < LooseVersion(
+                self.podman_version):
+            self.module.fail_json(msg="Parameter %s is supported till podman "
+                                  "version %s only! Current version is %s" % (
+                                      param, minv, self.podman_version))
 
     def addparam_annotation(self, c):
         for annotate in self.params['annotation'].items():
             c += ['--annotation', '='.join(annotate)]
         return c
+
+    def addparam_authfile(self, c):
+        return c + ['--authfile', self.params['authfile']]
 
     def addparam_blkio_weight(self, c):
         return c + ['--blkio-weight', self.params['blkio_weight']]
@@ -884,6 +935,14 @@ class PodmanModuleParams:
             c += ['--cap-drop', cap_drop]
         return c
 
+    def addparam_cgroups(self, c):
+        self.check_version('--cgroups', minv='1.6.0')
+        return c + ['--cgroups=%s' % self.params['cgroups']]
+
+    def addparam_cgroupns(self, c):
+        self.check_version('--cgroupns', minv='1.6.2')
+        return c + ['--cgroupns=%s' % self.params['cgroupns']]
+
     def addparam_cgroup_parent(self, c):
         return c + ['--cgroup-parent', self.params['cgroup_parent']]
 
@@ -895,6 +954,9 @@ class PodmanModuleParams:
 
     def addparam_cpu_period(self, c):
         return c + ['--cpu-period', self.params['cpu_period']]
+
+    def addparam_cpu_rt_period(self, c):
+        return c + ['--cpu-rt-period', self.params['cpu_rt_period']]
 
     def addparam_cpu_rt_runtime(self, c):
         return c + ['--cpu-rt-runtime', self.params['cpu_rt_runtime']]
@@ -911,23 +973,36 @@ class PodmanModuleParams:
     def addparam_cpuset_mems(self, c):
         return c + ['--cpuset-mems', self.params['cpuset_mems']]
 
+    def addparam_detach(self, c):
+        return c + ['--detach=%s' % self.params['detach']]
+
     def addparam_detach_keys(self, c):
         return c + ['--detach-keys', self.params['detach_keys']]
 
     def addparam_device(self, c):
-        return c + ['--device', self.params['device']]
+        for dev in self.params['device']:
+            c += ['--device', dev]
+        return c
 
     def addparam_device_read_bps(self, c):
-        return c + ['--device-read-bps', self.params['device_read_bps']]
+        for dev in self.params['device_read_bps']:
+            c += ['--device-read-bps', dev]
+        return c
 
     def addparam_device_read_iops(self, c):
-        return c + ['--device-read-iops', self.params['device_read_iops']]
+        for dev in self.params['device_read_iops']:
+            c += ['--device-read-iops', dev]
+        return c
 
     def addparam_device_write_bps(self, c):
-        return c + ['--device-write-bps', self.params['device_write_bps']]
+        for dev in self.params['device_write_bps']:
+            c += ['--device-write-bps', dev]
+        return c
 
     def addparam_device_write_iops(self, c):
-        return c + ['--device-write-iops', self.params['device_write_iops']]
+        for dev in self.params['device_write_iops']:
+            c += ['--device-write-iops', dev]
+        return c
 
     def addparam_dns(self, c):
         return c + ['--dns', ','.join(self.params['dns'])]
@@ -951,6 +1026,15 @@ class PodmanModuleParams:
     def addparam_env_file(self, c):
         return c + ['--env-file', self.params['env_file']]
 
+    def addparam_env_host(self, c):
+        self.check_version('--env-host', minv='1.5.0')
+        return c + ['--env-host=%s' % self.params['env_host']]
+
+    def addparam_etc_hosts(self, c):
+        for host_ip in self.params['etc_hosts'].items():
+            c += ['--add-host', ':'.join(host_ip)]
+        return c
+
     def addparam_expose(self, c):
         for exp in self.params['expose']:
             c += ['--expose', exp]
@@ -960,7 +1044,9 @@ class PodmanModuleParams:
         return c + ['--gidmap', self.params['gidmap']]
 
     def addparam_group_add(self, c):
-        return c + ['--group-add', self.params['group_add']]
+        for g in self.params['group_add']:
+            c += ['--group-add', g]
+        return c
 
     def addparam_healthcheck(self, c):
         return c + ['--healthcheck', self.params['healthcheck']]
@@ -1010,7 +1096,8 @@ class PodmanModuleParams:
 
     def addparam_label(self, c):
         for label in self.params['label'].items():
-            c += ['--label', '='.join(label)]
+            c += ['--label', b'='.join([to_bytes(l, errors='surrogate_or_strict')
+                                        for l in label])]
         return c
 
     def addparam_label_file(self, c):
@@ -1038,7 +1125,7 @@ class PodmanModuleParams:
         return c + ['--mount', self.params['mount']]
 
     def addparam_network(self, c):
-        return c + ['--network', self.params['network']]
+        return c + ['--network', ",".join(self.params['network'])]
 
     def addparam_no_hosts(self, c):
         return c + ['--no-hosts=%s' % self.params['no_hosts']]
@@ -1085,7 +1172,9 @@ class PodmanModuleParams:
         return c + ['--rootfs=%s' % self.params['rootfs']]
 
     def addparam_security_opt(self, c):
-        return c + ['--security-opt', self.params['security_opt']]
+        for secopt in self.params['security_opt']:
+            c += ['--security-opt', secopt]
+        return c
 
     def addparam_shm_size(self, c):
         return c + ['--shm-size', self.params['shm_size']]
@@ -1161,6 +1250,436 @@ class PodmanModuleParams:
         return c + self.params['cmd_args']
 
 
+class PodmanDefaults:
+    def __init__(self, module, podman_version):
+        self.module = module
+        self.version = podman_version
+        self.defaults = {
+            "blkio_weight": 0,
+            "cgroups": "default",
+            "cgroup_parent": "",
+            "cidfile": "",
+            "cpus": 0.0,
+            "cpu_shares": 0,
+            "cpu_quota": 0,
+            "cpu_period": 0,
+            "cpu_rt_runtime": 0,
+            "cpu_rt_period": 0,
+            "cpuset_cpus": "",
+            "cpuset_mems": "",
+            "detach": True,
+            "device": [],
+            "env_host": False,
+            "etc_hosts": {},
+            "group_add": [],
+            "ipc": "",
+            "kernelmemory": "0",
+            "log_driver": "k8s-file",
+            "memory": "0",
+            "memory_swap": "0",
+            "memory_reservation": "0",
+            # "memory_swappiness": -1,
+            "no_hosts": False,
+            # libpod issue with networks in inspection
+            "network": ["default"],
+            "oom_score_adj": 0,
+            "pid": "",
+            "privileged": False,
+            "rm": False,
+            "security_opt": [],
+            "stop_signal": 15,
+            "tty": False,
+            "user": "",
+            "uts": "",
+            "volume": [],
+            "workdir": "/",
+        }
+
+    def default_dict(self):
+        # make here any changes to self.defaults related to podman version
+        return self.defaults
+
+
+class PodmanContainerDiff:
+    def __init__(self, module, info, podman_version):
+        self.module = module
+        self.version = podman_version
+        self.default_dict = None
+        self.info = yaml.safe_load(json.dumps(info).lower())
+        self.params = self.defaultize()
+        self.diff = {'before': {}, 'after': {}}
+        self.non_idempotent = {
+            'env_file',
+            'env_host',
+            "ulimit",  # Defaults depend on user and platform, impossible to guess
+        }
+
+    def defaultize(self):
+        params_with_defaults = {}
+        self.default_dict = PodmanDefaults(
+            self.module, self.version).default_dict()
+        for p in self.module.params:
+            if self.module.params[p] is None and p in self.default_dict:
+                params_with_defaults[p] = self.default_dict[p]
+            else:
+                params_with_defaults[p] = self.module.params[p]
+        return params_with_defaults
+
+    def _diff_update_and_compare(self, param_name, before, after):
+        if before != after:
+            self.diff['before'].update({param_name: before})
+            self.diff['after'].update({param_name: after})
+            return True
+        return False
+
+    def diffparam_annotation(self):
+        before = self.info['config']['annotations'] or {}
+        after = before.copy()
+        if self.module.params['annotation'] is not None:
+            after.update(self.params['annotation'])
+        return self._diff_update_and_compare('annotation', before, after)
+
+    def diffparam_env_host(self):
+        # It's impossible to get from inspest, recreate it if not default
+        before = False
+        after = self.params['env_host']
+        return self._diff_update_and_compare('env_host', before, after)
+
+    def diffparam_blkio_weight(self):
+        before = self.info['hostconfig']['blkioweight']
+        after = self.params['blkio_weight']
+        return self._diff_update_and_compare('blkio_weight', before, after)
+
+    def diffparam_blkio_weight_device(self):
+        before = self.info['hostconfig']['blkioweightdevice']
+        if before == [] and self.module.params['blkio_weight_device'] is None:
+            after = []
+        else:
+            after = self.params['blkio_weight_device']
+        return self._diff_update_and_compare('blkio_weight_device', before, after)
+
+    def diffparam_cap_add(self):
+        before = self.info['effectivecaps'] or []
+        after = []
+        if self.module.params['cap_add'] is not None:
+            after += ["cap_" + i.lower()
+                      for i in self.module.params['cap_add']]
+        after += before
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('cap_add', before, after)
+
+    def diffparam_cap_drop(self):
+        before = self.info['effectivecaps'] or []
+        after = before[:]
+        if self.module.params['cap_drop'] is not None:
+            for c in ["cap_" + i.lower() for i in self.module.params['cap_drop']]:
+                if c in after:
+                    after.remove(c)
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('cap_drop', before, after)
+
+    def diffparam_cgroup_parent(self):
+        before = self.info['hostconfig']['cgroupparent']
+        after = self.params['cgroup_parent']
+        return self._diff_update_and_compare('cgroup_parent', before, after)
+
+    def diffparam_cgroups(self):
+        # Cgroups output is not supported in all versions
+        if 'cgroups' in self.info['hostconfig']:
+            before = self.info['hostconfig']['cgroups']
+            after = self.params['cgroups']
+            return self._diff_update_and_compare('cgroups', before, after)
+        return False
+
+    def diffparam_cidfile(self):
+        before = self.info['hostconfig']['containeridfile']
+        after = self.params['cidfile']
+        return self._diff_update_and_compare('cidfile', before, after)
+
+    def diffparam_command(self):
+        before = self.info['config']['cmd']
+        after = self.params['command']
+        if isinstance(after, str):
+            after = [i.lower() for i in after.split()]
+        elif isinstance(after, list):
+            after = [i.lower() for i in after]
+        return self._diff_update_and_compare('command', before, after)
+
+    def diffparam_conmon_pidfile(self):
+        before = self.info['conmonpidfile']
+        if self.module.params['conmon_pidfile'] is None:
+            after = before
+        else:
+            after = self.params['conmon_pidfile']
+        return self._diff_update_and_compare('conmon_pidfile', before, after)
+
+    def diffparam_cpu_period(self):
+        before = self.info['hostconfig']['cpuperiod']
+        after = self.params['cpu_period']
+        return self._diff_update_and_compare('cpu_period', before, after)
+
+    def diffparam_cpu_rt_period(self):
+        before = self.info['hostconfig']['cpurealtimeperiod']
+        after = self.params['cpu_rt_period']
+        return self._diff_update_and_compare('cpu_rt_period', before, after)
+
+    def diffparam_cpu_rt_runtime(self):
+        before = self.info['hostconfig']['cpurealtimeruntime']
+        after = self.params['cpu_rt_runtime']
+        return self._diff_update_and_compare('cpu_rt_runtime', before, after)
+
+    def diffparam_cpu_shares(self):
+        before = self.info['hostconfig']['cpushares']
+        after = self.params['cpu_shares']
+        return self._diff_update_and_compare('cpu_shares', before, after)
+
+    def diffparam_cpus(self):
+        before = int(self.info['hostconfig']['nanocpus']) / 1000000000
+        after = self.params['cpus']
+        return self._diff_update_and_compare('cpus', before, after)
+
+    def diffparam_cpuset_cpus(self):
+        before = self.info['hostconfig']['cpusetcpus']
+        after = self.params['cpuset_cpus']
+        return self._diff_update_and_compare('cpuset_cpus', before, after)
+
+    def diffparam_cpuset_mems(self):
+        before = self.info['hostconfig']['cpusetmems']
+        after = self.params['cpuset_mems']
+        return self._diff_update_and_compare('cpuset_mems', before, after)
+
+    def diffparam_device(self):
+        before = [":".join([i['pathonhost'], i['pathincontainer']])
+                  for i in self.info['hostconfig']['devices']]
+        after = [":".join(i.split(":")[:2]) for i in self.params['device']]
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('devices', before, after)
+
+    def diffparam_device_read_bps(self):
+        before = self.info['hostconfig']['blkiodevicereadbps'] or []
+        before = ["%s:%s" % (i['path'], i['rate']) for i in before]
+        after = self.params['device_read_bps'] or []
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('device_read_bps', before, after)
+
+    def diffparam_device_read_iops(self):
+        before = self.info['hostconfig']['blkiodevicereadiops'] or []
+        before = ["%s:%s" % (i['path'], i['rate']) for i in before]
+        after = self.params['device_read_iops'] or []
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('device_read_iops', before, after)
+
+    def diffparam_device_write_bps(self):
+        before = self.info['hostconfig']['blkiodevicewritebps'] or []
+        before = ["%s:%s" % (i['path'], i['rate']) for i in before]
+        after = self.params['device_write_bps'] or []
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('device_write_bps', before, after)
+
+    def diffparam_device_write_iops(self):
+        before = self.info['hostconfig']['blkiodevicewriteiops'] or []
+        before = ["%s:%s" % (i['path'], i['rate']) for i in before]
+        after = self.params['device_write_iops'] or []
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('device_write_iops', before, after)
+
+    # Limited idempotency, it can't guess default values
+    def diffparam_env(self):
+        env_before = self.info['config']['env'] or {}
+        before = {i.split("=")[0]: i.split("=")[1] for i in env_before}
+        after = before.copy()
+        if self.params['env']:
+            after.update({
+                str(k).lower(): str(v).lower()
+                for k, v in self.params['env'].items()
+            })
+        return self._diff_update_and_compare('env', before, after)
+
+    def diffparam_etc_hosts(self):
+        if self.info['hostconfig']['extrahosts']:
+            before = dict([i.split(":") for i in self.info['hostconfig']['extrahosts']])
+        else:
+            before = {}
+        after = self.params['etc_hosts']
+        return self._diff_update_and_compare('etc_hosts', before, after)
+
+    def diffparam_group_add(self):
+        before = self.info['hostconfig']['groupadd']
+        after = self.params['group_add']
+        return self._diff_update_and_compare('group_add', before, after)
+
+    # Because of hostname is random generated, this parameter has partial idempotency only.
+    def diffparam_hostname(self):
+        before = self.info['config']['hostname']
+        after = self.params['hostname'] or before
+        return self._diff_update_and_compare('hostname', before, after)
+
+    def diffparam_image(self):
+        before = self.info['config']['image'].replace(
+            "docker.io/library/", "").replace(
+                "docker.io/", "").replace(
+                    ":latest", "")
+        after = self.params['image'].replace(
+            "docker.io/library/", "").replace(
+                "docker.io/", "").replace(
+                    ":latest", "")
+        return self._diff_update_and_compare('image', before, after)
+
+    def diffparam_ipc(self):
+        before = self.info['hostconfig']['ipcmode']
+        after = self.params['ipc']
+        return self._diff_update_and_compare('ipc', before, after)
+
+    def diffparam_label(self):
+        before = self.info['config']['labels'] or {}
+        after = before.copy()
+        if self.params['label']:
+            after.update({
+                str(k).lower(): str(v).lower()
+                for k, v in self.params['label'].items()
+            })
+        return self._diff_update_and_compare('label', before, after)
+
+    def diffparam_log_driver(self):
+        before = self.info['hostconfig']['logconfig']['type']
+        after = self.params['log_driver']
+        return self._diff_update_and_compare('log_driver', before, after)
+
+    # Parameter has limited idempotency, unable to guess the default log_path
+    def diffparam_log_opt(self):
+        before = self.info['logpath']
+        if self.module.params['log_opt'] in [None, '']:
+            after = before
+        else:
+            after = self.params['log_opt'].split("=")[1]
+        return self._diff_update_and_compare('log_opt', before, after)
+
+    def diffparam_memory(self):
+        before = str(self.info['hostconfig']['memory'])
+        after = self.params['memory']
+        return self._diff_update_and_compare('memory', before, after)
+
+    def diffparam_memory_swap(self):
+        # By default it's twice memory parameter
+        before = str(self.info['hostconfig']['memoryswap'])
+        after = self.params['memory_swap']
+        if (self.module.params['memory_swap'] is None
+                and self.params['memory'] != 0
+                and self.params['memory'].isdigit()):
+            after = str(int(self.params['memory']) * 2)
+        return self._diff_update_and_compare('memory_swap', before, after)
+
+    def diffparam_memory_reservation(self):
+        before = str(self.info['hostconfig']['memoryreservation'])
+        after = self.params['memory_reservation']
+        return self._diff_update_and_compare('memory_reservation', before, after)
+
+    def diffparam_network(self):
+        before = [self.info['hostconfig']['networkmode']]
+        after = self.params['network']
+        return self._diff_update_and_compare('network', before, after)
+
+    def diffparam_no_hosts(self):
+        before = not bool(self.info['hostspath'])
+        after = self.params['no_hosts']
+        if self.params['network'] == ['none']:
+            after = True
+        return self._diff_update_and_compare('no_hosts', before, after)
+
+    def diffparam_oom_score_adj(self):
+        before = self.info['hostconfig']['oomscoreadj']
+        after = self.params['oom_score_adj']
+        return self._diff_update_and_compare('oom_score_adj', before, after)
+
+    def diffparam_privileged(self):
+        before = self.info['hostconfig']['privileged']
+        after = self.params['privileged']
+        return self._diff_update_and_compare('privileged', before, after)
+
+    def diffparam_pid(self):
+        before = self.info['hostconfig']['pidmode']
+        after = self.params['pid']
+        return self._diff_update_and_compare('pid', before, after)
+
+    def diffparam_rm(self):
+        before = self.info['hostconfig']['autoremove']
+        after = self.params['rm']
+        return self._diff_update_and_compare('rm', before, after)
+
+    def diffparam_security_opt(self):
+        before = self.info['hostconfig']['securityopt']
+        after = self.params['security_opt']
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('security_opt', before, after)
+
+    def diffparam_stop_signal(self):
+        before = self.info['config']['stopsignal']
+        after = self.params['stop_signal']
+        return self._diff_update_and_compare('stop_signal', before, after)
+
+    def diffparam_tty(self):
+        before = self.info['config']['tty']
+        after = self.params['tty']
+        return self._diff_update_and_compare('tty', before, after)
+
+    def diffparam_user(self):
+        before = self.info['config']['user']
+        if self.module.params['user'] is None and before:
+            after = before
+        else:
+            after = self.params['user']
+        return self._diff_update_and_compare('user', before, after)
+
+    def diffparam_uts(self):
+        before = self.info['hostconfig']['utsmode']
+        after = self.params['uts']
+        return self._diff_update_and_compare('uts', before, after)
+
+    def diffparam_volume(self):
+        before = self.info['mounts']
+        if before:
+            volumes = []
+            for m in before:
+                if m['type'] == 'volume':
+                    volumes.append([m['name'], m['destination']])
+                else:
+                    volumes.append([m['source'], m['destination']])
+            before = [":".join(v) for v in volumes]
+        # Ignore volumes option for idempotency
+        after = [":".join(v.split(":")[:2]) for v in self.params['volume']]
+        before, after = sorted(list(set(before))), sorted(list(set(after)))
+        return self._diff_update_and_compare('volume', before, after)
+
+    def diffparam_volumes_from(self):
+        before = self.info['hostconfig']['volumesfrom'] or []
+        after = self.params['volumes_from'] or []
+        return self._diff_update_and_compare('volumes_from', before, after)
+
+    def diffparam_workdir(self):
+        before = self.info['config']['workingdir']
+        after = self.params['workdir']
+        return self._diff_update_and_compare('workdir', before, after)
+
+    def is_different(self):
+        diff_func_list = [func for func in dir(self)
+                          if callable(getattr(self, func)) and func.startswith(
+                              "diffparam")]
+        fail_fast = not bool(self.module._diff)
+        different = False
+        for func_name in diff_func_list:
+            dff_func = getattr(self, func_name)
+            if dff_func():
+                if fail_fast:
+                    return True
+                else:
+                    different = True
+        # Check non idempotent parameters
+        for p in self.non_idempotent:
+            if self.module.params[p] is not None and self.module.params[p] not in [{}, [], '']:
+                different = True
+        return different
+
+
 def ensure_image_exists(module, image):
     """If image is passed, ensure it exists, if not - pull it or fail.
 
@@ -1205,6 +1724,9 @@ class PodmanContainer:
         self.name = name
         self.stdout, self.stderr = '', ''
         self.info = self.get_info()
+        self.version = self._get_podman_version()
+        self.diff = {}
+        self.actions = []
 
     @property
     def exists(self):
@@ -1214,9 +1736,17 @@ class PodmanContainer:
     @property
     def different(self):
         """Check if container is different."""
-        # TODO(sshnaidm): implement difference calculation between input vars
-        # and current container to understand if we need to recreate it
-        return True
+        diffcheck = PodmanContainerDiff(self.module, self.info, self.version)
+        is_different = diffcheck.is_different()
+        diffs = diffcheck.diff
+        if self.module._diff and is_different and diffs['before'] and diffs['after']:
+            self.diff['before'] = "\n".join(
+                ["%s - %s" % (k, v) for k, v in sorted(
+                    diffs['before'].items())]) + "\n"
+            self.diff['after'] = "\n".join(
+                ["%s - %s" % (k, v) for k, v in sorted(
+                    diffs['after'].items())]) + "\n"
+        return is_different
 
     @property
     def running(self):
@@ -1234,6 +1764,13 @@ class PodmanContainer:
             [self.module.params['executable'], b'container', b'inspect', self.name])
         return json.loads(out)[0] if rc == 0 else {}
 
+    def _get_podman_version(self):
+        rc, out, err = self.module.run_command(
+            [self.module.params['executable'], b'--version'])
+        if rc != 0 or not out or "version" not in out:
+            self.module.fail_json(msg="%s run failed!" % self.module.params['executable'])
+        return out.split("version")[1].strip()
+
     def _perform_action(self, action):
         """Perform action with container.
 
@@ -1241,19 +1778,25 @@ class PodmanContainer:
             action {str} -- action to perform - start, create, stop, run,
                             delete
         """
-        b_command = PodmanModuleParams(action, self.module.params
+        b_command = PodmanModuleParams(action,
+                                       self.module.params,
+                                       self.version,
+                                       self.module,
                                        ).construct_command_from_params()
-        self.module.log("PODMAN-CONTAINER-DEBUG: " +
-                        "%s" % " ".join([to_native(i) for i in b_command]))
-        rc, out, err = self.module.run_command(
-            [self.module.params['executable'], b'container'] + b_command,
-            expand_user_and_vars=False)
-        self.stdout = out
-        self.stderr = err
-        if rc != 0:
-            self.module.fail_json(
-                msg="Can't %s container %s" % (action, self.name),
-                stdout=out, stderr=err)
+        full_cmd = " ".join([self.module.params['executable']]
+                            + [to_native(i) for i in b_command])
+        self.module.log("PODMAN-CONTAINER-DEBUG: %s" % full_cmd)
+        self.actions.append(full_cmd)
+        if not self.module.check_mode:
+            rc, out, err = self.module.run_command(
+                [self.module.params['executable'], b'container'] + b_command,
+                expand_user_and_vars=False)
+            self.stdout = out
+            self.stderr = err
+            if rc != 0:
+                self.module.fail_json(
+                    msg="Can't %s container %s" % (action, self.name),
+                    stdout=out, stderr=err)
 
     def run(self):
         """Run the container."""
@@ -1326,11 +1869,15 @@ class PodmanManager:
             changed {bool} -- whether any action was performed
                               (default: {True})
         """
-        facts = self.container.get_info()
+        facts = self.container.get_info() if changed else self.container.info
         out, err = self.container.stdout, self.container.stderr
         self.results.update({'changed': changed, 'container': facts,
-                             'ansible_facts': {'podman_container': facts}},
-                             stdout=out, stderr=err)
+                             'podman_actions': self.container.actions},
+                            stdout=out, stderr=err)
+        if self.container.diff:
+            self.results.update({'diff': self.container.diff})
+        if self.module.params['debug']:
+            self.results.update({'podman_version': self.container.version})
         self.module.exit_json(**self.results)
 
     def make_started(self):
@@ -1347,7 +1894,7 @@ class PodmanManager:
                 self.results['actions'].append('restarted %s' %
                                                self.container.name)
                 self.update_container_result()
-            self.module.exit_json(**self.results)
+            self.update_container_result(changed=False)
         elif not self.container.exists:
             self.container.run()
             self.results['actions'].append('started %s' % self.container.name)
@@ -1365,7 +1912,7 @@ class PodmanManager:
     def make_stopped(self):
         """Run actions if desired state is 'stopped'."""
         if not self.container.exists and not self.image:
-            self.module.fail_json(msg='Cannot create container when image' +
+            self.module.fail_json(msg='Cannot create container when image'
                                       ' is not specified!')
         if not self.container.exists:
             self.container.create()
@@ -1387,7 +1934,7 @@ class PodmanManager:
             self.results['actions'].append('deleted %s' % self.container.name)
             self.results.update({'changed': True})
         self.results.update({'container': {},
-                             'ansible_facts': {'podman_container': {}}})
+                             'podman_actions': self.container.actions})
         self.module.exit_json(**self.results)
 
     def execute(self):
@@ -1400,7 +1947,7 @@ class PodmanManager:
         }
         process_action = states_map[self.state]
         process_action()
-        self.module.fail_json(msg="Unexpected logic error happened, " +
+        self.module.fail_json(msg="Unexpected logic error happened, "
                                   "please contact maintainers ASAP!")
 
 
@@ -1411,6 +1958,7 @@ def main():
             ['no_hosts', 'etc_hosts'],
 
         ),
+        supports_check_mode=True,
     )
     # work on input vars
     if module.params['state'] in ['started', 'present'] and \

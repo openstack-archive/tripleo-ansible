@@ -1,0 +1,62 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Converge
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: '*.json'
+    tripleo_container_manage_systemd_order: true
+  tasks:
+    - include_role:
+        name: tripleo-container-manage
+  post_tasks:
+    - name: Verify that Fedora container was created correctly
+      become: true
+      block:
+        - name: Check for fedora container
+          command: podman container exists fedora
+        - name: Gather facts about fedora container
+          podman_container_info:
+            name: fedora
+          register: fedora_infos
+        - name: Assert that fedora container has the right image
+          assert:
+            that:
+              - "'fedora:latest' in fedora_infos.containers.0.ImageName"
+            fail_msg: 'fedora container has wrong image'
+            success_msg: 'fedora container has the right image'
+        - name: Check if tripleo_fedora systemd service is active
+          command: systemctl is-active --quiet tripleo_fedora
+          register: tripleo_fedora_active_result
+        - name: Assert that tripleo_fedora systemd service is active
+          assert:
+            that:
+              - tripleo_fedora_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd service is not active'
+            success_msg: 'tripleo_fedora systemd service is active'
+        - name: Check if tripleo_fedora systemd healthcheck service is active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+        - name: Assert that tripleo_fedora systemd healthcheck service is active
+          assert:
+            that:
+              - tripleo_fedora_healthcheck_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
+            success_msg: 'tripleo_fedora systemd healthcheck service is active'

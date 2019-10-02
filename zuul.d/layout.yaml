@@ -3,6 +3,7 @@
     templates:
     - tripleo-ansible-molecule-jobs
     - release-notes-jobs-python3
+    - openstack-python3-ussuri-jobs
     check:
       jobs:
       - openstack-tox-linters

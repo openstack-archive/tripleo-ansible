@@ -1,0 +1,27 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Gather podman infos
+  podman_container_info: {}
+  register: podman_containers
+  when:
+    - tripleo_container_manage_cli == 'podman'
+
+- name: "Batching items for start_order {{ order }}"
+  include_tasks: podman/manage.yml
+  loop: "{{ data | batch(tripleo_container_manage_concurrency) | list }}"
+  loop_control:
+    loop_var: batched_container_data

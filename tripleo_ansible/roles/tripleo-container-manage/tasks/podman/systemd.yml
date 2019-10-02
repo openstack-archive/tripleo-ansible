@@ -1,0 +1,74 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Set container_name and container_sysd facts
+  set_fact:
+    container_sysd_name: "{{ lookup('dict', container_config).key }}"
+    container_sysd_data: "{{ lookup('dict', container_config).value }}"
+
+- name: "Start systemd service for {{ container_sysd_name }}"
+  block:
+    - name: "Remove trailing .requires for {{ container_sysd_name }}"
+      file:
+        path: "/etc/systemd/system/tripleo_{{ container_sysd_name }}.requires"
+        state: absent
+    - name: "Create systemd unit file for {{ container_sysd_name }} service"
+      template:
+        src: systemd-service.j2
+        dest: "/etc/systemd/system/tripleo_{{ container_sysd_name }}.service"
+        mode: '0644'
+        owner: root
+        group: root
+      register: systemd_file
+    - name: "Enable and start systemd service for {{ container_sysd_name }}"
+      systemd:
+        # Restart the service if it was already running
+        state: restarted
+        name: "tripleo_{{ container_sysd_name }}.service"
+        enabled: true
+        daemon_reload: true
+      when:
+        - systemd_file is changed or container_sysd_name in containers_changed
+    - name: "Manage systemd healthcheck for {{ container_sysd_name }}"
+      when:
+        - not tripleo_container_manage_healthcheck_disabled
+        - container_sysd_data.healthcheck is defined
+      block:
+        - name: "Create systemd unit file for {{ container_sysd_name }} healthcheck"
+          template:
+            src: systemd-healthcheck.j2
+            dest: "/etc/systemd/system/tripleo_{{ container_sysd_name }}_healthcheck.service"
+            mode: '0644'
+            owner: root
+            group: root
+          register: systemd_healthcheck
+        - name: "Create systemd timer for {{ container_sysd_name }} healthcheck"
+          template:
+            src: systemd-timer.j2
+            dest: "/etc/systemd/system/tripleo_{{ container_sysd_name }}_healthcheck.timer"
+            mode: '0644'
+            owner: root
+            group: root
+          register: systemd_timer
+    - name: "Enable and start systemd timer for {{ container_sysd_name }}"
+      systemd:
+        # Restart the timer if it was already running
+        state: restarted
+        name: "tripleo_{{ container_sysd_name }}_healthcheck.timer"
+        enabled: true
+        daemon_reload: true
+      when:
+        - systemd_healthcheck.changed or systemd_timer.changed

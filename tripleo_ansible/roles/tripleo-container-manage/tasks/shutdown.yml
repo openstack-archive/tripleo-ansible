@@ -1,0 +1,114 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Check if /etc/sysconfig/podman_drop_in exists
+  stat:
+    path: /etc/sysconfig/podman_drop_in
+  register: podman_drop_in
+
+- name: Set podman_drop_in fact
+  set_fact:
+    podman_drop_in: true
+  when:
+    - podman_drop_in.stat.exists
+
+- name: Cleanup Paunch services and files
+  block:
+    - name: Check if /usr/lib/systemd/system/paunch-container-shutdown.service exists
+      stat:
+        path: /usr/lib/systemd/system/paunch-container-shutdown.service
+      register: paunch_shutdown
+    - name: Tear-down paunch-container-shutdown
+      when:
+        - paunch_shutdown.stat.exists
+      block:
+        - name: Allow paunch-container-shutdown to be stopped
+          lineinfile:
+            path: /usr/lib/systemd/system/paunch-container-shutdown.service
+            regexp: '^RefuseManualStop'
+            line: 'RefuseManualStop=no'
+        - name: Force systemd to reread configs
+          systemd:
+            daemon_reload: true
+        - name: Disable and stop paunch-container-shutdown service
+          systemd:
+            name: paunch-container-shutdown
+            state: stopped
+            enabled: false
+    # TODO(emilien): this task can be removed later when paunch isn't a
+    # dependency of python-tripleoclient. It'll be replaced by an rpm removal.
+    - name: "Remove paunch files for systemd"
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /usr/libexec/paunch-container-shutdown
+        - /usr/libexec/paunch-start-podman-container
+        - /usr/lib/systemd/system/paunch-container-shutdown.service
+        - /usr/lib/systemd/system-preset/91-paunch-container-shutdown.preset
+
+- name: Create TripleO Container systemd service
+  block:
+    - name: "Deploy tripleo-container-shutdown and tripleo-start-podman-container"
+      copy:
+        src: "{{ role_path }}/files/{{ item }}"
+        dest: "/usr/libexec/{{ item }}"
+        mode: '0700'
+        owner: root
+        group: root
+      loop:
+        - 'tripleo-container-shutdown'
+        - 'tripleo-start-podman-container'
+    - name: "Create /usr/lib/systemd/system/tripleo-container-shutdown.service"
+      copy:
+        src: "{{ role_path }}/files/tripleo-container-shutdown-service"
+        dest: "/usr/lib/systemd/system/tripleo-container-shutdown.service"
+        mode: '0700'
+        owner: root
+        group: root
+    - name: "Create /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset"
+      copy:
+        src: "{{ role_path }}/files/91-tripleo-container-shutdown-preset"
+        dest: "/usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset"
+        mode: '0700'
+        owner: root
+        group: root
+    - name: Enable and start tripleo-container-shutdown
+      systemd:
+        name: tripleo-container-shutdown
+        state: started
+        enabled: true
+        daemon_reload: true
+    - name: "Create /usr/lib/systemd/system/netns-placeholder.service"
+      copy:
+        src: "{{ role_path }}/files/netns-placeholder-service"
+        dest: "/usr/lib/systemd/system/netns-placeholder.service"
+        mode: '0700'
+        owner: root
+        group: root
+    - name: "Create /usr/lib/systemd/system-preset/91-netns-placeholder.preset"
+      copy:
+        src: "{{ role_path }}/files/91-netns-placeholder-preset"
+        dest: "/usr/lib/systemd/system-preset/91-netns-placeholder.preset"
+        mode: '0700'
+        owner: root
+        group: root
+    - name: Enable and start netns-placeholder
+      systemd:
+        name: netns-placeholder
+        state: started
+        enabled: true
+        daemon_reload: true

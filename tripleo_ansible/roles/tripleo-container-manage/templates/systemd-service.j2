@@ -1,0 +1,23 @@
+[Unit]
+Description={{ container_sysd_name }} container
+After=tripleo-container-shutdown.service
+Wants={{ container_sysd_data.depends_on | default([]) | join(',') }}
+[Service]
+Restart=always
+{% if container_sysd_data.depends_on is defined and (container_sysd_data.depends_on | length > 0) and podman_drop_in | default('false') %}
+ExecStart=/usr/libexec/tripleo-start-podman-container {{ container_sysd_name }}
+{% else %}
+ExecStart=/usr/bin/podman start {{ container_sysd_name }}
+{% endif %}
+ExecReload=/usr/bin/podman kill --signal HUP {{ container_sysd_name }}
+ExecStop=/usr/bin/podman stop -t {{ container_sysd_data.stop_grace_period | default(10) | int }} {{ container_sysd_name }}
+KillMode=none
+Type=forking
+PIDFile=/var/run/{{ container_sysd_name }}.pid
+{% if container_sysd_data.systemd_exec_flags is defined %}
+{%   for s_flag, s_value in container_sysd_data.systemd_exec_flags.items() %}
+{{ s_flag }}={{ s_value }}
+{%   endfor %}
+{% endif %}
+[Install]
+WantedBy=multi-user.target
