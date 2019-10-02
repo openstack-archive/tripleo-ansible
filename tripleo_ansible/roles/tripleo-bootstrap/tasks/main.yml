@@ -56,7 +56,7 @@
 
     - name: Ensure network service is enabled
       systemd:
-        name: network
+        name: "{{ tripleo_bootstrap_network_service }}"
         enabled: true
 
 - name: Symlink puppet modules under /etc/puppet/modules
