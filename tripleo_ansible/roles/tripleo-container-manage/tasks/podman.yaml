@@ -1,0 +1,164 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: "Execute a command within a running container for {{ item.0 }}"
+  when:
+    - item.1.action is defined
+    - item.1.action == 'exec'
+  block:
+    - name: "Check if {{ item.1.command.0 }} container exists"
+      command: "{{ tripleo_container_cli }} container exists {{ item.1.command.0 }}"
+    - name: "Check if {{ item.1.command.0 }} container is running"
+      block:
+        - name: "Gather podman infos for {{ item.1.command.0 }}"
+          podman_container_info:
+            name: "{{ item.1.command.0 }}"
+          register: podman_containers
+        - name: "Fail if {{ item.1.command.0 }} is not running"
+          fail:
+            msg: "Can't run container exec for {{ item.0 }}, {{ item.1.command.0 }} is not running"
+          when:
+            - not podman_containers.ansible_facts.podman_containers.0.State.Running
+    - name: "Prepare the exec command for {{ item.0 }}"
+      set_fact:
+        cmd_template:
+          - "{{ tripleo_container_cli }}"
+          - "exec"
+          - "-u"
+          - "{{ item.1.user if item.1.user is defined else 'root' }}"
+    - name: "Run the container exec for {{ item.0 }}"
+      command:
+        argv: "{{ cmd_template + item.1.command }}"
+
+- name: "Manage container for {{ item.0 }}"
+  podman_container:
+    cap_add: "{{ item.1.cap_add | default(omit) }}"
+    cap_drop: "{{ item.1.cap_drop | default(omit) }}"
+    command: "{{ item.1.command | default(omit) }}"
+    conmon_pidfile: "/var/run/{{ item.0 }}.pid"
+    cpu_shares: "{{ item.1.cpu_shares | default(omit) | int }}"
+    # cpuset_cpus: "{{ item.1.cpuset_cpus | default(omit) }}"
+    detach: "{{ item.1.detach | default(true) }}"
+    env: "{{ item.1.environment if item.1.environment is defined and item.1.environment else {} }}"
+    env_file: "{{ item.1.env_file | default(omit) }}"
+    etc_hosts: "{{ item.1.extra_hosts | default({}) }}"
+    group_add: "{{ item.1.group_add | default(omit) }}"
+    hostname: "{{ item.1.hostname | default(omit) }}"
+    image: "{{ item.1.image }}"
+    interactive: "{{ item.1.interactive | default(false) }}"
+    ipc: "{{ item.1.ipc | default(omit) }}"
+    label:
+      config_id: "tripleo_step{{ step }}"
+      container_name: "{{ item.0 }}"
+      managed_by: tripleo_ansible
+      config_data: "{{ item.1 | to_json }}"
+    log_driver: "{{ 'k8s-file' if tripleo_container_manage_log_path is defined else '' }}"
+    # log_opt: |
+    #   "{{ 'path=' if tripleo_container_manage_log_path is defined else '' }}
+    #   {{ tripleo_container_manage_log_path | default('') }}
+    #   {{ '/' if tripleo_container_manage_log_path is defined else '' }}
+    #   {{ item.0 if tripleo_container_manage_log_path is defined else '' }}"
+    memory: "{{ item.1.mem_limit | default(omit) }}"
+    memory_swap: "{{ item.1.mem_swappiness | default(omit) }}"
+    name: "{{ item.0 }}"
+    net: "{{ item.1.net | default('none') }}"
+    pid: "{{ item.1.pid | default(omit) }}"
+    privileged: "{{ item.1.privileged | default(false) }}"
+    rm: "{{ item.1.remove | default(false) }}"
+    security_opt: "{{ item.1.security_opt | default(omit) }}"
+    state: present
+    stop_signal: "{{ item.1.stop_signal | default(omit) }}"
+    stop_timeout: "{{ item.1.stop_grace_period | default(omit) | int }}"
+    tty: "{{ item.1.tty | default(false) }}"
+    ulimit: "{{ item.1.ulimit | default(omit) }}"
+    user: "{{ item.1.user | default(omit) }}"
+    uts: "{{ item.1.uts | default(omit) }}"
+    volume: "{{ item.1.volumes | default(omit) }}"
+    volumes_from: "{{ item.1.volumes_from | default([]) }}"
+  when:
+    - item.1.action is not defined
+
+- name: Manage systemd service for {{ item.0 }}
+  when:
+    - item.1.action is not defined
+    - item.1.restart is defined
+    # systemd doesn't have the equivalent of docker unless-stopped.
+    # Let's force 'always' so containers aren't restarted when stopped by
+    # systemd, but restarted when in failure.
+    - item.1.restart == 'always' or item.1.restart == 'unless-stopped'
+  block:
+    - name: Check if /etc/sysconfig/podman_drop_in exists
+      stat:
+        path: /etc/sysconfig/podman_drop_in
+      register: podman_drop_in
+    - name: Set podman_drop_in fact
+      set_fact:
+        podman_drop_in: true
+      when:
+        - podman_drop_in.stat.exists
+    - name: "Start systemd service for {{ item.0 }}"
+      block:
+        - name: "Remove trailing .requires for {{ item.0 }}"
+          file:
+            path: "/etc/systemd/system/tripleo_{{ item.0 }}.requires"
+            state: absent
+        - name: "Create systemd unit file for {{ item.0 }} service"
+          template:
+            src: systemd-service.j2
+            dest: "/etc/systemd/system/tripleo_{{ item.0 }}.service"
+            mode: '0644'
+            owner: root
+            group: root
+          register: systemd_file
+        - name: "Enable and start systemd service for {{ item.0 }}"
+          systemd:
+            # Restart the service if it was already running
+            state: restarted
+            name: "tripleo_{{ item.0 }}.service"
+            enabled: true
+            daemon_reload: true
+          when:
+            - systemd_file.changed
+        - name: "Manage systemd healthcheck for {{ item.0 }}"
+          when:
+            - not (container_healthcheck_disabled | default(false))
+            - item.1.healthcheck is defined
+          block:
+            - name: "Create systemd unit file for {{ item.0 }} healthcheck"
+              template:
+                src: systemd-healthcheck.j2
+                dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.service"
+                mode: '0644'
+                owner: root
+                group: root
+              register: systemd_healthcheck
+            - name: "Create systemd timer for {{ item.0 }} healthcheck"
+              template:
+                src: systemd-timer.j2
+                dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.timer"
+                mode: '0644'
+                owner: root
+                group: root
+              register: systemd_timer
+        - name: "Enable and start systemd timer for {{ item.0 }}"
+          systemd:
+            # Restart the timer if it was already running
+            state: restarted
+            name: "tripleo_{{ item.0 }}_healthcheck.timer"
+            enabled: true
+            daemon_reload: true
+          when:
+            - systemd_healthcheck.changed or systemd_timer.changed
