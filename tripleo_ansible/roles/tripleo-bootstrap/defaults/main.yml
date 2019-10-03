@@ -28,3 +28,4 @@ tripleo_bootstrap_packages_bootstrap: "{{ _tripleo_bootstrap_packages_bootstrap 
 #       OVS. Note that OVS unit service is already configure to start before
 #       network.service.
 tripleo_bootstrap_legacy_network_packages: "{{ _tripleo_bootstrap_legacy_network_packages | default([]) }}"
+tripleo_bootstrap_network_service: network
