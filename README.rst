@@ -27,4 +27,4 @@ The project home is at:
 `<https://launchpad.net/tripleo>`_
 
 The project bug tracker is located at:
-`< https://bugs.launchpad.net/tripleo>`_
+`<https://bugs.launchpad.net/tripleo>`_
