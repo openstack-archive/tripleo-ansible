@@ -550,7 +550,7 @@ options:
   ulimit:
     description:
       - Ulimit options
-    type: str
+    type: list
   user:
     description:
       - Sets the username or UID used and optionally the groupname or GID for
@@ -1053,8 +1053,8 @@ def construct_command_from_params(action, params):
         if params['uidmap']:
             cmd += ['--uidmap', params['uidmap']]
 
-        if params['ulimit']:
-            cmd += ['--ulimit', params['ulimit']]
+        for u in params['ulimit']:
+            cmd += ['--ulimit', u]
 
         if params['user']:
             cmd += ['--user', params['user']]
@@ -1422,7 +1422,7 @@ def main():
             tmpfs=dict(type='str'),
             tty=dict(type='bool'),
             uidmap=dict(type='str'),
-            ulimit=dict(type='str'),
+            ulimit=dict(type='list', elements='str', default=[]),
             user=dict(type='str'),
             userns=dict(type='str'),
             uts=dict(type='str'),
