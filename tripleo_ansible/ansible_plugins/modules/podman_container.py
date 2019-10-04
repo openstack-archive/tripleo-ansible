@@ -936,8 +936,8 @@ def construct_command_from_params(action, params):
         if params['init_path']:
             cmd += ['--init-path', params['init_path']]
 
-        if params['interactive'] is not None:
-            cmd += ['--interactive', params['interactive']]
+        if params['interactive']:
+            cmd += ['--interactive']
 
         if params['ip']:
             cmd += ['--ip', params['ip']]
@@ -1011,8 +1011,8 @@ def construct_command_from_params(action, params):
         if params['restart_policy']:
             cmd += ['--restart=%s' % params['restart_policy']]
 
-        if params['rm'] is not None:
-            cmd += ['--rm', params['rm']]
+        if params['rm']:
+            cmd += ['--rm']
 
         if params['rootfs'] is not None and params['rootfs']:
             cmd += ['--rootfs']
@@ -1047,8 +1047,8 @@ def construct_command_from_params(action, params):
         if params['tmpfs']:
             cmd += ['--tmpfs', params['tmpfs']]
 
-        if params['tty'] is not None:
-            cmd += ['--tty', params['tty']]
+        if params['tty']:
+            cmd += ['--tty']
 
         if params['uidmap']:
             cmd += ['--uidmap', params['uidmap']]
