@@ -26,7 +26,6 @@
 - name: set ceph-ansible command list
   set_fact:
     ceph_ansible_command_list:
-      - "{{ calling_ansible_environment_variables|join(' ') }}"
       - ANSIBLE_ACTION_PLUGINS=/usr/share/ceph-ansible/plugins/actions/
       - ANSIBLE_CALLBACK_PLUGINS=/usr/share/ceph-ansible/plugins/callback/
       - ANSIBLE_ROLES_PATH=/usr/share/ceph-ansible/roles/
@@ -36,6 +35,7 @@
       - ANSIBLE_REMOTE_TEMP=/tmp/ceph_ansible_tmp
       - ANSIBLE_FORKS=25
       - ANSIBLE_GATHER_TIMEOUT=60
+      - "{{ calling_ansible_environment_variables|join(' ') }}"
       - "{{ ceph_ansible_environment_variables|join(' ') }}"
       - ansible-playbook
       - '{% if ceph_ansible_private_key_file is defined %}--private-key {{ ceph_ansible_private_key_file }}{% endif %}'
