@@ -359,6 +359,15 @@ options:
     description:
       - Read in a line delimited file of labels
     type: str
+  log_driver:
+    description:
+      - Logging driver. Used to set the log driver for the container.
+        For example log_driver "k8s-file".
+    type: str
+    choices:
+      - k8s-file
+      - journald
+      - json-file
   log_opt:
     description:
       - Logging driver specific options. Used to set the path to the container
@@ -659,6 +668,7 @@ EXAMPLES = """
     name: myservice
     image: busybox
     log_options: path=/var/log/container/mycontainer.json
+    log_driver: k8s-file
 """
 
 RETURN = """
@@ -953,6 +963,9 @@ def construct_command_from_params(action, params):
 
         if params['label_file']:
             cmd += ['--label-file', params['label_file']]
+
+        if params['log_driver']:
+            cmd += ['--log-driver', params['log_driver']]
 
         if params['log_opt']:
             cmd += ['--log-opt', params['log_opt']]
@@ -1388,6 +1401,8 @@ def main():
             kernel_memory=dict(type='str'),
             label=dict(type='dict', default={}),
             label_file=dict(type='str'),
+            log_driver=dict(type='str', choices=['k8s-file', 'journald',
+                            'json-file']),
             log_opt=dict(type='str', aliases=['log_options']),
             memory=dict(type='str'),
             memory_reservation=dict(type='str'),
