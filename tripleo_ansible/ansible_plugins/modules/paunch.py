@@ -51,17 +51,18 @@ options:
   config:
     description:
       - YAML or JSON file containing configuration data
-    required: True
   config_id:
     description:
       - ID to assign to containers
     required: True
+    type: list
   action:
     description:
       - The desired action to apply for the container.
     default: apply
     choices:
       - apply
+      - cleanup
   container_cli:
     description:
       - The container CLI.
@@ -95,11 +96,19 @@ options:
 """
 
 EXAMPLES = """
-# Minimal task with defaults
+# Paunch apply example
 - name: Start containers for step 1
   paunch:
     config: /var/lib/tripleo-config/hashed-container-startup-config-step_1.json
     config_id: tripleo_step1
+    action: apply
+# Paunch cleanup example
+- name: Cleanup containers for step 1 and step 2
+  paunch:
+    config_id:
+      - tripleo_step1
+      - tripleo_step2
+    action: cleanup
 """
 
 
@@ -133,15 +142,25 @@ class PaunchManager:
                                                    level=self.log_level,
                                                    log_file=self.log_file)
 
-        with open(self.config, 'r') as f:
-            self.config_yaml = yaml.safe_load(f)
+        if self.config:
+            with open(self.config, 'r') as f:
+                self.config_yaml = yaml.safe_load(f)
 
         if self.action == 'apply':
             self.paunch_apply()
+        elif self.action == 'cleanup':
+            self.paunch_cleanup()
 
     def paunch_apply(self):
 
         self.results['action'].append('Applying config_id %s' % self.config_id)
+        if not self.config:
+            self.module.fail_json(
+                msg="Paunch apply requires 'config' parameter",
+                stdout='',
+                stderr='',
+                rc=1)
+
         stdout_list, stderr_list, rc = p.apply(
             self.config_id,
             self.config_yaml,
@@ -167,6 +186,22 @@ class PaunchManager:
                 stdout=stdout,
                 stderr=stderr,
                 rc=rc)
+
+        self.module.exit_json(**self.results)
+
+    def paunch_cleanup(self):
+
+        self.results['action'].append('Cleaning-up config_id(s) '
+                                      '%s' % self.config_id)
+        p.cleanup(
+            self.config_id,
+            managed_by=self.managed_by,
+            cont_cmd=self.container_cli,
+            log_level=self.log_level,
+            log_file=self.log_file
+        )
+
+        self.module.exit_json(**self.results)
 
 
 def main():
