@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2019 OpenStack Foundation
 # All Rights Reserved.
 #
@@ -18,6 +17,7 @@
 # flake8: noqa: E501
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 import json
@@ -25,7 +25,6 @@ import json
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.podman.common import run_podman_command
 from ansible.module_utils._text import to_bytes, to_native
-
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -76,7 +75,7 @@ options:
       - I(stopped) - Asserts that the container is first I(present), and then
         if the container is running moves it to a stopped state.
     type: str
-    default: 'started'
+    default: started
     choices:
       - absent
       - present
@@ -111,15 +110,17 @@ options:
   blkio_weight_device:
     description:
       - Block IO weight (relative device weight, format DEVICE_NAME[:]WEIGHT).
-    type: str
+    type: dict
   cap_add:
     description:
       - List of capabilities to add to the container.
     type: list
+    elements: str
   cap_drop:
     description:
       - List of capabilities to drop from the container.
     type: list
+    elements: str
   cgroup_parent:
     description:
       - Path to cgroups under which the cgroup for the container will be
@@ -131,18 +132,20 @@ options:
   cidfile:
     description:
       - Write the container ID to the file
-    type: str
+    type: path
   cmd_args:
     description:
       - Any additionl command options you want to pass to podman command,
         cmd_args - ['--other-param', 'value']
+        Be aware module doesn't support idempotency if this is set.
     type: list
+    elements: str
   conmon_pidfile:
     description:
       - Write the pid of the conmon process to a file.
         conmon runs in a separate process than Podman,
         so this is necessary when using systemd to restart Podman containers.
-    type: str
+    type: path
   command:
     description:
       - Override command of container
@@ -163,7 +166,7 @@ options:
     description:
       - Number of CPUs. The default is 0.0 which means no limit.
     type: str
-  cpuset_cpusr:
+  cpuset_cpus:
     description:
       - CPUs in which to allow execution (0-3, 0,1)
     type: str
@@ -212,6 +215,7 @@ options:
     description:
       - Set custom DNS servers
     type: list
+    elements: str
   dns_option:
     description:
       - Set custom DNS options
@@ -235,7 +239,7 @@ options:
   env_file:
     description:
       - Read in a line delimited file of environment variables
-    type: str
+    type: path
   etc_hosts:
     description:
       - Dict of host-to-IP mappings, where each host name is a key in the
@@ -249,6 +253,7 @@ options:
       - Expose a port, or a range of ports (e.g. expose "3300-3310") to set up
         port redirection on the host system.
     type: list
+    elements: str
     aliases:
       - exposed
       - exposed_ports
@@ -256,6 +261,7 @@ options:
     description:
       - Force restart of container.
     type: bool
+    default: False
     aliases:
       - restart
   gidmap:
@@ -419,10 +425,12 @@ options:
   no_hosts:
     description:
       - Do not create /etc/hosts for the container
+        Default is false.
     type: bool
   oom_kill_disable:
     description:
       - Whether to disable OOM Killer for the container or not.
+        Default is false.
     type: bool
   oom_score_adj:
     description:
@@ -453,6 +461,7 @@ options:
         Format - ip:hostPort:containerPort | ip::containerPort |
         hostPort:containerPort | containerPort
     type: list
+    elements: str
     aliases:
       - ports
       - published
@@ -464,7 +473,7 @@ options:
     type: bool
   read_only:
     description:
-      - Mount the container's root filesystem as read only.
+      - Mount the container's root filesystem as read only. Default is false
     type: bool
   read_only_tmpfs:
     description:
@@ -476,6 +485,7 @@ options:
       - Use with present and started states to force the re-creation of an
         existing container.
     type: bool
+    default: False
   restart_policy:
     description:
       - Restart policy to follow when containers exit.
@@ -497,7 +507,7 @@ options:
   rootfs:
     description:
       - If true, the first argument refers to an exploded container on the file
-        system.
+        system. The dafault is false.
     type: bool
   security_opt:
     description:
@@ -538,7 +548,7 @@ options:
   sysctl:
     description:
       - Configure namespaced kernel parameters at runtime
-    type: str
+    type: dict
   systemd:
     description:
       - Run container in systemd mode. The default is true.
@@ -546,8 +556,8 @@ options:
   tmpfs:
     description:
       - Create a tmpfs mount. For example tmpfs
-        "/tmp:rw,size=787448k,mode=1777"
-    type: str
+        "/tmp" "rw,size=787448k,mode=1777"
+    type: dict
   tty:
     description:
       - Allocate a pseudo-TTY. The default is false.
@@ -555,7 +565,7 @@ options:
   uidmap:
     description:
       - Run the container in a new user namespace using the supplied mapping.
-    type: str
+    type: list
   ulimit:
     description:
       - Ulimit options
@@ -581,12 +591,14 @@ options:
         podman bind mounts /HOST-DIR in the host to /CONTAINER-DIR in the
         podman container.
     type: list
+    elements: str
     aliases:
       - volumes
   volumes_from:
     description:
       - Mount volumes from the specified container(s).
     type: list
+    elements: str
   workdir:
     description:
       - Working directory inside the container.
@@ -794,313 +806,361 @@ container:
 """
 
 
-def construct_command_from_params(action, params):
-    """Creates list of arguments for podman CLI command
+class PodmanModuleParams:
+    """Creates list of arguments for podman CLI command.
+
+       Arguments:
+           action {str} -- action type from 'run', 'stop', 'create', 'delete',
+                           'start'
+           params {dict} -- dictionary of module parameters
+
+       """
+    def __init__(self, action, params):
+        self.params = params
+        self.action = action
+
+    def construct_command_from_params(self):
+        """Create a podman command from given module parameters.
+
+        Returns:
+           list -- list of byte strings for Popen command
+        """
+        if self.action in ['start', 'stop', 'delete']:
+            return self.start_stop_delete()
+        if self.action in ['create', 'run']:
+            cmd = [self.action, '--name', self.params['name']]
+            all_param_methods = [func for func in dir(self)
+                                 if callable(getattr(self, func)) and
+                                 func.startswith("addparam")]
+            params_set = (i for i in self.params if self.params[i] is not None)
+            for param in params_set:
+                func_name = "_".join(["addparam", param])
+                if func_name in all_param_methods:
+                    cmd = getattr(self, func_name)(cmd)
+            cmd.append(self.params['image'])
+            if self.params['command']:
+                cmd += self.params['command'].split()
+            return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
 
-    Arguments:
-        action {str} -- action type from 'run', 'stop', 'create', 'delete',
-                        'start'
-        params {dict} -- dictionary of module parameters
+    def start_stop_delete(self):
+
+        if self.action in ['stop', 'start']:
+            cmd = [self.action, self.params['name']]
+            return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+
+        if self.action == 'delete':
+            cmd = ['rm', '-f', self.params['name']]
+            return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+
+    def addparam_detach(self, c):
+        return c + ['--detach'] if self.params['detach'] else c
+
+    def addparam_etc_hosts(self, c):
+        for host_ip in self.params['etc_hosts'].items():
+            c += ['--add-host', ':'.join(host_ip)]
+        return c
+
+    def addparam_annotation(self, c):
+        for annotate in self.params['annotation'].items():
+            c += ['--annotation', '='.join(annotate)]
+        return c
 
-    Returns:
-        list -- list of byte strings for Popen command
-    """
-    if action == 'start':
-        cmd = ['start', params['name']]
-        return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+    def addparam_blkio_weight(self, c):
+        return c + ['--blkio-weight', self.params['blkio_weight']]
+
+    def addparam_blkio_weight_device(self, c):
+        for blkio in self.params['blkio_weight_device'].items():
+            c += ['--blkio-weight-device', ':'.join(blkio)]
+        return c
 
-    if action == 'stop':
-        cmd = ['stop', params['name']]
-        return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+    def addparam_cap_add(self, c):
+        for cap_add in self.params['cap_add']:
+            c += ['--cap-add', cap_add]
+        return c
 
-    if action == 'delete':
-        cmd = ['rm', '-f', params['name']]
-        return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+    def addparam_cap_drop(self, c):
+        for cap_drop in self.params['cap_drop']:
+            c += ['--cap-drop', cap_drop]
+        return c
 
-    if action in ['create', 'run']:
-        cmd = [action, '--name', params['name']]
+    def addparam_cgroup_parent(self, c):
+        return c + ['--cgroup-parent', self.params['cgroup_parent']]
 
-        if params['detach']:
-            cmd += ['--detach']
+    def addparam_cidfile(self, c):
+        return c + ['--cidfile', self.params['cidfile']]
 
-        for host_ip in params['etc_hosts'].items():
-            cmd += ['--add-host', ':'.join(host_ip)]
+    def addparam_conmon_pidfile(self, c):
+        return c + ['--conmon-pidfile', self.params['conmon_pidfile']]
 
-        for annotate in params['annotation'].items():
-            cmd += ['--annotation', '='.join(annotate)]
-        # Another thousand parameters
+    def addparam_cpu_period(self, c):
+        return c + ['--cpu-period', self.params['cpu_period']]
 
-        if params['blkio_weight'] is not None:
-            cmd += ['--blkio-weight', params['blkio_weight']]
+    def addparam_cpu_rt_runtime(self, c):
+        return c + ['--cpu-rt-runtime', self.params['cpu_rt_runtime']]
 
-        if params['blkio_weight_device']:
-            cmd += ['--blkio-weight-device', params['blkio_weight_device']]
+    def addparam_cpu_shares(self, c):
+        return c + ['--cpu-shares', self.params['cpu_shares']]
 
-        for cap_add in params['cap_add']:
-            cmd += ['--cap-add', cap_add]
+    def addparam_cpus(self, c):
+        return c + ['--cpus', self.params['cpus']]
 
-        for cap_drop in params['cap_drop']:
-            cmd += ['--cap-drop', cap_drop]
+    def addparam_cpuset_cpus(self, c):
+        return c + ['--cpuset-cpus', self.params['cpuset_cpus']]
 
-        if params['cgroup_parent']:
-            cmd += ['--cgroup-parent', params['cgroup_parent']]
+    def addparam_cpuset_mems(self, c):
+        return c + ['--cpuset-mems', self.params['cpuset_mems']]
 
-        if params['cidfile']:
-            cmd += ['--cidfile', params['cidfile']]
+    def addparam_detach_keys(self, c):
+        return c + ['--detach-keys', self.params['detach_keys']]
 
-        if params['conmon_pidfile']:
-            cmd += ['--conmon-pidfile', params['conmon_pidfile']]
+    def addparam_device(self, c):
+        return c + ['--device', self.params['device']]
 
-        if params['cpu_period']:
-            cmd += ['--cpu-period', params['cpu_period']]
+    def addparam_device_read_bps(self, c):
+        return c + ['--device-read-bps', self.params['device_read_bps']]
 
-        if params['cpu_rt_runtime'] is not None:
-            cmd += ['--cpu-rt-runtime', params['cpu_rt_runtime']]
+    def addparam_device_read_iops(self, c):
+        return c + ['--device-read-iops', self.params['device_read_iops']]
 
-        if params['cpu_shares'] is not None:
-            cmd += ['--cpu-shares', params['cpu_shares']]
+    def addparam_device_write_bps(self, c):
+        return c + ['--device-write-bps', self.params['device_write_bps']]
 
-        if params['cpus']:
-            cmd += ['--cpus', params['cpus']]
+    def addparam_device_write_iops(self, c):
+        return c + ['--device-write-iops', self.params['device_write_iops']]
 
-        if params['cpuset_cpusr']:
-            cmd += ['--cpuset-cpusr', params['cpuset_cpusr']]
+    def addparam_dns(self, c):
+        return c + ['--dns', ','.join(self.params['dns'])]
 
-        if params['cpuset_mems']:
-            cmd += ['--cpuset-mems', params['cpuset_mems']]
+    def addparam_dns_option(self, c):
+        return c + ['--dns-option', self.params['dns_option']]
 
-        if params['detach_keys']:
-            cmd += ['--detach-keys', params['detach_keys']]
+    def addparam_dns_search(self, c):
+        return c + ['--dns-search', self.params['dns_search']]
 
-        if params['device']:
-            cmd += ['--device', params['device']]
+    def addparam_entrypoint(self, c):
+        return c + ['--entrypoint', self.params['entrypoint']]
 
-        if params['device_read_bps']:
-            cmd += ['--device-read-bps', params['device_read_bps']]
+    def addparam_env(self, c):
+        for env_value in self.params['env'].items():
+            c += ['--env',
+                  b"=".join([to_bytes(k, errors='surrogate_or_strict')
+                             for k in env_value])]
+        return c
 
-        if params['device_read_iops']:
-            cmd += ['--device-read-iops', params['device_read_iops']]
+    def addparam_env_file(self, c):
+        return c + ['--env-file', self.params['env_file']]
 
-        if params['device_write_bps']:
-            cmd += ['--device-write-bps', params['device_write_bps']]
+    def addparam_expose(self, c):
+        for exp in self.params['expose']:
+            c += ['--expose', exp]
+        return c
 
-        if params['device_write_iops']:
-            cmd += ['--device-write-iops', params['device_write_iops']]
+    def addparam_gidmap(self, c):
+        return c + ['--gidmap', self.params['gidmap']]
 
-        if params['dns']:
-            cmd += ['--dns', ','.join(params['dns'])]
+    def addparam_group_add(self, c):
+        return c + ['--group-add', self.params['group_add']]
 
-        if params['dns_option']:
-            cmd += ['--dns-option', params['dns_option']]
+    def addparam_healthcheck(self, c):
+        return c + ['--healthcheck', self.params['healthcheck']]
 
-        if params['dns_search'] is not None:
-            cmd += ['--dns-search', params['dns_search']]
+    def addparam_healthcheck_interval(self, c):
+        return c + ['--healthcheck-interval',
+                    self.params['healthcheck_interval']]
 
-        if params['entrypoint']:
-            cmd += ['--entrypoint', params['entrypoint']]
+    def addparam_healthcheck_retries(self, c):
+        return c + ['--healthcheck-retries',
+                    self.params['healthcheck_retries']]
 
-        for env_value in params['env'].items():
-            cmd += ['--env', b"=".join([to_bytes(k,
-                    errors='surrogate_or_strict') for k in env_value])]
+    def addparam_healthcheck_start_period(self, c):
+        return c + ['--healthcheck-start-period',
+                    self.params['healthcheck_start_period']]
 
-        if params['env_file']:
-            cmd += ['--env-file', params['env_file']]
+    def addparam_healthcheck_timeout(self, c):
+        return c + ['--healthcheck-timeout',
+                    self.params['healthcheck_timeout']]
 
-        for exp in params['expose']:
-            cmd += ['--expose', exp]
+    def addparam_hostname(self, c):
+        return c + ['--hostname', self.params['hostname']]
 
-        if params['gidmap']:
-            cmd += ['--gidmap', params['gidmap']]
+    def addparam_http_proxy(self, c):
+        return c + ['--http-proxy', self.params['http_proxy']]
 
-        if params['group_add']:
-            cmd += ['--group-add', params['group_add']]
+    def addparam_image_volume(self, c):
+        return c + ['--image-volume', self.params['image_volume']]
 
-        if params['healthcheck']:
-            cmd += ['--healthcheck', params['healthcheck']]
+    def addparam_init(self, c):
+        return c + ['--init', self.params['init']]
 
-        if params['healthcheck_interval']:
-            cmd += ['--healthcheck-interval', params['healthcheck_interval']]
+    def addparam_init_path(self, c):
+        return c + ['--init-path', self.params['init_path']]
 
-        if params['healthcheck_retries']:
-            cmd += ['--healthcheck-retries', params['healthcheck_retries']]
+    def addparam_interactive(self, c):
+        return c + ['--interactive'] if self.params['interactive'] else c
 
-        if params['healthcheck_start_period']:
-            cmd += ['--healthcheck-start-period',
-                    params['healthcheck_start_period']]
+    def addparam_ip(self, c):
+        return c + ['--ip', self.params['ip']]
 
-        if params['healthcheck_timeout']:
-            cmd += ['--healthcheck-timeout', params['healthcheck_timeout']]
+    def addparam_ipc(self, c):
+        return c + ['--ipc', self.params['ipc']]
 
-        if params['hostname']:
-            cmd += ['--hostname', params['hostname']]
+    def addparam_kernel_memory(self, c):
+        return c + ['--kernel-memory', self.params['kernel_memory']]
 
-        if params['http_proxy'] is not None:
-            cmd += ['--http-proxy', params['http_proxy']]
+    def addparam_label(self, c):
+        for label in self.params['label'].items():
+            c += ['--label', '='.join(label)]
+        return c
 
-        if params['image_volume']:
-            cmd += ['--image-volume', params['image_volume']]
+    def addparam_label_file(self, c):
+        return c + ['--label-file', self.params['label_file']]
 
-        if params['init']:
-            cmd += ['--init', params['init']]
+    def addparam_log_driver(self, c):
+        return c + ['--log-driver', self.params['log_driver']]
 
-        if params['init_path']:
-            cmd += ['--init-path', params['init_path']]
+    def addparam_log_opt(self, c):
+        return c + ['--log-opt', self.params['log_opt']]
 
-        if params['interactive']:
-            cmd += ['--interactive']
+    def addparam_memory(self, c):
+        return c + ['--memory', self.params['memory']]
 
-        if params['ip']:
-            cmd += ['--ip', params['ip']]
+    def addparam_memory_reservation(self, c):
+        return c + ['--memory-reservation', self.params['memory_reservation']]
 
-        if params['ipc']:
-            cmd += ['--ipc', params['ipc']]
+    def addparam_memory_swap(self, c):
+        return c + ['--memory-swap', self.params['memory_swap']]
 
-        if params['kernel_memory']:
-            cmd += ['--kernel-memory', params['kernel_memory']]
+    def addparam_memory_swappiness(self, c):
+        return c + ['--memory-swappiness', self.params['memory_swappiness']]
 
-        for label in params['label'].items():
-            cmd += ['--label', '='.join(label)]
+    def addparam_mount(self, c):
+        return c + ['--mount', self.params['mount']]
 
-        if params['label_file']:
-            cmd += ['--label-file', params['label_file']]
+    def addparam_network(self, c):
+        return c + ['--network', self.params['network']]
 
-        if params['log_driver']:
-            cmd += ['--log-driver', params['log_driver']]
+    def addparam_no_hosts(self, c):
+        return c + ['--no-hosts', self.params['no_hosts']]
 
-        if params['log_opt']:
-            cmd += ['--log-opt', params['log_opt']]
+    def addparam_oom_kill_disable(self, c):
+        return c + ['--oom-kill-disable', self.params['oom_kill_disable']]
 
-        if params['memory']:
-            cmd += ['--memory', params['memory']]
+    def addparam_oom_score_adj(self, c):
+        return c + ['--oom-score-adj', self.params['oom_score_adj']]
 
-        if params['memory_reservation']:
-            cmd += ['--memory-reservation', params['memory_reservation']]
+    def addparam_pid(self, c):
+        return c + ['--pid', self.params['pid']]
 
-        if params['memory_swap']:
-            cmd += ['--memory-swap', params['memory_swap']]
+    def addparam_pids_limit(self, c):
+        return c + ['--pids-limit', self.params['pids_limit']]
 
-        if params['memory_swappiness']:
-            cmd += ['--memory-swappiness', params['memory_swappiness']]
+    def addparam_pod(self, c):
+        return c + ['--pod', self.params['pod']]
 
-        if params['mount']:
-            cmd += ['--mount', params['mount']]
+    def addparam_privileged(self, c):
+        return c + ['--privileged'] if self.params['privileged'] else c
 
-        if params['network']:
-            cmd += ['--network', params['network']]
+    def addparam_publish(self, c):
+        for pub in self.params['publish']:
+            c += ['--publish', pub]
+        return c
 
-        if params['no_hosts'] is not None:
-            cmd += ['--no-hosts', params['no_hosts']]
+    def addparam_publish_all(self, c):
+        return c + ['--publish-all', self.params['publish_all']]
 
-        if params['oom_kill_disable'] is not None:
-            cmd += ['--oom-kill-disable', params['oom_kill_disable']]
+    def addparam_read_only(self, c):
+        return c + ['--read-only', self.params['read_only']]
 
-        if params['oom_score_adj']:
-            cmd += ['--oom-score-adj', params['oom_score_adj']]
+    def addparam_read_only_tmpfs(self, c):
+        return c + ['--read-only-tmpfs', self.params['read_only_tmpfs']]
 
-        if params['pid']:
-            cmd += ['--pid', params['pid']]
+    def addparam_restart_policy(self, c):
+        return c + ['--restart=%s' % self.params['restart_policy']]
 
-        if params['pids_limit']:
-            cmd += ['--pids-limit', params['pids_limit']]
+    def addparam_rm(self, c):
+        return c + ['--rm'] if self.params['rm'] else c
 
-        if params['pod']:
-            cmd += ['--pod', params['pod']]
+    def addparam_rootfs(self, c):
+        return c + ['--rootfs'] if self.params['rootfs'] else c
 
-        if params['privileged']:
-            cmd += ['--privileged']
+    def addparam_security_opt(self, c):
+        return c + ['--security-opt', self.params['security_opt']]
 
-        for pub in params['publish']:
-            cmd += ['--publish', pub]
+    def addparam_shm_size(self, c):
+        return c + ['--shm-size', self.params['shm_size']]
 
-        if params['publish_all'] is not None:
-            cmd += ['--publish-all', params['publish_all']]
+    def addparam_sig_proxy(self, c):
+        return c + ['--sig-proxy', self.params['sig_proxy']]
 
-        if params['read_only'] is not None:
-            cmd += ['--read-only', params['read_only']]
+    def addparam_stop_signal(self, c):
+        return c + ['--stop-signal', self.params['stop_signal']]
 
-        if params['read_only_tmpfs'] is not None:
-            cmd += ['--read-only-tmpfs', params['read_only_tmpfs']]
+    def addparam_stop_timeout(self, c):
+        return c + ['--stop-timeout', self.params['stop_timeout']]
 
-        if params['restart_policy']:
-            cmd += ['--restart=%s' % params['restart_policy']]
+    def addparam_subgidname(self, c):
+        return c + ['--subgidname', self.params['subgidname']]
 
-        if params['rm']:
-            cmd += ['--rm']
+    def addparam_subuidname(self, c):
+        return c + ['--subuidname', self.params['subuidname']]
 
-        if params['rootfs'] is not None and params['rootfs']:
-            cmd += ['--rootfs']
+    def addparam_sysctl(self, c):
+        for sysctl in self.params['sysctl'].items():
+            c += ['--sysctl',
+                  b"=".join([to_bytes(k, errors='surrogate_or_strict')
+                             for k in sysctl])]
+        return c
 
-        if params['security_opt']:
-            cmd += ['--security-opt', params['security_opt']]
+    def addparam_systemd(self, c):
+        return c + ['--systemd', self.params['systemd']]
 
-        if params['shm_size']:
-            cmd += ['--shm-size', params['shm_size']]
+    def addparam_tmpfs(self, c):
+        for tmpfs in self.params['tmpfs'].items():
+            c += ['--tmpfs', ':'.join(tmpfs)]
+        return c
 
-        if params['sig_proxy'] is not None:
-            cmd += ['--sig-proxy', params['sig_proxy']]
+    def addparam_tty(self, c):
+        return c + ['--tty'] if self.params['tty'] else c
 
-        if params['stop_signal']:
-            cmd += ['--stop-signal', params['stop_signal']]
+    def addparam_uidmap(self, c):
+        for uidmap in self.params['uidmap']:
+            c += ['--uidmap', uidmap]
+        return c
 
-        if params['stop_timeout']:
-            cmd += ['--stop-timeout', params['stop_timeout']]
+    def addparam_ulimit(self, c):
+        for u in self.params['ulimit']:
+            c += ['--ulimit', u]
+        return c
 
-        if params['subgidname']:
-            cmd += ['--subgidname', params['subgidname']]
+    def addparam_user(self, c):
+        return c + ['--user', self.params['user']]
 
-        if params['subuidname']:
-            cmd += ['--subuidname', params['subuidname']]
+    def addparam_userns(self, c):
+        return c + ['--userns', self.params['userns']]
 
-        if params['sysctl']:
-            cmd += ['--sysctl', params['sysctl']]
+    def addparam_uts(self, c):
+        return c + ['--uts', self.params['uts']]
 
-        if params['systemd'] is not None:
-            cmd += ['--systemd', params['systemd']]
+    def addparam_volume(self, c):
+        for vol in self.params['volume']:
+            c += ['--volume', vol]
+        return c
 
-        if params['tmpfs']:
-            cmd += ['--tmpfs', params['tmpfs']]
+    def addparam_volumes_from(self, c):
+        for vol in self.params['volumes_from']:
+            c += ['--volumes-from', vol]
+        return c
 
-        if params['tty']:
-            cmd += ['--tty']
+    def addparam_workdir(self, c):
+        return c + ['--workdir', self.params['workdir']]
 
-        if params['uidmap']:
-            cmd += ['--uidmap', params['uidmap']]
-
-        for u in params['ulimit']:
-            cmd += ['--ulimit', u]
-
-        if params['user']:
-            cmd += ['--user', params['user']]
-
-        if params['userns']:
-            cmd += ['--userns', params['userns']]
-
-        if params['uts']:
-            cmd += ['--uts', params['uts']]
-
-        for vol in params['volume']:
-            cmd += ['--volume', vol]
-
-        for vol in params['volumes_from']:
-            cmd += ['--volumes-from', vol]
-
-        if params['workdir']:
-            cmd += ['--workdir', params['workdir']]
-
-        # Add your own args for podman command
-        if params['cmd_args']:
-            cmd += params['cmd_args']
-
-        cmd.append(params['image'])
-
-        if params['command']:
-            cmd += params['command'].split()
-
-        return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
+    # Add your own args for podman command
+    def addparam_cmd_args(self, c):
+        return c + self.params['cmd_args']
 
 
 def ensure_image_exists(module, image):
-    """If image is passed, ensure it exists, if not - pull it or fail
+    """If image is passed, ensure it exists, if not - pull it or fail.
 
     Arguments:
         module {obj} -- ansible module object
@@ -1126,12 +1186,13 @@ def ensure_image_exists(module, image):
 
 
 class PodmanContainer:
-    """Perform container tasks
+    """Perform container tasks.
 
     Manages podman container, inspects it and checks its current state
     """
+
     def __init__(self, module, name):
-        """Initialize PodmanContainer class
+        """Initialize PodmanContainer class.
 
         Arguments:
             module {obj} -- ansible module object
@@ -1145,42 +1206,43 @@ class PodmanContainer:
 
     @property
     def exists(self):
-        """Check if container exists """
+        """Check if container exists."""
         return bool(self.info != {})
 
     @property
     def different(self):
-        """Check if container is different"""
+        """Check if container is different."""
         # TODO(sshnaidm): implement difference calculation between input vars
         # and current container to understand if we need to recreate it
         return True
 
     @property
     def running(self):
-        """Return True if container is running now"""
+        """Return True if container is running now."""
         return self.exists and self.info['State']['Running']
 
     @property
     def stopped(self):
-        """Return True if container exists and is not running now"""
+        """Return True if container exists and is not running now."""
         return self.exists and not self.info['State']['Running']
 
     def get_info(self):
-        """Inspect container and gather info about it"""
+        """Inspect container and gather info about it."""
         rc, out, err = run_podman_command(
             module=self.module,
             args=['container', 'inspect', self.name], ignore_errors=True)
         return json.loads(out)[0] if rc == 0 else {}
 
     def _perform_action(self, action):
-        """Perform action with container
+        """Perform action with container.
 
         Arguments:
             action {str} -- action to perform - start, create, stop, run,
                             delete
         """
-        b_command = construct_command_from_params(action, self.module.params)
-        self.module.log("PODMAN-DEBUG: " +
+        b_command = PodmanModuleParams(action, self.module.params
+                                       ).construct_command_from_params()
+        self.module.log("PODMAN-CONTAINER-DEBUG: " +
                         "%s" % " ".join([to_native(i) for i in b_command]))
         rc, out, err = run_podman_command(
             module=self.module,
@@ -1192,44 +1254,44 @@ class PodmanContainer:
                 stdout=out, stderr=err)
 
     def run(self):
-        """Run the container"""
+        """Run the container."""
         self._perform_action('run')
 
     def delete(self):
-        """Delete the container"""
+        """Delete the container."""
         self._perform_action('delete')
 
     def stop(self):
-        """Stop the container"""
+        """Stop the container."""
         self._perform_action('stop')
 
     def start(self):
-        """Start the container"""
+        """Start the container."""
         self._perform_action('start')
 
     def create(self):
-        """Create the container"""
+        """Create the container."""
         self._perform_action('create')
 
     def recreate(self):
-        """Recreate the container"""
+        """Recreate the container."""
         self.delete()
         self.run()
 
     def restart(self):
-        """Restart the container"""
+        """Restart the container."""
         self.stop()
         self.run()
 
 
 class PodmanManager:
-    """Module manager class
+    """Module manager class.
 
     Defines according to parameters what actions should be applied to container
     """
 
     def __init__(self, module):
-        """Initialize PodmanManager class
+        """Initialize PodmanManager class.
 
         Arguments:
             module {obj} -- ansible module object
@@ -1256,7 +1318,7 @@ class PodmanManager:
         self.container = PodmanContainer(self.module, self.name)
 
     def update_container_result(self, changed=True):
-        """Inspect the current container, update results with last info, exit
+        """Inspect the current container, update results with last info, exit.
 
         Keyword Arguments:
             changed {bool} -- whether any action was performed
@@ -1268,13 +1330,13 @@ class PodmanManager:
         self.module.exit_json(**self.results)
 
     def make_started(self):
-        """Run actions if desired state is 'started'"""
+        """Run actions if desired state is 'started'."""
         if self.container.running and \
                 (self.container.different or self.recreate):
-                self.container.recreate()
-                self.results['actions'].append('recreated %s' %
-                                               self.container.name)
-                self.update_container_result()
+            self.container.recreate()
+            self.results['actions'].append('recreated %s' %
+                                           self.container.name)
+            self.update_container_result()
         elif self.container.running and not self.container.different:
             if self.restart:
                 self.container.restart()
@@ -1297,10 +1359,10 @@ class PodmanManager:
             self.update_container_result()
 
     def make_stopped(self):
-        """Run actions if desired state is 'stopped'"""
+        """Run actions if desired state is 'stopped'."""
         if not self.container.exists and not self.image:
             self.module.fail_json(msg='Cannot create container when image' +
-                                  ' is not specified!')
+                                      ' is not specified!')
         if not self.container.exists:
             self.container.create()
             self.results['actions'].append('created %s' % self.container.name)
@@ -1313,7 +1375,7 @@ class PodmanManager:
             self.update_container_result()
 
     def make_absent(self):
-        """Run actions if desired state is 'absent'"""
+        """Run actions if desired state is 'absent'."""
         if not self.container.exists:
             self.results.update({'changed': False})
         elif self.container.exists:
@@ -1325,7 +1387,7 @@ class PodmanManager:
         self.module.exit_json(**self.results)
 
     def execute(self):
-        """Execute the desired action according to map of actions and states"""
+        """Execute the desired action according to map of actions & states."""
         states_map = {
             'present': self.make_started,
             'started': self.make_started,
@@ -1335,13 +1397,13 @@ class PodmanManager:
         process_action = states_map[self.state]
         process_action()
         self.module.fail_json(msg="Unexpected logic error happened, " +
-                              "please contact maintainers ASAP!")
+                                  "please contact maintainers ASAP!")
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            cmd_args=dict(type='list', default=[], elements='str'),
+            cmd_args=dict(type='list', elements='str'),
             command=dict(type='raw'),
             detach=dict(type='bool', default=True),
             executable=dict(type='str', default='podman'),
@@ -1351,23 +1413,23 @@ def main():
                                aliases=['restart']),
             recreate=dict(type='bool', default=False),
             state=dict(type='str', default='started',
-                       choices=['started', 'present', 'stopped', 'absent'],),
-            etc_hosts=dict(type='dict', default={}, aliases=['add_hosts']),
-            annotation=dict(type='dict', default={}),
+                       choices=['started', 'present', 'stopped', 'absent']),
+            etc_hosts=dict(type='dict', aliases=['add_hosts']),
+            annotation=dict(type='dict'),
             authfile=dict(type='str', fallback=(env_fallback,
                                                 ['REGISTRY_AUTH_FILE'])),
             blkio_weight=dict(type='int'),
-            blkio_weight_device=dict(type='str'),
-            cap_add=dict(type='list', elements='str', default=[]),
-            cap_drop=dict(type='list', elements='str', default=[]),
+            blkio_weight_device=dict(type='dict'),
+            cap_add=dict(type='list', elements='str'),
+            cap_drop=dict(type='list', elements='str'),
             cgroup_parent=dict(type='str'),
-            cidfile=dict(type='str'),
-            conmon_pidfile=dict(type='str'),
+            cidfile=dict(type='path'),
+            conmon_pidfile=dict(type='path'),
             cpu_period=dict(type='int'),
             cpu_rt_runtime=dict(type='int'),
             cpu_shares=dict(type='int'),
             cpus=dict(type='str'),
-            cpuset_cpusr=dict(type='str'),
+            cpuset_cpus=dict(type='str'),
             cpuset_mems=dict(type='str'),
             detach_keys=dict(type='str'),
             device=dict(type='str'),
@@ -1375,14 +1437,14 @@ def main():
             device_read_iops=dict(type='str'),
             device_write_bps=dict(type='str'),
             device_write_iops=dict(type='str'),
-            dns=dict(type='list', elements='str', default=[]),
+            dns=dict(type='list', elements='str'),
             dns_option=dict(type='str'),
             dns_search=dict(type='str'),
             entrypoint=dict(type='str'),
-            env=dict(type='dict', default={}),
-            env_file=dict(type='str'),
+            env=dict(type='dict'),
+            env_file=dict(type='path'),
             expose=dict(type='list', elements='str',
-                        aliases=['exposed', 'exposed_ports'], default=[]),
+                        aliases=['exposed', 'exposed_ports']),
             gidmap=dict(type='str'),
             group_add=dict(type='str'),
             healthcheck=dict(type='str'),
@@ -1399,10 +1461,10 @@ def main():
             ip=dict(type='str'),
             ipc=dict(type='str'),
             kernel_memory=dict(type='str'),
-            label=dict(type='dict', default={}),
+            label=dict(type='dict'),
             label_file=dict(type='str'),
             log_driver=dict(type='str', choices=['k8s-file', 'journald',
-                            'json-file']),
+                                                 'json-file']),
             log_opt=dict(type='str', aliases=['log_options']),
             memory=dict(type='str'),
             memory_reservation=dict(type='str'),
@@ -1417,8 +1479,8 @@ def main():
             pids_limit=dict(type='str'),
             pod=dict(type='str'),
             privileged=dict(type='bool'),
-            publish=dict(type='list', elements='str', aliases=['ports',
-                         'published', 'published_ports'], default=[]),
+            publish=dict(type='list', elements='str',
+                         aliases=['ports', 'published', 'published_ports']),
             publish_all=dict(type='bool'),
             read_only=dict(type='bool'),
             read_only_tmpfs=dict(type='bool'),
@@ -1432,18 +1494,17 @@ def main():
             stop_timeout=dict(type='int'),
             subuidname=dict(type='str'),
             subgidname=dict(type='str'),
-            sysctl=dict(type='str'),
+            sysctl=dict(type='dict'),
             systemd=dict(type='bool'),
-            tmpfs=dict(type='str'),
+            tmpfs=dict(type='dict'),
             tty=dict(type='bool'),
-            uidmap=dict(type='str'),
-            ulimit=dict(type='list', elements='str', default=[]),
+            uidmap=dict(type='list', elements='str'),
+            ulimit=dict(type='list', elements='str'),
             user=dict(type='str'),
             userns=dict(type='str'),
             uts=dict(type='str'),
-            volume=dict(type='list', elements='str', aliases=['volumes'],
-                        default=[]),
-            volumes_from=dict(type='list', elements='str', default=[]),
+            volume=dict(type='list', elements='str', aliases=['volumes']),
+            volumes_from=dict(type='list', elements='str'),
             workdir=dict(type='str'),
         ),
         mutually_exclusive=(
@@ -1455,7 +1516,7 @@ def main():
     if module.params['state'] in ['started', 'present'] and \
             not module.params['image']:
         module.fail_json(msg="State '%s' required image to be configured!" %
-                         module.params['state'])
+                             module.params['state'])
 
     PodmanManager(module).execute()
 

@@ -1,9 +1,18 @@
 ---
-
 - name: Test podman_image
   when:
     - ansible_facts.virtualization_type != 'docker'
+    - ansible_facts.distribution in ['RedHat', 'Fedora', 'CentOS']
   block:
+    - name: Delete all container leftovers from tests
+      podman_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - "alpine:3.7"
+        - "container"
+        - "container2"
+
     - name: Test no image with default action
       podman_container:
         name: container
@@ -294,14 +303,21 @@
           - test.ansible_facts.podman_container['Config']['Annotations']['this'] is defined
           - test.ansible_facts.podman_container['Config']['Annotations']['this'] == "annotation_value"
           # test DNS
-          - test.ansible_facts.podman_container['HostConfig']['Dns'] is defined
-          - test.ansible_facts.podman_container['HostConfig']['Dns'] == ['1.1.1.1', '8.8.4.4']
+          - >-
+            (test.ansible_facts.podman_container['HostConfig']['Dns'] is defined and
+            test.ansible_facts.podman_container['HostConfig']['Dns'] == ['1.1.1.1', '8.8.4.4']) or
+            (test.ansible_facts.podman_container['HostConfig']['DNS'] is defined and
+            test.ansible_facts.podman_container['HostConfig']['DNS'] == ['1.1.1.1', '8.8.4.4'])
           # test ports
           - test.ansible_facts.podman_container['NetworkSettings']['Ports']|length == 2
           # test working dir
           - test.ansible_facts.podman_container['Config']['WorkingDir'] == "/bin"
           # test dns search
-          - test.ansible_facts.podman_container['HostConfig']['DnsSearch'] == ['example.com']
+          - >-
+            (test.ansible_facts.podman_container['HostConfig']['DnsSearch'] is defined and
+            test.ansible_facts.podman_container['HostConfig']['DnsSearch'] == ['example.com']) or
+            (test.ansible_facts.podman_container['HostConfig']['DNSSearch'] is defined and
+            test.ansible_facts.podman_container['HostConfig']['DNSSearch'] == ['example.com'])
           # test environment variables
           - "'FOO=bar' in test.ansible_facts.podman_container['Config']['Env']"
           - "'BAR=foo' in test.ansible_facts.podman_container['Config']['Env']"
@@ -311,17 +327,25 @@
           - test.ansible_facts.podman_container['Config']['Labels'] | length == 2
           - test.ansible_facts.podman_container['Config']['Labels']['somelabel'] == "labelvalue"
           - test.ansible_facts.podman_container['Config']['Labels']['otheralbe'] == "othervalue"
-          # test mounts, in some of podman versions "source" and "destination" could be with different case
-          # that's totally bizarre, but that's what it is
+          # test mounts
           - >-
-            test.ansible_facts.podman_container['Mounts'][0]['destination'] is defined and
-            '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='destination') | list or
-            test.ansible_facts.podman_container['Mounts'][0]['Destination'] is defined and
-            '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Destination') | list
+            (test.ansible_facts.podman_container['Mounts'][0]['Destination'] is defined and
+            '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Destination') | list) or
+            (test.ansible_facts.podman_container['Mounts'][0]['destination'] is defined and
+            '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='destination') | list)
           - >-
-            test.ansible_facts.podman_container['Mounts'][0]['source'] is defined and
-            '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='source') | list or
-            test.ansible_facts.podman_container['Mounts'][0]['Source'] is defined and
-            '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Source') | list
+            (test.ansible_facts.podman_container['Mounts'][0]['Source'] is defined and
+            '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Source') | list) or
+            (test.ansible_facts.podman_container['Mounts'][0]['source'] is defined and
+            '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='source') | list)
         fail_msg: Parameters container test failed!
         success_msg: Parameters container test passed!
+  always:
+    - name: Delete all container leftovers from tests
+      podman_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - "alpine:3.7"
+        - "container"
+        - "container2"
