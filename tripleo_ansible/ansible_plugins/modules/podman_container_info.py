@@ -18,6 +18,8 @@ from __future__ import division
 from __future__ import print_function
 
 import json
+import yaml
+
 from ansible.module_utils.basic import AnsibleModule
 import ansible.module_utils.six as six
 
@@ -358,10 +360,7 @@ def get_containers_facts(module, executable, name):
 
 def main():
     module = AnsibleModule(
-        argument_spec=dict(
-            executable=dict(type='str', default='podman'),
-            name=dict(type='list', elements='str')
-        ),
+        argument_spec=yaml.safe_load(DOCUMENTATION)['options'],
         supports_check_mode=True,
     )
 

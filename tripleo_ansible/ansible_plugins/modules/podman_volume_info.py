@@ -19,6 +19,8 @@
 from __future__ import absolute_import, division, print_function
 
 import json
+import yaml
+
 from ansible.module_utils.basic import AnsibleModule
 
 
@@ -93,10 +95,7 @@ def get_volume_info(module, executable, name):
 
 def main():
     module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            executable=dict(type='str', default='podman'),
-        ),
+        argument_spec=yaml.safe_load(DOCUMENTATION)['options'],
         supports_check_mode=True,
     )
 
