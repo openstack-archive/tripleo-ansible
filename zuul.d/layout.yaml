@@ -37,7 +37,6 @@
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario010-standalone: &scenario010
-          voting: false
           files:
           - ^tripleo_ansible/.*octavia.*
           irrelevant-files: *irrelevant_scenario_files
@@ -54,6 +53,7 @@
       - tripleo-ci-centos-7-scenario001-standalone: *scenario001
       - tripleo-ci-centos-7-scenario002-standalone: *scenario002
       - tripleo-ci-centos-7-scenario003-standalone: *scenario003
+      - tripleo-ci-centos-7-scenario010-standalone: *scenario010
     post:
       jobs:
       - publish-openstack-python-branch-tarball
