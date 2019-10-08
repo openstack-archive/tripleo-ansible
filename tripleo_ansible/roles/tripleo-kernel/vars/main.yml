@@ -16,6 +16,7 @@
 
 
 tripleo_kernel_modules:
+  br_netfilter: {}
   nf_conntrack: {}
 
 tripleo_kernel_sysctl_settings:
