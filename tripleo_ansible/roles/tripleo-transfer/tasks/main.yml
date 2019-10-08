@@ -70,6 +70,11 @@
   become: "{{ tripleo_transfer_src_become }}"
   delegate_to: "{{ tripleo_transfer_src_host }}"
 
+- include_tasks: flag.yml
+  when:
+    - tripleo_transfer_flag_file != None
+    - tripleo_transfer_flag_file|length > 0
+
 - name: wipe the destination directory
   file:
     path: "{{ tripleo_transfer_dest_dir_safe }}"
