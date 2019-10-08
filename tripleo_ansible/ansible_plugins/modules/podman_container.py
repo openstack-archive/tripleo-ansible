@@ -149,7 +149,7 @@ options:
     type: path
   command:
     description:
-      - Override command of container
+      - Override command of container. Can be a string or a list.
     type: raw
   cpu_period:
     description:
@@ -840,7 +840,10 @@ class PodmanModuleParams:
                     cmd = getattr(self, func_name)(cmd)
             cmd.append(self.params['image'])
             if self.params['command']:
-                cmd += self.params['command'].split()
+                if isinstance(self.params['command'], list):
+                    cmd += self.params['command']
+                else:
+                    cmd += self.params['command'].split()
             return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
 
     def start_stop_delete(self):
