@@ -37,22 +37,23 @@
   set_fact:
     mgmt_port_mac: "{{ out_mgmt_port_mac.stdout }}"
 
-- name: get management port ip
+- name: get fixed ip info
   shell: |
-    set -o pipefail
-    openstack port show {{ mgmt_port_id }} -f value -c fixed_ips | cut -f1 -d, | cut -f2 -d= | tr -d "'"
-  register: out_mgmt_port_ip
-  changed_when: false
+    openstack port show {{ mgmt_port_id }} -f json -c fixed_ips
+  register: mgmt_port_fixed_ip_out
 
-- name: setting fact for management network controller port IP
+- name: get management port detail result
   set_fact:
-    mgmt_port_ip: "{{ out_mgmt_port_ip.stdout }}"
+    mgmt_port_details: "{{ mgmt_port_fixed_ip_out.stdout }}"
+
+- name: parse management port details
+  set_fact:
+    mgmt_port_ip: "{{ mgmt_port_details | json_query('fixed_ips[*].ip_address') | first }}"
+    mgmt_port_subnet: "{{ mgmt_port_details | json_query('fixed_ips[*].subnet_id') | first }}"
 
 - name: get management port net mask
   shell: |
-    set -o pipefail
-    subnet_id=$(openstack port show {{ mgmt_port_id }} -f value -c fixed_ips  | cut -f2 -d, | cut -f2 -d= | tr -d "'" 2> /dev/null)
-    openstack subnet show $subnet_id -f value -c cidr 2> /dev/null
+    openstack subnet show {{ mgmt_port_subnet }} -f value -c cidr 2> /dev/null
   register: out_mgmt_subnet_cidr
 
 - name: setting fact for management subnet cidr
