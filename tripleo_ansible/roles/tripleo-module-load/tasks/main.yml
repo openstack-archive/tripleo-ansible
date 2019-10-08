@@ -17,60 +17,53 @@
 
 # "tripleo-module-load" will search for and load any operating system variable file
 
-- name: Check whether /etc/modules-load.d exists
-  stat:
-    path: /etc/modules-load.d
-  register: modules_load_stat
-
-- name: Check whether /etc/modules-load.d exists
-  stat:
-    path: /etc/modules
-  register: modules_file
-
-- name: "Load modules"
+- name: Kernel module block
   become: true
-  modprobe:
-    name: "{{ item.name }}"
-    params: "{{ item.params | default(omit) }}"
-    state: "{{ item.state | default('present') }}"
-  loop: "{{ tripleo_modules }}"
-  loop_control:
-    label: "{{ item.name }}"
+  block:
+    - name: Ensure /etc/modules-load.d exists
+      file:
+        path: /etc/modules-load.d
+        state: directory
+        setype: etc_t
+        selevel: s0
 
-- name: "Persist modules via modules-load.d"
-  become: true
-  template:
-    dest: "/etc/modules-load.d/{{ item.name }}.conf"
-    src: module-load.conf.j2
-  loop: "{{ tripleo_modules }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - modules_load_stat.stat.exists | bool
-    - (item.state | default('present')) == 'present'
+    - name: "Load modules"
+      modprobe:
+        name: "{{ item.name }}"
+        params: "{{ item.params | default(omit) }}"
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ tripleo_modules }}"
+      loop_control:
+        label: "{{ item.name }}"
 
-- name: "Drop module persistence"
-  become: true
-  file:
-    path: "/etc/modules-load.d/{{ item.name }}.conf"
-    state: absent
-  loop: "{{ tripleo_modules }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - modules_load_stat.stat.exists | bool
-    - (item.state | default('present')) == 'absent'
+    - name: "Persist modules via modules-load.d"
+      template:
+        dest: "/etc/modules-load.d/{{ item.name }}.conf"
+        src: module-load.conf.j2
+      loop: "{{ tripleo_modules }}"
+      loop_control:
+        label: "{{ item.name }}"
+      notify:
+        - Modules reload
+      when:
+        - (item.state | default('present')) == 'present'
 
-- name: "Set modules persistence via /etc/modules"
-  become: true
-  lineinfile:
-    dest: /etc/modules
-    line: "{{ item.name }} {{ item.params | default('') }}"
-    state: "{{ item.state | default('present') }}"
-  loop: "{{ tripleo_modules }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - modules_file.stat.exists | bool
-    - (modules_file.stat.isdir is defined) and
-      not (modules_file.stat.isdir | bool)
+    - name: "Drop module persistence"
+      file:
+        path: "/etc/modules-load.d/{{ item.name }}.conf"
+        state: absent
+      loop: "{{ tripleo_modules }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when:
+        - (item.state | default('present')) == 'absent'
+
+    - name: "Set modules persistence via /etc/modules"
+      lineinfile:
+        dest: /etc/modules
+        line: "{{ item.name }} {{ item.params | default('') }}"
+        state: "{{ item.state | default('present') }}"
+        create: true
+      loop: "{{ tripleo_modules }}"
+      loop_control:
+        label: "{{ item.name }}"

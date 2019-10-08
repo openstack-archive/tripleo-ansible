@@ -14,14 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-- name: Prepare
-  hosts: all
-  roles:
-    - role: test_deps
-  post_tasks:
-    - name: Install additional dependencies
-      become: true
-      package:
-        name: kmod
-        state: present
+- name: Modules reload
+  become: true
+  systemd:
+    name: systemd-modules-load.service
+    state: restarted

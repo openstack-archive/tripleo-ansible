@@ -21,6 +21,7 @@
     - role: test_deps
   post_tasks:
     - name: Install additional dependencies
+      become: true
       package:
         name: kmod
         state: present
