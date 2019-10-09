@@ -1,0 +1,48 @@
+---
+
+- connection: local
+  hosts: localhost
+  pre_tasks:
+    - name: Check for required inputs
+      fail:
+        msg: >
+          Input missing `{{ item }}`
+      when:
+        - hostvars[inventory_hostname][item] is undefined
+      loop:
+        - stack_name
+  tasks:
+    - name: Delete heat stack
+      os_stack:
+        name: "{{ stack_name }}"
+        state: absent
+      register: stack_delete
+      until: stack_delete is success
+      delay: 4
+      retries: 16
+
+    # NOTE (cloudnull): This is using the CLI command to delete a given container
+    #                   because the os_object module does not yet handle recursive
+    #                   deletes. Revise this when RFE 60449 is implemented.
+    #                   https://github.com/ansible/ansible/issues/60449
+    - name: Delete container and objects
+      command: >
+        openstack container delete "{{ item }}" --recursive
+      failed_when:
+        - container_objects.rc != 0
+        - "'Not Found' not in container_objects.stderr"
+      changed_when:
+        - "'Not Found' not in container_objects.stderr"
+      register: container_objects
+      loop:
+        - "{{ stack_name }}"
+        - "{{ stack_name }}-messages"
+        - "{{ stack_name }}-swift-rings"
+
+  post_tasks:
+    - name: Workflow notice
+      debug:
+        msg: Ansible workflow completed.
+
+  tags:
+    - tripleo-overcloud-delete
