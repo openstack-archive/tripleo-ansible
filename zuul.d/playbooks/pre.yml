@@ -35,6 +35,15 @@
         requirements: "{{ tripleo_ansible_project_path }}/molecule-requirements.txt"
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_site_packages: true
+    # NOTE(cloudnull): This is being done because docker is not supported on RHEL-8
+    #                  and tests within this repo still require docker.
+    - name: Manual install container.io
+      become: true
+      package:
+        name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+      when:
+        - (ansible_os_family | lower) == "redhat"
+        - (ansible_distribution_major_version | int) >= 8
   tasks:
     - name: Get Ansible Galaxy roles
       command: >-

@@ -26,6 +26,15 @@ export PROJECT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/../"
 export ROLE_NAME="${ROLE_NAME:-$1}"
 export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-"-v"}
 
+## Functions -----------------------------------------------------------------
+
+function run_pip {
+    "${HOME}/test-python/bin/pip" install \
+                                  -r "${PROJECT_DIR}/requirements.txt" \
+                                  -r "${PROJECT_DIR}/test-requirements.txt" \
+                                  -r "${PROJECT_DIR}/molecule-requirements.txt" ${@:-}
+}
+
 ## Main ----------------------------------------------------------------------
 
 # Source distribution information
@@ -36,7 +45,7 @@ PYTHON_EXEC=$(command -v python3 || command -v python)
 # Install the one requirement we need to run any local test
 case "${ID,,}" in
     amzn|rhel|centos|fedora)
-        sudo "${RHT_PKG_MGR}" install -y python*-virtualenv
+        sudo "${RHT_PKG_MGR}" install -y gcc python*-virtualenv
         ;;
 esac
 
@@ -51,10 +60,15 @@ esac
 if [[ -d "${HOME}/.cache/pip/wheels" ]]; then
     rm -rf "${HOME}/.cache/pip/wheels"
 fi
-"${HOME}/test-python/bin/pip" install \
-                              -r "${PROJECT_DIR}/requirements.txt" \
-                              -r "${PROJECT_DIR}/test-requirements.txt" \
-                              -r "${PROJECT_DIR}/molecule-requirements.txt"
+run_pip
+
+# NOTE(cloudnull): In some cases ansible will not be installed due to wheel
+#                  building issues, caused by pip. If this happens we
+#                  re-install the packages with the force flag, which will
+#                  ensure everything is rebuilt and installed correctly.
+if [ ! -f "${HOME}/test-python/bin/ansible" ]; then
+    run_pip --force
+fi
 
 # Run local test
 PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
