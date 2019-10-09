@@ -1147,7 +1147,8 @@ class PodmanModuleParams:
 
     def addparam_volume(self, c):
         for vol in self.params['volume']:
-            c += ['--volume', vol]
+            if vol:
+                c += ['--volume', vol]
         return c
 
     def addparam_volumes_from(self, c):
