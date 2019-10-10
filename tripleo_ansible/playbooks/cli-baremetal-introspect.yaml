@@ -1,0 +1,120 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Baremetal Introspection for multiple Ironic Nodes
+  connection: local
+  hosts: localhost
+  vars:
+    run_validations: false
+    concurrency: 20
+    max_retries: 2
+    node_timeout: 1200
+  pre_tasks:
+    - name: Check for required inputs
+      fail:
+        msg: >
+          Either `node_uuids` or `all_manageable` are required inputs but
+          currently are not set. Check you inputs and try again.
+      when: >-
+        (node_uuids is undefined and all_manageable is undefined) or
+        (node_uuids is undefined and not all_manageable|bool)
+
+  tasks:
+    # Pre-introspection validation
+    - name: Run Validations
+      command: >
+        openstack tripleo validator run --group "pre-introspection"
+      when:
+        - run_validations | bool
+
+    # TODO(sshnaidm): change to module when https://review.opendev.org/#/c/694751/ merges
+    - name: Run all manageable block
+      when:
+        - all_manageable is defined
+        - all_manageable|bool
+      block:
+        # Get Node UUIDs, if "all_manageable" is True
+        - name: Get node UUIDS
+          command: >
+            openstack baremetal node list --provision-state=manageable -c UUID -f value
+          register: command_output
+          changed_when: false
+
+        - name: Set node_uuids_intro fact
+          set_fact:
+            node_uuids_intro: "{{ command_output.stdout_lines }}"
+
+    - name: Process only passed node UUIDs
+      when:
+        - all_manageable is not defined or not all_manageable|bool
+      block:
+
+        - name: Set node_uuids_intro fact
+          set_fact:
+            node_uuids_intro: "{{ node_uuids }}"
+
+    - name: exit if nothing to do
+      block:
+        - name: Notice
+          debug:
+            msg: No nodes are manageable at this time.
+
+        - name: end play
+          meta: end_play
+      when:
+        - node_uuids_intro == []
+
+    # Introspect nodes
+    - name: Start baremetal introspection
+      os_tripleo_baremetal_node_introspection:
+        auth_type: password
+        cloud: undercloud
+        node_uuids: "{{ node_uuids_intro }}"
+        concurrency: "{{ concurrency }}"
+        max_retries: "{{ max_retries }}"
+        node_timeout: "{{ node_timeout }}"
+      async: 1000
+      poll: 0
+      register: baremetal_introspection_async
+
+    # NOTE: This isn't ideal, but it is the best way I can find to give user
+    #       updates. The Ansible module logs when nodes start/fail/finish etc.
+    - name: Viewing introspection progress
+      debug:
+        msg: Introspection progress can been viewed in the syslog
+
+    - name: Wait for introspection to complete
+      async_status:
+        jid: "{{ baremetal_introspection_async.ansible_job_id }}"
+      register: introspection_result
+      until: introspection_result.finished
+      retries: 1000
+      ignore_errors: true
+
+    - name: Nodes that passed introspection
+      debug:
+        msg: >-
+          {% if introspection_result.passed_nodes != [] %}
+          {{ introspection_result.passed_nodes | join(' ') }}{% else %}
+          No nodes completed introspection successfully!{% endif %}
+
+    - name: Nodes that failed introspection
+      debug:
+        msg: >-
+          {% if introspection_result.failed_nodes != [] %}
+          {{ introspection_result.failed_nodes | join(' ') }}{% else %}
+          All nodes completed introspection successfully!{% endif %}
+      failed_when: introspection_result.failed_nodes != []
