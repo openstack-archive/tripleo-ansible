@@ -15,6 +15,7 @@
 # under the License.
 
 - name: nova restart podman
+  become: true
   systemd:
     name: "{{ item }}"
     state: restarted
@@ -22,8 +23,9 @@
     - tripleo_nova_api
     - tripleo_nova_conductor
     - tripleo_nova_scheduler
-  when: containercli == "podman"
+  when: tripleo_cellv2_containercli == "podman"
 
 - name: nova restart docker
+  become: true
   command: docker restart nova_api nova_scheduler nova_conductor
-  when: containercli == "docker"
+  when: tripleo_cellv2_containercli == "docker"
