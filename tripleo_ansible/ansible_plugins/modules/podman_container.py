@@ -1175,13 +1175,16 @@ def ensure_image_exists(module, image):
         list -- list of image actions - if it pulled or nothing was done
     """
     image_actions = []
+    module_exec = module.params['executable']
     if not image:
         return image_actions
-    rc, out, err = run_podman_command(module, args=['image', 'exists', image],
+    rc, out, err = run_podman_command(module, executable=module_exec,
+                                      args=['image', 'exists', image],
                                       ignore_errors=True)
     if rc == 0:
         return image_actions
-    rc, out, err = run_podman_command(module, args=['image', 'pull', image],
+    rc, out, err = run_podman_command(module, executable=module_exec,
+                                      args=['image', 'pull', image],
                                       ignore_errors=True)
     if rc != 0:
         module.fail_json(msg="Can't pull image %s" % image, stdout=out,
@@ -1235,6 +1238,7 @@ class PodmanContainer:
         """Inspect container and gather info about it."""
         rc, out, err = run_podman_command(
             module=self.module,
+            executable=self.module.params['executable'],
             args=['container', 'inspect', self.name], ignore_errors=True)
         return json.loads(out)[0] if rc == 0 else {}
 
