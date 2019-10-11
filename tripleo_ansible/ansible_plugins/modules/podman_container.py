@@ -694,8 +694,6 @@ container:
         are also accessible directly as C(podman_container). Note that the
         returned fact will be removed in Ansible 2.12.
       - Empty if C(state) is I(absent).
-      - If detached is I(False), will include Output attribute containing any
-        output from container run.
     returned: always
     type: dict
     sample: '{
@@ -1210,6 +1208,7 @@ class PodmanContainer:
         super(PodmanContainer, self).__init__()
         self.module = module
         self.name = name
+        self.stdout, self.stderr = '', ''
         self.info = self.get_info()
 
     @property
@@ -1257,6 +1256,8 @@ class PodmanContainer:
             module=self.module,
             args=[b'container'] + b_command,
             ignore_errors=True)
+        self.stdout = out
+        self.stderr = err
         if rc != 0:
             self.module.fail_json(
                 msg="Can't %s container %s" % (action, self.name),
@@ -1334,8 +1335,10 @@ class PodmanManager:
                               (default: {True})
         """
         facts = self.container.get_info()
+        out, err = self.container.stdout, self.container.stderr
         self.results.update({'changed': changed, 'container': facts,
-                             'ansible_facts': {'podman_container': facts}})
+                             'ansible_facts': {'podman_container': facts}},
+                             stdout=out, stderr=err)
         self.module.exit_json(**self.results)
 
     def make_started(self):
