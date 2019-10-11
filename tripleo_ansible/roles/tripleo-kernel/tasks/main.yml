@@ -20,10 +20,43 @@
 - name: Kernel tuning block
   become: true
   block:
+    - name: Install additional packages
+      package:
+        name: "{{ item.key }}"
+        state: "{{ item.opt.state | default('present') }}"
+      loop: "{{ tripleo_kernel_extra_packages | dict2items(key_name='key', value_name='opt') }}"
+      notify: Modules reload
+
+    - name: Ensure the /etc/modules-load.d/ directory exists
+      file:
+        path: /etc/modules-load.d
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+        setype: etc_t
+
+    - name: Write list of modules to load at boot
+      template:
+        src: "tripleo-modprobe.conf.j2"
+        dest: "/etc/modules-load.d/99-tripleo.conf"
+        mode: 0644
+        owner: root
+        group: root
+        setype: etc_t
+      notify: Modules reload
+
+    - name: Run handlers to load new modules
+      meta: flush_handlers
+
     - name: Set default sysctl options
       template:
         src: "tripleo-sysctl.conf.j2"
         dest: "/etc/sysctl.d/99-tripleo.conf"
+        mode: 0644
+        owner: root
+        group: root
+        setype: etc_t
       notify:
         - Sysctl reload
 
@@ -38,16 +71,3 @@
       loop: "{{ tripleo_kernel_sysctl_extra_settings | dict2items(key_name='key', value_name='opt') }}"
       notify:
         - Sysctl reload
-
-    - name: Install additional packages
-      package:
-        name: "{{ item.key }}"
-        state: "{{ item.opt.state | default('present') }}"
-      loop: "{{ tripleo_kernel_extra_packages | dict2items(key_name='key', value_name='opt') }}"
-
-    - name: Write list of modules to load at boot
-      template:
-        src: "tripleo-modprobe.conf.j2"
-        dest: "/etc/modules-load.d/99-tripleo.conf"
-      notify:
-        - Modules reload
