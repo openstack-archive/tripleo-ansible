@@ -16,7 +16,24 @@
 
 - name: Prepare
   hosts: all
+  gather_facts: true
   roles:
     - role: test_deps
       test_deps_extra_packages:
         - podman
+
+  post_tasks:
+    - name: Check podman version
+      command: podman version
+      register: p_ver
+      changed_when: false
+
+    - name: Print podman version
+      debug:
+        msg: |
+          podman version:
+          {{ p_ver.stdout }}
+
+          Testing with ansible {{ ansible_version.full }}
+          with python {{ ansible_python_version }}
+          on host {{ ansible_distribution }} {{ ansible_distribution_version }}
