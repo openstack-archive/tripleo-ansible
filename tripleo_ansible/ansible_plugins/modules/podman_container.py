@@ -857,7 +857,7 @@ class PodmanModuleParams:
             return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
 
     def addparam_detach(self, c):
-        return c + ['--detach'] if self.params['detach'] else c
+        return c + ['--detach=%s' % self.params['detach']]
 
     def addparam_etc_hosts(self, c):
         for host_ip in self.params['etc_hosts'].items():
@@ -988,7 +988,7 @@ class PodmanModuleParams:
         return c + ['--hostname', self.params['hostname']]
 
     def addparam_http_proxy(self, c):
-        return c + ['--http-proxy', self.params['http_proxy']]
+        return c + ['--http-proxy=%s' % self.params['http_proxy']]
 
     def addparam_image_volume(self, c):
         return c + ['--image-volume', self.params['image_volume']]
@@ -1000,7 +1000,7 @@ class PodmanModuleParams:
         return c + ['--init-path', self.params['init_path']]
 
     def addparam_interactive(self, c):
-        return c + ['--interactive'] if self.params['interactive'] else c
+        return c + ['--interactive=%s' % self.params['interactive']]
 
     def addparam_ip(self, c):
         return c + ['--ip', self.params['ip']]
@@ -1044,10 +1044,10 @@ class PodmanModuleParams:
         return c + ['--network', self.params['network']]
 
     def addparam_no_hosts(self, c):
-        return c + ['--no-hosts', self.params['no_hosts']]
+        return c + ['--no-hosts=%s' % self.params['no_hosts']]
 
     def addparam_oom_kill_disable(self, c):
-        return c + ['--oom-kill-disable', self.params['oom_kill_disable']]
+        return c + ['--oom-kill-disable=%s' % self.params['oom_kill_disable']]
 
     def addparam_oom_score_adj(self, c):
         return c + ['--oom-score-adj', self.params['oom_score_adj']]
@@ -1062,7 +1062,7 @@ class PodmanModuleParams:
         return c + ['--pod', self.params['pod']]
 
     def addparam_privileged(self, c):
-        return c + ['--privileged'] if self.params['privileged'] else c
+        return c + ['--privileged=%s' % self.params['privileged']]
 
     def addparam_publish(self, c):
         for pub in self.params['publish']:
@@ -1070,22 +1070,22 @@ class PodmanModuleParams:
         return c
 
     def addparam_publish_all(self, c):
-        return c + ['--publish-all', self.params['publish_all']]
+        return c + ['--publish-all=%s' % self.params['publish_all']]
 
     def addparam_read_only(self, c):
-        return c + ['--read-only', self.params['read_only']]
+        return c + ['--read-only=%s' % self.params['read_only']]
 
     def addparam_read_only_tmpfs(self, c):
-        return c + ['--read-only-tmpfs', self.params['read_only_tmpfs']]
+        return c + ['--read-only-tmpfs=%s' % self.params['read_only_tmpfs']]
 
     def addparam_restart_policy(self, c):
         return c + ['--restart=%s' % self.params['restart_policy']]
 
     def addparam_rm(self, c):
-        return c + ['--rm'] if self.params['rm'] else c
+        return c + ['--rm=%s' % self.params['rm']]
 
     def addparam_rootfs(self, c):
-        return c + ['--rootfs'] if self.params['rootfs'] else c
+        return c + ['--rootfs=%s' % self.params['rootfs']]
 
     def addparam_security_opt(self, c):
         return c + ['--security-opt', self.params['security_opt']]
@@ -1094,7 +1094,7 @@ class PodmanModuleParams:
         return c + ['--shm-size', self.params['shm_size']]
 
     def addparam_sig_proxy(self, c):
-        return c + ['--sig-proxy', self.params['sig_proxy']]
+        return c + ['--sig-proxy=%s' % self.params['sig_proxy']]
 
     def addparam_stop_signal(self, c):
         return c + ['--stop-signal', self.params['stop_signal']]
@@ -1116,7 +1116,7 @@ class PodmanModuleParams:
         return c
 
     def addparam_systemd(self, c):
-        return c + ['--systemd', self.params['systemd']]
+        return c + ['--systemd=%s' % self.params['systemd']]
 
     def addparam_tmpfs(self, c):
         for tmpfs in self.params['tmpfs'].items():
@@ -1124,7 +1124,7 @@ class PodmanModuleParams:
         return c
 
     def addparam_tty(self, c):
-        return c + ['--tty'] if self.params['tty'] else c
+        return c + ['--tty=%s' % self.params['tty']]
 
     def addparam_uidmap(self, c):
         for uidmap in self.params['uidmap']:
