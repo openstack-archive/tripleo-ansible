@@ -20,8 +20,10 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
 
-import yaml
+import json
+import os
 import paunch as p
+import yaml
 from paunch import runner as prunner
 from paunch.builder import compose1 as pcompose1
 from paunch.builder import podman as ppodman
@@ -50,7 +52,7 @@ description:
 options:
   config:
     description:
-      - YAML or JSON file containing configuration data
+      - JSON file or directory of JSON files containing configuration data
   config_id:
     description:
       - ID to assign to containers
@@ -143,8 +145,20 @@ class PaunchManager:
                                                    log_file=self.log_file)
 
         if self.config:
-            with open(self.config, 'r') as f:
-                self.config_yaml = yaml.safe_load(f)
+            if os.path.isdir(self.config):
+                container_configs = {}
+                config_files = [c_json for c_json in
+                                os.listdir(self.config)
+                                if c_json.endswith('.json')]
+                for cf in config_files:
+                    with open(os.path.join(self.config, cf), 'r') as f:
+                        c = os.path.splitext(cf)[0]
+                        container_configs[c] = {}
+                        container_configs[c].update(yaml.safe_load(f))
+                self.config_yaml = container_configs
+            else:
+                with open(self.config, 'r') as f:
+                    self.config_yaml = yaml.safe_load(f)
 
         if self.action == 'apply':
             self.paunch_apply()
