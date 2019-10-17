@@ -14,7 +14,7 @@
 {% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
 {% for network in enabled_networks %}
 {%   if network == 'StorageNFS' %}
-{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[storagenfs_net_name])) %}
+{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['StorageNFS']['name_lower']])) %}
 {%   endif %}
 {%   if network == 'StorageDashboard' %}
 {%     set _ = vip_data.__setitem__('ceph_grafana_vip', (net_vip_map.storage_dashboard)) %}
