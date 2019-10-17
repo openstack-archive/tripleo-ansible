@@ -32,6 +32,10 @@
   tags:
     - always
 
+- name: Gather podman infos
+  podman_container_info: {}
+  register: podman_containers
+
 - name: Create container logs path
   file:
     path: "{{ tripleo_container_manage_log_path }}"
@@ -72,6 +76,9 @@
     - tripleo_container_manage_cli == 'podman'
   become: true
   block:
-    - name: "Manage Podman containers in {{ tripleo_container_manage_config }}"
-      include_tasks: podman.yaml
+    - name: "Cleanup Podman containers from {{ tripleo_container_manage_config }}"
+      include_tasks: delete_podman.yaml
+      loop: "{{ podman_containers.containers | needs_delete(config=all_containers_hash, config_id=tripleo_container_manage_config_id) }}"
+    - name: "Create Podman containers from {{ tripleo_container_manage_config }}"
+      include_tasks: create_podman.yaml
       loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) }}"

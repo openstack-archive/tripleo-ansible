@@ -1,6 +1,6 @@
 [Unit]
-Description={{ item.0 }} container healthcheck
-PartOf={{ item.0 }}.service
+Description=tripleo_{{ item.0 }} container healthcheck
+PartOf=tripleo_{{ item.0 }}.service
 [Timer]
 OnActiveSec=120
 OnUnitActiveSec={{ item.1.check_interval | default(60) }}

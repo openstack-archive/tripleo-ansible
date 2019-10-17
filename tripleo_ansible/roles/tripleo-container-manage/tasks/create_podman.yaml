@@ -24,15 +24,11 @@
       command: "{{ tripleo_container_manage_cli }} container exists {{ item.1.command.0 }}"
     - name: "Check if {{ item.1.command.0 }} container is running"
       block:
-        - name: "Gather podman infos for {{ item.1.command.0 }}"
-          podman_container_info:
-            name: "{{ item.1.command.0 }}"
-          register: podman_containers
         - name: "Fail if {{ item.1.command.0 }} is not running"
           fail:
             msg: "Can't run container exec for {{ item.0 }}, {{ item.1.command.0 }} is not running"
           when:
-            - not podman_containers.0.State.Running
+            - not podman_containers.containers.0.State.Running
     - name: "Prepare the exec command for {{ item.0 }}"
       set_fact:
         cmd_template:
@@ -45,6 +41,7 @@
         argv: "{{ cmd_template + item.1.command }}"
 
 - name: "Manage container for {{ item.0 }}"
+  when: item.1.action is not defined
   podman_container:
     cap_add: "{{ item.1.cap_add | default(omit) }}"
     cap_drop: "{{ item.1.cap_drop | default(omit) }}"
@@ -89,8 +86,7 @@
     uts: "{{ item.1.uts | default(omit) }}"
     volume: "{{ item.1.volumes | default(omit) }}"
     volumes_from: "{{ item.1.volumes_from | default([]) }}"
-  when:
-    - item.1.action is not defined
+  register: podman_container
 
 - name: Manage systemd service for {{ item.0 }}
   when:
@@ -132,7 +128,7 @@
             enabled: true
             daemon_reload: true
           when:
-            - systemd_file.changed
+            - systemd_file.changed or podman_container.changed
         - name: "Manage systemd healthcheck for {{ item.0 }}"
           when:
             - not tripleo_container_manage_healthcheck_disabled

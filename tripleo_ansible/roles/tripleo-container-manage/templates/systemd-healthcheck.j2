@@ -1,7 +1,7 @@
 [Unit]
-Description={{ item.0 }} healthcheck
+Description=tripleo_{{ item.0 }} healthcheck
 After=paunch-container-shutdown.service tripleo_{{ item.0 }}.service
-Requisite={{ item.0 }}.service
+Requisite=tripleo_{{ item.0 }}.service
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/podman exec {{ item.0 }} {{ item.1.healthcheck.test }}
