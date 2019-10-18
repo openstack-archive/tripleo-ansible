@@ -23,6 +23,7 @@ from ansible.module_utils.basic import AnsibleModule
 import json
 import os
 import paunch as p
+import re
 import yaml
 from paunch import runner as prunner
 from paunch.builder import compose1 as pcompose1
@@ -149,10 +150,11 @@ class PaunchManager:
                 container_configs = {}
                 config_files = [c_json for c_json in
                                 os.listdir(self.config)
-                                if c_json.endswith('.json')]
+                                if c_json.startswith('hashed-')
+                                and c_json.endswith('.json')]
                 for cf in config_files:
                     with open(os.path.join(self.config, cf), 'r') as f:
-                        c = os.path.splitext(cf)[0]
+                        c = re.sub('^hashed-', '', os.path.splitext(cf)[0])
                         container_configs[c] = {}
                         container_configs[c].update(yaml.safe_load(f))
                 self.config_yaml = container_configs
