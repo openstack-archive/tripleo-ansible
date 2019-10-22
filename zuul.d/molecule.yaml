@@ -37,6 +37,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
       - tripleo-ansible-centos-7-molecule-backup-and-restore
       - tripleo-ansible-centos-7-molecule-tripleo-packages
+      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -74,6 +75,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-sshd
       - tripleo-ansible-centos-7-molecule-backup-and-restore
       - tripleo-ansible-centos-7-molecule-tripleo-packages
+      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -329,3 +331,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-packages
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-hosts-entries/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-hosts-entries
