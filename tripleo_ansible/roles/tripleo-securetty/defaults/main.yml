@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_securetty"
 tripleo_ttys: []

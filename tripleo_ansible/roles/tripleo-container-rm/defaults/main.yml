@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 # NOTE(cloudnull): This role used to use a non-namespaced option, which has a high
 #                  probability of creating conflicts with other roles in the greater

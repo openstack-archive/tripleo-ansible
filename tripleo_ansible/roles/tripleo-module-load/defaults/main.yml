@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 # Load specific kernel modules using a list of hashes. This variable also
 # takes the keyword "params" and "state". Params is assumed to be `null` and

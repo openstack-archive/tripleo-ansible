@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 # Packages installed on the local system. Allows user to define this list
 # otherwise it will inherit from the OS specific variable file(s).

@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 tripleo_container_registry_insecure_registries: []
 tripleo_container_registry_login: false
