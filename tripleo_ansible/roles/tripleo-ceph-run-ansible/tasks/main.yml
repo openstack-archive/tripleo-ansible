@@ -46,6 +46,7 @@
       - '{{ playbook_dir }}/ceph-ansible/inventory.yml'
       - '--extra-vars'
       - '@{{ playbook_dir }}/ceph-ansible/extra_vars.yml'
+      - '{% if ceph_ansible_limit is defined and ceph_ansible_limit|length > 0 %}--limit {{ ceph_ansible_limit }}{% endif %}'
 
 - name: save ceph-ansible playbook command(s) to shell script
   copy:
