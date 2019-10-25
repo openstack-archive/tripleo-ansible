@@ -1,0 +1,9 @@
+[Unit]
+Description={{ item.0 }} container healthcheck
+PartOf={{ item.0 }}.service
+[Timer]
+OnActiveSec=120
+OnUnitActiveSec={{ item.1.check_interval | default(60) }}
+RandomizedDelaySec={{ 45 if item.1.check_interval is not defined else (item.1.check_interval * 3 / 4) | int | abs }}
+[Install]
+WantedBy=timers.target
