@@ -39,8 +39,6 @@
     owner: root
     group: root
   become: true
-  when:
-    - tripleo_container_manage_log_path is defined
 
 - name: Generate containers configs data
   no_log: true
@@ -68,7 +66,7 @@
 
 - name: Manage containers with Podman
   when:
-    - tripleo_container_cli == 'podman'
+    - tripleo_container_manage_cli == 'podman'
   become: true
   block:
     - name: "Manage Podman containers at step {{ step }}"

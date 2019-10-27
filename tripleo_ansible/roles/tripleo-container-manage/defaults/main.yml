@@ -18,4 +18,6 @@
 # All variables intended for modification should place placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
-tripleo_container_cli: podman
+tripleo_container_manage_cli: podman
+tripleo_container_manage_log_path: '/var/log/containers/stdouts'
+tripleo_container_manage_healthcheck_disabled: false

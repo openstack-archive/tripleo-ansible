@@ -20,7 +20,7 @@
     - item.1.action == 'exec'
   block:
     - name: "Check if {{ item.1.command.0 }} container exists"
-      command: "{{ tripleo_container_cli }} container exists {{ item.1.command.0 }}"
+      command: "{{ tripleo_container_manage_cli }} container exists {{ item.1.command.0 }}"
     - name: "Check if {{ item.1.command.0 }} container is running"
       block:
         - name: "Gather podman infos for {{ item.1.command.0 }}"
@@ -35,7 +35,7 @@
     - name: "Prepare the exec command for {{ item.0 }}"
       set_fact:
         cmd_template:
-          - "{{ tripleo_container_cli }}"
+          - "{{ tripleo_container_manage_cli }}"
           - "exec"
           - "-u"
           - "{{ item.1.user if item.1.user is defined else 'root' }}"
@@ -65,7 +65,7 @@
       container_name: "{{ item.0 }}"
       managed_by: tripleo_ansible
       config_data: "{{ item.1 | to_json }}"
-    log_driver: "{{ 'k8s-file' if tripleo_container_manage_log_path is defined else '' }}"
+    log_driver: 'k8s-file'
     # log_opt: |
     #   "{{ 'path=' if tripleo_container_manage_log_path is defined else '' }}
     #   {{ tripleo_container_manage_log_path | default('') }}
@@ -134,7 +134,7 @@
             - systemd_file.changed
         - name: "Manage systemd healthcheck for {{ item.0 }}"
           when:
-            - not (container_healthcheck_disabled | default(false))
+            - not tripleo_container_manage_healthcheck_disabled
             - item.1.healthcheck is defined
           block:
             - name: "Create systemd unit file for {{ item.0 }} healthcheck"
