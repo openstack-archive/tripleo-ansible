@@ -53,15 +53,18 @@
         src: "{{ item.path }}"
       register: containers_data
       loop: "{{ hashed_files.files }}"
-    - set_fact:
-        container_hash: "{'{{ item.source|basename|regex_replace('^hashed-','')|regex_replace('.json$','')}}': {{item.content|b64decode|from_json}} }"
+    - name: Prepare container hashes from config
+      set_fact:
+        container_hash: "{'{{ item.source|basename|regex_replace('^hashed-','')|regex_replace('.json$','') }}': {{ item.content|b64decode|from_json }} }"
       register: container_hashes
       loop: "{{ containers_data['results'] }}"
-    - set_fact:
+    - name: Compile container hashes from results
+      set_fact:
         container_hash: "{{ item.ansible_facts.container_hash | combine(item.ansible_facts.container_hash) }}"
       register: container_hashes
       loop: "{{ container_hashes.results }}"
-    - set_fact:
+    - name: Finalise hashes for all containers
+      set_fact:
         all_containers_hash: "{{ container_hashes.results | map(attribute='ansible_facts.container_hash') | list | singledict() }}"
 
 - name: Manage containers with Podman
