@@ -1,0 +1,118 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+- name: Overcloud Node Provide
+  connection: local
+  hosts: localhost
+  pre_tasks:
+    - name: Check for required inputs
+      fail:
+        msg: >
+          `node_uuids` or `all_manageable` are required inputs but
+          currently undefined. Check you inputs and try again.
+      when:
+        - node_uuids is undefined
+        - all_manageable is undefined
+
+    - name: Check for required inputs
+      fail:
+        msg: >
+          The option `all_manageable` is "false" but `node_uuids` is
+          undefined. Check your inputs and try again.
+      when:
+        - node_uuids is undefined
+        - not (all_manageable | bool)
+  tasks:
+    - name: Run all manageable block
+      block:
+        # Get Node UUIDs, if "all_manageable" is True
+        - name: Get node UUIDS
+          command: >
+            openstack baremetal node list --provision-state=manageable -c UUID -f value
+          register: command_output
+          changed_when: false
+
+        - name: Set node_uuids fact
+          set_fact:
+            node_uuids: "{{ command_output.stdout_lines }}"
+      when:
+        - all_manageable | bool
+        - node_uuids is undefined
+
+    - name: exit if nothing to do
+      block:
+        - name: Notice
+          debug:
+            msg: No nodes are manageable at this time.
+
+        - name: end play
+          meta: end_play
+      when:
+        - (node_uuids | length) < 1
+
+    # Set nodes to available
+    - name: Make nodes available
+      command: >-
+        openstack baremetal node provide {{ item }} --wait 1200
+      loop: "{{ node_uuids }}"
+      async: 2400
+      poll: 0
+      register: node_provide
+
+    - name: poll for completion
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      loop: "{{ node_provide.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      register: wait
+      until: wait.finished
+      retries: 120
+
+    # Run cellv2 discovery of hosts
+    - name: Run cell_v2 host discovery
+      command: podman exec nova_api /bin/nova-manage cell_v2 discover_hosts --verbose
+      changed_when: false
+      become: true
+
+    - name: Wait for nova resources
+      command: >-
+        openstack hypervisor show {{ item }}
+      loop: "{{ node_uuids }}"
+      changed_when: false
+      register: hypervisor_check
+      until: hypervisor_check is success
+      delay: 30
+      retries: 30
+
+    # Power off nodes the nodes
+    - name: Power off nodes
+      command: >-
+        openstack baremetal node power off {{ item }}
+      loop: "{{ node_uuids }}"
+      async: 2400
+      poll: 0
+      register: node_power_off
+
+    - name: poll for completion
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      loop: "{{ node_power_off.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      register: wait
+      until: wait.finished
+      retries: 120
