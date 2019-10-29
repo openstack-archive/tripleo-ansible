@@ -17,7 +17,7 @@
 
 # All variables intended for modification should be placed in this file.
 
-# All variables within this role should have a prefix of "tripleo_tripleo_container_image_prepare"
+# All variables within this role should have a prefix of "tripleo_container_image_prepare"
 tripleo_container_image_prepare_debug: false
 tripleo_container_image_prepare_content: {}
 tripleo_container_image_prepare_roles: []
