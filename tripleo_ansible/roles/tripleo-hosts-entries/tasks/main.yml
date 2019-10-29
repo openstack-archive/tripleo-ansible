@@ -1,0 +1,44 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Update /etc/hosts
+  become: true
+  blockinfile:
+    create: true
+    path: "{{ tripleo_hosts_entries_hosts_path }}"
+    block: |
+      {{ tripleo_hosts_entries_undercloud_hosts_entries | join('') }}
+
+      {{ tripleo_hosts_entries_vip_hosts_entries | join('') }}
+
+      {% for host in groups['overcloud'] %}
+      {{ hostvars[host][hostvars[host]['hostname_resolve_network'] ~ '_ip'] ~ ' ' ~
+         host ~ '.' ~ cloud_domain ~ ' ' ~ host }}
+      {% if role_networks is not none %}
+      {% for network in role_networks | default([]) %}
+      {{ hostvars[host][networks[network]['name_lower'] ~ '_ip'] ~ ' ' ~
+         host ~ '.' ~ networks[network]['name_lower'] ~ '.' ~ cloud_domain ~ ' ' ~
+         host ~ '.' ~ networks[network]['name_lower'] }}
+      {% endfor %}
+      {% endif %}
+      {{ hostvars[host]['ctlplane_ip'] ~ ' ' ~
+         host ~ '.ctlplane' ~ '.' ~ cloud_domain ~ ' ' ~ host ~ '.ctlplane' }}
+
+      {% endfor %}
+
+      {{ tripleo_hosts_entries_extra_hosts_entries | join('') }}
+  tags:
+    - tripleo_hosts_entries
