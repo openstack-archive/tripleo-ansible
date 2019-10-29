@@ -19,3 +19,18 @@
   hosts: all
   roles:
     - role: test_deps
+      test_deps_extra_packages:
+        - podman
+  tasks:
+    - name: Prepare the contianer configs directory
+      file:
+        path: '/tmp/container-configs'
+        state: directory
+    - name: Create a configuration file for a fedora container
+      copy:
+        content: |
+          {
+            "image": "fedora:latest",
+            "net": "host"
+          }
+        dest: '/tmp/container-configs/fedora.json'

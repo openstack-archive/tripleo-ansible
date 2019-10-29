@@ -19,7 +19,9 @@ git               [platform:rpm]
 libffi-devel      [platform:rpm]
 openssl-devel     [platform:rpm]
 python-devel      [platform:rpm !platform:rhel-8 !platform:centos-8]
-python3-devel      [platform:rpm !platform:rhel-7 !platform:centos-7]
+python3-devel     [platform:rpm !platform:rhel-7 !platform:centos-7]
+PyYAML            [platform:rpm !platform:rhel-8 !platform:centos-8]
+python3-pyyaml    [platform:rpm !platform:rhel-7 !platform:centos-7]
 python2-dnf       [platform:fedora]
 
 # For SELinux

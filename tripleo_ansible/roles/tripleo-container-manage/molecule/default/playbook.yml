@@ -17,5 +17,10 @@
 
 - name: Converge
   hosts: all
-  roles:
-    - role: "tripleo-container-manage"
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: '*.json'
+  tasks:
+    - include_role:
+        name: tripleo-container-manage
