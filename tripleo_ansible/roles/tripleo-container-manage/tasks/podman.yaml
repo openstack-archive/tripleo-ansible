@@ -15,6 +15,7 @@
 # under the License.
 
 - name: "Execute a command within a running container for {{ item.0 }}"
+  check_mode: false
   when:
     - item.1.action is defined
     - item.1.action == 'exec'
@@ -61,7 +62,7 @@
     interactive: "{{ item.1.interactive | default(false) }}"
     ipc: "{{ item.1.ipc | default(omit) }}"
     label:
-      config_id: "tripleo_step{{ step }}"
+      config_id: "{{ tripleo_container_manage_config_id }}"
       container_name: "{{ item.0 }}"
       managed_by: tripleo_ansible
       config_data: "{{ item.1 | to_json }}"

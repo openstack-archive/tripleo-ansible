@@ -19,5 +19,9 @@
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
 tripleo_container_manage_cli: podman
-tripleo_container_manage_log_path: '/var/log/containers/stdouts'
+tripleo_container_manage_config: "/var/lib/tripleo-config/"
+tripleo_container_manage_config_id: tripleo
+tripleo_container_manage_config_patterns: 'hashed-*.json'
+tripleo_container_manage_debug: false
 tripleo_container_manage_healthcheck_disabled: false
+tripleo_container_manage_log_path: '/var/log/containers/stdouts'
