@@ -14,8 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 - name: Prepare
   hosts: all
   roles:
     - role: test_deps
+  post_tasks:
+    - name: Create temp host file
+      copy:
+        content: |
+          HEAT_HOSTS_START - Do not edit manually within this section!
+          0.0.0.0 test test.domain.local
+          0.0.0.1 test test.domain.local
+          HEAT_HOSTS_END
+        dest: "{{ tripleo_hosts_entries_hosts_path }}"
