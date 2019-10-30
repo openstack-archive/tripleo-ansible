@@ -17,6 +17,7 @@
           - .*.md$
           - .*.rst$
           - .*.txt$
+          - ^_skeleton_role_/.*
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
       - tripleo-ci-centos-7-scenario001-standalone: &scenario001
