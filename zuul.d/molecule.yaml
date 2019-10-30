@@ -343,6 +343,9 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-manage/.*
+    - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
+    - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
+    - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
     name: tripleo-ansible-centos-7-molecule-tripleo-container-manage
     parent: tripleo-ansible-centos-7-base
     vars:
