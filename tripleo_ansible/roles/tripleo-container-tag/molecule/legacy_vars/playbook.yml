@@ -20,11 +20,11 @@
   become: true
   roles:
     - role: "tripleo-container-tag"
-      container_image: fedora:28
+      container_image: centos:8
       container_image_latest: test-latest
       container_cli: podman
     - role: "tripleo-container-tag"
-      container_image: fedora:28
+      container_image: centos:8
       container_image_latest: test-latest-2
       container_cli: podman
       container_pull_image: false

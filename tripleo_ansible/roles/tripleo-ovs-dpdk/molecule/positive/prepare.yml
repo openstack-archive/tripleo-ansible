@@ -24,7 +24,7 @@
     - name: Install ovs
       package:
         name:
-          - openvswitch
+          - openvswitch*
           - libibverbs
         state: present
 

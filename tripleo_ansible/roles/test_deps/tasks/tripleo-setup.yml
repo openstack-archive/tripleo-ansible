@@ -33,11 +33,6 @@
         name: "{{ test_deps_repo }}/{{ tripleo_package_fact }}"
         state: present
 
-    - name: Enable tripleo repository
-      command: >-
-        tripleo-repos {{ test_deps_tripleo_repos }}
-      changed_when: false
-
     - name: Install tripleo packages
       package:
         name: "{{ test_deps_tripleo_packages }}"

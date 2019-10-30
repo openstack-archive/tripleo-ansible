@@ -29,28 +29,30 @@ platforms:
       - /dev:/dev
       - /lib/modules:/lib/modules
 
-  - name: fedora28
-    hostname: fedora28
-    image: fedora:28
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: >-
-      /sbin/init &&
-      /bin/mkdir -p /var/run/dbus &&
-      /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
-      /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-    privileged: true
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - ALL
-    volumes:
-      - /dev:/dev
-      - /lib/modules:/lib/modules
+# TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
+#
+#  - name: centos8
+#    hostname: centos8
+#    image: centos:8
+#    dockerfile: Dockerfile
+#    pkg_extras: python*-setuptools
+#    environment:
+#      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+#      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+#    command: >-
+#      /sbin/init &&
+#      /bin/mkdir -p /var/run/dbus &&
+#      /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
+#      /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
+#    privileged: true
+#    tmpfs:
+#      - /run
+#      - /tmp
+#    capabilities:
+#      - ALL
+#    volumes:
+#      - /dev:/dev
+#      - /lib/modules:/lib/modules
 
 provisioner:
   name: ansible

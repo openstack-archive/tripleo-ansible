@@ -16,9 +16,9 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
-  - name: fedora28
-    hostname: fedora28
-    image: fedora:28
+  - name: centos8
+    hostname: centos8
+    image: centos:8
     dockerfile: Dockerfile
     pkg_extras: python*-setuptools
     environment:
@@ -51,7 +51,7 @@ provisioner:
         children:
           overcloud:
             hosts:
-              fedora28:
+              centos8:
                 hostname_resolve_network: ctlplane
                 ctlplane_ip: 192.168.24.1
                 internal_api_ip: 172.17.0.1
