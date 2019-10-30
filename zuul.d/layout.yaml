@@ -20,6 +20,7 @@
           - .*.txt$
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
+          - ^tripleo_ansible/roles/test_deps/.*
       - tripleo-ci-centos-7-scenario001-standalone: &scenario001
           files:
           - ^tripleo_ansible/roles/tripleo-hieradata/.*

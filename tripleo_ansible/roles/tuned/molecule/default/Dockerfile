@@ -22,7 +22,7 @@ FROM {{ item.image }}
 {% endif %}
 
 RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y python sudo bash ca-certificates && apt-get clean; \
-    elif [ $(command -v dnf) ]; then dnf makecache && dnf --assumeyes install python sudo python-devel python*-dnf bash {{ item.pkg_extras | default('') }} && dnf clean all; \
+    elif [ $(command -v dnf) ]; then dnf makecache && dnf --assumeyes install sudo python*-devel python*-dnf bash {{ item.pkg_extras | default('') }} && dnf clean all; \
     elif [ $(command -v yum) ]; then yum makecache fast && yum install -y python sudo yum-plugin-ovl python-setuptools bash {{ item.pkg_extras | default('') }} && sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf && yum clean all; \
     elif [ $(command -v zypper) ]; then zypper refresh && zypper install -y python sudo bash python-xml {{ item.pkg_extras | default('') }} && zypper clean -a; \
     elif [ $(command -v apk) ]; then apk update && apk add --no-cache python sudo bash ca-certificates {{ item.pkg_extras | default('') }}; \

@@ -32,7 +32,7 @@
         state: latest
 
     - name: Pull container image
-      command: "podman pull fedora:28"
+      command: "podman pull centos:8"
 
     - name: Create test containers
       command: "podman run -itd --systemd --name {{ item }} fedora bash"

@@ -25,25 +25,6 @@ platforms:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: fedora28
-    hostname: fedora28
-    image: fedora:28
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools ntp cronie rsyslog
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    privileged: true
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - SYS_ADMIN
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
 provisioner:
   name: ansible
   log: true

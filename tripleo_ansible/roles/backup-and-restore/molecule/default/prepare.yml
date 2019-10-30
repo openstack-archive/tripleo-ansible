@@ -76,7 +76,7 @@
 
     - name: pull an image
       docker_image:
-        name: fedora:28
+        name: centos:8
         source: pull
       vars:
         ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
@@ -84,7 +84,7 @@
     - name: Create a data container
       docker_container:
         name: "{{ item }}"
-        image: fedora:28
+        image: centos:8
         detach: true
         command: sleep 1d
       with_items:
