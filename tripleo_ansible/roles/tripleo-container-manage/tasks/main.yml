@@ -41,14 +41,14 @@
   become: true
 
 - name: Generate containers configs data
-  no_log: true
+  no_log: "{{ false if tripleo_container_manage_debug else true }}"
   block:
-    - name: "Find all hashed configs configs for step {{ step }}"
+    - name: "Find all matching configs configs for in {{ tripleo_container_manage_config }}"
       find:
-        paths: "/var/lib/tripleo-config/container-startup-config/step_{{ step }}"
-        patterns: 'hashed-*.json'
-      register: hashed_files
-    - name: "Read config for each container at step {{ step }}"
+        paths: "{{ tripleo_container_manage_config }}"
+        patterns: "{{ tripleo_container_manage_config_patterns }}"
+      register: matched_files
+    - name: "Read config for each container in {{ tripleo_container_manage_config }}"
       slurp:
         src: "{{ item.path }}"
       register: containers_data
@@ -72,6 +72,6 @@
     - tripleo_container_manage_cli == 'podman'
   become: true
   block:
-    - name: "Manage Podman containers at step {{ step }}"
+    - name: "Manage Podman containers in {{ tripleo_container_manage_config }}"
       include_tasks: podman.yaml
       loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) }}"
