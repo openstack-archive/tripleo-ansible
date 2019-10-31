@@ -15,4 +15,8 @@
 # under the License.
 
 - import_tasks: prepare.yml
+  when:
+    - nodes_data is undefined
 - import_tasks: gather.yml
+  when:
+    - nodes_uuid_list is undefined

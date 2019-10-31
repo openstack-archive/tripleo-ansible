@@ -39,7 +39,15 @@ galaxy_info:
     - tripleo
 
 dependencies:
-  - tripleo-ceph-common
-  - tripleo-ceph-work-dir
-  - tripleo-ceph-fetch-dir
-  - tripleo-ceph-uuid
+  - role: tripleo-ceph-common
+    when:
+      - ceph_common_done is undefined
+  - role: tripleo-ceph-work-dir
+    when:
+      - ceph_ansible_private_key_file is undefined
+  - role: tripleo-ceph-fetch-dir
+    when:
+      - ceph_node_cleaned is undefined
+  - role: tripleo-ceph-uuid
+    when:
+      - (nodes_uuid_list is undefined) or (nodes_data is undefined)

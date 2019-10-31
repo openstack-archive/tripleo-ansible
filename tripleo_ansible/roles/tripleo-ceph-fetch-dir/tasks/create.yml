@@ -87,3 +87,7 @@
       when:
         - curl_get_http_status is changed
         - curl_get_http_status.stdout == "200"
+
+- name: Set cleaned fact
+  set_fact:
+    ceph_node_cleaned: true

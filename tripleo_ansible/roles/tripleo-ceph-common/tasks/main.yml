@@ -14,9 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-# "tripleo-ceph-common" will search for and load any operating system variable file
-
 - name: set basic user fact
   set_fact:
     ansible_user: "{{ lookup('env', 'USER') }}"
@@ -29,17 +26,20 @@
   when:
     - ansible_user_dir is undefined
 
-- name: set default for calling_ansible_environment_variables
-  set_fact:
-    calling_ansible_environment_variables: []
-
-- when: ceph_ansible_inherits_calling_ansible_environment
+- name: Local environment inherit
+  when:
+    - (ceph_ansible_inherits_calling_ansible_environment | default(false)) | bool
   block:
     - name: get all ansible environment variables
       shell: "env | grep ANSIBLE_"
       register: env_shell_output
       ignore_errors: true
+      delegate_to: localhost
+      connection: local
+      run_once: true
+
     - name: set calling_ansible_environment_variables
+      run_once: true
       set_fact:
         calling_ansible_environment_variables: "{{ env_shell_output.stdout_lines }}"
       when:
@@ -47,3 +47,7 @@
         - env_shell_output.rc == 0
         - env_shell_output.stdout_lines is defined
         - (env_shell_output.stdout_lines|length) > 0
+
+- name: Set common fact
+  set_fact:
+    ceph_common_done: true
