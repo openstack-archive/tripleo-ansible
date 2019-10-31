@@ -24,7 +24,6 @@ import json
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils.podman.common import run_podman_command
 from ansible.module_utils._text import to_bytes, to_native
 
 ANSIBLE_METADATA = {
@@ -1176,14 +1175,10 @@ def ensure_image_exists(module, image):
     module_exec = module.params['executable']
     if not image:
         return image_actions
-    rc, out, err = run_podman_command(module, executable=module_exec,
-                                      args=['image', 'exists', image],
-                                      ignore_errors=True)
+    rc, out, err = module.run_command([module_exec, 'image', 'exists', image])
     if rc == 0:
         return image_actions
-    rc, out, err = run_podman_command(module, executable=module_exec,
-                                      args=['image', 'pull', image],
-                                      ignore_errors=True)
+    rc, out, err = module.run_command([module_exec, 'image', 'pull', image])
     if rc != 0:
         module.fail_json(msg="Can't pull image %s" % image, stdout=out,
                          stderr=err)
@@ -1235,10 +1230,8 @@ class PodmanContainer:
 
     def get_info(self):
         """Inspect container and gather info about it."""
-        rc, out, err = run_podman_command(
-            module=self.module,
-            executable=self.module.params['executable'],
-            args=['container', 'inspect', self.name], ignore_errors=True)
+        rc, out, err = self.module.run_command(
+            [self.module.params['executable'], b'container', b'inspect', self.name])
         return json.loads(out)[0] if rc == 0 else {}
 
     def _perform_action(self, action):
@@ -1252,10 +1245,9 @@ class PodmanContainer:
                                        ).construct_command_from_params()
         self.module.log("PODMAN-CONTAINER-DEBUG: " +
                         "%s" % " ".join([to_native(i) for i in b_command]))
-        rc, out, err = run_podman_command(
-            module=self.module,
-            args=[b'container'] + b_command,
-            ignore_errors=True)
+        rc, out, err = self.module.run_command(
+            [self.module.params['executable'], b'container'] + b_command,
+            expand_user_and_vars=False)
         self.stdout = out
         self.stderr = err
         if rc != 0:
