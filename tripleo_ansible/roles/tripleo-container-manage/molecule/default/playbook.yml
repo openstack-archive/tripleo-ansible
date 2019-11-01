@@ -17,6 +17,7 @@
 
 - name: Converge
   hosts: all
+  gather_facts: false
   vars:
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
@@ -24,3 +25,19 @@
   tasks:
     - include_role:
         name: tripleo-container-manage
+  post_tasks:
+    - name: Verify that Fedora container was created correctly
+      become: true
+      block:
+        - name: Check for fedora container
+          command: podman container exists fedora
+        - name: Gather facts about fedora container
+          podman_container_info:
+            name: fedora
+          register: fedora_infos
+        - name: Assert that fedora container has the right image
+          assert:
+            that:
+              - "'fedora:latest' in fedora_infos.ansible_facts.podman_containers.0.ImageName"
+            fail_msg: 'fedora container has wrong image'
+            success_msg: 'fedora container has the right image'
