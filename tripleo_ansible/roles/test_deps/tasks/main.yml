@@ -31,26 +31,25 @@
   tags:
     - always
 
-- include_tasks: tripleo-setup.yml
-  when:
-    - (ansible_os_family | lower) == 'redhat'
-    - test_deps_setup_tripleo | bool
-
 - name: RHEL Block
   become: true
   when:
     - (ansible_os_family | lower) == 'redhat'
-    - not (test_deps_setup_tripleo | bool)
   block:
     - name: install deplorean repo
       get_url:
-        url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/current-tripleo/delorean.repo"
+        url: "https://trunk.rdoproject.org/{{ test_deps_repo_version }}/current-tripleo/delorean.repo"
         dest: /etc/yum.repos.d/delorean.repo
 
     - name: install deplorean-deps repo
       get_url:
-        url: "https://trunk.rdoproject.org/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}-master/delorean-deps.repo"
+        url: "https://trunk.rdoproject.org/{{ test_deps_repo_version }}/delorean-deps.repo"
         dest: /etc/yum.repos.d/delorean-deps.repo
+
+- include_tasks: tripleo-setup.yml
+  when:
+    - (ansible_os_family | lower) == 'redhat'
+    - test_deps_setup_tripleo | bool
 
 - name: Package block
   become: true

@@ -25,11 +25,11 @@ platforms:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: fedora28
-    hostname: fedora28
-    image: fedora:28
+  - name: centos8
+    hostname: centos8
+    image: centos:8
     dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
+    pkg_extras: python*-setuptools NetworkManager
     environment:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"

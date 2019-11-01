@@ -9,6 +9,7 @@ pytest-xdist
 mock
 molecule>=2.22rc1,<3
 netaddr
+jinja2>=2.8.0,<3
 
 # this is required for the docs build jobs
 sphinx
