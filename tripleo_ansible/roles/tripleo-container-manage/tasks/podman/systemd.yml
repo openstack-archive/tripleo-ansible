@@ -1,0 +1,77 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+- name: Check if /etc/sysconfig/podman_drop_in exists
+  stat:
+    path: /etc/sysconfig/podman_drop_in
+  register: podman_drop_in
+- name: Set podman_drop_in fact
+  set_fact:
+    podman_drop_in: true
+  when:
+    - podman_drop_in.stat.exists
+- name: "Start systemd service for {{ item.0 }}"
+  block:
+    - name: "Remove trailing .requires for {{ item.0 }}"
+      file:
+        path: "/etc/systemd/system/tripleo_{{ item.0 }}.requires"
+        state: absent
+    - name: "Create systemd unit file for {{ item.0 }} service"
+      template:
+        src: systemd-service.j2
+        dest: "/etc/systemd/system/tripleo_{{ item.0 }}.service"
+        mode: '0644'
+        owner: root
+        group: root
+      register: systemd_file
+    - name: "Enable and start systemd service for {{ item.0 }}"
+      systemd:
+        # Restart the service if it was already running
+        state: restarted
+        name: "tripleo_{{ item.0 }}.service"
+        enabled: true
+        daemon_reload: true
+      when:
+        - systemd_file.changed or podman_container.changed
+    - name: "Manage systemd healthcheck for {{ item.0 }}"
+      when:
+        - not tripleo_container_manage_healthcheck_disabled
+        - item.1.healthcheck is defined
+      block:
+        - name: "Create systemd unit file for {{ item.0 }} healthcheck"
+          template:
+            src: systemd-healthcheck.j2
+            dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.service"
+            mode: '0644'
+            owner: root
+            group: root
+          register: systemd_healthcheck
+        - name: "Create systemd timer for {{ item.0 }} healthcheck"
+          template:
+            src: systemd-timer.j2
+            dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.timer"
+            mode: '0644'
+            owner: root
+            group: root
+          register: systemd_timer
+    - name: "Enable and start systemd timer for {{ item.0 }}"
+      systemd:
+        # Restart the timer if it was already running
+        state: restarted
+        name: "tripleo_{{ item.0 }}_healthcheck.timer"
+        enabled: true
+        daemon_reload: true
+      when:
+        - systemd_healthcheck.changed or systemd_timer.changed

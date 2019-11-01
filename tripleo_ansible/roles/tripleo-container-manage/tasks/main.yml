@@ -71,14 +71,12 @@
       set_fact:
         all_containers_hash: "{{ container_hashes.results | map(attribute='ansible_facts.container_hash') | list | singledict() }}"
 
-- name: Manage containers with Podman
+- name: "Manage containers from {{ tripleo_container_manage_config }}"
   when:
     - tripleo_container_manage_cli == 'podman'
   become: true
   block:
-    - name: "Cleanup Podman containers from {{ tripleo_container_manage_config }}"
-      include_tasks: delete_podman.yaml
-      loop: "{{ podman_containers.containers | needs_delete(config=all_containers_hash, config_id=tripleo_container_manage_config_id) }}"
-    - name: "Create Podman containers from {{ tripleo_container_manage_config }}"
-      include_tasks: create_podman.yaml
-      loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) }}"
+    - name: "Delete containers from {{ tripleo_container_manage_config }}"
+      include_tasks: delete.yml
+    - name: "Create containers from {{ tripleo_container_manage_config }}"
+      include_tasks: create.yml
