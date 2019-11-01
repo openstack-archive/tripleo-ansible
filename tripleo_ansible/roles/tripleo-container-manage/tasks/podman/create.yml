@@ -49,11 +49,7 @@
       managed_by: tripleo_ansible
       config_data: "{{ container_data | to_json }}"
     log_driver: 'k8s-file'
-    # log_opt: |
-    #   "{{ 'path=' if tripleo_container_manage_log_path is defined else '' }}
-    #   {{ tripleo_container_manage_log_path | default('') }}
-    #   {{ '/' if tripleo_container_manage_log_path is defined else '' }}
-    #   {{ container_data if tripleo_container_manage_log_path is defined else '' }}"
+    log_opt: "path={{ tripleo_container_manage_log_path }}/{{ container_name }}.log"
     memory: "{{ container_data.mem_limit | default(omit) }}"
     memory_swap: "{{ container_data.mem_swappiness | default(omit) }}"
     name: "{{ container_name }}"
