@@ -31,19 +31,27 @@ class FilterModule(object):
     def subsort(self, dict_to_sort, attribute, null_value=None):
         """Sort a hash from a sub-element.
 
-        This filter will return a sorted list of tuples from a dictionary
-        using an attribute from within the hash. If the sort attribute is
-        undefined it will be set in the returned item as the defined
-        `null_value`. This makes it possible to sort all items equally.
+        This filter will return an dictionary ordered by the attribute
+        part of each item.
         """
         for k, v in dict_to_sort.items():
             if attribute not in v:
                 dict_to_sort[k][attribute] = null_value
 
-        return sorted(
-            dict_to_sort.items(),
-            key=lambda x: x[1][attribute]
+        data = {}
+        for d in dict_to_sort.items():
+            if d[1][attribute] not in data:
+                data[d[1][attribute]] = []
+            data[d[1][attribute]].append({d[0]: d[1]})
+
+        sorted_list = sorted(
+            data.items(),
+            key=lambda x: x[0]
         )
+        ordered_dict = {}
+        for o, v in sorted_list:
+            ordered_dict[o] = v
+        return ordered_dict
 
     def singledict(self, list_to_convert):
         """Generate a single dictionary from a list of dictionaries.

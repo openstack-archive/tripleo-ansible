@@ -14,8 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: "Create containers managed by Podman for {{ tripleo_container_manage_config }}"
-  when:
-    - tripleo_container_manage_cli == 'podman'
-  include: podman/start_order.yml order="{{ item.key }}" data="{{ item.value }}"
-  loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) | dict2items | list }}"
+- name: "Batching items for start_order {{ order }}"
+  include_tasks: podman/create.yml
+  loop: "{{ data | batch(tripleo_container_manage_concurrency) | list }}"
+  loop_control:
+    loop_var: batched_container_data

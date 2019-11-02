@@ -1,20 +1,20 @@
 [Unit]
-Description={{ item.0 }} container
+Description={{ container_name }} container
 After=paunch-container-shutdown.service
-Wants={{ item.1.depends_on | default([]) | join(',') }}
+Wants={{ container_data.depends_on | default([]) | join(',') }}
 [Service]
 Restart=always
-{% if item.1.depends_on is defined and (item.1.depends_on | length > 0) and podman_drop_in | default('false') %}
-ExecStart=/usr/libexec/paunch-start-podman-container {{ item.0 }}
+{% if container_data.depends_on is defined and (container_data.depends_on | length > 0) and podman_drop_in | default('false') %}
+ExecStart=/usr/libexec/paunch-start-podman-container {{ container_name }}
 {% else %}
-ExecStart=/usr/bin/podman start {{ item.0 }}
+ExecStart=/usr/bin/podman start {{ container_name }}
 {% endif %}
-ExecStop=/usr/bin/podman stop -t {{ item.1.stop_grace_period | default(10) | int }} {{ item.0 }}
+ExecStop=/usr/bin/podman stop -t {{ container_data.stop_grace_period | default(10) | int }} {{ container_name }}
 KillMode=none
 Type=forking
-PIDFile=/var/run/{{ item.0 }}.pid
-{% if item.1.systemd_exec_flags is defined %}
-{%   for s_flag, s_value in item.1.systemd_exec_flags.items() %}
+PIDFile=/var/run/{{ container_name }}.pid
+{% if container_data.systemd_exec_flags is defined %}
+{%   for s_flag, s_value in container_data.systemd_exec_flags.items() %}
 {{ s_flag }}={{ s_value }}
 {%   endfor %}
 {% endif %}

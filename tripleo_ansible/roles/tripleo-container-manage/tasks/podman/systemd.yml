@@ -22,55 +22,55 @@
     podman_drop_in: true
   when:
     - podman_drop_in.stat.exists
-- name: "Start systemd service for {{ item.0 }}"
+- name: "Start systemd service for {{ container_name }}"
   block:
-    - name: "Remove trailing .requires for {{ item.0 }}"
+    - name: "Remove trailing .requires for {{ container_name }}"
       file:
-        path: "/etc/systemd/system/tripleo_{{ item.0 }}.requires"
+        path: "/etc/systemd/system/tripleo_{{ container_name }}.requires"
         state: absent
-    - name: "Create systemd unit file for {{ item.0 }} service"
+    - name: "Create systemd unit file for {{ container_name }} service"
       template:
         src: systemd-service.j2
-        dest: "/etc/systemd/system/tripleo_{{ item.0 }}.service"
+        dest: "/etc/systemd/system/tripleo_{{ container_name }}.service"
         mode: '0644'
         owner: root
         group: root
       register: systemd_file
-    - name: "Enable and start systemd service for {{ item.0 }}"
+    - name: "Enable and start systemd service for {{ container_name }}"
       systemd:
         # Restart the service if it was already running
         state: restarted
-        name: "tripleo_{{ item.0 }}.service"
+        name: "tripleo_{{ container_name }}.service"
         enabled: true
         daemon_reload: true
       when:
         - systemd_file.changed or podman_container.changed
-    - name: "Manage systemd healthcheck for {{ item.0 }}"
+    - name: "Manage systemd healthcheck for {{ container_name }}"
       when:
         - not tripleo_container_manage_healthcheck_disabled
-        - item.1.healthcheck is defined
+        - container_data.healthcheck is defined
       block:
-        - name: "Create systemd unit file for {{ item.0 }} healthcheck"
+        - name: "Create systemd unit file for {{ container_name }} healthcheck"
           template:
             src: systemd-healthcheck.j2
-            dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.service"
+            dest: "/etc/systemd/system/tripleo_{{ container_name }}_healthcheck.service"
             mode: '0644'
             owner: root
             group: root
           register: systemd_healthcheck
-        - name: "Create systemd timer for {{ item.0 }} healthcheck"
+        - name: "Create systemd timer for {{ container_name }} healthcheck"
           template:
             src: systemd-timer.j2
-            dest: "/etc/systemd/system/tripleo_{{ item.0 }}_healthcheck.timer"
+            dest: "/etc/systemd/system/tripleo_{{ container_name }}_healthcheck.timer"
             mode: '0644'
             owner: root
             group: root
           register: systemd_timer
-    - name: "Enable and start systemd timer for {{ item.0 }}"
+    - name: "Enable and start systemd timer for {{ container_name }}"
       systemd:
         # Restart the timer if it was already running
         state: restarted
-        name: "tripleo_{{ item.0 }}_healthcheck.timer"
+        name: "tripleo_{{ container_name }}_healthcheck.timer"
         enabled: true
         daemon_reload: true
       when:

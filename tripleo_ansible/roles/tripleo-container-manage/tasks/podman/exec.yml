@@ -14,23 +14,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: "Execute a command within a running container for {{ item.0 }}"
+- name: "Execute a command within a running container for {{ container_name }}"
   check_mode: false
   block:
-    - name: "Check if {{ item.1.command.0 }} container is running"
+    - name: "Check if {{ container_data.command.0 }} container is running"
       block:
-        - name: "Fail if {{ item.1.command.0 }} is not running"
+        - name: "Fail if {{ container_data.command.0 }} is not running"
           fail:
-            msg: "Can't run container exec for {{ item.0 }}, {{ item.1.command.0 }} is not running"
+            msg: "Can't run container exec for {{ container_name }}, {{ container_data.command.0 }} is not running"
           when:
             - not podman_containers.containers.0.State.Running
-    - name: "Prepare the exec command for {{ item.0 }}"
+    - name: "Prepare the exec command for {{ container_name }}"
       set_fact:
         cmd_template:
           - "{{ tripleo_container_manage_cli }}"
           - "exec"
           - "-u"
-          - "{{ item.1.user if item.1.user is defined else 'root' }}"
-    - name: "Run the container exec for {{ item.0 }}"
+          - "{{ container_data.user if container_data.user is defined else 'root' }}"
+    - name: "Run the container exec for {{ container_name }}"
       command:
-        argv: "{{ cmd_template + item.1.command }}"
+        argv: "{{ cmd_template + container_data.command }}"

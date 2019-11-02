@@ -19,6 +19,7 @@
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
 tripleo_container_manage_cli: podman
+tripleo_container_manage_concurrency: 1
 tripleo_container_manage_config: "/var/lib/tripleo-config/"
 tripleo_container_manage_config_id: tripleo
 tripleo_container_manage_config_patterns: 'hashed-*.json'

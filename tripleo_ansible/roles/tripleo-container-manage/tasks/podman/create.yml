@@ -14,66 +14,71 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: "Run execute task"
+- name: Prepare container facts
+  set_fact:
+    container_name: "{{ batched_container_data.0.keys() | first }}"
+    container_data: "{{ batched_container_data.0[batched_container_data.0.keys()|first] }}"
+
+- name: "{{ container_name }} : Run execute task"
   include_tasks: exec.yml
   when:
-    - item.1.action is defined
-    - item.1.action == 'exec'
+    - container_data.action is defined
+    - container_data.action == 'exec'
 
-- name: "Manage container for {{ item.0 }}"
-  when: item.1.action is not defined
+- name: "{{ container_name }} : Manage container"
+  when: container_data.action is not defined
   podman_container:
-    cap_add: "{{ item.1.cap_add | default(omit) }}"
-    cap_drop: "{{ item.1.cap_drop | default(omit) }}"
-    command: "{{ item.1.command | default(omit) }}"
-    conmon_pidfile: "/var/run/{{ item.0 }}.pid"
-    cpu_shares: "{{ item.1.cpu_shares | default(omit) | int }}"
-    # cpuset_cpus: "{{ item.1.cpuset_cpus | default(omit) }}"
-    detach: "{{ item.1.detach | default(true) }}"
-    env: "{{ item.1.environment if item.1.environment is defined and item.1.environment else {} }}"
-    env_file: "{{ item.1.env_file | default(omit) }}"
-    etc_hosts: "{{ item.1.extra_hosts | default({}) }}"
-    group_add: "{{ item.1.group_add | default(omit) }}"
-    hostname: "{{ item.1.hostname | default(omit) }}"
-    image: "{{ item.1.image }}"
-    interactive: "{{ item.1.interactive | default(false) }}"
-    ipc: "{{ item.1.ipc | default(omit) }}"
+    cap_add: "{{ container_data.cap_add | default(omit) }}"
+    cap_drop: "{{ container_data.cap_drop | default(omit) }}"
+    command: "{{ container_data.command | default(omit) }}"
+    conmon_pidfile: "/var/run/{{ container_name }}.pid"
+    cpu_shares: "{{ container_data.cpu_shares | default(omit) | int }}"
+    # cpuset_cpus: "{{ container_data.cpuset_cpus | default(omit) }}"
+    detach: "{{ container_data.detach | default(true) }}"
+    env: "{{ container_data.environment if container_data.environment is defined and container_data.environment else {} }}"
+    env_file: "{{ container_data.env_file | default(omit) }}"
+    etc_hosts: "{{ container_data.extra_hosts | default({}) }}"
+    group_add: "{{ container_data.group_add | default(omit) }}"
+    hostname: "{{ container_data.hostname | default(omit) }}"
+    image: "{{ container_data.image }}"
+    interactive: "{{ container_data.interactive | default(false) }}"
+    ipc: "{{ container_data.ipc | default(omit) }}"
     label:
       config_id: "{{ tripleo_container_manage_config_id }}"
-      container_name: "{{ item.0 }}"
+      container_name: "{{ container_name }}"
       managed_by: tripleo_ansible
-      config_data: "{{ item.1 | to_json }}"
+      config_data: "{{ container_data | to_json }}"
     log_driver: 'k8s-file'
     # log_opt: |
     #   "{{ 'path=' if tripleo_container_manage_log_path is defined else '' }}
     #   {{ tripleo_container_manage_log_path | default('') }}
     #   {{ '/' if tripleo_container_manage_log_path is defined else '' }}
-    #   {{ item.0 if tripleo_container_manage_log_path is defined else '' }}"
-    memory: "{{ item.1.mem_limit | default(omit) }}"
-    memory_swap: "{{ item.1.mem_swappiness | default(omit) }}"
-    name: "{{ item.0 }}"
-    net: "{{ item.1.net | default('none') }}"
-    pid: "{{ item.1.pid | default(omit) }}"
-    privileged: "{{ item.1.privileged | default(false) }}"
-    rm: "{{ item.1.remove | default(false) }}"
-    security_opt: "{{ item.1.security_opt | default(omit) }}"
+    #   {{ container_data if tripleo_container_manage_log_path is defined else '' }}"
+    memory: "{{ container_data.mem_limit | default(omit) }}"
+    memory_swap: "{{ container_data.mem_swappiness | default(omit) }}"
+    name: "{{ container_name }}"
+    net: "{{ container_data.net | default('none') }}"
+    pid: "{{ container_data.pid | default(omit) }}"
+    privileged: "{{ container_data.privileged | default(false) }}"
+    rm: "{{ container_data.remove | default(false) }}"
+    security_opt: "{{ container_data.security_opt | default(omit) }}"
     state: present
-    stop_signal: "{{ item.1.stop_signal | default(omit) }}"
-    stop_timeout: "{{ item.1.stop_grace_period | default(omit) | int }}"
-    tty: "{{ item.1.tty | default(false) }}"
-    ulimit: "{{ item.1.ulimit | default(omit) }}"
-    user: "{{ item.1.user | default(omit) }}"
-    uts: "{{ item.1.uts | default(omit) }}"
-    volume: "{{ item.1.volumes | default(omit) }}"
-    volumes_from: "{{ item.1.volumes_from | default([]) }}"
+    stop_signal: "{{ container_data.stop_signal | default(omit) }}"
+    stop_timeout: "{{ container_data.stop_grace_period | default(omit) | int }}"
+    tty: "{{ container_data.tty | default(false) }}"
+    ulimit: "{{ container_data.ulimit | default(omit) }}"
+    user: "{{ container_data.user | default(omit) }}"
+    uts: "{{ container_data.uts | default(omit) }}"
+    volume: "{{ container_data.volumes | default(omit) }}"
+    volumes_from: "{{ container_data.volumes_from | default([]) }}"
   register: podman_container
 
-- name: Manage systemd service for {{ item.0 }}
+- name: "{{ container_name }} : Manage systemd service }}"
   include_tasks: systemd.yml
   when:
-    - item.1.action is not defined
-    - item.1.restart is defined
+    - container_data.action is not defined
+    - container_data.restart is defined
     # systemd doesn't have the equivalent of docker unless-stopped.
     # Let's force 'always' so containers aren't restarted when stopped by
     # systemd, but restarted when in failure.
-    - item.1.restart == 'always' or item.1.restart == 'unless-stopped'
+    - container_data.restart == 'always' or container_data.restart == 'unless-stopped'
