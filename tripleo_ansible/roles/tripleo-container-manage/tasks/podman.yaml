@@ -32,7 +32,7 @@
           fail:
             msg: "Can't run container exec for {{ item.0 }}, {{ item.1.command.0 }} is not running"
           when:
-            - not podman_containers.ansible_facts.podman_containers.0.State.Running
+            - not podman_containers.0.State.Running
     - name: "Prepare the exec command for {{ item.0 }}"
       set_fact:
         cmd_template:

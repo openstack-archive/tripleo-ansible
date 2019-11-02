@@ -39,6 +39,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-packages
       - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
       - tripleo-ansible-centos-7-molecule-tripleo-container-manage
+      - tripleo-ansible-centos-7-molecule-tripleo-modules
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -78,6 +79,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-packages
       - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
       - tripleo-ansible-centos-7-molecule-tripleo-container-manage
+      - tripleo-ansible-centos-7-molecule-tripleo-modules
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -350,3 +352,11 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-container-manage
+
+- job:
+    files:
+    - ^tripleo_ansible/ansible_plugins/.*$
+    - ^tox.ini
+    - ^molecule-requirements.txt
+    name: tripleo-ansible-centos-7-molecule-tripleo-modules
+    parent: tripleo-ansible-centos-7-base

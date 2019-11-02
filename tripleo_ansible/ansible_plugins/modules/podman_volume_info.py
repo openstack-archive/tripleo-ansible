@@ -15,17 +15,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
 from __future__ import absolute_import, division, print_function
-
-import json
-import yaml
-
-from ansible.module_utils.basic import AnsibleModule
-
+__metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.0',
+    'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community'
 }
@@ -34,7 +28,7 @@ DOCUMENTATION = """
 module: podman_volume_info
 author:
   - "Sagi Shnaidman (@sshnaidm)"
-version_added: '2.9'
+version_added: '2.10'
 short_description: Gather info about podman volumes
 notes: []
 description:
@@ -65,20 +59,21 @@ RETURN = """
 volumes:
     description: Facts from all or specified volumes
     returned: always
-    type: dict
-    sample:
-    [
-        {
-            "name": "testvolume",
-            "labels": {},
-            "mountPoint": "/home/ansible/.local/share/testvolume/_data",
-            "driver": "local",
-            "options": {},
-            "scope": "local"
-        }
-    ]
-
+    type: list
+    sample: [
+                {
+                "name": "testvolume",
+                "labels": {},
+                "mountPoint": "/home/ansible/.local/share/testvolume/_data",
+                "driver": "local",
+                "options": {},
+                "scope": "local"
+                }
+        ]
 """
+
+import json
+from ansible.module_utils.basic import AnsibleModule
 
 
 def get_volume_info(module, executable, name):
@@ -88,31 +83,32 @@ def get_volume_info(module, executable, name):
     else:
         command.append("--all")
     rc, out, err = module.run_command(command)
-    if not out or rc != 0:
+    if rc != 0 or 'no such volume' in err:
+        module.fail_json(msg="Unable to gather info for %s: %s" % (name or 'all volumes', err))
+    if not out or json.loads(out) is None:
         return [], out, err
     return json.loads(out), out, err
 
 
 def main():
     module = AnsibleModule(
-        argument_spec=yaml.safe_load(DOCUMENTATION)['options'],
+        argument_spec=dict(
+            executable=dict(type='str', default='podman'),
+            name=dict(type='str')
+        ),
         supports_check_mode=True,
     )
 
-    executable = module.params['executable']
     name = module.params['name']
-    executable = module.get_bin_path(executable, required=True)
+    executable = module.get_bin_path(module.params['executable'], required=True)
 
     inspect_results, out, err = get_volume_info(module, executable, name)
 
-    results = dict(
-        changed=False,
-        volume=inspect_results,
-        stdout=out,
-        stderr=err
-    )
-    if name:
-        results.update({"exists": bool(inspect_results)})
+    results = {
+        "changed": False,
+        "volumes": inspect_results,
+        "stderr": err
+    }
 
     module.exit_json(**results)
 

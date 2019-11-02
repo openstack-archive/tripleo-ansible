@@ -38,6 +38,6 @@
         - name: Assert that fedora container has the right image
           assert:
             that:
-              - "'fedora:latest' in fedora_infos.ansible_facts.podman_containers.0.ImageName"
+              - "'fedora:latest' in fedora_infos.containers.0.ImageName"
             fail_msg: 'fedora container has wrong image'
             success_msg: 'fedora container has the right image'
