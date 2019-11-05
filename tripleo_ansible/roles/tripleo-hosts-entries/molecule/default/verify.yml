@@ -28,10 +28,10 @@
       loop:
         - 192.168.24.2 centos7.localdomain centos7
         - 192.168.24.2 centos7.ctlplane.localdomain centos7.ctlplane
-        - 172.17.0.2 centos7.internal_api.localdomain centos7.internal_api
+        - 172.17.0.2 centos7.internalapi.localdomain centos7.internalapi
         - 192.168.24.1 fedora28.localdomain fedora28
         - 192.168.24.1 fedora28.ctlplane.localdomain fedora28.ctlplane
-        - 172.17.0.1 fedora28.internal_api.localdomain fedora28.internal_api
+        - 172.17.0.1 fedora28.internalapi.localdomain fedora28.internalapi
 
     - name: slurp /tmp/hosts
       slurp:
