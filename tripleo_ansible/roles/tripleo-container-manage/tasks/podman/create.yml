@@ -35,9 +35,9 @@
     cpu_shares: "{{ container_data.cpu_shares | default(omit) | int }}"
     # cpuset_cpus: "{{ container_data.cpuset_cpus | default(omit) }}"
     detach: "{{ container_data.detach | default(true) }}"
-    env: "{{ container_data.environment if container_data.environment is defined and container_data.environment else {} }}"
+    env: "{{ container_data.environment | default({}, true) }}"
     env_file: "{{ container_data.env_file | default(omit) }}"
-    etc_hosts: "{{ container_data.extra_hosts | default({}) }}"
+    etc_hosts: "{{ container_data.extra_hosts | default(omit) }}"
     group_add: "{{ container_data.group_add | default(omit) }}"
     hostname: "{{ container_data.hostname | default(omit) }}"
     image: "{{ container_data.image }}"
@@ -66,7 +66,7 @@
     user: "{{ container_data.user | default(omit) }}"
     uts: "{{ container_data.uts | default(omit) }}"
     volume: "{{ container_data.volumes | default(omit) }}"
-    volumes_from: "{{ container_data.volumes_from | default([]) }}"
+    volumes_from: "{{ container_data.volumes_from | default(omit) }}"
   register: podman_container
 
 - name: "{{ container_name }} : Manage systemd service }}"

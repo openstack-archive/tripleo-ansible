@@ -35,6 +35,8 @@
 - name: Gather podman infos
   podman_container_info: {}
   register: podman_containers
+  when:
+    - tripleo_container_manage_cli == 'podman'
 
 - name: Create container logs path
   file:
@@ -72,8 +74,6 @@
         all_containers_hash: "{{ container_hashes.results | map(attribute='ansible_facts.container_hash') | list | singledict() }}"
 
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
-  when:
-    - tripleo_container_manage_cli == 'podman'
   become: true
   block:
     - name: "Delete containers from {{ tripleo_container_manage_config }}"
