@@ -1,0 +1,33 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Run containers execs asynchronously
+  include_tasks: podman/exec.yml
+
+- name: Manage containers asynchronously
+  include_tasks: podman/create.yml
+
+# We don't want to use async for the systemd tasks or we can have startup
+# errors when systemd has to deal with multiple services trying to start
+# at the same time. It is more reliable to start them in serial.
+- name: Manage container systemd services and healthchecks in serial
+  include_tasks: podman/systemd.yml
+  # systemd doesn't have the equivalent of docker unless-stopped.
+  # Let's force 'always' so containers aren't restarted when stopped by
+  # systemd, but restarted when in failure.
+  loop: "{{ batched_container_data | haskey(attribute='restart', value=['always','unless-stopped'], any=True) }}"
+  loop_control:
+    loop_var: container_config

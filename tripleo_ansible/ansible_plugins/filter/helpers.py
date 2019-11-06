@@ -25,7 +25,8 @@ class FilterModule(object):
         return {
             'singledict': self.singledict,
             'subsort': self.subsort,
-            'needs_delete': self.needs_delete
+            'needs_delete': self.needs_delete,
+            'haskey': self.haskey
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=None):
@@ -115,7 +116,12 @@ class FilterModule(object):
                            for c in container_infos if c_name == c['Name']]
             except KeyError:
                 continue
-            c_facts = c_facts[0] if len(c_facts) == 1 else {}
+
+            # Build c_facts so it can be compared later with config_data;
+            # both will be json.dumps objects.
+            c_facts = json.dumps(
+                json.loads(c_facts[0]).get(c_name)
+            ) if len(c_facts) == 1 else {}
 
             # 0 was picked since it's the null_value for the subsort filter.
             # When a container config doesn't provide the start_order, it'll be
@@ -131,3 +137,35 @@ class FilterModule(object):
                 continue
 
         return to_delete
+
+    def haskey(self, batched_container_data, attribute, value=None,
+               reverse=False, any=False):
+        """Return container data with a specific config key.
+
+        This filter will take a list of dictionaries (batched_container_data)
+        and will return the dictionnaries which have a certain key given
+        in parameter with 'attribute'.
+        If reverse is set to True, the returned list won't contain dictionaries
+        which have the attribute.
+        If any is set to True, the returned list will match any value in
+        the list of values for "value" parameter which has to be a list.
+        """
+        return_list = []
+        for container in batched_container_data:
+            for k, v in json.loads(json.dumps(container)).items():
+                if attribute in v and not reverse:
+                    if value is None:
+                        return_list.append({k: v})
+                    else:
+                        if isinstance(value, list) and any:
+                            if v[attribute] in value:
+                                return_list.append({k: v})
+                        elif any:
+                            raise TypeError("value has to be a list if any is "
+                                            "set to True.")
+                        else:
+                            if v[attribute] == value:
+                                return_list.append({k: v})
+                if attribute not in v and reverse:
+                    return_list.append({k: v})
+        return return_list

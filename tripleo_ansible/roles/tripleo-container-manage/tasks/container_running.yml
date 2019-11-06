@@ -13,15 +13,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+#
+- name: "Get {{ lookup('dict', container_data).value.command.0 }} container status"
+  set_fact:
+    container_running: >-
+      {{ podman_containers.containers | selectattr('Name', 'equalto', lookup('dict', container_data).value.command.0) |
+      map(attribute='State.Running') | first | default(false) }}
 
-- name: Gather podman infos
-  podman_container_info: {}
-  register: podman_containers
+- name: "Fail if {{ lookup('dict', container_data).key }} is not running"
+  fail:
+    msg: "Can't run container exec for {{ lookup('dict', container_data).key }}, {{ lookup('dict', container_data).value.command.0 }} is not running"
   when:
-    - tripleo_container_manage_cli == 'podman'
-
-- name: "Batching items for start_order {{ order }}"
-  include_tasks: podman/manage.yml
-  loop: "{{ data | batch(tripleo_container_manage_concurrency) | list }}"
-  loop_control:
-    loop_var: batched_container_data
+    - not container_running|default(false)|bool
