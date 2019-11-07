@@ -19,11 +19,16 @@
   block:
     - name: "Check if {{ container_data.command.0 }} container is running"
       block:
+        - name: Get container status
+          set_fact:
+            container_running: >-
+              {{ podman_containers.containers | selectattr('Name', 'equalto', container_data.command.0 ) |
+              map(attribute='State.Running') | first | default(false) }}
         - name: "Fail if {{ container_data.command.0 }} is not running"
           fail:
             msg: "Can't run container exec for {{ container_name }}, {{ container_data.command.0 }} is not running"
           when:
-            - not podman_containers.containers.0.State.Running
+            - not container_running|bool
     - name: "Prepare the exec command for {{ container_name }}"
       set_fact:
         cmd_template:
