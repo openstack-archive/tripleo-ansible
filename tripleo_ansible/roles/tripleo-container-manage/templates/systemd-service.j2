@@ -1,11 +1,11 @@
 [Unit]
 Description={{ container_name }} container
-After=paunch-container-shutdown.service
+After=tripleo-container-shutdown.service
 Wants={{ container_data.depends_on | default([]) | join(',') }}
 [Service]
 Restart=always
 {% if container_data.depends_on is defined and (container_data.depends_on | length > 0) and podman_drop_in | default('false') %}
-ExecStart=/usr/libexec/paunch-start-podman-container {{ container_name }}
+ExecStart=/usr/libexec/tripleo-start-podman-container {{ container_name }}
 {% else %}
 ExecStart=/usr/bin/podman start {{ container_name }}
 {% endif %}
