@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+{% if tripleo_systemd_wrapper_debug %}
+set -x
+{% endif %}
+
+function start_service {
+    local NETNS=$1
+    shift
+    local NAME="{{ tripleo_systemd_wrapper_service_name }}-${NETNS}"
+    local CLI='{{ tripleo_systemd_wrapper_container_cli }}'
+    local CMD="{{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/command"
+    local CONTAINER_CMD="ip netns exec ${NETNS} ${CMD}"
+    {% if tripleo_systemd_wrapper_container_cli == 'podman' %}
+    local LOGGING="--log-driver k8s-file --log-opt path=/var/log/containers/stdouts/${NAME}.log"
+    {% else %}
+    local LOGGING=''
+    {% endif %}
+
+    $CLI stop $NAME &> /dev/null || true
+    $CLI rm -f $NAME &> /dev/null || true
+    $CLI run --detach \
+        -v "{{ tripleo_systemd_wrapper_config_bind_mount }}" \
+        -v "/run/netns:/run/netns:shared" \
+        -v "{{ tripleo_systemd_wrapper_service_dir }}:{{ tripleo_systemd_wrapper_service_dir }}:z,shared" \
+        -v "/dev/log:/dev/log" $LOGGING \
+        --net host \
+        --pid host \
+        --privileged \
+        --rm=true \
+        -u root \
+        --name $NAME \
+        {{ tripleo_systemd_wrapper_image_name }} \
+        $CONTAINER_CMD $@
+}
+
+exec {lock_fd}>/var/lock/{{ tripleo_systemd_wrapper_service_name }}-processes.lock || exit 1
+# In case service_wrapper script already locked the commands, we just wait.
+flock "$lock_fd"
+
+IFS=$'\n'
+for LINE in $(cat {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes); do
+    NETNS=$(echo $LINE | awk '{ print $1 }')
+    IFS=$' ' ARGS=$(echo $LINE | sed -e "s|$NETNS ||" | xargs)
+    # TODO(emilien) investigate if we should rather run docker/podman ps instead of ps on the host
+    if ! ps -e -o pid,command | grep "$(echo $NETNS | sed 's|^[^-]*\-||')" | grep -v grep &> /dev/null; then
+        start_service $NETNS $ARGS
+    fi
+done
+# truncate the file so we don't start them again
+:> {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes
+
+flock -u "$lock_fd"
+
