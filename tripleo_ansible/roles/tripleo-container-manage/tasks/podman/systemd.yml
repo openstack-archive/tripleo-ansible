@@ -66,11 +66,20 @@
             owner: root
             group: root
           register: systemd_timer
-    - name: "Enable and start systemd timer for {{ container_name }}"
+    - name: "Enable and start systemd healthcheck timer for {{ container_name }}"
       systemd:
         # Restart the timer if it was already running
         state: restarted
         name: "tripleo_{{ container_name }}_healthcheck.timer"
+        enabled: true
+        daemon_reload: true
+      when:
+        - systemd_healthcheck.changed or systemd_timer.changed
+    - name: "Enable and start systemd healthcheck service for {{ container_name }}"
+      systemd:
+        # Restart the service if it was already running
+        state: restarted
+        name: "tripleo_{{ container_name }}_healthcheck.service"
         enabled: true
         daemon_reload: true
       when:
