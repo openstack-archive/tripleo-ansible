@@ -1,9 +1,9 @@
 [Unit]
-Description=tripleo_{{ container_name }} healthcheck
-After=tripleo-container-shutdown.service tripleo_{{ container_name }}.service
-Requisite=tripleo_{{ container_name }}.service
+Description=tripleo_{{ container_sysd_name }} healthcheck
+After=tripleo-container-shutdown.service tripleo_{{ container_sysd_name }}.service
+Requisite=tripleo_{{ container_sysd_name }}.service
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/podman exec {{ container_name }} {{ container_data.healthcheck.test }}
+ExecStart=/usr/bin/podman exec {{ container_sysd_name }} {{ container_sysd_data.healthcheck.test }}
 [Install]
 WantedBy=multi-user.target

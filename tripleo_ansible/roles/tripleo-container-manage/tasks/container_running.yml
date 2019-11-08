@@ -14,14 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-- name: "Get {{ lookup('dict', container_data).value.command.0 }} container status"
+- name: "Get {{ lookup('dict', container_exists_data).value.command.0 }} container status"
   set_fact:
     container_running: >-
-      {{ podman_containers.containers | selectattr('Name', 'equalto', lookup('dict', container_data).value.command.0) |
+      {{ podman_containers.containers | selectattr('Name', 'equalto', lookup('dict', container_exists_data).value.command.0) |
       map(attribute='State.Running') | first | default(false) }}
 
-- name: "Fail if {{ lookup('dict', container_data).key }} is not running"
+- name: "Fail if {{ lookup('dict', container_exists_data).key }} is not running"
   fail:
-    msg: "Can't run container exec for {{ lookup('dict', container_data).key }}, {{ lookup('dict', container_data).value.command.0 }} is not running"
+    msg: >-
+      Can't run container exec for {{ lookup('dict', container_exists_data).key }},
+      {{ lookup('dict', container_exists_data).value.command.0 }} is not running
   when:
     - not container_running|default(false)|bool
