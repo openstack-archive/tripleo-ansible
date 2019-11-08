@@ -94,13 +94,6 @@ class FilterModule(object):
                 to_delete += [c_name]
                 continue
 
-            # Remove containers managed by tripleo-ansible that aren't in
-            # config e.g. containers not needed anymore and removed by an
-            # upgrade. Note: we don't cleanup paunch-managed containers.
-            if c_name not in config:
-                to_delete += [c_name]
-                continue
-
         for c_name, config_data in config.items():
             # don't try to remove a container which doesn't exist
             if c_name not in installed_containers:
