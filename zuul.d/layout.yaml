@@ -21,6 +21,10 @@
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
           - ^tripleo_ansible/roles/test_deps/.*
+      - tripleo-ci-centos-7-undercloud-containers: &undercloud_containers
+          files:
+          - ^tripleo_ansible/.*
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario001-standalone: &scenario001
           files:
           - ^tripleo_ansible/roles/tripleo-ceph-*/.*
@@ -57,6 +61,7 @@
       - openstack-tox-linters
       - openstack-tox-docs: *tripleo-docs
       - tripleo-ci-centos-7-containers-multinode: *containers_multinode
+      - tripleo-ci-centos-7-undercloud-containers: *undercloud_containers
       - tripleo-ci-centos-7-scenario001-standalone: *scenario001
       - tripleo-ci-centos-7-scenario002-standalone: *scenario002
       - tripleo-ci-centos-7-scenario003-standalone: *scenario003
