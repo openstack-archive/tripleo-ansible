@@ -52,8 +52,8 @@
           {%- if enabled_networks | length > 0 and role_networks and role_networks | length > 0 %},
           {%- for network in enabled_networks %}
           {%- if network in role_networks %}
-          [{{ hostvars[host][networks[network]['name'] ~ '_ip'] }}]*,[{{ host }}.{{ networks[network]['name'] }}]*,{% if 1 %}{% endif %}
-          [{{ host }}.{{ networks[network]['name'] }}.{{ cloud_domain }}]*{% if not loop.last %},{% endif %}
+          [{{ hostvars[host][networks[network]['name'] ~ '_ip'] }}]*,[{{ host }}.{{ networks[network]['name'] | replace("_", "") }}]*,{% if 1 %}{% endif %}
+          [{{ hostvars[host][networks[network]['name'] ~ '_hostname'] }}]*{% if not loop.last %},{% endif %}
           {%- endif -%}
           {%- endfor -%}
           {%- endif -%}
