@@ -43,8 +43,8 @@
       {% if role_networks is not none %}
       {% for network in role_networks | default([]) %}
       {{ hostvars[host][networks[network]['name_lower'] ~ '_ip'] ~ ' ' ~
-         host ~ '.' ~ networks[network]['name_lower'] ~ '.' ~ cloud_domain ~ ' ' ~
-         host ~ '.' ~ networks[network]['name_lower'] }}
+         host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ' ' ~
+         host ~ '.' ~ network.lower() }}
       {% endfor %}
       {% endif %}
       {{ hostvars[host]['ctlplane_ip'] ~ ' ' ~
