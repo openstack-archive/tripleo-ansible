@@ -1,6 +1,7 @@
 {% set all_nodes = {} %}
-{% set _ = all_nodes.__setitem__('enabled_services', ((enabled_services + all_nodes_extra_map_data['enabled_services'] | default ([])) | unique)) %}
-{% for service in enabled_services %}
+{% set all_enabled_services = ((enabled_services + all_nodes_extra_map_data['enabled_services'] | default ([])) | unique) %}
+{% set _ = all_nodes.__setitem__('enabled_services', all_enabled_services) %}
+{% for service in all_enabled_services %}
 {# <service>_enabled: true #}
 {%   set _ = all_nodes.__setitem__((service ~ '_enabled'), true) %}
 {# <service>_node_ips: <list of ips> #}
