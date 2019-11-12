@@ -14,28 +14,36 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: "Execute a command within a running container for {{ container_name }}"
-  check_mode: false
-  block:
-    - name: "Check if {{ container_data.command.0 }} container is running"
-      block:
-        - name: Get container status
-          set_fact:
-            container_running: >-
-              {{ podman_containers.containers | selectattr('Name', 'equalto', container_data.command.0 ) |
-              map(attribute='State.Running') | first | default(false) }}
-        - name: "Fail if {{ container_data.command.0 }} is not running"
-          fail:
-            msg: "Can't run container exec for {{ container_name }}, {{ container_data.command.0 }} is not running"
-          when:
-            - not container_running|bool
-    - name: "Prepare the exec command for {{ container_name }}"
-      set_fact:
-        cmd_template:
-          - "{{ tripleo_container_manage_cli }}"
-          - "exec"
-          - "-u"
-          - "{{ container_data.user if container_data.user is defined else 'root' }}"
-    - name: "Run the container exec for {{ container_name }}"
-      command:
-        argv: "{{ cmd_template + container_data.command }}"
+- name: "Check if containers are running before doing exec"
+  include_tasks: container_running.yml
+  loop: "{{ batched_container_data | haskey(attribute='action', value='exec') }}"
+  loop_control:
+    loop_var: container_data
+
+- name: "Run actions async"
+  command:
+    argv: "{{ cmd_template + lookup('dict', container_data).value.command }}"
+  vars:
+    cmd_template:
+      - "{{ tripleo_container_manage_cli }}"
+      - "exec"
+      - "-u"
+      - "{{ lookup('dict', container_data).value.user if lookup('dict', container_data).value.user is defined else 'root' }}"
+  async: 60
+  poll: 0
+  register: exec_async_results
+  loop: "{{ batched_container_data | haskey(attribute='action', value='exec') }}"
+  loop_control:
+    loop_var: container_data
+  when: not ansible_check_mode|bool
+
+- name: "Check podman exec status"
+  async_status:
+    jid: "{{ exec_async_result_item.ansible_job_id }}"
+  loop: "{{ exec_async_results.results }}"
+  loop_control:
+    loop_var: "exec_async_result_item"
+  register: exec_async_poll_results
+  until: exec_async_poll_results.finished
+  retries: 30
+  when: not ansible_check_mode|bool

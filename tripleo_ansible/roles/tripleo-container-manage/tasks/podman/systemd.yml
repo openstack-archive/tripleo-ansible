@@ -13,15 +13,23 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 - name: Check if /etc/sysconfig/podman_drop_in exists
   stat:
     path: /etc/sysconfig/podman_drop_in
   register: podman_drop_in
+
 - name: Set podman_drop_in fact
   set_fact:
     podman_drop_in: true
   when:
     - podman_drop_in.stat.exists
+
+- name: Set container_name and container_data facts
+  set_fact:
+    container_name: "{{ lookup('dict', container_config).key }}"
+    container_data: "{{ lookup('dict', container_config).value }}"
+
 - name: "Start systemd service for {{ container_name }}"
   block:
     - name: "Remove trailing .requires for {{ container_name }}"
@@ -44,7 +52,8 @@
         enabled: true
         daemon_reload: true
       when:
-        - systemd_file.changed or podman_container.changed
+        # Re-add podman_container.changed from async
+        - systemd_file.changed
     - name: "Manage systemd healthcheck for {{ container_name }}"
       when:
         - not tripleo_container_manage_healthcheck_disabled
