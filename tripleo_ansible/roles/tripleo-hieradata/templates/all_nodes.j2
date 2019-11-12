@@ -36,11 +36,15 @@
 {% for key, value in service_net_map.items() %}
 {%   set _ = all_nodes.__setitem__(key, value) %}
 {% endfor %}
-{% if 'redis' in enabled_services %}
+{% if 'redis' in all_enabled_services %}
 {%   set _ = all_nodes.__setitem__('redis_vip', (net_vip_map.redis)) %}
 {% endif %}
-{% if 'ovn_dbs' in enabled_services and net_vip_map.ovn_dbs is defined %}
-{%   set _ = all_nodes.__setitem__('ovn_dbs_vip', (net_vip_map.ovn_dbs)) %}
+{% if 'ovn_dbs' in all_enabled_services %}
+{%   if 'ovn_dbs_vip' in all_nodes_extra_map_data %}
+{%     set _ = all_nodes.__setitem__('ovn_dbs_vip', all_nodes_extra_map_data['ovn_dbs_vip']) %}
+{%   elif net_vip_map.ovn_dbs is defined %}
+{%     set _ = all_nodes.__setitem__('ovn_dbs_vip', (net_vip_map.ovn_dbs)) %}
+{%   endif %}
 {% endif %}
 {% if hieradata_localhost_address is undefined %}
 {%   set hieradata_localhost_address = ('ipv6' in (ansible_lo | default({}))) | ternary('localhost', '127.0.0.1') %}
