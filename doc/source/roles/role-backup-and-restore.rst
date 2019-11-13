@@ -125,4 +125,3 @@ Lastly, we execute the actual backup step.
       --become-user root \
       --tags bar_create_recover_image \
       ~/bar_rear_create_restore_images.yaml
-
