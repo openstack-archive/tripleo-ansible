@@ -71,17 +71,11 @@
           assert:
             that:
               - image is changed
-              - image.ansible_facts is defined
-              - image.ansible_facts.podman_container is defined
-              - image.ansible_facts.podman_container['State']['Running']
               - image.container is defined
               - image.container['State']['Running']
               - "'pulled image alpine:3.7' in image.actions"
               - "'started container' in image.actions"
               - image2 is changed
-              - image2.ansible_facts is defined
-              - image2.ansible_facts.podman_container is defined
-              - image2.ansible_facts.podman_container['State']['Running']
               - image2.container is defined
               - image2.container['State']['Running']
               - "'pulled image alpine:3.7' not in image2.actions"
@@ -118,9 +112,8 @@
           assert:
             that:
               - recreated is changed
-              - recreated.ansible_facts is defined
-              - recreated.ansible_facts.podman_container is defined
-              - recreated.ansible_facts.podman_container['State']['Running']
+              - recreated.container is defined
+              - recreated.container['State']['Running']
               - "'recreated container' in recreated.actions"
             fail_msg: Force recreate test failed!
             success_msg: Force recreate test passed!
@@ -141,14 +134,12 @@
           assert:
             that:
               - stopped is changed
-              - stopped.ansible_facts is defined
-              - stopped.ansible_facts.podman_container is defined
-              - not stopped.ansible_facts.podman_container['State']['Running']
+              - stopped.container is defined
+              - not stopped.container['State']['Running']
               - "'stopped container' in stopped.actions"
               - stopped_again is not changed
-              - stopped_again.ansible_facts is defined
-              - stopped_again.ansible_facts.podman_container is defined
-              - not stopped_again.ansible_facts.podman_container['State']['Running']
+              - stopped_again.container is defined
+              - not stopped_again.container['State']['Running']
               - stopped_again.actions == []
             fail_msg: Stopping container test failed!
             success_msg: Stopping container test passed!
@@ -169,14 +160,12 @@
           assert:
             that:
               - deleted is changed
-              - deleted.ansible_facts is defined
-              - deleted.ansible_facts.podman_container is defined
-              - deleted.ansible_facts.podman_container == {}
+              - deleted.container is defined
+              - deleted.container == {}
               - "'deleted container' in deleted.actions"
               - deleted_again is not changed
-              - deleted_again.ansible_facts is defined
-              - deleted_again.ansible_facts.podman_container is defined
-              - deleted_again.ansible_facts.podman_container == {}
+              - deleted_again.container is defined
+              - deleted_again.container == {}
               - deleted_again.actions == []
             fail_msg: Deleting stopped container test failed!
             success_msg: Deleting stopped container test passed!
@@ -193,10 +182,9 @@
           assert:
             that:
               - created is changed
-              - created.ansible_facts is defined
-              - created.ansible_facts.podman_container is defined
-              - created.ansible_facts.podman_container != {}
-              - not created.ansible_facts.podman_container['State']['Running']
+              - created.container is defined
+              - created.container != {}
+              - not created.container['State']['Running']
               - "'created container' in created.actions"
             fail_msg: "Creating stopped container test failed!"
             success_msg: "Creating stopped container test passed!"
@@ -218,9 +206,6 @@
           assert:
             that:
               - started is changed
-              - started.ansible_facts is defined
-              - started.ansible_facts.podman_container is defined
-              - started.ansible_facts.podman_container['State']['Running']
               - started.container is defined
               - started.container['State']['Running']
               - "'pulled image alpine:3.7' not in started.actions"
@@ -241,14 +226,12 @@
           assert:
             that:
               - deleted is changed
-              - deleted.ansible_facts is defined
-              - deleted.ansible_facts.podman_container is defined
-              - deleted.ansible_facts.podman_container == {}
+              - deleted.container is defined
+              - deleted.container == {}
               - "'deleted container' in deleted.actions"
               - deleted_again is not changed
-              - deleted_again.ansible_facts is defined
-              - deleted_again.ansible_facts.podman_container is defined
-              - deleted_again.ansible_facts.podman_container == {}
+              - deleted_again.container is defined
+              - deleted_again.container == {}
               - deleted_again.actions == []
             fail_msg: Deleting started container test failed!
             success_msg: Deleting started container test passed!
@@ -293,54 +276,112 @@
           assert:
             that:
               - test is changed
-              - test.ansible_facts is defined
-              - test.ansible_facts.podman_container is defined
-              - test.ansible_facts.podman_container != {}
-              - test.ansible_facts.podman_container['State']['Running']
+              - test.container is defined
+              - test.container != {}
+              - test.container['State']['Running']
               # test capabilities
-              - "'CAP_SYS_TIME' in test.ansible_facts.podman_container['BoundingCaps']"
-              - "'CAP_NET_ADMIN' in test.ansible_facts.podman_container['BoundingCaps']"
+              - "'CAP_SYS_TIME' in test.container['BoundingCaps']"
+              - "'CAP_NET_ADMIN' in test.container['BoundingCaps']"
               # test annotations
-              - test.ansible_facts.podman_container['Config']['Annotations']['this'] is defined
-              - test.ansible_facts.podman_container['Config']['Annotations']['this'] == "annotation_value"
+              - test.container['Config']['Annotations']['this'] is defined
+              - test.container['Config']['Annotations']['this'] == "annotation_value"
               # test DNS
               - >-
-                (test.ansible_facts.podman_container['HostConfig']['Dns'] is defined and
-                test.ansible_facts.podman_container['HostConfig']['Dns'] == ['1.1.1.1', '8.8.4.4']) or
-                (test.ansible_facts.podman_container['HostConfig']['DNS'] is defined and
-                test.ansible_facts.podman_container['HostConfig']['DNS'] == ['1.1.1.1', '8.8.4.4'])
+                (test.container['HostConfig']['Dns'] is defined and
+                test.container['HostConfig']['Dns'] == ['1.1.1.1', '8.8.4.4']) or
+                (test.container['HostConfig']['DNS'] is defined and
+                test.container['HostConfig']['DNS'] == ['1.1.1.1', '8.8.4.4'])
               # test ports
-              - test.ansible_facts.podman_container['NetworkSettings']['Ports']|length == 2
+              - test.container['NetworkSettings']['Ports']|length == 2
               # test working dir
-              - test.ansible_facts.podman_container['Config']['WorkingDir'] == "/bin"
+              - test.container['Config']['WorkingDir'] == "/bin"
               # test dns search
               - >-
-                (test.ansible_facts.podman_container['HostConfig']['DnsSearch'] is defined and
-                test.ansible_facts.podman_container['HostConfig']['DnsSearch'] == ['example.com']) or
-                (test.ansible_facts.podman_container['HostConfig']['DNSSearch'] is defined and
-                test.ansible_facts.podman_container['HostConfig']['DNSSearch'] == ['example.com'])
+                (test.container['HostConfig']['DnsSearch'] is defined and
+                test.container['HostConfig']['DnsSearch'] == ['example.com']) or
+                (test.container['HostConfig']['DNSSearch'] is defined and
+                test.container['HostConfig']['DNSSearch'] == ['example.com'])
               # test environment variables
-              - "'FOO=bar' in test.ansible_facts.podman_container['Config']['Env']"
-              - "'BAR=foo' in test.ansible_facts.podman_container['Config']['Env']"
-              - "'TEST=1' in test.ansible_facts.podman_container['Config']['Env']"
-              - "'BOOL=False' in test.ansible_facts.podman_container['Config']['Env']"
+              - "'FOO=bar' in test.container['Config']['Env']"
+              - "'BAR=foo' in test.container['Config']['Env']"
+              - "'TEST=1' in test.container['Config']['Env']"
+              - "'BOOL=False' in test.container['Config']['Env']"
               # test labels
-              - test.ansible_facts.podman_container['Config']['Labels'] | length == 2
-              - test.ansible_facts.podman_container['Config']['Labels']['somelabel'] == "labelvalue"
-              - test.ansible_facts.podman_container['Config']['Labels']['otheralbe'] == "othervalue"
+              - test.container['Config']['Labels'] | length == 2
+              - test.container['Config']['Labels']['somelabel'] == "labelvalue"
+              - test.container['Config']['Labels']['otheralbe'] == "othervalue"
               # test mounts
               - >-
-                (test.ansible_facts.podman_container['Mounts'][0]['Destination'] is defined and
-                '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Destination') | list) or
-                (test.ansible_facts.podman_container['Mounts'][0]['destination'] is defined and
-                '/data' in test.ansible_facts.podman_container['Mounts'] | map(attribute='destination') | list)
+                (test.container['Mounts'][0]['Destination'] is defined and
+                '/data' in test.container['Mounts'] | map(attribute='Destination') | list) or
+                (test.container['Mounts'][0]['destination'] is defined and
+                '/data' in test.container['Mounts'] | map(attribute='destination') | list)
               - >-
-                (test.ansible_facts.podman_container['Mounts'][0]['Source'] is defined and
-                '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='Source') | list) or
-                (test.ansible_facts.podman_container['Mounts'][0]['source'] is defined and
-                '/tmp' in test.ansible_facts.podman_container['Mounts'] | map(attribute='source') | list)
+                (test.container['Mounts'][0]['Source'] is defined and
+                '/tmp' in test.container['Mounts'] | map(attribute='Source') | list) or
+                (test.container['Mounts'][0]['source'] is defined and
+                '/tmp' in test.container['Mounts'] | map(attribute='source') | list)
             fail_msg: Parameters container test failed!
             success_msg: Parameters container test passed!
+
+        - name: Check basic idempotency of running container
+          podman_container:
+            name: testidem
+            image: alpine
+            state: present
+            command: sleep 20m
+
+        - name: Check basic idempotency of running container - run it again
+          podman_container:
+            name: testidem
+            image: alpine
+            state: present
+            command: sleep 20m
+          register: idem
+
+        - name: Check that nothing was changed
+          assert:
+            that:
+              - not idem.changed
+
+        - name: Run changed container (with tty enabled)
+          podman_container:
+            name: testidem
+            image: alpine
+            state: present
+            command: sleep 20m
+            tty: true
+          register: idem1
+
+        - name: Check that container is recreated when changed
+          assert:
+            that:
+              - idem1 is changed
+
+        - name: Run changed container without specifying an option, use defaults
+          podman_container:
+            name: testidem
+            image: alpine
+            state: present
+            command: sleep 20m
+          register: idem2
+
+        - name: Check that container is recreated when changed to default value
+          assert:
+            that:
+              - idem2 is changed
+
+        - name: Remove container
+          podman_container:
+            name: testidem
+            state: absent
+          register: remove
+
+        - name: Check podman_actions
+          assert:
+            that:
+              - "'podman rm -f testidem' in remove.podman_actions"
+
       always:
         - name: Delete all container leftovers from tests
           podman_container:
