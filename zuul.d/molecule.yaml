@@ -132,6 +132,7 @@
     - ^role-addition.yml
     - ^tox.ini
     - ^molecule-requirements.txt
+    - ^zuul.d/playbooks/*.yml
     name: tripleo-ansible-centos-7-role-addition
     nodeset: centos-7
     parent: tox-molecule

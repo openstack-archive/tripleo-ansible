@@ -4,7 +4,7 @@
   pre_tasks:
     - name: Set project path fact
       set_fact:
-        tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+        tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.projects['opendev.org/openstack/tripleo-ansible'].src_dir }}"
 
     - name: Set action plugin path fact
       set_fact:
