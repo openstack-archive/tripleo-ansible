@@ -93,6 +93,7 @@
 - job:
     files:
     - ^tripleo_ansible/roles/test_deps/.*
+    - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-7-molecule-test_deps
     parent: tripleo-ansible-centos-7-base
     vars:
@@ -122,6 +123,7 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tuned/.*
+    - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-7-molecule-tuned
     parent: tripleo-ansible-centos-7-base
     vars:
@@ -132,7 +134,7 @@
     - ^role-addition.yml
     - ^tox.ini
     - ^molecule-requirements.txt
-    - ^zuul.d/playbooks/*.yml
+    - ^zuul.d/playbooks/.*
     name: tripleo-ansible-centos-7-role-addition
     nodeset: centos-7
     parent: tox-molecule

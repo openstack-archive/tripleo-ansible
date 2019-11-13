@@ -70,6 +70,9 @@ if [ ! -f "${HOME}/test-python/bin/ansible" ]; then
     run_pip --force
 fi
 
+# Display list of installed packages with versions (debugging failures)
+"${HOME}/test-python/bin/pip" freeze
+
 # Run local test
 PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
 source "${PROJECT_DIR}/ansible-test-env.rc"

@@ -35,6 +35,12 @@
         requirements: "{{ tripleo_ansible_project_path }}/molecule-requirements.txt"
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_site_packages: true
+
+    - name: Display test-python virtualenv package versions
+      shell: |-
+        . {{ ansible_user_dir }}/test-python/bin/activate
+        pip freeze
+
     # NOTE(cloudnull): This is being done because docker is not supported on RHEL-8
     #                  and tests within this repo still require docker.
     - name: Manual install container.io
