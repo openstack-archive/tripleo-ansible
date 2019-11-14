@@ -19,6 +19,7 @@
   async: 300
   poll: 0
   register: create_async_results
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   loop: "{{ batched_container_data | haskey(attribute='action', reverse=True) }}"
   loop_control:
     loop_var: container_data
