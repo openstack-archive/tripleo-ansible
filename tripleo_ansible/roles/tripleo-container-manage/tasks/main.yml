@@ -67,7 +67,17 @@
       set_fact:
         all_containers_hash: "{{ container_hashes.results | map(attribute='ansible_facts.container_hash') | list | singledict() }}"
 
+- name: "Manage systemd shutdown files"
+  become: true
+  when:
+    - tripleo_container_manage_systemd_order
+  block:
+    - name: Include tasks for systemd shutdown service
+      include_tasks: shutdown.yml
+
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
+  when:
+    - tripleo_container_manage_cli == 'podman'
   become: true
   block:
     - name: "Delete containers from {{ tripleo_container_manage_config }}"
