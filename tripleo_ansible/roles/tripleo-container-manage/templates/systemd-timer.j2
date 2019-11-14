@@ -1,9 +1,9 @@
 [Unit]
-Description=tripleo_{{ container_name }} container healthcheck
-PartOf=tripleo_{{ container_name }}.service
+Description=tripleo_{{ container_sysd_name }} container healthcheck
+PartOf=tripleo_{{ container_sysd_name }}.service
 [Timer]
 OnActiveSec=120
-OnUnitActiveSec={{ container_data.check_interval | default(60) }}
-RandomizedDelaySec={{ 45 if container_data.check_interval is not defined else (container_data.check_interval * 3 / 4) | int | abs }}
+OnUnitActiveSec={{ container_sysd_data.check_interval | default(60) }}
+RandomizedDelaySec={{ 45 if container_sysd_data.check_interval is not defined else (container_sysd_data.check_interval * 3 / 4) | int | abs }}
 [Install]
 WantedBy=timers.target
