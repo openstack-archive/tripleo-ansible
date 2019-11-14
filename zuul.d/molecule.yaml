@@ -41,6 +41,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-manage
       - tripleo-ansible-centos-7-molecule-tripleo-modules
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -82,6 +83,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-container-manage
       - tripleo-ansible-centos-7-molecule-tripleo-modules
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -371,3 +373,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-puppet-cache
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-systemd-wrapper/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-systemd-wrapper
