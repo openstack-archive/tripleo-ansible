@@ -19,6 +19,7 @@
   loop: "{{ batched_container_data | haskey(attribute='action', value='exec') }}"
   loop_control:
     loop_var: container_exists_data
+  when: not ansible_check_mode|bool
 
 - name: "Run actions async"
   command:
