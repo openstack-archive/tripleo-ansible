@@ -14,17 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Check if /etc/sysconfig/podman_drop_in exists
-  stat:
-    path: /etc/sysconfig/podman_drop_in
-  register: podman_drop_in
-
-- name: Set podman_drop_in fact
-  set_fact:
-    podman_drop_in: true
-  when:
-    - podman_drop_in.stat.exists
-
 - name: Set container_name and container_sysd facts
   set_fact:
     container_sysd_name: "{{ lookup('dict', container_config).key }}"

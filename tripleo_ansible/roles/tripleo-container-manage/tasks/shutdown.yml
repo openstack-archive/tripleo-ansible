@@ -14,6 +14,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Check if /etc/sysconfig/podman_drop_in exists
+  stat:
+    path: /etc/sysconfig/podman_drop_in
+  register: podman_drop_in
+
+- name: Set podman_drop_in fact
+  set_fact:
+    podman_drop_in: true
+  when:
+    - podman_drop_in.stat.exists
+
 - name: Cleanup Paunch services and files
   block:
     - name: Check if /usr/lib/systemd/system/paunch-container-shutdown.service exists
@@ -51,7 +62,7 @@
 
 - name: Create TripleO Container systemd service
   block:
-    - name: "Create /usr/libexec/{{ item }}"
+    - name: "Deploy tripleo-container-shutdown and tripleo-start-podman-container"
       copy:
         src: "{{ role_path }}/files/{{ item }}"
         dest: "/usr/libexec/{{ item }}"
