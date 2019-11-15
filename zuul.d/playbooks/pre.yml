@@ -60,6 +60,8 @@
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
     - role: install-docker
+      when:
+        - (ansible_distribution_major_version | int) < 8
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
@@ -75,3 +77,4 @@
         ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
       when:
         - tripleo_docker_enable_vfs is defined
+        - (ansible_distribution_major_version | int) < 8
