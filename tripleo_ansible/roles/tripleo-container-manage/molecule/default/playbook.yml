@@ -42,3 +42,21 @@
               - "'fedora:latest' in fedora_infos.containers.0.ImageName"
             fail_msg: 'fedora container has wrong image'
             success_msg: 'fedora container has the right image'
+        - name: Check if tripleo_fedora systemd service is active
+          command: systemctl is-active --quiet tripleo_fedora
+          register: tripleo_fedora_active_result
+        - name: Assert that tripleo_fedora systemd service is active
+          assert:
+            that:
+              - tripleo_fedora_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd service is not active'
+            success_msg: 'tripleo_fedora systemd service is active'
+        - name: Check if tripleo_fedora systemd healthcheck service is active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+        - name: Assert that tripleo_fedora systemd healthcheck service is active
+          assert:
+            that:
+              - tripleo_fedora_healthcheck_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
+            success_msg: 'tripleo_fedora systemd healthcheck service is active'
