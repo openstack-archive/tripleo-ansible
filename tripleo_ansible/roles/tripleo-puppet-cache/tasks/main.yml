@@ -42,6 +42,24 @@
     selevel: s0
     recurse: true
 
+- name: Check for facter.conf
+  check_mode: false
+  stat:
+    path: "{{ tripleo_puppet_cache_base_dir }}/facter.conf"
+  register: _facter_conf_file
+
+# See LP#1852606 for context
+- name: Remove facter.conf if directory
+  check_mode: false
+  become: true
+  file:
+    path: "{{ tripleo_puppet_cache_base_dir }}/facter.conf"
+    state: absent
+    force: true
+  when:
+    - _facter_conf_file.stat.isdir is defined
+    - _facter_conf_file.stat.isdir
+
 - name: Write facter cache config
   become: true
   check_mode: false
