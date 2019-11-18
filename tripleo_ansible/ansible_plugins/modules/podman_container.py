@@ -1440,7 +1440,7 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('blkio_weight_device', before, after)
 
     def diffparam_cap_add(self):
-        before = self.info['effectivecaps']
+        before = self.info['effectivecaps'] or []
         after = self.default_dict['cap_add']
         if self.module.params['cap_add'] is not None:
             after += ["cap_" + i.lower()
