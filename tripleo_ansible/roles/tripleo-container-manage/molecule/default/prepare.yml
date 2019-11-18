@@ -31,6 +31,10 @@
         content: |
           {
             "image": "fedora:latest",
-            "net": "host"
+            "net": "host",
+            "command": "sleep 3600",
+            "restart": "always",
+            "net": "host",
+            "healthcheck": { "test": "echo test" }
           }
         dest: '/tmp/container-configs/fedora.json'
