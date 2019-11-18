@@ -52,8 +52,7 @@
         enabled: true
         daemon_reload: true
       when:
-        # Re-add podman_container.changed from async
-        - systemd_file.changed
+        - systemd_file is changed or container_sysd_name in containers_changed
     - name: "Manage systemd healthcheck for {{ container_sysd_name }}"
       when:
         - not tripleo_container_manage_healthcheck_disabled

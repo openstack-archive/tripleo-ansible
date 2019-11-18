@@ -26,7 +26,8 @@ class FilterModule(object):
             'singledict': self.singledict,
             'subsort': self.subsort,
             'needs_delete': self.needs_delete,
-            'haskey': self.haskey
+            'haskey': self.haskey,
+            'list_of_keys': self.list_of_keys
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=None):
@@ -169,3 +170,15 @@ class FilterModule(object):
                 if attribute not in v and reverse:
                     return_list.append({k: v})
         return return_list
+
+    def list_of_keys(self, keys_to_list):
+        """Return a list of keys from a list of dictionaries.
+
+        This filter takes in input a list of dictionaries and for each of them
+        it will add the key to list_of_keys and returns it.
+        """
+        list_of_keys = []
+        for i in keys_to_list:
+            for k, v in i.items():
+                list_of_keys.append(k)
+        return list_of_keys
