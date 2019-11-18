@@ -22,7 +22,7 @@
       test_deps_extra_packages:
         - podman
   tasks:
-    - name: Prepare the contianer configs directory
+    - name: Prepare the container configs directory
       file:
         path: '/tmp/container-configs'
         state: directory
