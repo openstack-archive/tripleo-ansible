@@ -1,0 +1,216 @@
+---
+#   Copyright 2019 Red Hat, Inc.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+
+- name: Playbook for establishing ssh keys
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
+  handlers:
+    - name: Remove mistral tmp file
+      file:
+        path: "{{ tempfile_1.path }}"
+        state: absent
+  tasks:
+    - name: No ssh servers defined
+      fail:
+        msg: >-
+          The ssh_servers option was undefined.
+      when:
+        - ssh_servers is undefined
+
+    - name: No cloud name is defined
+      fail:
+        msg: >-
+          The tripleo_cloud_name option was undefined.
+      when:
+        - tripleo_cloud_name is undefined
+
+    - name: Set local connection user facts
+      set_fact:
+        ansible_home: "{{ lookup('env', 'HOME') }}"
+        ansible_user: "{{ lookup('env', 'USER') }}"
+      run_once: true
+      when:
+        - (tripleo_target_host is defined) | ternary('ssh', 'local') == 'local'
+
+    - name: Set ssh servers
+      set_fact:
+        set_ssh_servers: "{{ ssh_servers }}"
+      run_once: true
+
+    - name: Ensure .ssh directory
+      file:
+        path: "{{ ansible_home }}/.ssh"
+        state: directory
+        mode: "0700"
+        owner: "{{ ansible_user }}"
+      become: true
+
+    - name: Ensure ssh key pair
+      user:
+        name: "{{ ansible_user }}"
+        generate_ssh_key: true
+        ssh_key_bits: 4096
+        ssh_key_file: "{{ ansible_home }}/.ssh/id_rsa"
+      become: true
+
+    # TODO(cloudnull): When mistral is removed, remove this mistral block
+    - name: Mistral block
+      when:
+        - user_private_key_file is undefined
+      run_once: true
+      block:
+        - name: Get the mistral ssh_keys environment
+          command: >-
+            openstack --os-cloud undercloud workflow env show ssh_keys -f yaml
+          register: mistral_check
+          failed_when: false
+          changed_when: false
+
+        - name: Load mistral yaml
+          set_fact:
+            mistral_data: "{{ mistral_check.stdout | from_yaml }}"
+
+        - name: Get mistral variables
+          set_fact:
+            mistral_variables: "{{ mistral_data['Variables'] | from_json }}"
+
+        - name: Set key facts
+          set_fact:
+            user_public_key: "{{ mistral_variables['public_key'] }}"
+            user_private_key: "{{ mistral_variables['private_key'] }}"
+            user_private_key_file: "{{ ansible_home }}/.ssh/id_rsa_tripleo"
+      rescue:
+        - name: Fallback notice
+          debug:
+            msg: "Capturing the tripleo-admin key from mistral failed, falling back."
+
+    - name: Local user block
+      when:
+        - user_private_key_file is undefined
+      run_once: true
+      block:
+        - name: Get local private key
+          slurp:
+            src: "{{ ansible_home }}/.ssh/id_rsa"
+          register: private_key_get
+          become: true
+
+        - name: Get local public key
+          slurp:
+            src: "{{ ansible_home }}/.ssh/id_rsa.pub"
+          register: public_key_get
+          become: true
+
+        # NOTE(cloudnull): Ensures that mistral is in-sync with the local file system.
+        # TODO(cloudnull): Delete this block when mistral is no longer managing ssh keys.
+        - name: Create temporary file
+          tempfile:
+            state: file
+            suffix: temp
+          register: tempfile_1
+
+        - name: Write mistral private key
+          copy:
+            content: |-
+              {% set mistral = {
+                  "name": "ssh_keys",
+                  "description": "SSH keys for TripleO validations",
+                  "variables": {
+                    "private_key": (private_key_get['content'] | b64decode),
+                    "public_key": (public_key_get['content'] | b64decode)
+                  }
+                }
+              %}
+              {{ mistral | to_json }}
+            dest: "{{ tempfile_1.path }}"
+            mode: "0600"
+          notify:
+            - Remove mistral tmp file
+
+        - name: Create mistral environment
+          command: >-
+            openstack --os-cloud undercloud workflow env create {{ tempfile_1.path }}
+          ignore_errors: true
+
+        - name: Set key facts
+          set_fact:
+            user_public_key: "{{ public_key_get['content'] | b64decode }}"
+            user_private_key: "{{ private_key_get['content'] | b64decode }}"
+            user_private_key_file: "{{ ansible_home }}/.ssh/id_rsa_tripleo"
+
+    - name: Write tripleo private key
+      copy:
+        content: "{{ user_private_key }}"
+        dest: "{{ user_private_key_file }}"
+        mode: "0600"
+
+    - name: Write tripleo public key
+      copy:
+        content: "{{ user_public_key }}"
+        dest: "{{ user_private_key_file }}.pub"
+        mode: "0640"
+
+    - name: Ensure user can ssh to localhost
+      authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ user_public_key }}"
+      become: true
+
+    - name: Run blacklist IP check
+      command: >-
+        openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
+      register: blacklist_cmd
+      changed_when: false
+
+    - name: Set BlacklistedIpAddresses fact
+      set_fact:
+        BlacklistedIpAddresses: "{{ (blacklist_cmd.stdout | from_yaml)['output_value'] }}"
+
+    - name: Add ssh-servers
+      add_host:
+        hostname: "{{ item }}"
+        groups: tripleo_queues
+        user_public_key: "{{ user_public_key }}"
+        user_private_key: "{{ user_private_key }}"
+        user_private_key_file: "{{ user_private_key_file }}"
+        ansible_ssh_private_key_file: "{{ ansible_home }}/.ssh/id_rsa"
+      changed_when: false
+      loop: '{{ set_ssh_servers | difference(((BlacklistedIpAddresses | length) < 1) | ternary([], BlacklistedIpAddresses)) }}'
+
+
+- name: Run Create admin
+  hosts: localhost:tripleo_queues
+  user: "{{ ssh_user | default('heat-admin') }}"
+  become: true
+  any_errors_fatal: true
+  strategy: free
+  roles:
+    - role: tripleo_create_admin
+      tripleo_admin_user: tripleo-admin
+      tripleo_admin_pubkey: "{{ user_public_key }}"
+
+
+- name: Validate TripleO Admin Access
+  hosts: localhost:tripleo_queues
+  user: tripleo-admin
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: "{{ user_private_key_file }}"
+  tasks:
+    - name: Ping host
+      ping: {}
