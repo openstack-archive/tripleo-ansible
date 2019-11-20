@@ -20,7 +20,7 @@
       {{ podman_containers.containers | selectattr('Name', 'equalto', lookup('dict', container_exists_data).value.command.0) |
       map(attribute='State.Running') | first | default(false) }}
 
-- name: "Fail if {{ lookup('dict', container_exists_data).key }} is not running"
+- name: "Fail if {{ lookup('dict', container_exists_data).value.command.0 }} is not running"
   fail:
     msg: >-
       Can't run container exec for {{ lookup('dict', container_exists_data).key }},
