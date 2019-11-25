@@ -1313,6 +1313,8 @@ class PodmanDefaults:
             "memory_reservation": "0",
             # "memory_swappiness": -1,
             "no_hosts": False,
+            # libpod issue with networks in inspection
+            "network": ["default"],
             "oom_score_adj": 0,
             "pid": "",
             "privileged": False,
@@ -1350,7 +1352,6 @@ class PodmanContainerDiff:
             'env_file',
             'env_host',
             'stop_timeout',
-            "network",  # Issue in libpod
             "ulimit",  # Defaults depend on user and platform, impossible to guess
         }
         self.all_caps = ['cap_audit_control',
@@ -1655,6 +1656,11 @@ class PodmanContainerDiff:
         before = str(self.info['hostconfig']['memoryreservation'])
         after = self.params['memory_reservation']
         return self._diff_update_and_compare('memory_reservation', before, after)
+
+    def diffparam_network(self):
+        before = [self.info['hostconfig']['networkmode']]
+        after = self.params['network']
+        return self._diff_update_and_compare('network', before, after)
 
     def diffparam_no_hosts(self):
         before = not bool(self.info['hostspath'])
