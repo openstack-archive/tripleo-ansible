@@ -124,7 +124,11 @@ class PaunchManager:
         self.module = module
         self.results = results
         self.config = self.module.params['config']
-        self.config_id = self.module.params['config_id']
+        if (isinstance(self.module.params['config_id'], list)
+           and len(self.module.params['config_id']) == 1):
+            self.config_id = self.module.params['config_id'][0]
+        else:
+            self.config_id = self.module.params['config_id']
         self.action = self.module.params['action']
         self.healthcheck_disabled = \
             self.module.params['healthcheck_disabled']
