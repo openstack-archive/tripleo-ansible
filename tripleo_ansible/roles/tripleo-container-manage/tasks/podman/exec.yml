@@ -24,7 +24,6 @@
 - name: "Async container exec"
   command:
     argv: "{{ cmd_template + lookup('dict', container_exec_data).value.command }}"
-  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   vars:
     cmd_template:
       - "{{ tripleo_container_manage_cli }}"
@@ -42,7 +41,6 @@
 - name: "Check podman exec status"
   async_status:
     jid: "{{ exec_async_result_item.ansible_job_id }}"
-  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   loop: "{{ exec_async_results.results }}"
   loop_control:
     loop_var: "exec_async_result_item"
