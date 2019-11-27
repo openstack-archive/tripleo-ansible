@@ -327,6 +327,46 @@ class TestHelperFilters(tests_base.TestCase):
                                            config_id='tripleo_step1')
         self.assertEqual(result, expected_list)
 
+    def test_get_key_from_dict(self):
+        data = {
+           'nova_api': {
+             'project': 'service1'
+           },
+           'glance_api': {
+             'project': 'service1'
+           },
+           'heat_api': {
+             'user': 'heat'
+           },
+           'cinder_api': {
+             'project': 'service2'
+           }
+        }
+        expected_list = ['service1', 'service2', 'service3']
+        result = self.filters.get_key_from_dict(data, key='project',
+                                                default='service3')
+        self.assertEqual(result, expected_list)
+
+    def test_get_key_from_dict_with_list_input(self):
+        data = {
+           'nova_api': {
+             'roles': ['service', 'admin']
+           },
+           'glance_api': {
+             'roles': 'service1'
+           },
+           'heat_api': {
+             'user': 'heat'
+           },
+           'cinder_api': {
+             'project': 'service2'
+           }
+        }
+        expected_list = ['admin', 'service', 'service1']
+        result = self.filters.get_key_from_dict(data, key='roles',
+                                                default='service')
+        self.assertEqual(result, expected_list)
+
     def test_container_exec_cmd(self):
         data = {
             "action": "exec",

@@ -42,6 +42,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-modules
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
       - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
@@ -84,6 +85,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-modules
       - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
       - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -380,3 +382,10 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-systemd-wrapper
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-keystone-resources/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-keystone-resources

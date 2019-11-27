@@ -28,7 +28,8 @@ class FilterModule(object):
             'needs_delete': self.needs_delete,
             'haskey': self.haskey,
             'list_of_keys': self.list_of_keys,
-            'container_exec_cmd': self.container_exec_cmd
+            'container_exec_cmd': self.container_exec_cmd,
+            'get_key_from_dict': self.get_key_from_dict
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -187,6 +188,35 @@ class FilterModule(object):
             for k, v in i.items():
                 list_of_keys.append(k)
         return list_of_keys
+
+    def get_key_from_dict(self, data, key, strict=False, default=None):
+        """Return a list of unique values from a specific key from a dict.
+
+        This filter takes in input a list of dictionaries and for each of them
+        it will add the value of a specific key into returned_list and
+        returns it sorted. If the key has to be part of the dict, set strict to
+        True. A default can be set if the key doesn't exist but strict has to
+        be set to False.
+        """
+        returned_list = []
+        for i in data.items():
+            value = i[1].get(key)
+            if value is None and not strict and default is not None:
+                value = default
+            if value is None:
+                if strict:
+                    raise TypeError('Missing %s key in '
+                                    '%s' % (key, i[0]))
+                else:
+                    continue
+            if isinstance(value, list):
+                for v in value:
+                    if v not in returned_list:
+                        returned_list.append(v)
+            else:
+                if value not in returned_list:
+                    returned_list.append(value)
+        return sorted(returned_list)
 
     def list_or_dict_arg(self, data, cmd, key, arg):
         """Utility to build a command and its argument with list or dict data.
