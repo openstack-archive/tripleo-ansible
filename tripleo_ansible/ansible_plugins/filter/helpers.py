@@ -30,7 +30,7 @@ class FilterModule(object):
             'list_of_keys': self.list_of_keys
         }
 
-    def subsort(self, dict_to_sort, attribute, null_value=None):
+    def subsort(self, dict_to_sort, attribute, null_value=0):
         """Sort a hash from a sub-element.
 
         This filter will return an dictionary ordered by the attribute
