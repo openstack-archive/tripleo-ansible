@@ -23,7 +23,7 @@ __metaclass__ = type
 import json
 import yaml
 
-from packaging import version
+from distutils.version import LooseVersion
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_bytes, to_native
@@ -899,12 +899,12 @@ class PodmanModuleParams:
             return [to_bytes(i, errors='surrogate_or_strict') for i in cmd]
 
     def check_version(self, param, minv=None, maxv=None):
-        if minv and version.parse(minv) > version.parse(
+        if minv and LooseVersion(minv) > LooseVersion(
                 self.podman_version):
             self.module.fail_json(msg="Parameter %s is supported from podman "
                                   "version %s only! Current version is %s" % (
                                       param, minv, self.podman_version))
-        if maxv and version.parse(maxv) < version.parse(
+        if maxv and LooseVersion(maxv) < LooseVersion(
                 self.podman_version):
             self.module.fail_json(msg="Parameter %s is supported till podman "
                                   "version %s only! Current version is %s" % (
@@ -1330,7 +1330,7 @@ class PodmanDefaults:
 
     def default_dict(self):
         # make here any changes to self.defaults related to podman version
-        if version.parse(self.version) < version.parse("1.6.0"):
+        if LooseVersion(self.version) < LooseVersion("1.6.0"):
             self.defaults["env"] = [
                 "path",
                 "term",
