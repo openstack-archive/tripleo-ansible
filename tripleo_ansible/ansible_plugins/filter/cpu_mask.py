@@ -14,8 +14,13 @@ class FilterModule(object):
     # Example - for input of 1,13 the mask would be 2002
     def cpu_mask(self, cpu_list):
         mask = 0
-        cpus = cpu_list.split(',')
-        cpus = [int(i) for i in cpus]
+        cpus = []
+        for cpu in cpu_list.split(','):
+            if '-' in cpu:
+                rng = cpu.split('-')
+                cpus.extend(range(int(rng[0]), int(rng[1]) + 1))
+            else:
+                cpus.append(int(cpu))
         cpus.sort()
         max_val = int(cpus[-1])
         byte_arr = bytearray(int(max_val / 8) + 1)
