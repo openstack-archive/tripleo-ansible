@@ -9,6 +9,7 @@ ExecStart=/usr/libexec/tripleo-start-podman-container {{ container_sysd_name }}
 {% else %}
 ExecStart=/usr/bin/podman start {{ container_sysd_name }}
 {% endif %}
+ExecReload=/usr/bin/podman kill --signal HUP {{ container_sysd_name }}
 ExecStop=/usr/bin/podman stop -t {{ container_sysd_data.stop_grace_period | default(10) | int }} {{ container_sysd_name }}
 KillMode=none
 Type=forking
