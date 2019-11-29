@@ -55,3 +55,8 @@
   shell: "{{ container_cli }} restart $(sudo {{ container_cli }} ps -f name=octavia -q)"
   when:
     - octavia_config_updated
+
+- name: remove directory /etc/octavia/conf.d/common (LP#1836074)
+  file:
+    path: "{{ octavia_confd_prefix }}/etc/octavia/conf.d/common"
+    state: absent
