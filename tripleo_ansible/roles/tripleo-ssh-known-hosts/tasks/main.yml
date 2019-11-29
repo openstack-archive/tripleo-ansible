@@ -49,9 +49,9 @@
         ssh_known_hosts_lines: |-
           {%- for host in groups['overcloud'] | intersect(play_hosts) %}
           [{{ ctlplane_ip }}]*,[{{ host }}.{{ cloud_domain }}]*,[{{ host }}]*
-          {%- if enabled_networks | length > 0 and role_networks and role_networks | length > 0 %},
+          {%- if enabled_networks | length > 0 and hostvars[host]['role_networks'] is defined and hostvars[host]['role_networks'] | length > 0 %},
           {%- for network in enabled_networks %}
-          {%- if network in role_networks %}
+          {%- if network in hostvars[host]['role_networks'] %}
           [{{ hostvars[host][networks[network]['name'] ~ '_ip'] }}]*,[{{ host }}.{{ network.lower() }}]*,{% if 1 %}{% endif %}
           [{{ host }}.{{ network.lower() }}.{{ cloud_domain }}]*{% if not loop.last %},{% endif %}
           {%- endif -%}
