@@ -36,10 +36,19 @@
 {% for key, value in service_net_map.items() %}
 {%   set _ = all_nodes.__setitem__(key, value) %}
 {% endfor %}
-{% if 'redis' in all_enabled_services %}
-{%   set _ = all_nodes.__setitem__('redis_vip', (net_vip_map.redis)) %}
+{% if nova_additional_cell %}
+{%   for key, value in all_nodes_extra_map_data.items() %}
+{%     set _ = all_nodes.__setitem__(key, value) %}
+{%   endfor %}
 {% endif %}
-{% if 'ovn_dbs' in all_enabled_services %}
+{% if 'redis' in all_enabled_services or nova_additional_cell %}
+{%   if 'redis_vip' in all_nodes_extra_map_data %}
+{%     set _ = all_nodes.__setitem__('redis_vip', all_nodes_extra_map_data['redis_vip']) %}
+{%   elif net_vip_map.redis is defined %}
+{%     set _ = all_nodes.__setitem__('redis_vip', (net_vip_map.redis)) %}
+{%   endif %}
+{% endif %}
+{% if 'ovn_dbs' in all_enabled_services or nova_additional_cell %}
 {%   if 'ovn_dbs_vip' in all_nodes_extra_map_data %}
 {%     set _ = all_nodes.__setitem__('ovn_dbs_vip', all_nodes_extra_map_data['ovn_dbs_vip']) %}
 {%   elif net_vip_map.ovn_dbs is defined %}
