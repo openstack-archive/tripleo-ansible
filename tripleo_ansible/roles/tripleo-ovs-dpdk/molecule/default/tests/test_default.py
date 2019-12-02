@@ -43,7 +43,7 @@ def test_positive_dpdk_extra(host):
 def test_positive_pmd(host):
     other_config = get_config(host)
     val = other_config['pmd-cpu-mask'].replace('"', '')
-    assert val == "2002"
+    assert val == "e002"
 
 
 def test_positive_lcore(host):
