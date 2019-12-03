@@ -1,7 +1,11 @@
 {% set net_ip_map = {} %}
+{% if ctlplane_ip is defined %}
 {% set _ = net_ip_map.__setitem__('ctlplane', ctlplane_ip) %}
-{% set _ = net_ip_map.__setitem__('ctlplane_subnet', ctlplane_ip ~ '/' ~ ctlplane_subnet_cidr) %}
 {% set _ = net_ip_map.__setitem__('ctlplane_uri', (ctlplane_ip | ipwrap)) %}
+{% if ctlplane_subnet is defined %}
+{% set _ = net_ip_map.__setitem__('ctlplane_subnet', ctlplane_ip ~ '/' ~ ctlplane_subnet_cidr) %}
+{% endif %}
+{% endif %}
 {% for network in enabled_networks %}
 {%   if network_cidrs is defined and ((network ~ '_cidr') in network_cidrs) %}
 {%     set _ = net_ip_map.__setitem__(networks[network]['name'], (hostvars[inventory_hostname][networks[network]['name'] ~ '_ip'])) %}
