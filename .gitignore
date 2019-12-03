@@ -11,6 +11,10 @@ cover
 nosetests.xml
 .testrepository
 .venv
+.stestr
+tripleo_ansible.egg-info/
+__pycache__
+build
 
 # Editors
 *~
