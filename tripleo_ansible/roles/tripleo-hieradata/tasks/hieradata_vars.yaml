@@ -14,8 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Copy overcloud.json to all_nodes.json
+  copy:
+    src: "{{ playbook_dir }}/group_vars/overcloud.json"
+    dest: "{{ dest_path | default('/etc/puppet/hieradata/all_nodes.json') }}"
+
 - name: Render hieradata from template
   template:
     src: templates/{{ item }}.j2
     dest: "{{ dest_path | default('/etc/puppet/hieradata/' ~ item ~ '.json') }}"
-  loop: "{{ hieradata_templates_list }}"
+  loop: "{{ hieradata_templates_list | difference(['all_nodes']) }}"
