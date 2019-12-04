@@ -33,6 +33,7 @@ def test_json_render(host):
       "fqdn",
       "net_ip_map",
       "service_configs",
+      "service_names",
       "vip_data"
     ]
 
