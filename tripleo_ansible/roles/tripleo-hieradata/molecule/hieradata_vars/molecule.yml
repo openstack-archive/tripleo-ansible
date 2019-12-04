@@ -129,6 +129,59 @@ provisioner:
             - Internal
           service_configs:
             foo: bar3
+          service_names:
+            - ca_certs
+            - ceph_client
+            - ceph_mds
+            - ceph_mgr
+            - ceph_mon
+            - ceph_rgw
+            - ceph_osd
+            - certmonger_user
+            - clustercheck
+            - container_image_prepare
+            - logrotate_crond
+            - docker
+            - docker_registry
+            - glance_api
+            - haproxy
+            - iscsid
+            - kernel
+            - keystone
+            - manila_api
+            - manila_backend_cephfs
+            - manila_scheduler
+            - manila_share
+            - memcached
+            - mysql
+            - mysql_client
+            - neutron_api
+            - neutron_plugin_ml2_ovn
+            - nova_api
+            - nova_compute
+            - nova_conductor
+            - nova_libvirt
+            - nova_metadata
+            - nova_migration_target
+            - nova_scheduler
+            - nova_vnc_proxy
+            - ovn_controller
+            - ovn_dbs
+            - ovn_metadata
+            - openstack_clients
+            - oslo_messaging_notify
+            - oslo_messaging_rpc
+            - pacemaker
+            - placement
+            - podman
+            - snmp
+            - sshd
+            - chrony
+            - timezone
+            - logrotate_tmpwatch
+            - tripleo_firewall
+            - tripleo_packages
+            - tuned
           service_net_map:
             aodh_api_network: ctlplane
             apache_network: ctlplane
