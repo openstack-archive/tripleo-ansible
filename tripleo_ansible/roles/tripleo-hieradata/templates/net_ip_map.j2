@@ -20,5 +20,9 @@
 {%   endif %}
 {% endfor %}
 {% endif %}
+{% if hieradata_localhost_address is undefined %}
+{%   set hieradata_localhost_address = ('ipv6' in (ansible_lo | default({}))) | ternary('localhost', '127.0.0.1') %}
+{% endif %}
+{% set _ = net_ip_map.__setitem__('localhost_address', hieradata_localhost_address) %}
 {# RENDER #}
 {{ net_ip_map | to_nice_json }}
