@@ -81,18 +81,22 @@ class FilterModule(object):
             installed_containers.append(c_name)
 
             # Don't delete containers not managed by tripleo-ansible
-            if c['Config']['Labels'].get('managed_by') != 'tripleo_ansible':
+            if (c['Config']['Labels'] is None
+                    or c['Config']['Labels'].get(
+                        'managed_by') != 'tripleo_ansible'):
                 to_skip += [c_name]
                 continue
 
             # Only remove containers managed in this config_id
-            if c['Config']['Labels'].get('config_id') != config_id:
+            if (c['Config']['Labels'] is None
+                    or c['Config']['Labels'].get('config_id') != config_id):
                 to_skip += [c_name]
                 continue
 
             # Remove containers with no config_data
             # e.g. broken config containers
-            if 'config_data' not in c['Config']['Labels']:
+            if (c['Config']['Labels'] is not None
+                    and 'config_data' not in c['Config']['Labels']):
                 to_delete += [c_name]
                 continue
 

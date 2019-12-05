@@ -256,3 +256,73 @@ class TestHelperFilters(tests_base.TestCase):
                                      reverse=True,
                                      any=True)
         self.assertEqual(result, expected_list)
+
+    def test_needs_delete(self):
+        data = [
+            {
+                'Name': 'mysql',
+                'Config': {
+                    'Labels': {
+                        'config_id': 'dontdeleteme',
+                        'managed_by': 'triple_ansible',
+                    }
+                }
+            },
+            {
+                'Name': 'rabbitmq',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'rabbitmq',
+                        'name': 'rabbitmq',
+                    }
+                }
+            },
+            {
+                'Name': 'swift',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'swift',
+                        'name': 'swift',
+                        'config_data': 'foo',
+                    }
+                }
+            },
+            {
+                'Name': 'haproxy',
+                'Config': {
+                    'Labels': {
+                        'config_id': 'test'
+                    }
+                }
+            },
+            {
+                'Name': 'tripleo',
+                'Config': {
+                    'Labels': {
+                        'foo': 'bar'
+                    }
+                }
+            },
+            {
+                'Name': 'none_tripleo',
+                'Config': {
+                    'Labels': None,
+                }
+            },
+        ]
+        config = {
+            'mysql': '',
+            'rabbitmq': '',
+            'haproxy': '',
+            'tripleo': '',
+            'doesnt_exist': ''
+        }
+        expected_list = ['rabbitmq']
+        result = self.filters.needs_delete(container_infos=data,
+                                           config=config,
+                                           config_id='tripleo_step1')
+        self.assertEqual(result, expected_list)
