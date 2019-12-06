@@ -46,4 +46,5 @@
 
 - include_tasks: tuned_config.yml
   when:
+    - not ansible_check_mode
     - tuned_check.rc == 0
