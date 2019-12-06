@@ -21,11 +21,10 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+from distutils.version import LooseVersion
 import yaml
 
-from distutils.version import LooseVersion
-
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes, to_native
 
 ANSIBLE_METADATA = {
@@ -873,8 +872,8 @@ class PodmanModuleParams:
         if self.action in ['create', 'run']:
             cmd = [self.action, '--name', self.params['name']]
             all_param_methods = [func for func in dir(self)
-                                 if callable(getattr(self, func)) and
-                                 func.startswith("addparam")]
+                                 if callable(getattr(self, func))
+                                 and func.startswith("addparam")]
             params_set = (i for i in self.params if self.params[i] is not None)
             for param in params_set:
                 func_name = "_".join(["addparam", param])
@@ -1256,32 +1255,7 @@ class PodmanDefaults:
         self.module = module
         self.version = podman_version
         self.defaults = {
-            "annotation": [
-                "io.container.manager",
-                "io.kubernetes.cri-o.containertype",
-                "io.kubernetes.cri-o.created",
-                "io.kubernetes.cri-o.tty",
-                "io.podman.annotations.autoremove",
-                "io.podman.annotations.init",
-                "io.podman.annotations.privileged",
-                "io.podman.annotations.publish-all",
-                "org.opencontainers.image.stopsignal",
-            ],
             "blkio_weight": 0,
-            "cap_add": ['cap_audit_write',
-                        'cap_chown',
-                        'cap_dac_override',
-                        'cap_fowner',
-                        'cap_fsetid',
-                        'cap_kill',
-                        'cap_mknod',
-                        'cap_net_bind_service',
-                        'cap_net_raw',
-                        'cap_setfcap',
-                        'cap_setgid',
-                        'cap_setpcap',
-                        'cap_setuid',
-                        'cap_sys_chroot'],
             "cgroups": "default",
             "cgroup_parent": "",
             "cidfile": "",
@@ -1295,15 +1269,8 @@ class PodmanDefaults:
             "cpuset_mems": "",
             "detach": True,
             "device": [],
-            "env": [
-                "path",
-                "term",
-                "hostname",
-                "container",
-                "home"
-            ],
             "env_host": False,
-            "etc_hosts": [],
+            "etc_hosts": {},
             "group_add": [],
             "ipc": "",
             "kernelmemory": "0",
@@ -1330,13 +1297,6 @@ class PodmanDefaults:
 
     def default_dict(self):
         # make here any changes to self.defaults related to podman version
-        if LooseVersion(self.version) < LooseVersion("1.6.0"):
-            self.defaults["env"] = [
-                "path",
-                "term",
-                "hostname",
-                "container",
-            ]
         return self.defaults
 
 
@@ -1345,53 +1305,14 @@ class PodmanContainerDiff:
         self.module = module
         self.version = podman_version
         self.default_dict = None
-        self.info = json.loads(json.dumps(info).lower())
+        self.info = yaml.safe_load(json.dumps(info).lower())
         self.params = self.defaultize()
         self.diff = {'before': {}, 'after': {}}
         self.non_idempotent = {
             'env_file',
             'env_host',
-            'stop_timeout',
             "ulimit",  # Defaults depend on user and platform, impossible to guess
         }
-        self.all_caps = ['cap_audit_control',
-                         'cap_audit_read',
-                         'cap_audit_write',
-                         'cap_block_suspend',
-                         'cap_chown',
-                         'cap_dac_override',
-                         'cap_dac_read_search',
-                         'cap_fowner',
-                         'cap_fsetid',
-                         'cap_ipc_lock',
-                         'cap_ipc_owner',
-                         'cap_kill',
-                         'cap_lease',
-                         'cap_linux_immutable',
-                         'cap_mac_admin',
-                         'cap_mac_override',
-                         'cap_mknod',
-                         'cap_net_admin',
-                         'cap_net_bind_service',
-                         'cap_net_broadcast',
-                         'cap_net_raw',
-                         'cap_setfcap',
-                         'cap_setgid',
-                         'cap_setpcap',
-                         'cap_setuid',
-                         'cap_sys_admin',
-                         'cap_sys_boot',
-                         'cap_sys_chroot',
-                         'cap_sys_module',
-                         'cap_sys_nice',
-                         'cap_sys_pacct',
-                         'cap_sys_ptrace',
-                         'cap_sys_rawio',
-                         'cap_sys_resource',
-                         'cap_sys_time',
-                         'cap_sys_tty_config',
-                         'cap_syslog',
-                         'cap_wake_alarm']
 
     def defaultize(self):
         params_with_defaults = {}
@@ -1411,15 +1332,12 @@ class PodmanContainerDiff:
             return True
         return False
 
-    # def diffparam_annotation(self):
-    #     before = self.info['config']['annotations']
-    #     after = before.copy()
-    #     if (self.params['annotation'] and self.params['annotation'] != self.default_dict['annotation']):
-    #         after.update(self.params['annotation'])
-    #     for key in list(after):
-    #         if (key not in self.params['annotation'] and key not in self.default_dict['annotation']):
-    #             del after[key]
-    #     return self._diff_update_and_compare('annotation', before, after)
+    def diffparam_annotation(self):
+        before = self.info['config']['annotations'] or {}
+        after = before.copy()
+        if self.module.params['annotation'] is not None:
+            after.update(self.params['annotation'])
+        return self._diff_update_and_compare('annotation', before, after)
 
     def diffparam_env_host(self):
         # It's impossible to get from inspest, recreate it if not default
@@ -1442,26 +1360,23 @@ class PodmanContainerDiff:
 
     def diffparam_cap_add(self):
         before = self.info['effectivecaps'] or []
-        after = self.default_dict['cap_add']
+        after = []
         if self.module.params['cap_add'] is not None:
             after += ["cap_" + i.lower()
                       for i in self.module.params['cap_add']]
-        if self.params['privileged']:
-            after = self.all_caps
+        after += before
         before, after = sorted(list(set(before))), sorted(list(set(after)))
         return self._diff_update_and_compare('cap_add', before, after)
 
     def diffparam_cap_drop(self):
-        before = self.info['effectivecaps']
-        after = self.default_dict['cap_add']
+        before = self.info['effectivecaps'] or []
+        after = before[:]
         if self.module.params['cap_drop'] is not None:
             for c in ["cap_" + i.lower() for i in self.module.params['cap_drop']]:
                 if c in after:
                     after.remove(c)
-        if self.params['privileged']:
-            after = self.all_caps
         before, after = sorted(list(set(before))), sorted(list(set(after)))
-        return self._diff_update_and_compare('cap_add', before, after)
+        return self._diff_update_and_compare('cap_drop', before, after)
 
     def diffparam_cgroup_parent(self):
         before = self.info['hostconfig']['cgroupparent']
@@ -1485,7 +1400,9 @@ class PodmanContainerDiff:
         before = self.info['config']['cmd']
         after = self.params['command']
         if isinstance(after, str):
-            after = after.split()
+            after = [i.lower() for i in after.split()]
+        elif isinstance(after, list):
+            after = [i.lower() for i in after]
         return self._diff_update_and_compare('command', before, after)
 
     def diffparam_conmon_pidfile(self):
@@ -1568,27 +1485,21 @@ class PodmanContainerDiff:
 
     # Limited idempotency, it can't guess default values
     def diffparam_env(self):
-        keys = [i.split("=")[0] for i in self.info['config']['env']]
-        if self.module.params['env'] is None:
-            if sorted(keys) == sorted(self.default_dict['env']):
-                before = after = self.info['config']['env']
-            else:
-                before = self.info['config']['env']
-                after = ["=".join([i, "default"]) for i in self.default_dict['env']]
-            return self._diff_update_and_compare('env', before, after)
-        before = {i.split("=")[0]: i.split("=")[1] for i in self.info['config']['env']}
-        after = {}
-        for key in self.default_dict['env']:
-            after[key] = before[key]
-        for d_key in self.module.params['env']:
-            after[d_key.lower()] = self.module.params['env'][d_key].lower()
+        env_before = self.info['config']['env'] or {}
+        before = {i.split("=")[0]: i.split("=")[1] for i in env_before}
+        after = before.copy()
+        if self.params['env']:
+            after.update({
+                str(k).lower(): str(v).lower()
+                for k, v in self.params['env'].items()
+            })
         return self._diff_update_and_compare('env', before, after)
 
     def diffparam_etc_hosts(self):
         if self.info['hostconfig']['extrahosts']:
             before = dict([i.split(":") for i in self.info['hostconfig']['extrahosts']])
         else:
-            before = []
+            before = {}
         after = self.params['etc_hosts']
         return self._diff_update_and_compare('etc_hosts', before, after)
 
@@ -1617,10 +1528,13 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('ipc', before, after)
 
     def diffparam_label(self):
-        before = self.info['config']['labels']
-        after = self.params['label'] if not self.params['label'] else {
-            k: str(v) for k, v in self.params['label'].items()
-        }
+        before = self.info['config']['labels'] or {}
+        after = before.copy()
+        if self.params['label']:
+            after.update({
+                str(k).lower(): str(v).lower()
+                for k, v in self.params['label'].items()
+            })
         return self._diff_update_and_compare('label', before, after)
 
     def diffparam_log_driver(self):
@@ -1646,9 +1560,9 @@ class PodmanContainerDiff:
         # By default it's twice memory parameter
         before = str(self.info['hostconfig']['memoryswap'])
         after = self.params['memory_swap']
-        if (self.module.params['memory_swap'] is None and
-                self.params['memory'] != 0 and
-                self.params['memory'].isdigit()):
+        if (self.module.params['memory_swap'] is None
+                and self.params['memory'] != 0
+                and self.params['memory'].isdigit()):
             after = str(int(self.params['memory']) * 2)
         return self._diff_update_and_compare('memory_swap', before, after)
 
@@ -1665,6 +1579,8 @@ class PodmanContainerDiff:
     def diffparam_no_hosts(self):
         before = not bool(self.info['hostspath'])
         after = self.params['no_hosts']
+        if self.params['network'] == ['none']:
+            after = True
         return self._diff_update_and_compare('no_hosts', before, after)
 
     def diffparam_oom_score_adj(self):
@@ -1705,7 +1621,10 @@ class PodmanContainerDiff:
 
     def diffparam_user(self):
         before = self.info['config']['user']
-        after = self.params['user']
+        if self.module.params['user'] is None and before:
+            after = before
+        else:
+            after = self.params['user']
         return self._diff_update_and_compare('user', before, after)
 
     def diffparam_uts(self):
@@ -1729,8 +1648,8 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('volume', before, after)
 
     def diffparam_volumes_from(self):
-        before = self.info['hostconfig']['volumesfrom']
-        after = self.params['volumes_from']
+        before = self.info['hostconfig']['volumesfrom'] or []
+        after = self.params['volumes_from'] or []
         return self._diff_update_and_compare('volumes_from', before, after)
 
     def diffparam_workdir(self):
@@ -1861,8 +1780,8 @@ class PodmanContainer:
                                        self.version,
                                        self.module,
                                        ).construct_command_from_params()
-        full_cmd = " ".join([self.module.params['executable']] +
-                            [to_native(i) for i in b_command])
+        full_cmd = " ".join([self.module.params['executable']]
+                            + [to_native(i) for i in b_command])
         self.module.log("PODMAN-CONTAINER-DEBUG: %s" % full_cmd)
         self.actions.append(full_cmd)
         if not self.module.check_mode:
@@ -1990,7 +1909,7 @@ class PodmanManager:
     def make_stopped(self):
         """Run actions if desired state is 'stopped'."""
         if not self.container.exists and not self.image:
-            self.module.fail_json(msg='Cannot create container when image' +
+            self.module.fail_json(msg='Cannot create container when image'
                                       ' is not specified!')
         if not self.container.exists:
             self.container.create()
@@ -2025,7 +1944,7 @@ class PodmanManager:
         }
         process_action = states_map[self.state]
         process_action()
-        self.module.fail_json(msg="Unexpected logic error happened, " +
+        self.module.fail_json(msg="Unexpected logic error happened, "
                                   "please contact maintainers ASAP!")
 
 
