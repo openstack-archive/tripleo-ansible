@@ -2,6 +2,7 @@
 ansible
 ansi2html
 docker
+openstacksdk
 pytest
 pytest-cov
 pytest-html
