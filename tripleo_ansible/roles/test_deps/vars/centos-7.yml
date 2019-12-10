@@ -20,4 +20,5 @@ test_deps_selinux_packages:
   - libselinux-python
 test_deps_tripleo_packages:
   - python-tripleoclient
+  - python-openstacksdk
 test_deps_tripleo_repos: current-tripleo-dev
