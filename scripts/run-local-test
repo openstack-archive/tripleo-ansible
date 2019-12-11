@@ -25,11 +25,13 @@ set -xeuo
 export PROJECT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/../"
 export ROLE_NAME="${ROLE_NAME:-$1}"
 export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-"-v"}
+export UPPER_CONSTRAINTS_FILE= ${UPPER_CONSTRAINTS_FILE:-"https://opendev.org/openstack/requirements/raw/branch/master/upper-constraints.txt"}
 
 ## Functions -----------------------------------------------------------------
 
 function run_pip {
     "${HOME}/test-python/bin/pip" install \
+                                  -c "${UPPER_CONSTRAINTS_FILE}" \
                                   -r "${PROJECT_DIR}/requirements.txt" \
                                   -r "${PROJECT_DIR}/test-requirements.txt" \
                                   -r "${PROJECT_DIR}/molecule-requirements.txt" ${@:-}
