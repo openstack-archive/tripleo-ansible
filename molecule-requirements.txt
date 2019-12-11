@@ -8,7 +8,7 @@ pytest-cov
 pytest-html
 pytest-xdist
 mock
-molecule>=2.22rc1,<3
+molecule==3.0a4
 netaddr
 jinja2>=2.8.0,<3
 
