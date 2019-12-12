@@ -24,3 +24,4 @@ tripleo_config_owner: root
 tripleo_config_group: root
 tripleo_config_mode: 0644
 tripleo_config_overrides: {}
+tripleo_config_remote_src: false

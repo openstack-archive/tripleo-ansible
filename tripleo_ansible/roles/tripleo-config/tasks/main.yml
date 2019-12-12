@@ -31,3 +31,4 @@
     mode: "{{ tripleo_config_mode }}"
     config_overrides: "{{ tripleo_config_overrides }}"
     config_type: "{{ tripleo_config_type }}"
+    remote_src: "{{ tripleo_config_remote_src }}"
