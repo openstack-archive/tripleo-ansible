@@ -39,18 +39,6 @@
       list
     }}"
 
-- name: Check rule set
-  fail:
-    msg: >-
-      `{{ item['rule_name'] }}` firewall rule cannot be created. TCP or UDP rules
-      for INPUT or OUTPUT need sport or dport defined.
-  when:
-    - ((item['rule']['proto'] | default('tcp')) in ['tcp', 'udp']) and
-      (item['rule']['dport'] is undefined) and
-      ((item['rule']['chain'] | default('INPUT')) != 'FORWARD') and
-      ((item['rule']['table'] | default('filter')) != 'nat')
-  loop: "{{ firewall_rules_sorted }}"
-
 - name: Firewall add block
   become: true
   block:
@@ -65,6 +53,8 @@
         state: started
         enabled: true
 
-    - name: Enable filewall port config
-      include_tasks: tripleo_firewall_add.yml
-      loop: "{{ firewall_rules_sorted }}"
+    - name: Manage firewall rules
+      tripleo_iptables:
+        tripleo_rules: "{{ firewall_rules_sorted }}"
+      notify:
+        - Save firewall rules

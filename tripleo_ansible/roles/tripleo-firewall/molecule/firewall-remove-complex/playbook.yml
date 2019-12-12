@@ -61,3 +61,13 @@
           dport: 2212
           extras:
             ensure: 'absent'
+        '124 snmp':
+          dport: 2212
+          source: '192.168.24.1/24'
+          extras:
+            ensure: 'absent'
+        '125 snmp':
+          dport: 2212
+          destination: '::'
+          extras:
+            ensure: 'absent'
