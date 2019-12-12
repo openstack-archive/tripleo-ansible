@@ -47,3 +47,11 @@
           dport: 2211
         '006 ironic-inspector':
           dport: 2212
+        '124 snmp':
+          dport: 2212
+          source: '192.168.24.1/24'
+          chain: test-chain2
+        '125 snmp':
+          dport: 2212
+          destination: '::'
+          chain: test-chain2
