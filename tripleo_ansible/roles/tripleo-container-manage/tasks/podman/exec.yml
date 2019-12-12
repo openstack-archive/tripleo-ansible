@@ -23,13 +23,7 @@
 
 - name: "Async container exec"
   command:
-    argv: "{{ cmd_template + lookup('dict', container_exec_data).value.command }}"
-  vars:
-    cmd_template:
-      - "{{ tripleo_container_manage_cli }}"
-      - "exec"
-      - "-u"
-      - "{{ lookup('dict', container_exec_data).value.user if lookup('dict', container_exec_data).value.user is defined else 'root' }}"
+    argv: "{{ lookup('dict', container_exec_data).value | container_exec_cmd(cli=tripleo_container_manage_cli) }}"
   async: 60
   poll: 0
   register: exec_async_results

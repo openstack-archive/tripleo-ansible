@@ -27,7 +27,8 @@ class FilterModule(object):
             'subsort': self.subsort,
             'needs_delete': self.needs_delete,
             'haskey': self.haskey,
-            'list_of_keys': self.list_of_keys
+            'list_of_keys': self.list_of_keys,
+            'container_exec_cmd': self.container_exec_cmd
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -186,3 +187,38 @@ class FilterModule(object):
             for k, v in i.items():
                 list_of_keys.append(k)
         return list_of_keys
+
+    def list_or_dict_arg(self, data, cmd, key, arg):
+        """Utility to build a command and its argument with list or dict data.
+
+        The key can be a dictionary or a list, the returned arguments will be
+        a list where each item is the argument name and the item data.
+        """
+        if key not in data:
+            return
+        value = data[key]
+        if isinstance(value, dict):
+            for k, v in sorted(value.items()):
+                if v:
+                    cmd.append('%s=%s=%s' % (arg, k, v))
+                elif k:
+                    cmd.append('%s=%s' % (arg, k))
+        elif isinstance(value, list):
+            for v in value:
+                if v:
+                    cmd.append('%s=%s' % (arg, v))
+
+    def container_exec_cmd(self, data, cli='podman'):
+        """Return a list of all the arguments to execute a container exec.
+
+        This filter takes in input the container exec data and the cli name
+        to return the full command in a list of arguments that will be used
+        by Ansible command module.
+        """
+        cmd = [cli, 'exec']
+        cmd.append('--user=%s' % data.get('user', 'root'))
+        if 'privileged' in data:
+            cmd.append('--privileged=%s' % str(data['privileged']).lower())
+        self.list_or_dict_arg(data, cmd, 'environment', '--env')
+        cmd.extend(data['command'])
+        return cmd

@@ -326,3 +326,28 @@ class TestHelperFilters(tests_base.TestCase):
                                            config=config,
                                            config_id='tripleo_step1')
         self.assertEqual(result, expected_list)
+
+    def test_container_exec_cmd(self):
+        data = {
+            "action": "exec",
+            "environment": {
+                "OS_BOOTSTRAP_PASSWORD": "IH7PdaZc5DozbmunSTjMa7",
+                "KOLLA_BOOTSTRAP": True
+            },
+            "start_order": 3,
+            "command": [
+                "keystone",
+                "/usr/bin/bootstrap_host_exec",
+                "keystone",
+                "keystone-manage",
+                "bootstrap"
+            ],
+            "user": "root"
+        }
+        expected_cmd = ['podman', 'exec', '--user=root',
+                        '--env=KOLLA_BOOTSTRAP=True',
+                        '--env=OS_BOOTSTRAP_PASSWORD=IH7PdaZc5DozbmunSTjMa7',
+                        'keystone', '/usr/bin/bootstrap_host_exec',
+                        'keystone', 'keystone-manage', 'bootstrap']
+        result = self.filters.container_exec_cmd(data=data)
+        self.assertEqual(result, expected_cmd)
