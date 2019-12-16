@@ -70,6 +70,6 @@
 
 - name: "Assign Keystone Users to Roles"
   include_tasks: user_roles.yml
-  loop: "{{ tripleo_keystone_resources_catalog_config | dict2items | batch(5) | list }}"
+  loop: "{{ tripleo_keystone_resources_catalog_config | get_role_assignments() | dict2items }}"
   loop_control:
-    loop_var: batched_tripleo_keystone_resources_data
+    loop_var: batched_tripleo_keystone_resources_roles_data

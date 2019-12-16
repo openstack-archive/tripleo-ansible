@@ -17,6 +17,6 @@
 - name: "Async assignment of Keystone user per role"
   include_tasks: user_to_project_per_role.yml
   # This loop is required as a user can have multiple roles but the os_user_role doesn't handle it.
-  loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='roles', default='admin') | batch(5) | list }}"
+  loop: "{{ batched_tripleo_keystone_resources_roles_data.value | batch(5) | list }}"
   loop_control:
-    loop_var: tripleo_keystone_resources_data_roles
+    loop_var: tripleo_keystone_resources_data_users

@@ -411,3 +411,24 @@ class TestHelperFilters(tests_base.TestCase):
                         'keystone', 'keystone-manage', 'bootstrap']
         result = self.filters.container_exec_cmd(data=data)
         self.assertEqual(result, expected_cmd)
+
+    def test_get_role_assignments(self):
+        data = {
+           'nova': {
+             'roles': ['service', 'admin'],
+           },
+           'glance': {
+             'roles': 'service1',
+             'user': 'glance'
+           },
+           'cinder': {
+             'project': 'service2'
+           }
+        }
+        expected_hash = {
+          'admin': ['nova', 'cinder'],
+          'service': ['nova'],
+          'service1': ['glance']
+        }
+        result = self.filters.get_role_assignments(data)
+        self.assertEqual(result, expected_hash)

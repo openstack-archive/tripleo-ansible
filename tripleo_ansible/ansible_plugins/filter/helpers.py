@@ -30,7 +30,8 @@ class FilterModule(object):
             'list_of_keys': self.list_of_keys,
             'container_exec_cmd': self.container_exec_cmd,
             'get_key_from_dict': self.get_key_from_dict,
-            'recursive_get_key_from_dict': self.recursive_get_key_from_dict
+            'recursive_get_key_from_dict': self.recursive_get_key_from_dict,
+            'get_role_assignments': self.get_role_assignments
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -269,3 +270,23 @@ class FilterModule(object):
         self.list_or_dict_arg(data, cmd, 'environment', '--env')
         cmd.extend(data['command'])
         return cmd
+
+    def get_role_assignments(self, data, default_role='admin'):
+        """Return a dict of all roles and their users.
+
+        This filter takes in input the keystone resources data and
+        returns a dict where each key is a role and its users assigned.
+        """
+        returned_dict = {}
+        for k, v in data.items():
+            roles = v.get('roles', default_role)
+            if isinstance(roles, list):
+                for r in roles:
+                    if r not in returned_dict:
+                        returned_dict[r] = []
+                    returned_dict[r].append(k)
+            else:
+                if roles not in returned_dict:
+                    returned_dict[roles] = []
+                returned_dict[roles].append(k)
+        return returned_dict
