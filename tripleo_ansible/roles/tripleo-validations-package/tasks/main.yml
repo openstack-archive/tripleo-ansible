@@ -19,11 +19,19 @@
     name: 'openstack-tripleo-validations'
     state: installed
 
-- name: 'Create validations user'
-  user:
-    name: 'validations'
-    comment: 'Tripleo validations'
-    create_home: true
-    home: '/home/validations'
-    shell: '/sbin/nologin'
+- name: Set group name fact
+  set_fact:
+    validations_group_name: "{{ lookup('env', 'SUDO_USER') | default(ansible_user_id, true) }}"
+
+- name: Ensure 'validations_group_name' exists
+  group:
+    name: "{{ validations_group_name }}"
     state: present
+
+- name: 'Create validations logging directory'
+  file:
+    path: '/var/log/validations'
+    state: directory
+    owner: 'root'
+    group: "{{ validations_group_name }}"
+    mode: '2770'
