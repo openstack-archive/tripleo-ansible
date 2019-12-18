@@ -12,6 +12,8 @@
           - ^doc/.*
           - ^README.rst
       - tripleo-ci-centos-7-containers-multinode: &containers_multinode
+          dependencies: &deps
+            - openstack-tox-linters
           files:
           - ^tripleo_ansible/.*
           irrelevant-files: &irrelevant_scenario_files
@@ -23,10 +25,12 @@
           - ^tripleo_ansible/.*meta.*
           - ^tripleo_ansible/roles/test_deps/.*
       - tripleo-ci-centos-7-undercloud-containers: &undercloud_containers
+          dependencies: *deps
           files:
           - ^tripleo_ansible/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario001-standalone: &scenario001
+          dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo-ceph-*/.*
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
@@ -34,25 +38,30 @@
           - ^setup.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario002-standalone: &scenario002
+          dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario003-standalone: &scenario003
+          dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo-create-admin/.*
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario004-standalone: &scenario004
+          dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo-ceph-*/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-scenario010-standalone: &scenario010
+          dependencies: *deps
           files:
           - ^tripleo_ansible/.*octavia.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-standalone-upgrade: &standalone_upgrade
+          dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
