@@ -177,11 +177,12 @@ class ActionModule(ActionBase):
 
             action = rule_data['action'] = rule.get('action', 'insert')
             if action == 'drop':
-                rule_data['action'] = 'insert'
-                rule_data['state'] = 'absent'
+                rule_data['action'] = 'append'
+                rule_data['jump'] = rule.get('jump', 'DROP')
+            else:
+                rule_data['jump'] = rule.get('jump', 'ACCEPT')
 
             rule_data['chain'] = rule.get('chain', 'INPUT')
-            rule_data['jump'] = rule.get('jump', 'ACCEPT')
             rule_data['protocol'] = rule.get('proto', 'tcp')
             if 'table' in rule:
                 rule_data['table'] = rule['table']
