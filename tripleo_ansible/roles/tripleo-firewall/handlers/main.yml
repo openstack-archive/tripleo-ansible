@@ -25,25 +25,42 @@
   become: true
   listen: Save firewall rules
 
+- name: Enable iptables service (and do a daemon-reload systemd)
+  systemd:
+    daemon_reload: true
+    enabled: true
+    name: "{{ item }}"
+    state: started
+  loop:
+    - iptables.service
+    - ip6tables.service
+  become: true
+  listen: Save firewall rules
+
 - name: Enable tripleo-iptables service (and do a daemon-reload systemd)
   systemd:
     daemon_reload: true
     enabled: true
-    name: tripleo-iptables.service
+    name: "{{ item }}"
+    state: started
+  loop:
+    - tripleo-iptables.service
+    - tripleo-ip6tables.service
   failed_when: false
   become: true
   listen: Save firewall rules
 
-- name: Enable tripleo-ip6tables service
+- name: Stop and disable firewalld
   systemd:
-    enabled: true
-    name: tripleo-ip6tables.service
+    enabled: false
+    name: "firewalld.service"
+    state: stopped
   failed_when: false
   become: true
   listen: Save firewall rules
 
 - name: Find non-persistent rules
-  command: egrep -l 'comment.*(neutron-|ironic-inspector)' /etc/sysconfig/iptables /etc/sysconfig/ip6tables
+  command: egrep -l 'comment.*(neutron-|ironic-inspector)' /etc/sysconfig/iptables* /etc/sysconfig/ip6tables*
   failed_when: false
   changed_when: false
   register: neutron_rules
