@@ -3,91 +3,91 @@
     check:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
+      - tripleo-ansible-centos-7-molecule-backup-and-restore
+      - tripleo-ansible-centos-7-molecule-login-defs
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_json_error_callback
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
+      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
+      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
+      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
+      - tripleo-ansible-centos-7-molecule-tripleo-config
+      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-7-molecule-tripleo-container-manage
+      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
+      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
+      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
+      - tripleo-ansible-centos-7-molecule-tripleo-firewall
+      - tripleo-ansible-centos-7-molecule-tripleo-hieradata
+      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
+      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
+      - tripleo-ansible-centos-7-molecule-tripleo-kernel
+      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+      - tripleo-ansible-centos-7-molecule-tripleo-module-load
+      - tripleo-ansible-centos-7-molecule-tripleo-modules
+      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
+      - tripleo-ansible-centos-7-molecule-tripleo-packages
+      - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-7-molecule-tripleo-podman
+      - tripleo-ansible-centos-7-molecule-tripleo-ptp
+      - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-securetty
+      - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
+      - tripleo-ansible-centos-7-molecule-tripleo-sshd
+      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-7-molecule-tripleo-timezone
+      - tripleo-ansible-centos-7-molecule-tripleo-transfer
+      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
+      - tripleo-ansible-centos-7-molecule-tripleo-validations-package
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
-      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
-      - tripleo-ansible-centos-7-molecule-tripleo-module-load
-      - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
-      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
-      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
-      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
-      - tripleo-ansible-centos-7-molecule-tripleo-transfer
-      - tripleo-ansible-centos-7-molecule-tripleo-podman
-      - tripleo-ansible-centos-7-molecule-tripleo-persist
-      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
-      - tripleo-ansible-centos-7-molecule-login-defs
-      - tripleo-ansible-centos-7-molecule-tripleo-ptp
-      - tripleo-ansible-centos-7-molecule-tripleo-timezone
-      - tripleo-ansible-centos-7-molecule-tripleo-config
-      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
-      - tripleo-ansible-centos-7-molecule-tripleo-hieradata
-      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
-      - tripleo-ansible-centos-7-molecule-tripleo-kernel
-      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
-      - tripleo-ansible-centos-7-molecule-tripleo-firewall
-      - tripleo-ansible-centos-7-molecule-tripleo-securetty
-      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
-      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
-      - tripleo-ansible-centos-7-molecule-tripleo-validations-package
-      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
-      - tripleo-ansible-centos-7-molecule-tripleo-sshd
-      - tripleo-ansible-centos-7-molecule-backup-and-restore
-      - tripleo-ansible-centos-7-molecule-tripleo-packages
-      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
-      - tripleo-ansible-centos-7-molecule-tripleo-container-manage
-      - tripleo-ansible-centos-7-molecule-tripleo-modules
-      - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
-      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
-      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
-      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
     gate:
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
+      - tripleo-ansible-centos-7-molecule-backup-and-restore
+      - tripleo-ansible-centos-7-molecule-login-defs
       - tripleo-ansible-centos-7-molecule-test_deps
       - tripleo-ansible-centos-7-molecule-test_json_error_callback
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
+      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
+      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
+      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
+      - tripleo-ansible-centos-7-molecule-tripleo-config
+      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-7-molecule-tripleo-container-manage
+      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
+      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
+      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
+      - tripleo-ansible-centos-7-molecule-tripleo-firewall
+      - tripleo-ansible-centos-7-molecule-tripleo-hieradata
+      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
+      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
+      - tripleo-ansible-centos-7-molecule-tripleo-kernel
+      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+      - tripleo-ansible-centos-7-molecule-tripleo-module-load
+      - tripleo-ansible-centos-7-molecule-tripleo-modules
+      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
+      - tripleo-ansible-centos-7-molecule-tripleo-packages
+      - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-7-molecule-tripleo-podman
+      - tripleo-ansible-centos-7-molecule-tripleo-ptp
+      - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
+      - tripleo-ansible-centos-7-molecule-tripleo-securetty
+      - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
+      - tripleo-ansible-centos-7-molecule-tripleo-sshd
+      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-7-molecule-tripleo-timezone
+      - tripleo-ansible-centos-7-molecule-tripleo-transfer
+      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
+      - tripleo-ansible-centos-7-molecule-tripleo-validations-package
       - tripleo-ansible-centos-7-molecule-tuned
       - tripleo-ansible-centos-7-role-addition
-      - tripleo-ansible-centos-7-molecule-tripleo-create-admin
-      - tripleo-ansible-centos-7-molecule-tripleo-module-load
-      - tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
-      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
-      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
-      - tripleo-ansible-centos-7-molecule-tripleo-image-serve
-      - tripleo-ansible-centos-7-molecule-tripleo-transfer
-      - tripleo-ansible-centos-7-molecule-tripleo-podman
-      - tripleo-ansible-centos-7-molecule-tripleo-persist
-      - tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
-      - tripleo-ansible-centos-7-molecule-login-defs
-      - tripleo-ansible-centos-7-molecule-tripleo-ptp
-      - tripleo-ansible-centos-7-molecule-tripleo-timezone
-      - tripleo-ansible-centos-7-molecule-tripleo-config
-      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
-      - tripleo-ansible-centos-7-molecule-tripleo-hieradata
-      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
-      - tripleo-ansible-centos-7-molecule-tripleo-kernel
-      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
-      - tripleo-ansible-centos-7-molecule-tripleo-firewall
-      - tripleo-ansible-centos-7-molecule-tripleo-securetty
-      - tripleo-ansible-centos-7-molecule-tripleo-cellv2
-      - tripleo-ansible-centos-7-molecule-tripleo-clients-install
-      - tripleo-ansible-centos-7-molecule-tripleo-validations-package
-      - tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
-      - tripleo-ansible-centos-7-molecule-tripleo-sshd
-      - tripleo-ansible-centos-7-molecule-backup-and-restore
-      - tripleo-ansible-centos-7-molecule-tripleo-packages
-      - tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
-      - tripleo-ansible-centos-7-molecule-tripleo-container-manage
-      - tripleo-ansible-centos-7-molecule-tripleo-modules
-      - tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
-      - tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
-      - tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
-      - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -96,6 +96,20 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: aide
+- job:
+    files:
+    - ^tripleo_ansible/roles/backup-and-restore/.*
+    name: tripleo-ansible-centos-7-molecule-backup-and-restore
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: backup-and-restore
+- job:
+    files:
+    - ^tripleo_ansible/roles/login-defs/.*
+    name: tripleo-ansible-centos-7-molecule-login-defs
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: login-defs
 - job:
     files:
     - ^tripleo_ansible/roles/test_deps/.*
@@ -128,6 +142,245 @@
       tripleo_role_name: tripleo-bootstrap
 - job:
     files:
+    - ^tripleo_ansible/roles/tripleo-cellv2/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-cellv2
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-cellv2
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ceph-run-ansible/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
+      tripleo_role_name: tripleo-ceph-run-ansible
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-clients-install/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-clients-install
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-clients-install
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-config/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-config
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-config
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-image-prepare/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_docker_enable_vfs: true
+      tripleo_docker_temp_file: '{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json'
+      tripleo_role_name: tripleo-container-image-prepare
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-manage/.*
+    - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
+    - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
+    - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-manage
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-container-manage
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-rm/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-rm
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-container-rm
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-stop/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-stop
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-container-stop
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-tag/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-container-tag
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-create-admin/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-create-admin
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-create-admin
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-firewall/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-firewall
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-firewall
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-hieradata/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-hieradata
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-hieradata
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-hosts-entries/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-hosts-entries
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-image-serve/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-image-serve
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-image-serve
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-kernel/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-kernel
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-kernel
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-keystone-resources/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-keystone-resources
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-module-load/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-module-load
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-module-load
+- job:
+    files:
+    - ^tripleo_ansible/ansible_plugins/.*$
+    - ^tox.ini
+    - ^molecule-requirements.txt
+    name: tripleo-ansible-centos-7-molecule-tripleo-modules
+    parent: tripleo-ansible-centos-7-base
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-nova-image-cache/.*
+    - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
+    name: tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-nova-image-cache
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ovs-dpdk/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-ovs-dpdk
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-packages/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-packages
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-packages
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-persist/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-persist
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-persist
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-podman/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-podman
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-podman
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ptp/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ptp
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-ptp
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-puppet-cache/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-puppet-cache
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-securetty/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-securetty
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-securetty
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-ssh-known-hosts/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-ssh-known-hosts
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-sshd/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-sshd
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-sshd
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-systemd-wrapper/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-systemd-wrapper
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-timezone/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-timezone
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-timezone
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-transfer/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-transfer
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-transfer
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-upgrade-hiera
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-validations-package/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-validations-package
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-validations-package
+- job:
+    files:
     - ^tripleo_ansible/roles/tuned/.*
     - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-7-molecule-tuned
@@ -147,256 +400,3 @@
     timeout: 1800
     vars:
       tox_envlist: role-addition
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-create-admin/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-create-admin
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-create-admin
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-module-load/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-module-load
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-module-load
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-ssh-known-hosts/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-ssh-known-hosts
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-ssh-known-hosts
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-container-tag/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-container-tag
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-container-rm/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-rm
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-container-rm
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-image-serve/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-image-serve
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-image-serve
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-transfer/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-transfer
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-transfer
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-podman/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-podman
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-podman
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-persist/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-persist
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-persist
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-ceph-run-ansible/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-ceph-run-ansible
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
-      tripleo_role_name: tripleo-ceph-run-ansible
-- job:
-    files:
-    - ^tripleo_ansible/roles/login-defs/.*
-    name: tripleo-ansible-centos-7-molecule-login-defs
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: login-defs
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-ptp/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-ptp
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-ptp
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-timezone/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-timezone
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-timezone
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-config/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-config
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-config
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-container-stop/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-stop
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-container-stop
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-hieradata/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-hieradata
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-hieradata
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-upgrade-hiera
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-kernel/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-kernel
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-kernel
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-container-image-prepare/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_docker_enable_vfs: true
-      tripleo_docker_temp_file: '{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json'
-      tripleo_role_name: tripleo-container-image-prepare
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-firewall/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-firewall
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-firewall
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-securetty/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-securetty
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-securetty
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-cellv2/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-cellv2
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-cellv2
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-clients-install/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-clients-install
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-clients-install
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-validations-package/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-validations-package
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-validations-package
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-ovs-dpdk/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-ovs-dpdk
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-ovs-dpdk
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-sshd/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-sshd
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-sshd
-- job:
-    files:
-    - ^tripleo_ansible/roles/backup-and-restore/.*
-    name: tripleo-ansible-centos-7-molecule-backup-and-restore
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: backup-and-restore
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-packages/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-packages
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-packages
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-hosts-entries/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-hosts-entries
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-hosts-entries
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-container-manage/.*
-    - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
-    - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
-    - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-manage
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-container-manage
-- job:
-    files:
-    - ^tripleo_ansible/ansible_plugins/.*$
-    - ^tox.ini
-    - ^molecule-requirements.txt
-    name: tripleo-ansible-centos-7-molecule-tripleo-modules
-    parent: tripleo-ansible-centos-7-base
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-puppet-cache/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-puppet-cache
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-puppet-cache
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-systemd-wrapper/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-systemd-wrapper
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-systemd-wrapper
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-keystone-resources/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-keystone-resources
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-keystone-resources
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-nova-image-cache/.*
-    - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
-    name: tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: tripleo-nova-image-cache
