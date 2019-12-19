@@ -71,7 +71,7 @@
   lineinfile:
     path: "{{ item }}"
     state: absent
-    regexp: 'comment.*(neutron-|ironic-inspector)'
+    regexp: '^((?!.*comment)(?=.*(ironic-inspector|neutron-)))'
   when:
     - item.find('v=' ~ '^/') == -1
   loop: "{{ neutron_rules.stdout_lines }}"
