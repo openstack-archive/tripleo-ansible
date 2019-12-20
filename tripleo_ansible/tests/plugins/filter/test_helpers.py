@@ -687,6 +687,26 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.get_key_from_dict(data, key='users')
         self.assertEqual(result, expected_list)
 
+    def test_recursive_get_key_from_dict(self):
+        data = {
+            'step': {'container': {'name': 'foo', 'image': 'bar'},
+                     'other_container': {'name': 'meh', 'image': 'baz'}
+            }
+        }
+        expected_list = ['bar', 'baz']
+        result = self.filters.recursive_get_key_from_dict(data, 'image')
+        self.assertEqual(result, expected_list)
+
+    def test_recursive_get_key_from_dict_multiple_levels(self):
+        data = {
+            'a': {'b': {'val': 1},
+                  'c': {'val': 2, 'd': {'val': 3}}
+            }
+        }
+        expected_list = [1, 2, 3]
+        result = self.filters.recursive_get_key_from_dict(data, 'val')
+        self.assertEqual(result, expected_list)
+
     def test_container_exec_cmd(self):
         data = {
             "action": "exec",
