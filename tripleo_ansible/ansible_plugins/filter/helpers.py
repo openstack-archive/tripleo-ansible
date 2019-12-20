@@ -29,7 +29,8 @@ class FilterModule(object):
             'haskey': self.haskey,
             'list_of_keys': self.list_of_keys,
             'container_exec_cmd': self.container_exec_cmd,
-            'get_key_from_dict': self.get_key_from_dict
+            'get_key_from_dict': self.get_key_from_dict,
+            'recursive_get_key_from_dict': self.recursive_get_key_from_dict
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -217,6 +218,22 @@ class FilterModule(object):
                 if value not in returned_list:
                     returned_list.append(value)
         return sorted(returned_list)
+
+    def recursive_get_key_from_dict(self, data, key):
+        """Recursively return values for keys in a dict
+
+        This filter will traverse all the dictionaries in the provided
+        dictionary and return any values for a specified key.  This is useful
+        if you have a complex dictionary containing dynamic keys but want to
+        fetch a commonly named key.
+        """
+        val = []
+        if key in data:
+            val.append(data.get(key))
+        for k, v in data.items():
+            if isinstance(v, dict):
+                val.extend(self.recursive_get_key_from_dict(v, key))
+        return val
 
     def list_or_dict_arg(self, data, cmd, key, arg):
         """Utility to build a command and its argument with list or dict data.
