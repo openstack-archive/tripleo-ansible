@@ -53,17 +53,19 @@
           {%     if (cloud_domain is defined) and (ctlplane_ip is defined) %}
           {%       set line = '[' ~ ctlplane_ip ~ ']*,[' ~ host ~ '.' ~ cloud_domain ~ ']*,[' ~ host ~ ']*' %}
           {%       set role_networks = hostdata['role_networks'] | default([]) %}
-          {%       if ((enabled_networks is defined) and ((enabled_networks | length) > 0) and ((role_networks | length) > 0)) %}
-          {%         set line = line ~ ',' %}
-          {%         for network in enabled_networks %}
-          {%           if network in role_networks %}
-          {%             set line = line ~ '[' ~ hostdata[(networks[network]["name"] ~ '_ip')] ~ ']*,[' ~ host ~ '.' ~ network.lower() ~ ']*,' %}
-          {%             set line = line ~ '[' ~ host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ']*' %}
-          {%             if not loop.last %}
-          {%               set line = line ~ ',' %}
+          {%       if ((enabled_networks is defined and enabled_networks) and ((enabled_networks | length) > 0)) %}
+          {%         if ((role_networks is defined and role_networks) and ((role_networks | length) > 0)) %}
+          {%           set line = line ~ ',' %}
+          {%           for network in enabled_networks %}
+          {%             if network in role_networks %}
+          {%               set line = line ~ '[' ~ hostdata[(networks[network]["name"] ~ '_ip')] ~ ']*,[' ~ host ~ '.' ~ network.lower() ~ ']*,' %}
+          {%               set line = line ~ '[' ~ host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ']*' %}
+          {%               if not loop.last %}
+          {%                 set line = line ~ ',' %}
+          {%               endif %}
           {%             endif %}
-          {%           endif %}
-          {%         endfor %}
+          {%           endfor %}
+          {%         endif %}
           {%       endif %}
           {%       set line = line ~ ' ssh-rsa ' ~ hostdata['ansible_ssh_host_key_rsa_public'] | default(ansible_ssh_host_key_rsa_public) %}
           {{ line }}
