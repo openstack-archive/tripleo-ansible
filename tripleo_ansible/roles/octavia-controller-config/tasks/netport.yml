@@ -64,7 +64,7 @@
   set_fact:
     mgmt_port_netmask: "{{ mgmt_subnet_cidr | ipaddr('netmask') }}"
 
-- name: get MTU for managment port
+- name: get MTU for management port
   shell: |
     openstack network show {{ lb_mgmt_net_name }} -f value -c mtu
   register: out_mgmt_port_mtu
