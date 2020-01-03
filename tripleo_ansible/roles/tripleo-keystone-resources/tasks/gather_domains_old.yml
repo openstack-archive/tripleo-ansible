@@ -13,10 +13,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+#
+- name: Collect OpenStack Keystone domains facts
+  os_keystone_domain_facts:
+    cloud: "{{ tripleo_keystone_resources_cloud_name }}"
+  register: tripleo_domains_facts
 
-- name: "Async assignment of Keystone user per role"
-  include_tasks: user_per_role.yml
-  # This loop is required as a user can have multiple roles but the os_user_role doesn't handle it.
-  loop: "{{ batched_tripleo_keystone_resources_roles_data.value | batch(tripleo_keystone_resources_batch) | list }}"
-  loop_control:
-    loop_var: tripleo_keystone_resources_data_users
+- name: Create openstack_domains fact
+  set_fact:
+    openstack_domains: "{{ tripleo_domains_facts['ansible_facts']['openstack_domains'] }}"

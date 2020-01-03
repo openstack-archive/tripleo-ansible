@@ -16,6 +16,6 @@
 
 - name: "Create Keystone {{ keystone_endpoint_type }} endpoints"
   include_tasks: endpoints.yml
-  loop: "{{ tripleo_keystone_resources_catalog_config | dict2items | batch(5) | list }}"
+  loop: "{{ tripleo_keystone_resources_catalog_config | dict2items | haskey(attribute='endpoints') | batch(tripleo_keystone_resources_batch) | list }}"
   loop_control:
     loop_var: batched_tripleo_keystone_resources_data

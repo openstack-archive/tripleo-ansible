@@ -17,8 +17,12 @@
 - name: "Async assignment of Keystone user to roles"
   os_user_role:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-    user: "{{ tripleo_keystone_resources_data_user }}"
-    project: "{{ tripleo_keystone_resources_service_project | default('service') }}"
+    user: "{{ lookup('dict', tripleo_keystone_resources_data_user).key }}"
+    project: "{{ lookup('dict', tripleo_keystone_resources_data_user).value.project | default(omit) }}"
+    # TODO(emilien) remove the custom filter once the module moved to OpenStack collections and we can make changes
+    domain: >-
+      {{ lookup('dict', tripleo_keystone_resources_data_user).value.domain | default(omit) |
+      get_domain_id(all_domains=openstack_domains) | default(omit) }}
     role: "{{ batched_tripleo_keystone_resources_roles_data.key }}"
     state: present
   async: 60

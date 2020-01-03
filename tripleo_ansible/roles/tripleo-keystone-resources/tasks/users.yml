@@ -17,10 +17,10 @@
 - name: "Async creation of Keystone user"
   os_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-    name: "{{ tripleo_keystone_resources_data.key }}"
-    password: "{{ tripleo_keystone_resources_data.value.password }}"
-    email: "{{ tripleo_keystone_resources_data.key }}@localhost"
-    domain: default
+    name: "{{ lookup('dict', tripleo_keystone_resources_data).key }}"
+    password: "{{ lookup('dict', tripleo_keystone_resources_data).value.password }}"
+    email: "{{ lookup('dict', tripleo_keystone_resources_data).key }}@localhost"
+    domain: "{{ lookup('dict', tripleo_keystone_resources_data).value.domain | default('default') }}"
     state: present
   async: 60
   poll: 0

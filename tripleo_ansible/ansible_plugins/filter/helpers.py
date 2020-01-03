@@ -31,7 +31,8 @@ class FilterModule(object):
             'container_exec_cmd': self.container_exec_cmd,
             'get_key_from_dict': self.get_key_from_dict,
             'recursive_get_key_from_dict': self.recursive_get_key_from_dict,
-            'get_role_assignments': self.get_role_assignments
+            'get_role_assignments': self.get_role_assignments,
+            'get_domain_id': self.get_domain_id
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -147,11 +148,10 @@ class FilterModule(object):
 
         return to_delete
 
-    def haskey(self, batched_container_data, attribute, value=None,
-               reverse=False, any=False):
-        """Return container data with a specific config key.
+    def haskey(self, data, attribute, value=None, reverse=False, any=False):
+        """Return dict data with a specific key.
 
-        This filter will take a list of dictionaries (batched_container_data)
+        This filter will take a list of dictionaries (data)
         and will return the dictionnaries which have a certain key given
         in parameter with 'attribute'.
         If reverse is set to True, the returned list won't contain dictionaries
@@ -160,11 +160,11 @@ class FilterModule(object):
         the list of values for "value" parameter which has to be a list.
         """
         return_list = []
-        for container in batched_container_data:
-            for k, v in json.loads(json.dumps(container)).items():
+        for i in data:
+            for k, v in json.loads(json.dumps(i)).items():
                 if attribute in v and not reverse:
                     if value is None:
-                        return_list.append({k: v})
+                        return_list.append(i)
                     else:
                         if isinstance(value, list) and any:
                             if v[attribute] in value:
@@ -215,10 +215,14 @@ class FilterModule(object):
                 for v in value:
                     if v not in returned_list:
                         returned_list.append(v)
+            elif isinstance(value, dict):
+                for k, v in value.items():
+                    if v not in returned_list:
+                        returned_list.append({k: v})
             else:
                 if value not in returned_list:
                     returned_list.append(value)
-        return sorted(returned_list)
+        return returned_list
 
     def recursive_get_key_from_dict(self, data, key):
         """Recursively return values for keys in a dict
@@ -271,22 +275,58 @@ class FilterModule(object):
         cmd.extend(data['command'])
         return cmd
 
-    def get_role_assignments(self, data, default_role='admin'):
+    def get_role_assignments(self, data, default_role='admin',
+                             default_project='service'):
         """Return a dict of all roles and their users.
 
         This filter takes in input the keystone resources data and
         returns a dict where each key is a role and its users assigned.
+        If 'domain' or 'project' are specified, they are added to the user
+        entry; so the user will be assign to the domain or the project.
+        If no domain and no project are specified, default_project will be
+        used.
+        Note that domain and project are mutually exclusive in Keystone v3.
         """
         returned_dict = {}
-        for k, v in data.items():
-            roles = v.get('roles', default_role)
-            if isinstance(roles, list):
-                for r in roles:
-                    if r not in returned_dict:
-                        returned_dict[r] = []
-                    returned_dict[r].append(k)
-            else:
-                if roles not in returned_dict:
-                    returned_dict[roles] = []
-                returned_dict[roles].append(k)
+        for d in data:
+            for k, v in d.items():
+                roles = v.get('roles', default_role)
+                domain = v.get('domain')
+                project = v.get('project')
+
+                if domain is not None and project is not None:
+                    raise TypeError('domain and project need to be mutually '
+                                    'exclusive for user: %s' % k)
+
+                if isinstance(roles, list):
+                    for r in roles:
+                        if r not in returned_dict:
+                            returned_dict[r] = []
+                        if domain is not None:
+                            returned_dict[r].append({k: {'domain': domain}})
+                        elif project is not None:
+                            returned_dict[r].append({k: {'project': project}})
+                        else:
+                            returned_dict[r].append({k: {'project':
+                                                         default_project}})
+                else:
+                    if roles not in returned_dict:
+                        returned_dict[roles] = []
+                    if domain is not None:
+                        returned_dict[roles].append({k: {'domain': domain}})
+                    elif project is not None:
+                        returned_dict[roles].append({k: {'project': project}})
+                    else:
+                        returned_dict[roles].append({k: {'project':
+                                                         default_project}})
         return returned_dict
+
+    def get_domain_id(self, domain_name, all_domains):
+        """Return the ID of a domain by its name.
+
+        This filter taks in input a domain name and a dictionary with all
+        domain informations.
+        """
+        for d in all_domains:
+            if d.get('name') == domain_name:
+                return d.get('id')
