@@ -14,10 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import ast
 import json
+import six
 
 from collections import OrderedDict
 from operator import itemgetter
+
+
+# cmp() doesn't exist on python3
+if six.PY3:
+    def cmp(a, b):
+        return 0 if a == b else 1
 
 
 class FilterModule(object):
@@ -126,24 +134,12 @@ class FilterModule(object):
             except KeyError:
                 continue
 
-            # Build c_facts so it can be compared later with config_data;
-            # both will be json.dumps objects.
-            c_facts = json.dumps(
-                json.loads(c_facts[0]).get(c_name)
-            ) if len(c_facts) == 1 else {}
+            # Build c_facts so it can be compared later with config_data
+            c_facts = ast.literal_eval(c_facts[0]) if (
+                                       len(c_facts)) == 1 else dict()
 
-            # 0 was picked since it's the null_value for the subsort filter.
-            # When a container config doesn't provide the start_order, it'll be
-            # 0 by default, therefore it needs to be added in the config_data
-            # when comparing with the actual container_infos results.
-            if 'start_order' not in config_data:
-                config_data['start_order'] = 0
-
-            # TODO(emilien) double check the comparing here and see if
-            # types are accurate (string vs dict, etc)
-            if c_facts != json.dumps(config_data):
+            if cmp(c_facts, config_data) != 0:
                 to_delete += [c_name]
-                continue
 
         return to_delete
 
