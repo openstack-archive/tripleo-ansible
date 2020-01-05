@@ -18,6 +18,9 @@
   async: 300
   poll: 0
   register: create_async_results
+  # async and check mode don't work together
+  when:
+    - not ansible_check_mode|bool
   loop: "{{ batched_container_data | haskey(attribute='action', reverse=True) }}"
   loop_control:
     loop_var: container_data
@@ -72,7 +75,9 @@
   register: create_async_poll_results
   until: create_async_poll_results.finished
   retries: 30
-  when: not ansible_check_mode|bool
+  # async and check mode don't work together
+  when:
+    - not ansible_check_mode|bool
 
 # This fact will be used in systemd playbook to figure out if whether or not
 # a container managed by systemd needs to be restarted
