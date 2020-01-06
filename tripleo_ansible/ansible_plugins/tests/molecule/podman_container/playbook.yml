@@ -239,7 +239,7 @@
         - name: Recreate container with parameters
           podman_container:
             name: container
-            image: alpine:3.7
+            image: docker.io/alpine:3.7
             state: started
             command: sleep 1d
             recreate: true
