@@ -1519,7 +1519,10 @@ class PodmanContainerDiff:
             "docker.io/library/", "").replace(
                 "docker.io/", "").replace(
                     ":latest", "")
-        after = self.params['image']
+        after = self.params['image'].replace(
+            "docker.io/library/", "").replace(
+                "docker.io/", "").replace(
+                    ":latest", "")
         return self._diff_update_and_compare('image', before, after)
 
     def diffparam_ipc(self):
