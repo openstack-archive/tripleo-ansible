@@ -18,7 +18,7 @@
   os_keystone_endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: "{{ tripleo_keystone_resources_data.key }}"
-    url: "{{ tripleo_keystone_resources_data['value']['urls'][keystone_endpoint_type] }}"
+    url: "{{ tripleo_keystone_resources_data['value']['endpoints'][keystone_endpoint_type] }}"
     endpoint_interface: "{{ keystone_endpoint_type }}"
     region: "{{ tripleo_keystone_resources_data.value.region }}"
     state: present
