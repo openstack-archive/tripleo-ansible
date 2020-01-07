@@ -55,6 +55,7 @@
       find:
         paths: "{{ tripleo_container_manage_config }}"
         patterns: "{{ tripleo_container_manage_config_patterns }}"
+        recurse: true
       register: matched_files
     - name: "Read config for each container in {{ tripleo_container_manage_config }}"
       slurp:
