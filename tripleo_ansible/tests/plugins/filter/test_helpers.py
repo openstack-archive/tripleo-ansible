@@ -287,7 +287,19 @@ class TestHelperFilters(tests_base.TestCase):
                         'config_id': 'tripleo_step1',
                         'container_name': 'swift',
                         'name': 'swift',
-                        'config_data': 'foo',
+                        'config_data': "{'foo': 'bar'}",
+                    }
+                }
+            },
+            {
+                'Name': 'heat',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'heat',
+                        'name': 'heat',
+                        'config_data': "{'start_order': 0}",
                     }
                 }
             },
@@ -295,7 +307,8 @@ class TestHelperFilters(tests_base.TestCase):
                 'Name': 'haproxy',
                 'Config': {
                     'Labels': {
-                        'config_id': 'test'
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
                     }
                 }
             },
@@ -315,13 +328,23 @@ class TestHelperFilters(tests_base.TestCase):
             },
         ]
         config = {
+            # we don't want that container to be touched: no restart
             'mysql': '',
+            # container has no Config, therefore no Labels: restart needed
             'rabbitmq': '',
+            # container has no config_data: restart needed
             'haproxy': '',
+            # container isn't part of config_id: no restart
             'tripleo': '',
-            'doesnt_exist': ''
+            # container isn't in container_infos but not part of config_id:
+            # no restart.
+            'doesnt_exist': '',
+            # config_data didn't change: no restart
+            'swift': {'foo': 'bar'},
+            # config_data changed: restart needed
+            'heat': {'start_order': 1},
         }
-        expected_list = ['rabbitmq']
+        expected_list = ['rabbitmq', 'haproxy', 'heat']
         result = self.filters.needs_delete(container_infos=data,
                                            config=config,
                                            config_id='tripleo_step1')
