@@ -66,6 +66,11 @@ options:
     choices:
       - apply
       - cleanup
+  config_overrides:
+    description:
+      - Dictionary to override containers configs
+    default: {}
+    type: dict
   container_cli:
     description:
       - The container CLI.
@@ -103,6 +108,9 @@ EXAMPLES = """
 - name: Start containers for step 1
   paunch:
     config: /var/lib/tripleo-config/hashed-container-startup-config-step_1.json
+    config_overrides:
+      haproxy:
+        image: docker.io/tripleomaster/centos-binary-haproxy:current-tripleo-hotfix
     config_id: tripleo_step1
     action: apply
 # Paunch cleanup example
@@ -133,6 +141,7 @@ class PaunchManager:
         self.healthcheck_disabled = \
             self.module.params['healthcheck_disabled']
         self.container_cli = self.module.params['container_cli']
+        self.config_overrides = self.module.params['config_overrides']
         self.container_log_stdout_path = \
             self.module.params['container_log_stdout_path']
         self.managed_by = self.module.params['managed_by']
@@ -150,7 +159,9 @@ class PaunchManager:
                                                    log_file=self.log_file)
 
         if self.config:
-            self.config_yaml = putils_common.load_config(self.config)
+            self.config_yaml = putils_common.load_config(
+                self.config,
+                overrides=self.config_overrides)
 
         if self.action == 'apply':
             self.paunch_apply()
