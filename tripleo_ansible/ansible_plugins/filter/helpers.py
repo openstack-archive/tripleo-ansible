@@ -68,15 +68,21 @@ class FilterModule(object):
             ordered_dict[o] = v
         return ordered_dict
 
-    def singledict(self, list_to_convert):
+    def singledict(self, list_to_convert, merge_with={}):
         """Generate a single dictionary from a list of dictionaries.
 
         This filter will return a single dictionary from a list of
         dictionaries.
+        If merge_with is set, the return dict will be merged with it.
         """
         return_dict = {}
         for i in list_to_convert:
             return_dict.update(i)
+            for k in merge_with.keys():
+                if k in return_dict:
+                    for mk, mv in merge_with[k].items():
+                        return_dict[k][mk] = mv
+                    break
         return return_dict
 
     def needs_delete(self, container_infos, config, config_id):
