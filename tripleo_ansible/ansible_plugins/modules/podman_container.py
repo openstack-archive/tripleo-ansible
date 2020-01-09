@@ -1397,13 +1397,16 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('cidfile', before, after)
 
     def diffparam_command(self):
-        before = self.info['config']['cmd']
-        after = self.params['command']
-        if isinstance(after, str):
-            after = [i.lower() for i in after.split()]
-        elif isinstance(after, list):
-            after = [i.lower() for i in after]
-        return self._diff_update_and_compare('command', before, after)
+        # TODO(sshnaidm): to inspect image to get the default command
+        if self.module.params['command'] is not None:
+            before = self.info['config']['cmd']
+            after = self.params['command']
+            if isinstance(after, str):
+                after = [i.lower() for i in after.split()]
+            elif isinstance(after, list):
+                after = [i.lower() for i in after]
+            return self._diff_update_and_compare('command', before, after)
+        return False
 
     def diffparam_conmon_pidfile(self):
         before = self.info['conmonpidfile']
@@ -1515,14 +1518,17 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('hostname', before, after)
 
     def diffparam_image(self):
-        before = self.info['config']['image'].replace(
-            "docker.io/library/", "").replace(
-                "docker.io/", "").replace(
-                    ":latest", "")
-        after = self.params['image'].replace(
-            "docker.io/library/", "").replace(
-                "docker.io/", "").replace(
-                    ":latest", "")
+        # TODO(sshnaidm): for strict image compare use SHAs
+        before = self.info['config']['image']
+        after = self.params['image']
+        strip_from_name = [
+            "docker.io/library/",
+            "docker.io/",
+            ":latest",
+        ]
+        for repl in strip_from_name:
+            before = before.replace(repl, "")
+            after = after.replace(repl, "")
         return self._diff_update_and_compare('image', before, after)
 
     def diffparam_ipc(self):

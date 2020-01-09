@@ -327,14 +327,14 @@
         - name: Check basic idempotency of running container
           podman_container:
             name: testidem
-            image: alpine
+            image: docker.io/alpine
             state: present
             command: sleep 20m
 
         - name: Check basic idempotency of running container - run it again
           podman_container:
             name: testidem
-            image: alpine
+            image: alpine:latest
             state: present
             command: sleep 20m
           register: idem
