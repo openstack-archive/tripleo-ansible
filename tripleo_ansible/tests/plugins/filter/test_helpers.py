@@ -125,6 +125,39 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.singledict(list)
         self.assertEqual(result, expected_dict)
 
+    def test_singledict_with_merge(self):
+        list = [
+            {
+                'keystone': {
+                  'start_order': 1,
+                  'image': 'quay.io/tripleo/keystone'
+                },
+            },
+            {
+                'mysql': {
+                  'start_order': 0,
+                  'image': 'quay.io/tripleo/mysql'
+                }
+            }
+        ]
+        expected_dict = {
+          'keystone': {
+            'start_order': 1,
+            'image': 'quay.io/tripleo/keystone'
+          },
+          'mysql': {
+            'start_order': 0,
+            'image': 'quay.io/tripleo/mysql:hotfix'
+          }
+        }
+        override = {
+          'mysql': {
+            'image': 'quay.io/tripleo/mysql:hotfix'
+          }
+        }
+        result = self.filters.singledict(list, merge_with=override)
+        self.assertEqual(result, expected_dict)
+
     def test_list_of_keys(self):
         keys = [
             {
