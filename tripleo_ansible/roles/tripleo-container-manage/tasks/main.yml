@@ -95,3 +95,8 @@
       include_tasks: delete.yml
     - name: "Create containers from {{ tripleo_container_manage_config }}"
       include_tasks: create.yml
+    - name: "Show all container commands for {{ tripleo_container_manage_config }}"
+      debug:
+        msg: "{{ all_containers_commands }}"
+      when:
+        - ansible_check_mode|bool
