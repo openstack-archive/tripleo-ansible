@@ -46,4 +46,37 @@
 - name: generate ceph-ansible extra vars
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/extra_vars.yml"
-    content: "{{ ceph_ansible_extra_vars|to_nice_yaml }}"
+    content: "{{ ceph_ansible_extra_vars | to_nice_yaml }}"
+
+- when:
+    - ceph_external_multi_config is defined
+    - (ceph_external_multi_config|length) > 0
+  block:
+
+    - name: generate ceph-ansible extra vars foreach ceph in ceph_external_multi_config
+      copy:
+        dest: "{{ playbook_dir }}/ceph-ansible/external_{{ item.cluster }}_extra_vars.yml"
+        content: "{{ item | default('') | to_nice_yaml }}"
+      loop: "{{ ceph_external_multi_config }}"
+
+    - name: get hosts of ceph_mon group and ceph_client group from inventory
+      # Any host in the internal ceph cluster clients group and mon group
+      # should also be a client of the additional external ceph cluster(s).
+      # The clients group is sufficient if all cases are external, but if
+      # default ceph-ansible run is internal, then roles with Ceph may not
+      # include the CephClient service like the CephMon service found in the
+      # Controller role. If the CephMon service is present, CephClient is
+      # not necessary to get a key and conf file, but the additional runs
+      # for the external Ceph cluster(s) do need the key and conf file on
+      # the hosts in that role.
+      set_fact:
+        mon_client_hosts: "{{ mon_client_hosts | default([]) + [ item ] }}"
+      with_inventory_hostnames:
+        - ceph_client
+        - ceph_mon
+
+    - name: generate ceph-ansible/external_inventory.ini for ceph_external_multi_config
+      # Build a new inventory where the collected hosts are only clients
+      template:
+        src: "external_inventory.ini.j2"
+        dest: "{{ playbook_dir }}/ceph-ansible/external_inventory.ini"
