@@ -26,7 +26,6 @@ function start_service {
         --net host \
         --pid host \
         --privileged \
-        --rm=true \
         -u root \
         --name $NAME \
         {{ tripleo_systemd_wrapper_image_name }} \
