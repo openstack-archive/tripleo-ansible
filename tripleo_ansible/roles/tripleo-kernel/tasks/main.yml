@@ -27,6 +27,11 @@
       loop: "{{ tripleo_kernel_extra_packages | dict2items(key_name='key', value_name='opt') }}"
       notify: Modules reload
 
+    - name: Remove dracut-config-generic
+      package:
+        name: 'dracut-config-generic'
+        state: absent
+
     - name: Ensure the /etc/modules-load.d/ directory exists
       file:
         path: /etc/modules-load.d
