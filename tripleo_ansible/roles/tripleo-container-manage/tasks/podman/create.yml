@@ -30,6 +30,7 @@
     # cpuset_cpus: "{{ lookup('dict', container_data).value.cpuset_cpus | default(omit) }}"
     debug: true
     detach: "{{ lookup('dict', container_data).value.detach | default(true) }}"
+    entrypoint: "{{ lookup('dict', container_data).value.entrypoint | default(omit) }}"
     env: "{{ lookup('dict', container_data).value.environment | default(omit) }}"
     env_file: "{{ lookup('dict', container_data).value.env_file | default(omit) }}"
     etc_hosts: "{{ lookup('dict', container_data).value.extra_hosts | default({}) }}"
