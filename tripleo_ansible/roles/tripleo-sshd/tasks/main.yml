@@ -60,7 +60,7 @@
           meeting expectations.
       when:
         - (tripleo_sshd_password_authentication != 'no') and
-          not (PermitRootLogin in tripleo_sshd_server_options)
+          not ('PermitRootLogin' in tripleo_sshd_server_options)
 
     - name: Adjust ssh server auth configuration
       lineinfile:
