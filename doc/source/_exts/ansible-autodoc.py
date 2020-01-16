@@ -26,6 +26,45 @@ from docutils.writers.html4css1 import Writer
 from sphinx import addnodes
 
 import yaml
+from ruamel.yaml import YAML as RYAML
+
+try:
+    import io
+    StringIO = io.StringIO
+except ImportError:
+    import StringIO
+
+
+class DocYaml(RYAML):
+    def _license_filter(self, data):
+        """This will filter out our boilerplate license heading in return data.
+
+        The filter is used to allow documentation we're creating in variable
+        files to be rendered more beautifully.
+        """
+        lines = list()
+        mark = True
+        for line in data.splitlines():
+            if '# Copyright' in line:
+                mark = False
+            if mark:
+                lines.append(line)
+            if '# under the License' in line:
+                mark = True
+        return '\n'.join(lines)
+
+    def dump(self, data, stream=None, **kw):
+        if not stream:
+            stream = StringIO()
+        try:
+            RYAML.dump(self, data, stream, **kw)
+            return self._license_filter(stream.getvalue().strip())
+        finally:
+            stream.close()
+
+
+DOCYAML = DocYaml()
+DOCYAML.default_flow_style = False
 
 
 class AnsibleAutoPluginDirective(Directive):
@@ -99,7 +138,7 @@ class AnsibleAutoPluginDirective(Directive):
 
     @staticmethod
     def build_documentation(module):
-        docs = yaml.safe_load(module.DOCUMENTATION)
+        docs = DOCYAML.load(module.DOCUMENTATION)
         doc_data = dict()
         doc_data['docs'] = docs['description']
         doc_data['author'] = docs.get('author', list())
@@ -108,12 +147,10 @@ class AnsibleAutoPluginDirective(Directive):
 
     @staticmethod
     def build_examples(module):
-        examples = yaml.safe_load(module.EXAMPLES)
+        examples = DOCYAML.load(module.EXAMPLES)
         return_examples = list()
         for example in examples:
-            return_examples.append(
-                yaml.safe_dump([example], default_flow_style=False)
-            )
+            return_examples.append(DOCYAML.dump([example]))
         return return_examples
 
     def _raw_html_block(self, data):
@@ -137,10 +174,7 @@ class AnsibleAutoPluginDirective(Directive):
     def _literal_block(data, language='yaml', dump_data=True):
         if dump_data:
             literal = nodes.literal_block(
-                text=yaml.safe_dump(
-                    data,
-                    default_flow_style=False
-                )
+                text=DOCYAML.dump(data)
             )
         else:
             literal = nodes.literal_block(text=data)
@@ -179,7 +213,7 @@ class AnsibleAutoPluginDirective(Directive):
         defaults_file = os.path.join(role, 'defaults', 'main.yml')
         if os.path.exists(defaults_file):
             with open(defaults_file) as f:
-                role_defaults = yaml.safe_load(f.read())
+                role_defaults = DOCYAML.load(f.read())
             section.append(
                 self._yaml_section(
                     to_yaml_data=role_defaults,
@@ -197,7 +231,7 @@ class AnsibleAutoPluginDirective(Directive):
             for v_file in os.listdir(vars_path):
                 vars_file = os.path.join(vars_path, v_file)
                 with open(vars_file) as f:
-                    vars_values = yaml.safe_load(f.read())
+                    vars_values = DOCYAML.load(f.read())
                 section.append(
                     self._yaml_section(
                         to_yaml_data=vars_values,
@@ -227,7 +261,7 @@ class AnsibleAutoPluginDirective(Directive):
                     'molecule.yml'
                 )
                 with open(molecule_file) as f:
-                    molecule_conf = yaml.safe_load(f.read())
+                    molecule_conf = DOCYAML.load(f.read())
 
                 driver_data = molecule_conf.get('driver')
                 if driver_data:
@@ -265,7 +299,7 @@ class AnsibleAutoPluginDirective(Directive):
                     'playbook.yml'
                 )
                 with open(molecule_playbook_path) as f:
-                    molecule_playbook = yaml.safe_load(f.read())
+                    molecule_playbook = DOCYAML.load(f.read())
                 molecule_section.append(
                     self._yaml_section(
                         to_yaml_data=molecule_playbook,
