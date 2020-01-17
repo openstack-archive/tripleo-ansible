@@ -59,7 +59,7 @@ if [ -f /proc/$PID/cgroup ]; then
       kill_container $CT_NAME $CT_ID
       ;;
     *)
-      add_date "Unknown action ${SIG} for ${$CT_NAME} ${CT_ID}"
+      add_date "Unknown action ${SIG} for ${CT_NAME} ${CT_ID}"
       exit 1
       ;;
   esac
