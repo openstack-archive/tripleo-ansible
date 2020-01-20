@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-container-tag" will search for and load any operating system variable file
+# "tripleo_container_tag" will search for and load any operating system variable file
 
 - name: Fail if container image is undefined
   fail:

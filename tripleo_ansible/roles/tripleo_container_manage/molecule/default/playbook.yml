@@ -25,7 +25,7 @@
     tripleo_container_manage_systemd_order: true
   tasks:
     - include_role:
-        name: tripleo-container-manage
+        name: tripleo_container_manage
   post_tasks:
     - name: Verify that Fedora container was created correctly
       become: true

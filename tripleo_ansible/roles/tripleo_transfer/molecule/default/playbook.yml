@@ -18,7 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-transfer"
+    - role: "tripleo_transfer"
       tripleo_transfer_src_host: overcloud-controller-0
       tripleo_transfer_src_dir: /etc
       tripleo_transfer_dest_host: overcloud-controller-1

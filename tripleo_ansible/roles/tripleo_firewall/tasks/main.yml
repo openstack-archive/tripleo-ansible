@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-firewall" will search for and load any operating system variable file
+# "tripleo_firewall" will search for and load any operating system variable file
 - name: Gather variables for each operating system
   include_vars: "{{ item }}"
   with_first_found:

@@ -24,7 +24,7 @@
     OS_IMAGE_API_VERSION: "2"
     OS_AUTH_TYPE: "{{ os_auth_type }}"
   roles:
-    - octavia-undercloud
+    - octavia_undercloud
 
 - hosts: octavia_nodes[0]
   gather_facts: true
@@ -55,7 +55,7 @@
     OS_IMAGE_API_VERSION: "2"
     OS_AUTH_TYPE: "{{ os_auth_type }}"
   roles:
-    - octavia-overcloud-config
+    - octavia_overcloud_config
 
 - hosts: octavia_nodes
   gather_facts: true
@@ -88,7 +88,7 @@
     OS_IMAGE_API_VERSION: "2"
     OS_AUTH_TYPE: "{{ os_auth_type }}"
   roles:
-    - octavia-controller-config
+    - octavia_controller_config
 
 - hosts: octavia_nodes
   gather_facts: true
@@ -96,4 +96,4 @@
     octavia_confd_prefix: "/var/lib/config-data/puppet-generated/octavia"
     container_cli: "{{ container_cli }}"
   roles:
-    - octavia-controller-post-config
+    - octavia_controller_post_config

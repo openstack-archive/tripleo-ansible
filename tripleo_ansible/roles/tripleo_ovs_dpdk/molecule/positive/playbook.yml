@@ -19,7 +19,7 @@
   hosts: all
   tasks:
     - include_role:
-        name: "tripleo-ovs-dpdk"
+        name: "tripleo_ovs_dpdk"
         tasks_from: "config.yml"
       vars:
         tripleo_ovs_dpdk_pmd_core_list: "2,3,26,27,64,65,128,127"

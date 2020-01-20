@@ -17,7 +17,7 @@
 
 galaxy_info:
   author: OpenStack
-  description: TripleO OpenStack Role -- tripleo-ceph-fetch-dir
+  description: TripleO OpenStack Role -- tripleo_ceph_fetch_dir
   company: Red Hat
   license: Apache-2.0
   min_ansible_version: 2.7
@@ -39,9 +39,9 @@ galaxy_info:
     - tripleo
 
 dependencies:
-  - role: tripleo-ceph-common
+  - role: tripleo_ceph_common
     when:
       - ceph_common_done is undefined
-  - role: tripleo-ceph-work-dir
+  - role: tripleo_ceph_work_dir
     when:
       - ceph_ansible_private_key_file is undefined

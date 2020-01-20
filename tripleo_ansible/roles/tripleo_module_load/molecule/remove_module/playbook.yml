@@ -18,10 +18,10 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-module-load"
+    - role: "tripleo_module_load"
       tripleo_modules:
         - name: dummy
-    - role: "tripleo-module-load"
+    - role: "tripleo_module_load"
       tripleo_modules:
         - name: dummy
           state: absent

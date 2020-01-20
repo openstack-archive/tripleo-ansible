@@ -17,7 +17,7 @@
 
 galaxy_info:
   author: OpenStack
-  description: TripleO OpenStack Role -- tripleo-ceph-work-dir
+  description: TripleO OpenStack Role -- tripleo_ceph_work_dir
   company: Red Hat
   license: Apache-2.0
   min_ansible_version: 2.7
@@ -39,6 +39,6 @@ galaxy_info:
     - tripleo
 
 dependencies:
-  - role: tripleo-ceph-common
+  - role: tripleo_ceph_common
     when:
       - ceph_common_done is undefined

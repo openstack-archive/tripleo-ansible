@@ -18,4 +18,4 @@
 - name: Converge
   hosts: all
   roles:
-    - name: tripleo-sshd
+    - name: tripleo_sshd

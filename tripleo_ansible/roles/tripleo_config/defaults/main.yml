@@ -17,7 +17,7 @@
 
 # All variables intended for modification should be placed in this file.
 
-# All variables within this role should have a prefix of "tripleo-config"
+# All variables within this role should have a prefix of "tripleo_config"
 tripleo_config_type: ini
 tripleo_config_src: "{{ tripleo_config_type }}-config.j2"
 tripleo_config_owner: root

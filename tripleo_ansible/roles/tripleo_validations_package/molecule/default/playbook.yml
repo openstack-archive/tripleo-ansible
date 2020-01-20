@@ -18,4 +18,4 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-validations-package"
+    - role: "tripleo_validations_package"

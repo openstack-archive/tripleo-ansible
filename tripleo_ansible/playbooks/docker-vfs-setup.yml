@@ -73,7 +73,7 @@
 
         - name: Insert storage-driver into docker daemon config (existing)
           include_role:
-            name: tripleo-config
+            name: tripleo_config
           vars:
             tripleo_config_src: "{{ tripleo_docker_temp_file }}"
             tripleo_config_type: json
@@ -85,7 +85,7 @@
 
         - name: Insert storage-driver into docker daemon config (new)
           include_role:
-            name: tripleo-config
+            name: tripleo_config
           vars:
             tripleo_config_type: json
             tripleo_config_dest: /etc/docker/daemon.json

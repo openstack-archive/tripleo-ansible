@@ -32,15 +32,15 @@
   tasks:
     - name: Run persist
       import_role:
-        name: tripleo-persist
+        name: tripleo_persist
         tasks_from: persist.yml
 
     - name: Run restore
       import_role:
-        name: tripleo-persist
+        name: tripleo_persist
         tasks_from: restore.yml
 
     - name: Run cleanup
       import_role:
-        name: tripleo-persist
+        name: tripleo_persist
         tasks_from: cleanup.yml

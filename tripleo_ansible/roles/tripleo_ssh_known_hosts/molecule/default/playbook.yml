@@ -19,4 +19,4 @@
   hosts: all
   pre_tasks:
   roles:
-    - role: "tripleo-ssh-known-hosts"
+    - role: "tripleo_ssh_known_hosts"

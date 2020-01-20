@@ -18,10 +18,10 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-config"
+    - role: "tripleo_config"
       tripleo_config_dest: /tmp/test.ini
 
-    - role: "tripleo-config"
+    - role: "tripleo_config"
       tripleo_config_dest: /tmp/test2.ini
       tripleo_config_overrides:
         testSection:

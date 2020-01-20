@@ -18,21 +18,21 @@
 - name: Converge
   hosts: all
   roles:
-    - role: tripleo-upgrade-hiera
+    - role: tripleo_upgrade_hiera
 
   post_tasks:
-    - name: test tripleo-upgrade-hiera - add a first value
+    - name: test tripleo_upgrade_hiera - add a first value
       include_role:
-        name: tripleo-upgrade-hiera
+        name: tripleo_upgrade_hiera
         tasks_from: set.yml
       vars:
         tripleo_upgrade_key: pacemaker_short_node_names_override
         tripleo_upgrade_value:
           - "controller-0"
 
-    - name: test tripleo-upgrade-hiera - add another value
+    - name: test tripleo_upgrade_hiera - add another value
       include_role:
-        name: tripleo-upgrade-hiera
+        name: tripleo_upgrade_hiera
         tasks_from: set.yml
       vars:
         tripleo_upgrade_key: mysql_short_node_names_override
@@ -40,23 +40,23 @@
           - "controller-0"
           - "controller-1"
 
-    - name: test tripleo-upgrade-hiera - update a value
+    - name: test tripleo_upgrade_hiera - update a value
       include_role:
-        name: tripleo-upgrade-hiera
+        name: tripleo_upgrade_hiera
         tasks_from: set.yml
       vars:
         tripleo_upgrade_key: mysql_short_node_names_override
         tripleo_upgrade_value:
           - "controller-1"
 
-    - name: test tripleo-upgrade-hiera - remove a value
+    - name: test tripleo_upgrade_hiera - remove a value
       include_role:
-        name: tripleo-upgrade-hiera
+        name: tripleo_upgrade_hiera
         tasks_from: remove.yml
       vars:
         tripleo_upgrade_key: pacemaker_short_node_names_override
 
-    - name: test tripleo-upgrade-hiera - remove all values
+    - name: test tripleo_upgrade_hiera - remove all values
       include_role:
-        name: tripleo-upgrade-hiera
+        name: tripleo_upgrade_hiera
         tasks_from: remove-all.yml

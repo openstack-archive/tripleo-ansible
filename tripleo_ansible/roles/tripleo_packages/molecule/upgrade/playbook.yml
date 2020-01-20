@@ -20,28 +20,28 @@
   tasks:
     - name: Import TripleO packages role (step|0)
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: upgrade.yml
       vars:
         step: 0
 
     - name: Import TripleO packages role (step|2)
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: upgrade.yml
       vars:
         step: 2
 
     - name: Import TripleO packages role (step|3)
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: upgrade.yml
       vars:
         step: 3
 
     - name: Import TripleO packages role (step|4)
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: upgrade.yml
       vars:
         step: 4

@@ -20,7 +20,7 @@
   become: true
   tasks:
     - include_role:
-        name: "tripleo-kernel"
+        name: "tripleo_kernel"
         tasks_from: kernelargs.yml
       vars:
         tripleo_kernel_args: "test=1"

@@ -15,15 +15,15 @@
 # under the License.
 
 
-# NOTE(Cloudnull): This role is a linked role to `tripleo-container-rm`. This role and exists
+# NOTE(Cloudnull): This role is a linked role to `tripleo_container_rm`. This role and exists
 #                  to ensure we're providing a stable interface as we transition. In a future
 #                  release this link will be removed in favor of using the stable role,
-#                  `tripleo-container-rm`.
+#                  `tripleo_container_rm`.
 - name: Converge
   become: true
   hosts: all
   roles:
-    - role: tripleo-docker-rm
+    - role: tripleo_container_rm
       container_cli: docker
       containers_to_rm:
         - docker-container1

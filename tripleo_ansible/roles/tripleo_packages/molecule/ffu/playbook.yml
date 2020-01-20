@@ -22,10 +22,10 @@
   tasks:
     - name: Import TripleO packages role
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: fast_forward_upgrade.yml
 
     - name: Import TripleO packages role
       include_role:
-        name: tripleo-packages
+        name: tripleo_packages
         tasks_from: fast_forward_post_upgrade.yml

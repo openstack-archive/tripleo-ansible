@@ -24,7 +24,7 @@
         state: directory
     - name: Configure /etc/openstack/clouds.yaml
       include_role:
-        name: tripleo-keystone-resources
+        name: tripleo_keystone_resources
         tasks_from: clouds
       vars:
         tripleo_keystone_resources_cloud_name: openstack
@@ -40,7 +40,7 @@
           region_name: RegionOne
     - name: Create keystone admin resources
       include_role:
-        name: tripleo-keystone-resources
+        name: tripleo_keystone_resources
         tasks_from: admin
       vars:
         tripleo_keystone_resources_cloud_name: openstack

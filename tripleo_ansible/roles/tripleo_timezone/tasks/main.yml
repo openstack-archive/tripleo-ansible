@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-timezone" will search for and load any operating system variable file
+# "tripleo_timezone" will search for and load any operating system variable file
 
 - name: Set timezone
   timezone:

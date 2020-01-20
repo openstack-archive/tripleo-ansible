@@ -18,6 +18,6 @@
 - name: Converge
   hosts: all
   roles:
-    - name: tripleo-sshd
+    - name: tripleo_sshd
       tripleo_sshd_motd_enabled: true
       tripleo_sshd_banner_enabled: true

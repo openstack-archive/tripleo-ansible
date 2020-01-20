@@ -34,7 +34,7 @@
     OS_VOLUME_API_VERSION: "{{ lookup('env', 'OS_VOLUME_API_VERSION') }}"
     OS_REGION_NAME: "{{ lookup('env', 'OS_REGION_NAME') }}"
   roles:
-    - role: tripleo-nova-image-cache
+    - role: tripleo_nova_image_cache
 
 # Standard inventory:
 #

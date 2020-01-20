@@ -19,7 +19,7 @@
   become: true
   hosts: all
   roles:
-    - role: backup-and-restore
+    - role: backup_and_restore
       tripleo_backup_and_restore_nfs_server: undercloud
       tripleo_backup_and_restore_rear_simulate: true
       tripleo_backup_and_restore_hiera_config_file: "{{ ansible_user_dir }}/hiera.yaml"
