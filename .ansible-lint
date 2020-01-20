@@ -1,0 +1,7 @@
+exclude_paths:
+    - releasenotes/
+parseable: true
+quiet: false
+rulesdir:
+    - .ansible-lint_rules/
+verbosity: 1
