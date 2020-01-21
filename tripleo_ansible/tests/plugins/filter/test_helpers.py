@@ -296,8 +296,7 @@ class TestHelperFilters(tests_base.TestCase):
                 'Name': 'mysql',
                 'Config': {
                     'Labels': {
-                        'config_id': 'dontdeleteme',
-                        'managed_by': 'triple_ansible',
+                        'config_id': 'tripleo_step1'
                     }
                 }
             },
@@ -308,7 +307,7 @@ class TestHelperFilters(tests_base.TestCase):
                         'managed_by': 'tripleo_ansible',
                         'config_id': 'tripleo_step1',
                         'container_name': 'rabbitmq',
-                        'name': 'rabbitmq',
+                        'name': 'rabbitmq'
                     }
                 }
             },
@@ -316,11 +315,11 @@ class TestHelperFilters(tests_base.TestCase):
                 'Name': 'swift',
                 'Config': {
                     'Labels': {
-                        'managed_by': 'tripleo_ansible',
+                        'managed_by': 'tripleo',
                         'config_id': 'tripleo_step1',
                         'container_name': 'swift',
                         'name': 'swift',
-                        'config_data': "{'foo': 'bar'}",
+                        'config_data': {'foo': 'bar'}
                     }
                 }
             },
@@ -328,11 +327,23 @@ class TestHelperFilters(tests_base.TestCase):
                 'Name': 'heat',
                 'Config': {
                     'Labels': {
-                        'managed_by': 'tripleo_ansible',
+                        'managed_by': 'tripleo-Undercloud',
                         'config_id': 'tripleo_step1',
                         'container_name': 'heat',
                         'name': 'heat',
-                        'config_data': "{'start_order': 0}",
+                        'config_data': "{'start_order': 0}"
+                    }
+                }
+            },
+            {
+                'Name': 'test1',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo-other',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'test1',
+                        'name': 'test1',
+                        'config_data': {'start_order': 0}
                     }
                 }
             },
@@ -340,8 +351,9 @@ class TestHelperFilters(tests_base.TestCase):
                 'Name': 'haproxy',
                 'Config': {
                     'Labels': {
-                        'managed_by': 'tripleo_ansible',
+                        'managed_by': 'paunch',
                         'config_id': 'tripleo_step1',
+                        'config_data': ""
                     }
                 }
             },
@@ -356,7 +368,7 @@ class TestHelperFilters(tests_base.TestCase):
             {
                 'Name': 'none_tripleo',
                 'Config': {
-                    'Labels': None,
+                    'Labels': None
                 }
             },
         ]
@@ -376,8 +388,10 @@ class TestHelperFilters(tests_base.TestCase):
             'swift': {'foo': 'bar'},
             # config_data changed: restart needed
             'heat': {'start_order': 1},
+            # config_data changed: restart needed
+            'test1': {'start_order': 2},
         }
-        expected_list = ['rabbitmq', 'haproxy', 'heat']
+        expected_list = ['rabbitmq', 'haproxy', 'heat', 'test1']
         result = self.filters.needs_delete(container_infos=data,
                                            config=config,
                                            config_id='tripleo_step1')
