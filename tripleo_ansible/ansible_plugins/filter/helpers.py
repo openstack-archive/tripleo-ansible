@@ -16,6 +16,7 @@
 
 import ast
 import json
+import re
 import six
 
 from collections import OrderedDict
@@ -98,26 +99,28 @@ class FilterModule(object):
         for c in container_infos:
             c_name = c['Name']
             installed_containers.append(c_name)
+            labels = c['Config'].get('Labels')
+            if not labels:
+                labels = dict()
+            managed_by = labels.get('managed_by', 'unknown').lower()
 
-            # Don't delete containers not managed by tripleo-ansible
-            if (c['Config']['Labels'] is None
-                    or c['Config']['Labels'].get(
-                        'managed_by') != 'tripleo_ansible'):
+            # Check containers have a label
+            if not labels:
                 to_skip += [c_name]
-                continue
+
+            # Don't delete containers NOT managed by tripleo* or paunch*
+            elif not re.findall(r"(?=("+'|'.join(['tripleo', 'paunch'])+r"))",
+                                managed_by):
+                to_skip += [c_name]
 
             # Only remove containers managed in this config_id
-            if (c['Config']['Labels'] is None
-                    or c['Config']['Labels'].get('config_id') != config_id):
+            elif labels.get('config_id') != config_id:
                 to_skip += [c_name]
-                continue
 
             # Remove containers with no config_data
             # e.g. broken config containers
-            if (c['Config']['Labels'] is not None
-                    and 'config_data' not in c['Config']['Labels']):
+            elif 'config_data' not in labels:
                 to_delete += [c_name]
-                continue
 
         for c_name, config_data in config.items():
             # don't try to remove a container which doesn't exist
@@ -135,18 +138,26 @@ class FilterModule(object):
             # changed. Since we already cleaned the containers not in config,
             # this check needs to be in that loop.
             # e.g. new TRIPLEO_CONFIG_HASH during a minor update
-            try:
-                c_facts = [c['Config']['Labels']['config_data']
-                           for c in container_infos if c_name == c['Name']]
-            except KeyError:
-                continue
+            c_datas = list()
+            for c in container_infos:
+                if c_name == c['Name']:
+                    try:
+                        c_datas.append(c['Config']['Labels']['config_data'])
+                    except KeyError:
+                        pass
 
             # Build c_facts so it can be compared later with config_data
-            c_facts = ast.literal_eval(c_facts[0]) if (
-                                       len(c_facts)) == 1 else dict()
+            for c_data in c_datas:
+                try:
+                    c_data = ast.literal_eval(c_data)
+                except (ValueError, SyntaxError):  # may already be data
+                    try:
+                        c_data = dict(c_data)  # Confirms c_data is type safe
+                    except ValueError:  # c_data is not data
+                        c_data = dict()
 
-            if cmp(c_facts, config_data) != 0:
-                to_delete += [c_name]
+                if cmp(c_data, config_data) != 0:
+                    to_delete += [c_name]
 
         return to_delete
 
