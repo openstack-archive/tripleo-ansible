@@ -50,8 +50,8 @@
           {% for host in (groups['overcloud'] | intersect(play_hosts)) %}
           {%   set hostdata = hostvars[host] %}
           {%   if ('ansible_ssh_host_key_rsa_public' in hostdata) or (ansible_ssh_host_key_rsa_public is defined) %}
-          {%     if (cloud_domain is defined) and (ctlplane_ip is defined) %}
-          {%       set line = '[' ~ ctlplane_ip ~ ']*,[' ~ host ~ '.' ~ cloud_domain ~ ']*,[' ~ host ~ ']*' %}
+          {%     if (cloud_domain is defined) and (hostdata['ctlplane_ip'] is defined) %}
+          {%       set line = '[' ~ hostdata['ctlplane_ip'] ~ ']*,[' ~ host ~ '.' ~ cloud_domain ~ ']*,[' ~ host ~ ']*' %}
           {%       set role_networks = hostdata['role_networks'] | default([]) %}
           {%       if ((enabled_networks is defined and enabled_networks) and ((enabled_networks | length) > 0)) %}
           {%         if ((role_networks is defined and role_networks) and ((role_networks | length) > 0)) %}
