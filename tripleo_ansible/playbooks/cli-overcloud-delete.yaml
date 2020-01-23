@@ -14,8 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- connection: local
-  hosts: localhost
+- name: Overcloud Delete
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
   pre_tasks:
     - name: Check for required inputs
       fail:

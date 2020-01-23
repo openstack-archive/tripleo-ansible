@@ -15,8 +15,11 @@
 # under the License.
 
 - name: Baremetal Introspection for multiple Ironic Nodes
-  connection: local
-  hosts: localhost
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
   vars:
     run_validations: false
     concurrency: 20

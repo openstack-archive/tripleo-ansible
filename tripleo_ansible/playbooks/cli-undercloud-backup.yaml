@@ -14,12 +14,13 @@
 #   under the License.
 
 - name: TripleO Undercloud backup workflows
-  hosts: undercloud
-  gather_facts: false
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
   any_errors_fatal: true
-  max_fail_percentage: 0
   vars:
-    sources_path: '/home/stack/'
+    sources_path: "{{ lookup('env', 'HOME') }}"
   handlers:
     # Perform some cleanup
     - name: cleanup the backup
@@ -92,7 +93,7 @@
       become: true
       shell: |
         tar --xattrs --ignore-failed-read -C / -cf {{ fs_path }} {{ sources_path }}
-        chown stack. {{ fs_path }}
+        chown {{ lookup('env', 'USER') }} {{ fs_path }}
 
     - name: compress all the files in tar.gz
       archive:
