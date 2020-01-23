@@ -27,12 +27,10 @@
   tags:
     - tripleo_hosts_entries
 
-- name: Update /etc/hosts
-  become: true
-  blockinfile:
-    create: true
-    path: "{{ tripleo_hosts_entries_hosts_path }}"
-    block: |
+- name: Render out the hosts entries
+  run_once: true
+  set_fact:
+    tripleo_hosts_entries_block: |
       {{ tripleo_hosts_entries_undercloud_hosts_entries | join('') }}
 
       {{ tripleo_hosts_entries_vip_hosts_entries | join('') }}
@@ -53,5 +51,14 @@
       {% endfor %}
 
       {{ tripleo_hosts_entries_extra_hosts_entries | join('') }}
+  tags:
+    - tripleo_hosts_entries
+
+- name: Update /etc/hosts
+  become: true
+  blockinfile:
+    create: true
+    path: "{{ tripleo_hosts_entries_hosts_path }}"
+    block: "{{ tripleo_hosts_entries_block }}"
   tags:
     - tripleo_hosts_entries
