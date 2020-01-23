@@ -19,7 +19,7 @@
   become: true
   hosts: all
   roles:
-    - role: tripleo-container-rm
+    - role: tripleo_container_rm
       tripleo_containers_to_rm:
         - docker-container1
         - docker-container2

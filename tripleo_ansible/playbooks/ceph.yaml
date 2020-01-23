@@ -16,9 +16,9 @@
 
 - hosts: Undercloud
   roles:
-    - role: tripleo-ceph-run-ansible
+    - role: tripleo_ceph_run_ansible
   post_tasks:
     - name: backup and clean fetch directory after ceph-ansible run
       include_role:
-        name: tripleo-ceph-fetch-dir
+        name: tripleo_ceph_fetch_dir
         tasks_from: backup_and_clean

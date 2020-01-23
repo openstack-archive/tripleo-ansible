@@ -44,14 +44,14 @@
 # Apply DPDK workarounds before reboot
 - name: Apply DPDK workarounds
   include_role:
-    name: tripleo-ovs-dpdk
+    name: tripleo_ovs_dpdk
     tasks_from: workarounds.yml
   when: reboot_required is defined and reboot_required
 
 # Kernel modules loading
 - name: Load type1 IOMMU driver for VFIO on boot
   import_role:
-    name: tripleo-module-load
+    name: tripleo_module_load
   vars:
     modules:
       - name: vfio_iommu_type1

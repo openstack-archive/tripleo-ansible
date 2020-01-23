@@ -32,7 +32,7 @@
   tasks:
     - name: Create hieradata from templates
       include_role:
-        name: tripleo-hieradata
+        name: tripleo_hieradata
         tasks_from: hieradata_vars.yaml
       vars:
         hieradata_templates_list:

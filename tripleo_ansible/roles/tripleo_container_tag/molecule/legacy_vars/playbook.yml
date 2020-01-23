@@ -19,11 +19,11 @@
   hosts: all
   become: true
   roles:
-    - role: "tripleo-container-tag"
+    - role: "tripleo_container_tag"
       container_image: centos:8
       container_image_latest: test-latest
       container_cli: podman
-    - role: "tripleo-container-tag"
+    - role: "tripleo_container_tag"
       container_image: centos:8
       container_image_latest: test-latest-2
       container_cli: podman

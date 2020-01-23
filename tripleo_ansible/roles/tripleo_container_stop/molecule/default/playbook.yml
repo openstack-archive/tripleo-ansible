@@ -19,7 +19,7 @@
   become: true
   hosts: all
   roles:
-    - role: tripleo-container-stop
+    - role: tripleo_container_stop
       tripleo_containers_to_stop:
         - docker-container1
         - docker-container2

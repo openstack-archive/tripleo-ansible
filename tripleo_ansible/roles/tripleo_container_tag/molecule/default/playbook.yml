@@ -19,12 +19,12 @@
   become: true
   hosts: all
   roles:
-    - role: "tripleo-container-tag"
+    - role: "tripleo_container_tag"
       tripleo_container_image: centos:8
       tripleo_container_image_latest: test-latest
       tripleo_container_cli: docker
       tripleo_container_pull_image: true
-    - role: "tripleo-container-tag"
+    - role: "tripleo_container_tag"
       tripleo_container_image: centos:8
       tripleo_container_image_latest: test-latest-2
       tripleo_container_cli: docker

@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-ptp" will search for and load any operating system variable file
+# "tripleo_ptp" will search for and load any operating system variable file
 
 # found within the "vars/" path. If no OS files are found the task will skip.
 - name: Gather variables for each operating system

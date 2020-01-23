@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "login-defs" will search for and load any operating system variable file
+# "login_defs" will search for and load any operating system variable file
 
 - name: Install shadow-utils
   package:

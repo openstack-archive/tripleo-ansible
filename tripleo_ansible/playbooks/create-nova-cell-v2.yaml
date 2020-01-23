@@ -24,7 +24,7 @@
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
-        name: tripleo-cellv2
+        name: tripleo_cellv2
         tasks_from: check_cell_exist.yml
 
 - hosts: CellController[0]
@@ -37,7 +37,7 @@
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
-        name: tripleo-cellv2
+        name: tripleo_cellv2
         tasks_from: extract_cell_information.yml
 
 - hosts: Controller[0]
@@ -50,7 +50,7 @@
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
-        name: tripleo-cellv2
+        name: tripleo_cellv2
         tasks_from: create_cell.yml
 
 - hosts: Controller
@@ -63,7 +63,7 @@
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
-        name: tripleo-cellv2
+        name: tripleo_cellv2
         tasks_from: add_internalapi_hosts_entries.yml
 
 - hosts: Controller[0]
@@ -76,5 +76,5 @@
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
-        name: tripleo-cellv2
+        name: tripleo_cellv2
         tasks_from: discover_hosts.yml

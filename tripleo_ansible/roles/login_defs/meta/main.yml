@@ -17,7 +17,7 @@
 
 galaxy_info:
   author: OpenStack
-  description: TripleO OpenStack Role -- login-defs
+  description: TripleO OpenStack Role -- login_defs
   company: Red Hat
   license: Apache-2.0
   min_ansible_version: 2.7

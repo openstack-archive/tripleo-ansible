@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-module-load" will search for and load any operating system variable file
+# "tripleo_module_load" will search for and load any operating system variable file
 
 - name: Kernel module block
   become: true

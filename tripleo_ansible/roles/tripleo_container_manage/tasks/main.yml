@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-container-manage" will search for and load any operating system variable file
+# "tripleo_container_manage" will search for and load any operating system variable file
 
 # found within the "vars/" path. If no OS files are found the task will skip.
 - name: Gather variables for each operating system
@@ -44,9 +44,9 @@
   copy:
     dest: "{{ tripleo_container_manage_config | dirname }}/.ansible-managed"
     content: |
-      Containers are managed by the tripleo-container-manage role in
+      Containers are managed by the tripleo_container_manage role in
       tripleo-ansible project. This file is used by paunch to show a warning
-      if paunch is used against a deployment done with tripleo-container-manage.
+      if paunch is used against a deployment done with tripleo_container_manage.
 
 - name: Generate containers configs data
   no_log: "{{ false if tripleo_container_manage_debug else true }}"

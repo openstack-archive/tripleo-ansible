@@ -22,4 +22,4 @@
       aodh: installed
       barbican: installed
   roles:
-    - role: "tripleo-clients-install"
+    - role: "tripleo_clients_install"

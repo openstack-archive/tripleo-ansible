@@ -15,7 +15,7 @@
 # under the License.
 
 
-# "tripleo-kernel" will search for and load any operating system variable file
+# "tripleo_kernel" will search for and load any operating system variable file
 
 - name: Kernel tuning block
   become: true

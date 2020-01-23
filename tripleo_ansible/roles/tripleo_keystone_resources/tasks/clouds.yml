@@ -34,7 +34,7 @@
 
 - name: "Configure {{ tripleo_keystone_resources_clouds_file_path }}"
   include_role:
-    name: tripleo-config
+    name: tripleo_config
   vars:
     tripleo_config_dest: "{{ tripleo_keystone_resources_clouds_file_path }}"
     tripleo_config_group: "{{ tripleo_keystone_resources_clouds_file_group }}"

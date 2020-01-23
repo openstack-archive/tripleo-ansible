@@ -18,5 +18,5 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-create-admin"
+    - role: "tripleo_create_admin"
       tripleo_admin_generate_key: true

@@ -18,7 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-firewall"
+    - role: "tripleo_firewall"
       tripleo_firewall_rules:
         '003 accept ftp from all':
           proto: 'tcp'

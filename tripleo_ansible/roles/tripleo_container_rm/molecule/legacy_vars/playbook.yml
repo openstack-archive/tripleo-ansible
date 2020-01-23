@@ -19,7 +19,7 @@
   become: true
   hosts: all
   roles:
-    - role: tripleo-container-rm
+    - role: tripleo_container_rm
       container_cli: podman
       containers_to_rm:
         - podman-legacy-container1

@@ -18,7 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-securetty"
+    - role: "tripleo_securetty"
       tripleo_ttys:
         - console
         - vc/1

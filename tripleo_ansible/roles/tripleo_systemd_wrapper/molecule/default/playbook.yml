@@ -18,7 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - "tripleo-systemd-wrapper"
+    - "tripleo_systemd_wrapper"
   vars:
     tripleo_systemd_wrapper_cmd: "/usr/sbin/dnsmasq -k"
     tripleo_systemd_wrapper_config_bind_mount: "/var/lib/config-data/puppet-generated/neutron/etc/neutron:/etc/neutron:ro"

@@ -18,7 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo-kernel"
+    - role: "tripleo_kernel"
       tripleo_kernel_extra_modules:
         dummy: {}
       tripleo_kernel_extra_packages:
