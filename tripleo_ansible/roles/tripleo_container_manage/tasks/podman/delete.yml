@@ -18,58 +18,57 @@
 # It'll try to remove the healthcheck, service and then container without
 # much validation in case things failed in the middle.
 
-- name: "Remove systemd healthcheck for {{ item }}"
+- name: "Disable systemd resources for {{ item }}"
+  when: tripleo_container_manage_systemd_teardown
   block:
-    - name: "Stop and disable systemd timer for {{ item }}"
+    - name: "Remove systemd healthcheck for {{ item }}"
+      block:
+        - name: "Stop and disable systemd timer for {{ item }}"
+          systemd:
+            state: stopped
+            name: "tripleo_{{ item }}_healthcheck.timer"
+            enabled: false
+          ignore_errors: true
+        - name: "Delete systemd timer file for {{ item }}"
+          file:
+            path: "/etc/systemd/system/tripleo_{{ item }}_healthcheck.timer"
+            state: absent
+          register: systemd_timer_deleted
+        - name: "Stop and disable systemd healthcheck for {{ item }}"
+          systemd:
+            state: stopped
+            name: "tripleo_{{ item }}_healthcheck.service"
+            enabled: false
+          ignore_errors: true
+        - name: "Delete systemd healthcheck file for {{ item }}"
+          file:
+            path: "/etc/systemd/system/tripleo_{{ item }}_healthcheck.service"
+            state: absent
+          register: systemd_healthcheck_deleted
+        - name: Force systemd to reread configs
+          systemd:
+            daemon_reload: true
+          when: systemd_timer_deleted.changed or systemd_healthcheck_deleted.changed
+    - name: "Stop and disable systemd service for {{ item }}"
       systemd:
         state: stopped
-        name: "tripleo_{{ item }}_healthcheck.timer"
+        name: "tripleo_{{ item }}.service"
         enabled: false
       ignore_errors: true
-    - name: "Delete systemd timer file for {{ item }}"
+    - name: "Delete systemd unit file for {{ item }}"
       file:
-        path: "/etc/systemd/system/tripleo_{{ item }}_healthcheck.timer"
+        path: "/etc/systemd/system/tripleo_{{ item }}.service"
         state: absent
-      register: systemd_timer_deleted
-    - name: "Stop and disable systemd healthcheck for {{ item }}"
-      systemd:
-        state: stopped
-        name: "tripleo_{{ item }}_healthcheck.service"
-        enabled: false
-      ignore_errors: true
-    - name: "Delete systemd healthcheck file for {{ item }}"
+      register: systemd_file_deleted
+    - name: "Remove trailing .requires for {{ item }}"
       file:
-        path: "/etc/systemd/system/tripleo_{{ item }}_healthcheck.service"
+        path: "/etc/systemd/system/tripleo_{{ item }}.requires"
         state: absent
-      register: systemd_healthcheck_deleted
+      register: systemd_requires_deleted
     - name: Force systemd to reread configs
       systemd:
         daemon_reload: true
-      when: systemd_timer_deleted.changed or systemd_healthcheck_deleted.changed
-
-- name: "Stop and disable systemd service for {{ item }}"
-  systemd:
-    state: stopped
-    name: "tripleo_{{ item }}.service"
-    enabled: false
-  ignore_errors: true
-
-- name: "Delete systemd unit file for {{ item }}"
-  file:
-    path: "/etc/systemd/system/tripleo_{{ item }}.service"
-    state: absent
-  register: systemd_file_deleted
-
-- name: "Remove trailing .requires for {{ item }}"
-  file:
-    path: "/etc/systemd/system/tripleo_{{ item }}.requires"
-    state: absent
-  register: systemd_requires_deleted
-
-- name: Force systemd to reread configs
-  systemd:
-    daemon_reload: true
-  when: systemd_file_deleted.changed or systemd_requires_deleted.changed
+      when: systemd_file_deleted.changed or systemd_requires_deleted.changed
 
 - name: "Remove container {{ item }}"
   podman_container:
