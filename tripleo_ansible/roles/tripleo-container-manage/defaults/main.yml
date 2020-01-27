@@ -27,3 +27,4 @@ tripleo_container_manage_debug: false
 tripleo_container_manage_healthcheck_disabled: false
 tripleo_container_manage_log_path: '/var/log/containers/stdouts'
 tripleo_container_manage_systemd_order: false
+tripleo_container_manage_systemd_teardown: true
