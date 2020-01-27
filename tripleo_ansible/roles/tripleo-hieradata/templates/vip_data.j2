@@ -17,7 +17,7 @@
 {%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['StorageNFS']['name_lower']])) %}
 {%   endif %}
 {%   if network == 'StorageDashboard' %}
-{%     set _ = vip_data.__setitem__('ceph_grafana_vip', (net_vip_map.storage_dashboard)) %}
+{%     set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[networks['StorageDashboard']['name_lower']])) %}
 {%   endif %}
 {% endfor %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
@@ -42,7 +42,7 @@
 {% for service in enabled_services %}
 {%   if service_net_map.get(service ~ '_network', 'noop') in net_vip_map %}
 {# we set explicit vips for these services, no need to calculate them dynamically #}
-{%     if service not in ['ovn_dbs', 'redis', 'ganesha', 'keystone_admin_api_vip', 'keystone_public_api_vip', 'ceph_grafana'] %}
+{%     if service not in ['ovn_dbs', 'redis', 'ganesha', 'keystone_admin_api_vip', 'keystone_public_api_vip'] %}
 {%       set _ = vip_data.__setitem__((service ~ '_vip'), (net_vip_map[service_net_map[service ~ '_network']])) %}
 {%     endif %}
 {# we set the ovn_dbs_vip to the per-network VIP *if* we detect that there is no separate ovn_dbs VIP set (I.e. THT patch for separate OVN VIP is missing) #}
