@@ -65,10 +65,18 @@
   when:
     - amp_ssh_key_path is not defined or ((amp_ssh_key_path | length) < 1)
 
-- name: upload pub key to overcloud
-  shell: |-
-    openstack keypair show {{ amp_ssh_key_name }} || \
-      openstack keypair create --public-key {{ amp_ssh_key_path_final }} {{ amp_ssh_key_name }}
+- name: get the desired public key fingerprint
+  shell: |
+    set -o pipefail
+    ssh-keygen -E md5 -lf {{ amp_ssh_key_path_final }} | awk '{ print $2 }' | cut -c 5-
+  register: ssh_keygen_results
+
+- name: Create keypair
+  os_keypair:
+    state: present
+    name: "{{ amp_ssh_key_name }}"
+    public_key_file: "{{ amp_ssh_key_path_final }}"
+  register: keypair_fingerprint
   environment:
     OS_USERNAME: "{{ auth_username }}"
     OS_PASSWORD: "{{ auth_password }}"
