@@ -19,7 +19,8 @@
 # much validation in case things failed in the middle.
 
 - name: "Disable systemd resources for {{ item }}"
-  when: tripleo_container_manage_systemd_teardown
+  when:
+    - tripleo_container_manage_systemd_teardown | bool
   block:
     - name: "Remove systemd healthcheck for {{ item }}"
       block:
