@@ -4,7 +4,7 @@ After=tripleo-container-shutdown.service tripleo_{{ container_sysd_name }}.servi
 Requisite=tripleo_{{ container_sysd_name }}.service
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/podman exec {{ container_sysd_name }} {{ container_sysd_data.healthcheck.test }}
+ExecStart=/usr/bin/podman exec --user root {{ container_sysd_name }} {{ container_sysd_data.healthcheck.test }}
 SyslogIdentifier=healthcheck_{{ container_sysd_name }}
 [Install]
 WantedBy=multi-user.target
