@@ -83,8 +83,14 @@
   when:
     - tripleo_container_manage_systemd_order
   block:
+    - name: Check if /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset exists
+      stat:
+        path: /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset
+      register: tripleo_container_shutdown
     - name: Include tasks for systemd shutdown service
       include_tasks: shutdown.yml
+      when:
+        - not tripleo_container_shutdown.stat.exists
 
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
   when:
