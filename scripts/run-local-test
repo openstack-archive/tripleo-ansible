@@ -24,7 +24,7 @@ set -xeuo
 
 export PROJECT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/../"
 export ROLE_NAME="${ROLE_NAME:-$1}"
-export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-"-v"}
+export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-""}
 export UPPER_CONSTRAINTS_FILE=${UPPER_CONSTRAINTS_FILE:-"https://opendev.org/openstack/requirements/raw/branch/master/upper-constraints.txt"}
 
 ## Functions -----------------------------------------------------------------
@@ -86,4 +86,5 @@ ansible-playbook -i "${PROJECT_DIR}/tests/hosts.ini" \
                  -e "ansible_user=${USER}" \
                  -e "ansible_user_dir=${HOME}" \
                  "${PROJECT_DIR}/tripleo_ansible/playbooks/prepare-test-host.yml" \
-                 "${PROJECT_DIR}/zuul.d/playbooks/run-local.yml"
+                 "${PROJECT_DIR}/zuul.d/playbooks/run-local.yml" \
+                 -v
