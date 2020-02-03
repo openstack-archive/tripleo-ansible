@@ -32,5 +32,75 @@
   tags:
     - always
 
-- name: Setup NFS
-  import_tasks: ../setup_nfs/tasks/main.yml
+- name: Install required packages for the NFS server
+  become: true
+  package:
+    name: "{{ tripleo_backup_and_restore_nfs_packages }}"
+    state: present
+  tags:
+    - bar_setup_nfs_server
+
+- name: Allow NFS connections port 111.
+  become: true
+  iptables:
+    action: insert
+    rule_num: '1'
+    chain: INPUT
+    ctstate: NEW
+    protocol: tcp
+    destination_port: '111'
+    jump: ACCEPT
+    comment: Accept new NFS connections (111).
+  tags:
+    - bar_setup_nfs_server
+
+- name: Allow NFS connections port 2049.
+  become: true
+  iptables:
+    action: insert
+    rule_num: '1'
+    chain: INPUT
+    ctstate: NEW
+    protocol: tcp
+    destination_port: '2049'
+    jump: ACCEPT
+    comment: Accept new NFS connections (2049).
+  tags:
+    - bar_setup_nfs_server
+
+- name: Enable the NFS service in the NFS server
+  become: true
+  systemd:
+    name: nfs-server
+    enabled: true
+  tags:
+    - bar_setup_nfs_server
+
+- name: Create backup folder in the NFS server
+  become: true
+  file:
+    path: "{{ tripleo_backup_and_restore_nfs_storage_folder }}"
+    state: directory
+    mode: '0777'
+  tags:
+    - bar_setup_nfs_server
+
+- name: Generate NFS exports table in the server
+  become: true
+  template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  tags:
+    - bar_setup_nfs_server
+
+- name: Reload the NFS service
+  become: true
+  systemd:
+    name: nfs-server
+    state: reloaded
+  tags:
+    - bar_setup_nfs_server
