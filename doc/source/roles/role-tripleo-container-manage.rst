@@ -61,6 +61,11 @@ This Ansible role allows to do the following tasks:
   Note: `tripleo_container_manage_concurrency` parameter is set to 1 by
   default, and putting higher value than 2 can be expose issue with Podman
   locks.
+  If a container is meant to exit after running a script (defined in
+  EntryPoint), we can check its return code and fail if the code isn't
+  expected. It can be done with `tripleo_container_manage_valid_exit_code`.
+  If defined to a list of integers, the role will wait for the container to be
+  exited and then checks the return code.
 
   Here is an example of a playbook:
 
@@ -105,6 +110,11 @@ Roles variables
 +------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_config_overrides      | {}                          | Allows to override any     |
 |                                                |                             | container configuration    |
++------------------------------------------------+-----------------------------+----------------------------+
+| tripleo_container_manage_valid_exit_code       | []                          | Allow to check if a        |
+|                                                |                             | container returned the     |
+|                                                |                             | exit code in parameter.    |
+|                                                |                             | Must be a list. e.g. [0,3] |
 +------------------------------------------------+-----------------------------+----------------------------+
 
 Debug
