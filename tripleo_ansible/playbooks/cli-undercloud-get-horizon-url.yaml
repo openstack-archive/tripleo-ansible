@@ -37,11 +37,7 @@
       register: stack_data_cmd
       changed_when: false
 
-    - name: Read stack data
-      set_fact:
-        stack_data: "{{ stack_data_cmd.stdout | from_yaml }}"
-
     - name: Create horizon url temp file
       copy:
-        content: "{{ stack_data.output_value.HorizonPublic.uri }}"
+        content: "{{ (stack_data_cmd.stdout | from_yaml).output_value.HorizonPublic.uri }}"
         dest: "{{ horizon_url_output_file }}"
