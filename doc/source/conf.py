@@ -15,6 +15,8 @@
 import os
 import sys
 
+from ansible.plugins import loader
+
 # Add the project
 sys.path.insert(0, os.path.abspath('../..'))
 # Add the extensions
@@ -84,3 +86,14 @@ latex_documents = [
 repository_name = 'openstack/tripleo-ansible'
 bug_project = 'tripleo'
 bug_tag = 'documentation'
+
+needed_module_utils = [
+    'baremetal_deploy'
+]
+# load our custom module_utils so that modules can be imported for
+# generating docs
+for m in needed_module_utils:
+    try:
+        loader.module_utils_loader.get(m)
+    except AttributeError:
+        pass
