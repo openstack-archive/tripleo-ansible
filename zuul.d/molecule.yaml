@@ -4,7 +4,6 @@
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
-      - tripleo-ansible-centos-7-molecule-test_json_error_callback
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
@@ -46,7 +45,6 @@
       jobs:
       - tripleo-ansible-centos-7-molecule-aide
       - tripleo-ansible-centos-7-molecule-test_deps
-      - tripleo-ansible-centos-7-molecule-test_json_error_callback
       - tripleo-ansible-centos-7-molecule-test_package_action
       - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-7-molecule-tuned
@@ -99,13 +97,6 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: test_deps
-- job:
-    files:
-    - ^tripleo_ansible/roles/test_json_error_callback/.*
-    name: tripleo-ansible-centos-7-molecule-test_json_error_callback
-    parent: tripleo-ansible-centos-7-base
-    vars:
-      tripleo_role_name: test_json_error_callback
 - job:
     files:
     - ^tripleo_ansible/ansible_plugins/action/package.py
