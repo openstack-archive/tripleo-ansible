@@ -47,29 +47,25 @@
       run_once: true
       set_fact:
         ssh_known_hosts_lines: |-
-          {% for host in (groups['overcloud'] | intersect(play_hosts)) %}
+          {% for host in groups['overcloud'] | intersect(play_hosts) %}
           {%   set hostdata = hostvars[host] %}
-          {%   if ('ansible_ssh_host_key_rsa_public' in hostdata) or (ansible_ssh_host_key_rsa_public is defined) %}
-          {%     if (cloud_domain is defined) and (hostdata['ctlplane_ip'] is defined) %}
-          {%       set line = '[' ~ hostdata['ctlplane_ip'] ~ ']*,[' ~ host ~ '.' ~ cloud_domain ~ ']*,[' ~ host ~ ']*' %}
-          {%       set role_networks = hostdata['role_networks'] | default([]) %}
-          {%       if ((enabled_networks is defined and enabled_networks) and ((enabled_networks | length) > 0)) %}
-          {%         if ((role_networks is defined and role_networks) and ((role_networks | length) > 0)) %}
-          {%           set line = line ~ ',' %}
-          {%           for network in enabled_networks %}
-          {%             if network in role_networks %}
-          {%               set line = line ~ '[' ~ hostdata[(networks[network]["name"] ~ '_ip')] ~ ']*,[' ~ host ~ '.' ~ network.lower() ~ ']*,' %}
-          {%               set line = line ~ '[' ~ host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ']*' %}
-          {%               if not loop.last %}
-          {%                 set line = line ~ ',' %}
-          {%               endif %}
-          {%             endif %}
-          {%           endfor %}
-          {%         endif %}
+          {%   if 'ansible_ssh_host_key_rsa_public' in hostdata %}
+          {%     set entries = [] %}
+          {%     set enabled_host_networks = hostdata['tripleo_role_networks']|default([]) %}
+          {%     for network in enabled_host_networks %}
+          {%       if (network ~ '_ip') in hostdata %}
+          {%         set _ = entries.append('[' ~ hostdata[network ~ '_ip'] ~ ']*') %}
           {%       endif %}
-          {%       set line = line ~ ' ssh-rsa ' ~ hostdata['ansible_ssh_host_key_rsa_public'] | default(ansible_ssh_host_key_rsa_public) %}
-          {{ line }}
+          {%       if (network ~ '_hostname') in hostdata %}
+          {%         set _ = entries.append('[' ~ hostdata[network ~ '_hostname'] ~ ']*') %}
+          {%       endif %}
+          {%     endfor %}
+          {%     if 'canonical_hostname' in hostdata %}
+          {%       set _ = entries.append('[' ~ hostdata['canonical_hostname'] ~ ']*') %}
           {%     endif %}
+          {%     set _ = entries.append('[' ~ host ~ ']*') %}
+          {%     set line = entries|unique|join(',') ~ ' ssh-rsa ' ~ hostdata['ansible_ssh_host_key_rsa_public'] %}
+          {{ line }}
           {%   endif %}
           {% endfor %}
 
