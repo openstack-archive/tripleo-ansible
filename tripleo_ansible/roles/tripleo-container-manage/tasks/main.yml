@@ -74,7 +74,9 @@
       loop: "{{ container_hashes.results }}"
     - name: Finalise hashes for all containers
       set_fact:
-        all_containers_hash: "{{ container_hashes.results | map(attribute='ansible_facts.container_hash') | list | singledict() }}"
+        all_containers_hash: >-
+          {{ container_hashes.results | map(attribute='ansible_facts.container_hash') |
+          list | singledict(merge_with=tripleo_container_manage_config_overrides) }}
 
 - name: "Manage systemd shutdown files"
   become: true
