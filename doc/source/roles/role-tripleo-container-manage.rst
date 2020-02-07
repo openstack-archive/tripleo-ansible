@@ -103,38 +103,72 @@ Roles variables
 | tripleo_container_manage_systemd_order         | false                       | Manage systemd shutdown    |
 |                                                |                             | ordering                   |
 +------------------------------------------------+-----------------------------+----------------------------+
+| tripleo_container_manage_config_overrides      | {}                          | Allows to override any     |
+|                                                |                             | container configuration    |
++------------------------------------------------+-----------------------------+----------------------------+
 
-Check mode
-~~~~~~~~~~
+Debug
+~~~~~
 
-If Ansible is in check mode, no container will be removed nor created,
+The role allows you to perform specific actions on a given container.
+This can be used to:
+
+* Run a container with a specific one-off configuration.
+* Output the container commands that are run to to manage containers lifecycle.
+* Output the changes that would have been made on containers by Ansible.
+
+.. note:: To manage a single container, you need to know 2 things:
+
+   * At which step the container is deployed.
+
+   * The name of the generated JSON file for container config.
+
+Here is an example of a playbook to manage HAproxy container at step 1 which
+overrides the image setting in one-off.
+
+.. code-block:: YAML
+
+    - hosts: localhost
+      become: true
+      tasks:
+        - name: Manage step_1 containers using tripleo-ansible
+          block:
+            - name: "Manage HAproxy container at step 1 with tripleo-ansible"
+              include_role:
+                name: tripleo-container-manage
+              vars:
+                tripleo_container_manage_systemd_order: true
+                tripleo_container_manage_config_patterns: 'hashed-haproxy.json'
+                tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
+                tripleo_container_manage_config_id: "tripleo_step1"
+                tripleo_container_manage_config_overrides:
+                  haproxy:
+                    image: docker.io/tripleomaster/centos-binary-haproxy:hotfix
+
+If Ansible is run in check mode, no container will be removed nor created,
 however at the end of the playbook a list of commands will be displayed to show
 what would have been run.
 This is useful for debug purposes, as it was something that one could do with
 `paunch debug` command.
 
-Example with one container
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: bash
 
-To manage a single container, you need to know 2 things:
+    $ ansible-playbook haproxy.yaml --check
 
-* At which step the container is deployed.
+Adding the diff mode will output the changes what would have been made on
+containers by Ansible.
 
-* The name of the generated JSON file for container config.
+.. code-block:: bash
 
-Here is an example of a playbook to manage HAproxy container at step 1:
+    $ ansible-playbook haproxy.yaml --check --diff
 
-.. code-block:: YAML
-
-    - name: Manage step_1 containers using tripleo-ansible
-      block:
-        - name: "Manage HAproxy container at step 1 with tripleo-ansible"
-          include_role:
-            name: tripleo-container-manage
-          vars:
-            tripleo_container_manage_systemd_order: true
-            tripleo_container_manage_config_patterns: 'hashed-haproxy.json'
-            tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
-            tripleo_container_manage_config_id: "tripleo_step1"
+The ``tripleo_container_manage_config_overrides`` parameter is optional
+and can be used to override a specific container attribute like the image
+or the container user. The parameter takes a dictionary where each key is the
+container name and its parameters that we want to override. These parameters
+have to exist and are the ones that define the container configuration in
+TripleO Heat Templates. Note that it doesn't write down the overrides in the
+JSON file so if an update / upgrade is executed, the container will be
+re-configured with the configuration that is in the JSON file.
 
 .. _podman_container: https://docs.openstack.org/tripleo-ansible/latest/modules/modules-podman_container.html
