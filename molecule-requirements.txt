@@ -7,7 +7,7 @@ pytest-cov
 pytest-html
 pytest-xdist
 mock
-molecule>=2.22rc1,<3
+molecule==3.0a5
 netaddr
 
 # this is required for the docs build jobs
