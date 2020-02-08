@@ -26,7 +26,7 @@
     cap_drop: "{{ lookup('dict', container_data).value.cap_drop | default(omit) }}"
     command: "{{ lookup('dict', container_data).value.command | default(omit) }}"
     conmon_pidfile: "/var/run/{{ lookup('dict', container_data).key }}.pid"
-    cpu_shares: "{{ lookup('dict', container_data).value.cpu_shares | default(omit) | int }}"
+    cpu_shares: "{{ lookup('dict', container_data).value.cpu_shares | default(omit) }}"
     # cpuset_cpus: "{{ lookup('dict', container_data).value.cpuset_cpus | default(omit) }}"
     debug: true
     detach: "{{ lookup('dict', container_data).value.detach | default(true) }}"
