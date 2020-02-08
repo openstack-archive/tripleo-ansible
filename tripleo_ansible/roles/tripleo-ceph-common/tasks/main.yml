@@ -36,7 +36,7 @@
 - when: ceph_ansible_inherits_calling_ansible_environment
   block:
     - name: get all ansible environment variables
-      shell: "env | grep ANSIBLE_"
+      shell: "env | grep ^ANSIBLE_"
       register: env_shell_output
       ignore_errors: true
     - name: set calling_ansible_environment_variables
