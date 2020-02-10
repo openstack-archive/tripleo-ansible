@@ -17,6 +17,14 @@
 
 # All variables intended for modification should place placed in this file.
 
+# Set the container command line entry-point
+tripleo_container_cli: "{{ container_cli | default('docker') }}"
+# Stop and start all running services before backup is ran.
+tripleo_backup_and_restore_service_manager: true
+
+# Set the name of the mysql container
+tripleo_backup_and_restore_mysql_container: mysql
+
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
 tripleo_backup_and_restore_debug: false
 # By default this should be the Undercloud node

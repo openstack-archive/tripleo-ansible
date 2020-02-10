@@ -32,16 +32,11 @@
   tags:
     - always
 
-- name: Create backup command
-  set_fact:
-    tripleo_backup_and_restore_rear_command: rear {{ '-s ' if tripleo_backup_and_restore_rear_simulate else '' }}-d -v mkbackup
-  tags:
-    - bar_create_recover_image
-
 - name: Create the node backup
   become: true
-  command: '{{ tripleo_backup_and_restore_rear_command }}'
+  command: rear {{ '-s ' if tripleo_backup_and_restore_rear_simulate else '' }}-d -v mkbackup
   register: tripleo_backup_and_restore_rear_output
+  when: tripleo_backup_and_restore_rear_output is undefined
   tags:
     - bar_create_recover_image
 
