@@ -39,6 +39,8 @@
         name: docker
         state: stopped
         enabled: false
+      when:
+        - (docker_service_state.status['ActiveState'] | lower) != 'inactive'
 
     - name: Uninstall Docker rpm
       package:
