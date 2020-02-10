@@ -134,6 +134,9 @@ class ContainerPuppetManager:
         config_path = os.path.join(CONTAINER_PUPPET_CONFIG,
                                    'step_' + str(self.step))
 
+        # Cleanup old configs generated in previous versions
+        self._cleanup_old_configs()
+
         # Make sure config_path exists
         # Note: it'll cleanup old configs before creating new ones.
         self._create_dir(config_path)
@@ -357,6 +360,14 @@ class ContainerPuppetManager:
         if self._exists(path):
             shutil.rmtree(path)
 
+    def _remove_file(self, path):
+        """Remove a file.
+
+        :param path: string
+        """
+        if self._exists(path):
+            os.remove(path)
+
     def _create_dir(self, path):
         """Creates a directory.
 
@@ -460,6 +471,11 @@ class ContainerPuppetManager:
         startup_config_path = os.path.join(CONTAINER_STARTUP_CONFIG,
                                            'step_' + str(self.step))
         for config in self._find(startup_config_path):
+            if config.startswith('hashed-'):
+                # Take the opportunity to cleanup old hashed files which
+                # don't exist anymore.
+                self._remove_file(config)
+                continue
             old_config_hash = ''
             cname = os.path.splitext(os.path.basename(config))[0]
             startup_config_json = json.loads(self._slurp(config))
@@ -483,6 +499,15 @@ class ContainerPuppetManager:
                 startup_config_json['environment']['TRIPLEO_CONFIG_HASH'] = (
                     config_hash)
                 self._update_container_config(config, startup_config_json)
+
+    def _cleanup_old_configs(self):
+        """Cleanup old container configurations and directories.
+        """
+        # This configuration file was removed here:
+        # https://review.opendev.org/#/c/702876
+        old_config = os.path.join(CONTAINER_STARTUP_CONFIG + '-step_'
+                                  + str(self.step) + '.json')
+        self._remove_file(old_config)
 
 
 def main():
