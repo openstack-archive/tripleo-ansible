@@ -46,7 +46,7 @@
   become: true
   when:
     - not (_tripleo_upgrade_hiera_file.stat.exists | bool) or
-      (_tripleo_upgrade_hiera_test.stdout | length) > 0
+      not (_tripleo_upgrade_hiera_test.stdout | length) > 0
 
 - name: load the json hiera data
   command: "jq . {{ tripleo_upgrade_hiera_file }}"
