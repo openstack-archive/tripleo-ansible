@@ -15,7 +15,7 @@
 # under the License.
 
 - name: "Async container create/run"
-  async: "{{ (not ansible_check_mode | bool) | ternary('300', omit) }}"
+  async: "{{ (not ansible_check_mode | bool) | ternary('600', omit) }}"
   poll: "{{ (not ansible_check_mode | bool) | ternary('0', omit) }}"
   register: create_async_results
   loop: "{{ batched_container_data | haskey(attribute='action', reverse=True) }}"
