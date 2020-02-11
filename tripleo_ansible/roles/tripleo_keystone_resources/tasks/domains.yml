@@ -22,7 +22,7 @@
   async: 60
   poll: 0
   register: tripleo_keystone_resources_domain_results
-  loop: "{{ batched_tripleo_keystone_resources_data }}"
+  loop: "{{ batched_tripleo_keystone_resources_domains }}"
   loop_control:
     loop_var: tripleo_keystone_resources_domain
 
