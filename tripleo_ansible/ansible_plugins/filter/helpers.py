@@ -87,16 +87,33 @@ class FilterModule(object):
                     break
         return return_dict
 
-    def needs_delete(self, container_infos, config, config_id):
+    def needs_delete(self, container_infos, config, config_id,
+                     clean_orphans=True):
         """Returns a list of containers which need to be removed.
 
         This filter will check which containers need to be removed for these
         reasons: no config_data, updated config_data or container not
         part of the global config.
+
+        :param container_infos: list
+        :param config: dict
+        :param config_id: string
+        :param clean_orphans: bool
+        :returns: list
         """
         to_delete = []
         to_skip = []
         installed_containers = []
+
+        # If config has no item, it's probably due to a user error where
+        # the given pattern match no container.
+        # If config has one item, it's because we want to manage only one
+        # container.
+        # In both cases, we don't want to remove the others in the same
+        # config_id.
+        if len(config) <= 1:
+            clean_orphans = False
+
         for c in container_infos:
             c_name = c['Name']
             installed_containers.append(c_name)
@@ -108,19 +125,22 @@ class FilterModule(object):
             # Check containers have a label
             if not labels:
                 to_skip += [c_name]
+                continue
 
             # Don't delete containers NOT managed by tripleo* or paunch*
             elif not re.findall(r"(?=("+'|'.join(['tripleo', 'paunch'])+r"))",
                                 managed_by):
                 to_skip += [c_name]
+                continue
 
             # Only remove containers managed in this config_id
             elif labels.get('config_id') != config_id:
                 to_skip += [c_name]
+                continue
 
             # Remove containers with no config_data
             # e.g. broken config containers
-            elif 'config_data' not in labels:
+            elif 'config_data' not in labels and clean_orphans:
                 to_delete += [c_name]
 
         for c_name, config_data in config.items():
@@ -159,6 +179,11 @@ class FilterModule(object):
 
                 if cmp(c_data, config_data) != 0:
                     to_delete += [c_name]
+
+        # Cleanup installed containers that aren't in config anymore.
+        for c in installed_containers:
+            if c not in config.keys() and c not in to_skip and clean_orphans:
+                to_delete += [c]
 
         return to_delete
 
