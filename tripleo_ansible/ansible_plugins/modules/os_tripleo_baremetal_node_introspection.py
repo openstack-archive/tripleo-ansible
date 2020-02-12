@@ -150,6 +150,14 @@ class IntrospectionManagement(object):
     def log(self, msg):
         self.module.log("os_tripleo_baremetal_node_introspection: %s" % msg)
 
+    def push_next(self, pool, queue):
+        try:
+            next_introspection = next(queue)
+            pool.append(next_introspection)
+        except StopIteration:
+            pass
+        return pool
+
     def introspect(self, node_uuids):
 
         result = {}
@@ -162,20 +170,39 @@ class IntrospectionManagement(object):
         pool = []
 
         for i in range(self.concurrency):
-            try:
-                next_introspection = next(queue)
-                next_introspection.start_introspection()
-                pool.append(next_introspection)
-            except StopIteration:
-                pass
+            pool = self.push_next(pool, queue)
 
         while len(pool) > 0:
             finished = []
             for intro in pool:
+                if not intro.started:
+                    try:
+                        intro.start_introspection()
+                        continue
+                    except Exception as e:
+                        self.log("ERROR Node %s can't start introspection"
+                                 " because: %s" % (intro.node_id, str(e)))
+                        result[intro.node_id] = {
+                            "error": "Error for introspection node %s: %s " % (
+                                intro.node_id, str(e)),
+                            "failed": True,
+                            "status": ''
+                        }
+                        finished.append(intro)
+                        continue
                 status = intro.get_introspection()
-                if not status.is_finished and intro.timeouted():
+                if (not status.is_finished and intro.timeouted()) or (
+                    status.is_finished and status.error is not None
+                ):
+                    if status.is_finished:
+                        self.log("ERROR Introspection of node %s "
+                                 "failed: %s" % (
+                                     status.id, str(status.error))
+                                 )
                     if intro.last_retry():
-                        result[status.id] = intro.timeout_msg()
+                        result[status.id] = (intro.error_msg()
+                                             if status.is_finished
+                                             else intro.timeout_msg())
                         finished.append(intro)
                     else:
                         intro.restart_introspection()
@@ -185,23 +212,9 @@ class IntrospectionManagement(object):
                         'failed': False,
                         'error': None}
                     finished.append(intro)
-                elif status.is_finished and status.error is not None:
-                    self.log("ERROR Introspection of node %s failed: %s" % (
-                        status.id, str(status.error))
-                    )
-                    if intro.last_retry():
-                        result[status.id] = intro.error_msg()
-                        finished.append(intro)
-                    else:
-                        intro.restart_introspection()
             for i in finished:
                 pool.remove(i)
-                try:
-                    next_introspection = next(queue)
-                    next_introspection.start_introspection()
-                    pool.append(next_introspection)
-                except StopIteration:
-                    pass
+                pool = self.push_next(pool, queue)
             # Let's not DDOS Ironic service
             if pool:
                 time.sleep(min(10, self.node_timeout))
@@ -210,6 +223,8 @@ class IntrospectionManagement(object):
 
 
 class NodeIntrospection:
+    started = False
+
     def __init__(self, node_id, os_client, timeout, max_retries, log):
         self.node_id = node_id
         self.os_client = os_client
@@ -242,6 +257,7 @@ class NodeIntrospection:
         return self.start_introspection(restart=True)
 
     def start_introspection(self, restart=False):
+        self.started = True
         if restart:
             self.log("INFO Restarting (try %s of %s) introspection of "
                      "node %s" % (
