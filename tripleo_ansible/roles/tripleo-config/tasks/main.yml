@@ -22,6 +22,7 @@
     - tripleo_config_dest is undefined
 
 - name: "Generate {{ tripleo_config_dest }} config"
+  become: true
   config_template:
     src: "{{ tripleo_config_src }}"
     dest: "{{ tripleo_config_dest }}"
