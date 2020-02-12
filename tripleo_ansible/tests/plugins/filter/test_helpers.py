@@ -196,7 +196,7 @@ class TestHelperFilters(tests_base.TestCase):
                 },
             }
         ]
-        result = self.filters.haskey(batched_container_data=data,
+        result = self.filters.haskey(data=data,
                                      attribute='restart', value='always')
         self.assertEqual(result, expected_list)
 
@@ -224,7 +224,7 @@ class TestHelperFilters(tests_base.TestCase):
                 },
             }
         ]
-        result = self.filters.haskey(batched_container_data=data,
+        result = self.filters.haskey(data=data,
                                      attribute='restart',
                                      value='always',
                                      reverse=True)
@@ -255,7 +255,7 @@ class TestHelperFilters(tests_base.TestCase):
                 },
             }
         ]
-        result = self.filters.haskey(batched_container_data=data,
+        result = self.filters.haskey(data=data,
                                      attribute='restart',
                                      any=True)
         self.assertEqual(result, expected_list)
@@ -284,7 +284,7 @@ class TestHelperFilters(tests_base.TestCase):
                 },
             }
         ]
-        result = self.filters.haskey(batched_container_data=data,
+        result = self.filters.haskey(data=data,
                                      attribute='restart',
                                      reverse=True,
                                      any=True)
@@ -397,6 +397,68 @@ class TestHelperFilters(tests_base.TestCase):
                                            config_id='tripleo_step1')
         self.assertEqual(result, expected_list)
 
+    def test_get_key_from_dict(self):
+        data = {
+           'nova_api': {
+             'project': 'service1'
+           },
+           'glance_api': {
+             'project': 'service1'
+           },
+           'heat_api': {
+             'user': 'heat'
+           },
+           'cinder_api': {
+             'project': 'service2'
+           }
+        }
+        expected_list = ['service1', 'service3', 'service2']
+        result = self.filters.get_key_from_dict(data, key='project',
+                                                default='service3')
+        self.assertEqual(result, expected_list)
+
+    def test_get_key_from_dict_with_list_input(self):
+        data = {
+           'nova_api': {
+             'roles': ['service', 'admin']
+           },
+           'glance_api': {
+             'roles': 'service1'
+           },
+           'heat_api': {
+             'user': 'heat'
+           },
+           'cinder_api': {
+             'project': 'service2',
+             'roles': ['service', 'service4']
+           }
+        }
+        expected_list = ['service', 'admin', 'service1', 'service4']
+        result = self.filters.get_key_from_dict(data, key='roles',
+                                                default='service')
+        self.assertEqual(result, expected_list)
+
+    def test_get_key_from_dict_with_dict_input(self):
+        data = {
+           'nova_api': {
+             'users': {'nova': {'password': 'secret',
+                       'roles': ['foo', 'bar']}},
+           },
+           'glance_api': {
+             'roles': 'service1'
+           },
+           'heat_api': {
+             'user': 'heat'
+           },
+           'cinder_api': {
+             'project': 'service2'
+           }
+        }
+        expected_list = [{'nova': {'password': 'secret', 'roles':
+                         ['foo', 'bar']}}]
+        result = self.filters.get_key_from_dict(data, key='users')
+        self.assertEqual(result, expected_list)
+
     def test_container_exec_cmd(self):
         data = {
             "action": "exec",
@@ -421,3 +483,48 @@ class TestHelperFilters(tests_base.TestCase):
                         'keystone', 'keystone-manage', 'bootstrap']
         result = self.filters.container_exec_cmd(data=data)
         self.assertEqual(result, expected_cmd)
+
+    def test_get_role_assignments(self):
+        data = [{
+           'nova': {
+             'roles': ['service', 'admin'],
+           },
+           'glance': {
+             'roles': 'service1',
+             'user': 'glance'
+           },
+           'cinder': {
+             'project': 'service2'
+           },
+           'heat': {
+             'domain': 'heat_domain'
+           }
+        }]
+        expected_hash = {
+          'admin': [{'nova': {'project': 'service'}},
+                    {'cinder': {'project': 'service2'}},
+                    {'heat': {'domain': 'heat_domain'}}
+                   ],
+          'service': [{'nova': {'project': 'service'}}],
+          'service1': [{'glance': {'project': 'service'}}]
+        }
+        result = self.filters.get_role_assignments(data)
+        self.assertEqual(result, expected_hash)
+
+    def test_get_domain_id(self):
+        openstack_domains = [
+            {
+                "description": "The default domain",
+                "enabled": "true",
+                "id": "default",
+                "name": "Default"
+            },
+            {
+                "description": "The heat stack domain",
+                "enabled": "true",
+                "id": "fd85b560d4554fd8bf363728e4a3863e",
+                "name": "heat_stack"
+            }
+        ]
+        result = self.filters.get_domain_id('heat_stack', openstack_domains)
+        self.assertEqual(result, 'fd85b560d4554fd8bf363728e4a3863e')

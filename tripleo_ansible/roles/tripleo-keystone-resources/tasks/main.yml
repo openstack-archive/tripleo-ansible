@@ -1,0 +1,101 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+# "tripleo-keystone-resources" will search for and load any operating system variable file
+
+# found within the "vars/" path. If no OS files are found the task will skip.
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - skip: true
+      files:
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+        - "{{ ansible_os_family | lower }}.yml"
+  tags:
+    - always
+
+- name: Create Keystone Admin resources
+  include_tasks: admin.yml
+
+- name: Create Keystone Projects
+  include_tasks: projects.yml
+  loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='project', default='service') | batch(tripleo_keystone_resources_batch) | list }}"
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_projects
+
+- name: Create Keystone Domains
+  include_tasks: domains.yml
+  loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='domains') | batch(tripleo_keystone_resources_batch) | list }}"
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_data
+
+# We need to gather domains so later we can convert a domain name into a domain ID.
+# This is needed because os_user_role doesn't do the conversion yet in the version
+# of Ansible that we use. This block will disappear once we use the new modules
+# from OpenStack collections.
+# In recents version of Ansible, this module was renamed to os_keystone_domain_info.
+# Which is why we don't use the same module to gather domains infos.
+- name: Gather all OpenStack domains for Ansible < 2.9.2
+  include_tasks: gather_domains_old.yml
+  # See https://github.com/ansible/ansible/commit/c91929b2b302b37af22d785641a7fe704003662a
+  when:
+    - ansible_version.full is version_compare('2.9.2', '<')
+
+- name: Gather all OpenStack domains for Ansible >= 2.9.2
+  include_tasks: gather_domains_new.yml
+  # See https://github.com/ansible/ansible/commit/c91929b2b302b37af22d785641a7fe704003662a
+  when:
+    - ansible_version.full is version_compare('2.9.2', '>=')
+
+- name: Create Keystone Services
+  include_tasks: services.yml
+  loop: "{{ tripleo_keystone_resources_catalog_config | dict2items | haskey(attribute='service') | batch(tripleo_keystone_resources_batch) | list }}"
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_data
+
+- name: Create Keystone Endpoints
+  include_tasks: loop-endpoints.yml
+  loop:
+    - public
+    - admin
+    - internal
+  loop_control:
+    loop_var: keystone_endpoint_type
+
+- name: Create Keystone Roles
+  include_tasks: roles.yml
+  loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='roles', default='service') | batch(tripleo_keystone_resources_batch) | list }}"
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_roles
+
+- name: "Create Keystone Users"
+  include_tasks: users.yml
+  loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='users') | batch(tripleo_keystone_resources_batch) | list }}"
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_data
+
+- name: "Assign Keystone Users to Roles"
+  include_tasks: user_roles.yml
+  loop: >-
+    {{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='users') |
+    get_role_assignments(default_project=tripleo_keystone_resources_service_project) | dict2items }}
+  loop_control:
+    loop_var: batched_tripleo_keystone_resources_roles_data
