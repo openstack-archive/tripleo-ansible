@@ -51,14 +51,16 @@
       block:
         # Get Node UUIDs, if "all_manageable" is True
         - name: Get node UUIDS
-          command: >
-            openstack baremetal node list --provision-state=manageable -c UUID -f value
-          register: command_output
-          changed_when: false
+          os_baremetal_node_info:
+            auth_type: password
+            cloud: undercloud
+            filters:
+              provision_state: manageable
+          register: manageable_nodes
 
         - name: Set node_uuids_intro fact
           set_fact:
-            node_uuids_intro: "{{ command_output.stdout_lines }}"
+            node_uuids_intro: "{{ manageable_nodes.baremetal_nodes | default([]) | map(attribute='id') | list }}"
 
     - name: Process only passed node UUIDs
       when:
