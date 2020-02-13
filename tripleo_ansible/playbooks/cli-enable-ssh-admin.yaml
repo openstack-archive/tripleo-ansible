@@ -39,6 +39,24 @@
       when:
         - tripleo_cloud_name is undefined
 
+    - name: Run blacklist IP check
+      command: >-
+        openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
+      register: blacklist_cmd
+      changed_when: false
+      async: 1000
+      poll: 0
+
+    - name: Retrieve compute managed network ports
+      os_port_facts:
+        cloud: undercloud
+        filters:
+          status: ACTIVE
+      changed_when: false
+      register: port_check
+      async: 1000
+      poll: 0
+
     - name: Set local connection user facts
       set_fact:
         ansible_home: "{{ lookup('env', 'HOME') }}"
@@ -171,15 +189,31 @@
         key: "{{ user_public_key }}"
       become: true
 
-    - name: Run blacklist IP check
-      command: >-
-        openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
-      register: blacklist_cmd
-      changed_when: false
+    - name: Block on async blacklist check
+      async_status:
+        jid: "{{ blacklist_cmd.ansible_job_id }}"
+      register: blacklist_cmd_job_result
+      until: blacklist_cmd_job_result.finished
+      retries: 30
 
     - name: Set BlacklistedIpAddresses fact
       set_fact:
-        BlacklistedIpAddresses: "{{ (blacklist_cmd.stdout | from_yaml)['output_value'] }}"
+        BlacklistedIpAddresses: "{{ (blacklist_cmd_job_result.stdout | from_yaml)['output_value'] }}"
+
+    - name: Block on async port check
+      async_status:
+        jid: "{{ port_check.ansible_job_id }}"
+      register: port_check_job_result
+      until: port_check_job_result.finished
+      retries: 30
+
+    - name: Set ManagedIpAddresses fact
+      set_fact:
+        ManagedIpAddresses: "{{ openstack_ports | map(attribute='fixed_ips') | sum(start=[]) | map(attribute='ip_address') | list }}"
+
+    - name: Set node key fact
+      set_fact:
+        node_key_fact: "{{ lookup('env', 'ANSIBLE_PRIVATE_KEY_FILE') or (ansible_ssh_private_key_file | default(ansible_home ~ '/.ssh/id_rsa')) }}"
 
     - name: Add ssh-servers
       add_host:
@@ -188,14 +222,14 @@
         user_public_key: "{{ user_public_key }}"
         user_private_key: "{{ user_private_key }}"
         user_private_key_file: "{{ user_private_key_file }}"
-        ansible_ssh_private_key_file: "{{ lookup('env', 'ANSIBLE_PRIVATE_KEY_FILE') | default(ansible_home ~ '/.ssh/id_rsa') }}"
+        ansible_user: "{{ (item in ManagedIpAddresses) | ternary('heat-admin', (ssh_user | default(ansible_user))) }}"
+        ansible_ssh_private_key_file: "{{ node_key_fact }}"
       changed_when: false
       loop: '{{ set_ssh_servers | difference(((BlacklistedIpAddresses | length) < 1) | ternary([], BlacklistedIpAddresses)) }}'
 
 
 - name: Run Create admin
   hosts: localhost:tripleo_queues
-  user: "{{ ssh_user | default('heat-admin') }}"
   become: true
   any_errors_fatal: true
   roles:
