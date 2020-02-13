@@ -20,8 +20,10 @@
   when:
     - tripleo_container_manage_cli == 'podman'
 
-- name: "Delete containers managed by Podman for {{ tripleo_container_manage_config }}"
+- name: "Delete orphan containers managed by Podman for {{ tripleo_container_manage_config }}"
   when:
     - tripleo_container_manage_cli == 'podman'
   include_tasks: podman/delete.yml
-  loop: "{{ podman_containers.containers | needs_delete(config=all_containers_hash, config_id=tripleo_container_manage_config_id) }}"
+  loop: >-
+    {{ podman_containers.containers | needs_delete(config=all_containers_hash,
+    config_id=tripleo_container_manage_config_id, check_config=False) }}
