@@ -407,6 +407,128 @@ class TestHelperFilters(tests_base.TestCase):
                                            config_id='tripleo_step1')
         self.assertEqual(result, expected_list)
 
+    def test_needs_delete_no_config_check(self):
+        data = [
+            {
+                'Name': 'mysql',
+                'Config': {
+                    'Labels': {
+                        'config_id': 'tripleo_step1'
+                    }
+                }
+            },
+            {
+                'Name': 'rabbitmq',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'rabbitmq',
+                        'name': 'rabbitmq'
+                    }
+                }
+            },
+            {
+                'Name': 'swift',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'swift',
+                        'name': 'swift',
+                        'config_data': {'foo': 'bar'}
+                    }
+                }
+            },
+            {
+                'Name': 'heat',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo-Undercloud',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'heat',
+                        'name': 'heat',
+                        'config_data': "{'start_order': 0}"
+                    }
+                }
+            },
+            {
+                'Name': 'test1',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo-other',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'test1',
+                        'name': 'test1',
+                        'config_data': {'start_order': 0}
+                    }
+                }
+            },
+            {
+                'Name': 'haproxy',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'paunch',
+                        'config_id': 'tripleo_step1',
+                        'config_data': ""
+                    }
+                }
+            },
+            {
+                'Name': 'tripleo',
+                'Config': {
+                    'Labels': {
+                        'foo': 'bar'
+                    }
+                }
+            },
+            {
+                'Name': 'none_tripleo',
+                'Config': {
+                    'Labels': None
+                }
+            },
+            {
+                'Name': 'old_tripleo',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'config_data': ""
+                    }
+                }
+            },
+        ]
+        config = {
+            # we don't want that container to be touched: no restart
+            'mysql': '',
+            # container has no Config, therefore no Labels: restart needed
+            # but will be skipped because check_config is False
+            'rabbitmq': '',
+            # container has no config_data: restart needed
+            # but will be skipped because check_config is False
+            'haproxy': '',
+            # container isn't part of config_id: no restart
+            'tripleo': '',
+            # container isn't in container_infos but not part of config_id:
+            # no restart.
+            'doesnt_exist': '',
+            # config_data didn't change: no restart
+            'swift': {'foo': 'bar'},
+            # config_data changed: restart needed
+            # but will be skipped because check_config is False
+            'heat': {'start_order': 1},
+            # config_data changed: restart needed
+            # but will be skipped because check_config is False
+            'test1': {'start_order': 2},
+        }
+        expected_list = ['rabbitmq', 'old_tripleo']
+        result = self.filters.needs_delete(container_infos=data,
+                                           config=config,
+                                           config_id='tripleo_step1',
+                                           check_config=False)
+        self.assertEqual(result, expected_list)
+
     def test_needs_delete_single_config(self):
         data = [
             {
