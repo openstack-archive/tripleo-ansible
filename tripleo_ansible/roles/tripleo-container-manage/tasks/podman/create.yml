@@ -80,9 +80,7 @@
 # a container managed by systemd needs to be restarted
 - name: "Create a list of containers which changed"
   set_fact:
-    containers_changed: >-
-      {{ create_async_results.results | selectattr('changed', 'equalto', true) |
-      map(attribute='container_data') | list | list_of_keys }}
+    containers_changed: "{{ create_async_poll_results.results | get_changed_containers }}"
 
 - name: Block for container commands
   when:
