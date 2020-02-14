@@ -103,6 +103,20 @@ _ROLES_INPUT_SCHEMA = {
 """JSON schema of the roles list."""
 
 
+NETWORK_KEYS = (
+    'mtu',
+    'tags',
+)
+
+
+SUBNET_KEYS = (
+    'cidr',
+    'gateway_ip',
+    'host_routes',
+    'dns_nameservers',
+)
+
+
 class BaremetalDeployException(Exception):
     pass
 
@@ -282,6 +296,41 @@ def check_existing(instances, provisioner, baremetal):
     return found, not_found
 
 
+def populate_environment(instance_uuids, provisioner, environment,
+                         ctlplane_network):
+
+    resource_registry = environment.setdefault(
+        'resource_registry', {})
+    resource_registry.setdefault(
+        'OS::TripleO::DeployedServer::ControlPlanePort',
+        '/usr/share/openstack-tripleo-heat-templates'
+        '/deployed-server/deployed-neutron-port.yaml')
+    port_map = (environment.setdefault('parameter_defaults', {})
+                .setdefault('DeployedServerPortMap', {}))
+    for uuid in instance_uuids:
+        instance = provisioner.show_instance(uuid)
+        nets = nics_to_port_map(instance.nics(), provisioner.connection)
+        ctlplane_net = nets.get(ctlplane_network)
+        if not ctlplane_net:
+            continue
+        fixed_ips = ctlplane_net.get('fixed_ips', [])
+        network_all = ctlplane_net.get('network', {})
+        network = {k: v for k, v in network_all.items()
+                   if k in NETWORK_KEYS}
+        subnets = []
+        for subnet in ctlplane_net.get('subnets', []):
+            subnets.append({k: v for k, v in subnet.items()
+                            if k in SUBNET_KEYS})
+        ctlplane = {
+            'fixed_ips': fixed_ips,
+            'network': network,
+            'subnets': subnets
+        }
+
+        port_map['%s-%s' % (instance.hostname, ctlplane_network)] = ctlplane
+    return environment
+
+
 def build_hostname_format(hostname_format, role_name):
     if not hostname_format:
         hostname_format = '%stackname%-{}-%index%'.format(
@@ -351,3 +400,18 @@ def get_source(instance):
                           kernel=image.get('kernel'),
                           ramdisk=image.get('ramdisk'),
                           checksum=image.get('checksum'))
+
+
+def nics_to_port_map(nics, connection):
+    """Build a port map from a metalsmith instance."""
+    port_map = {}
+    for nic in nics:
+        for ip in nic.fixed_ips:
+            net_name = getattr(nic.network, 'name', None) or nic.network.id
+            subnet = connection.network.get_subnet(ip['subnet_id'])
+            net_info = port_map.setdefault(
+                net_name, {'network': nic.network.to_dict(),
+                           'fixed_ips': [], 'subnets': []})
+            net_info['fixed_ips'].append({'ip_address': ip['ip_address']})
+            net_info['subnets'].append(subnet.to_dict())
+    return port_map
