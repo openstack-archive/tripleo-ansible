@@ -15,6 +15,7 @@
 # under the License.
 
 - name: "Async creation of Keystone {{ keystone_endpoint_type }} endpoint"
+  no_log: true
   os_keystone_endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: "{{ tripleo_keystone_resources_data.key }}"
@@ -30,6 +31,7 @@
     loop_var: tripleo_keystone_resources_data
 
 - name: "Check Keystone {{ keystone_endpoint_type }} endpoint status"
+  no_log: true
   async_status:
     jid: "{{ tripleo_keystone_resources_endpoint_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_endpoint_results.results }}"
