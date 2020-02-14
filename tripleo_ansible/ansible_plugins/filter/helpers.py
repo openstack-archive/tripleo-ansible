@@ -41,7 +41,8 @@ class FilterModule(object):
             'get_key_from_dict': self.get_key_from_dict,
             'recursive_get_key_from_dict': self.recursive_get_key_from_dict,
             'get_role_assignments': self.get_role_assignments,
-            'get_domain_id': self.get_domain_id
+            'get_domain_id': self.get_domain_id,
+            'get_changed_containers': self.get_changed_containers
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -343,3 +344,17 @@ class FilterModule(object):
         for d in all_domains:
             if d.get('name') == domain_name:
                 return d.get('id')
+
+    def get_changed_containers(self, async_results):
+        """Return a list of containers that changed.
+
+        This filter takes in input async results of a podman_container
+        invocation and returns the list of containers with actions, so we
+        know which containers have changed.
+        """
+        changed = []
+        for item in async_results:
+            if item.get('podman_actions'):
+                if item['container'].get('Name'):
+                    changed.append(item['container'].get('Name'))
+        return changed

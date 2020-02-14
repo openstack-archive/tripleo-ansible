@@ -548,3 +548,22 @@ class TestHelperFilters(tests_base.TestCase):
         ]
         result = self.filters.get_domain_id('heat_stack', openstack_domains)
         self.assertEqual(result, 'fd85b560d4554fd8bf363728e4a3863e')
+
+    def test_get_changed_containers(self):
+        data = [
+            {
+                "podman_actions": [],
+                "container": {
+                    "Name": "haproxy",
+                }
+            },
+            {
+                "podman_actions": ['podman rm mysql'],
+                "container": {
+                    "Name": "mysql",
+                }
+            }
+        ]
+        expected_list = ['mysql']
+        result = self.filters.get_changed_containers(data)
+        self.assertEqual(result, expected_list)
