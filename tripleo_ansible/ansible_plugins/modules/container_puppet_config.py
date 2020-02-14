@@ -399,7 +399,7 @@ class ContainerPuppetManager:
         :param path: string
         :param config: string
         """
-        f = open(path, 'w')
+        f = open(path, 'wb')
         f.write(json.dumps(config, indent=2).encode('utf-8'))
         os.chmod(path, 0o600)
 
