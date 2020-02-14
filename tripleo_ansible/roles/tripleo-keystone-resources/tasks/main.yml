@@ -45,7 +45,7 @@
   include_tasks: domains.yml
   loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='domains') | batch(tripleo_keystone_resources_batch) | list }}"
   loop_control:
-    loop_var: batched_tripleo_keystone_resources_data
+    loop_var: batched_tripleo_keystone_resources_domains
 
 # We need to gather domains so later we can convert a domain name into a domain ID.
 # This is needed because os_user_role doesn't do the conversion yet in the version
