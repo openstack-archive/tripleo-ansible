@@ -128,7 +128,7 @@
       # We can't use "rescue" here because the debug tasks use
       # "podman_containers_infos".
       ignore_errors: true
-      no_log: true
+      no_log: "{{ not tripleo_container_manage_debug }}"
     - name: Create a list of containers which didn't exit
       set_fact:
         running_containers: >-
