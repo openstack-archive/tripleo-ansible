@@ -96,7 +96,7 @@ Roles variables
 +------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_config_id             | tripleo                     | Config ID                  |
 +------------------------------------------------+-----------------------------+----------------------------+
-| tripleo_container_manage_config_patterns       | `hashed-*.json`             | Bash REGEX to find configs |
+| tripleo_container_manage_config_patterns       | `*.json`                    | Bash REGEX to find configs |
 +------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_debug                 | false                       | Debug toggle               |
 +------------------------------------------------+-----------------------------+----------------------------+
@@ -148,7 +148,7 @@ overrides the image setting in one-off.
                 name: tripleo-container-manage
               vars:
                 tripleo_container_manage_systemd_order: true
-                tripleo_container_manage_config_patterns: 'hashed-haproxy.json'
+                tripleo_container_manage_config_patterns: 'haproxy.json'
                 tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
                 tripleo_container_manage_config_id: "tripleo_step1"
                 tripleo_container_manage_config_overrides:
