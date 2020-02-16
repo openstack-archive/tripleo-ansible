@@ -97,6 +97,10 @@
     - tripleo_container_manage_cli == 'podman'
   become: true
   block:
+    - name: "Update container configs with new config hashes"
+      include_tasks: puppet_config.yml
+      when:
+        - tripleo_container_manage_check_puppet_config|bool
     - name: "Delete containers from {{ tripleo_container_manage_config }}"
       include_tasks: delete.yml
     - name: "Create containers from {{ tripleo_container_manage_config }}"
