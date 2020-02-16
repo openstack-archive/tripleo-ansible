@@ -39,10 +39,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8
