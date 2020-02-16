@@ -18,6 +18,7 @@
 # All variables intended for modification should place placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
+tripleo_container_manage_check_puppet_config: false
 tripleo_container_manage_cli: podman
 tripleo_container_manage_concurrency: 1
 tripleo_container_manage_config: "/var/lib/tripleo-config/"
