@@ -88,7 +88,7 @@ class FilterModule(object):
         return return_dict
 
     def needs_delete(self, container_infos, config, config_id,
-                     clean_orphans=True):
+                     clean_orphans=True, check_config=True):
         """Returns a list of containers which need to be removed.
 
         This filter will check which containers need to be removed for these
@@ -99,6 +99,7 @@ class FilterModule(object):
         :param config: dict
         :param config_id: string
         :param clean_orphans: bool
+        :param check_config: bool to whether or not check if config changed
         :returns: list
         """
         to_delete = []
@@ -177,7 +178,7 @@ class FilterModule(object):
                     except ValueError:  # c_data is not data
                         c_data = dict()
 
-                if cmp(c_data, config_data) != 0:
+                if cmp(c_data, config_data) != 0 and check_config:
                     to_delete += [c_name]
 
         # Cleanup installed containers that aren't in config anymore.
