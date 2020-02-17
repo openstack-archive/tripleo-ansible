@@ -17,6 +17,7 @@
 - name: Gather podman infos
   podman_container_info: {}
   register: podman_containers
+  no_log: "{{ not tripleo_container_manage_debug }}"
   when:
     - tripleo_container_manage_cli == 'podman'
 
