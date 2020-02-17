@@ -49,12 +49,22 @@
   when:
     - octavia_config_updated
 
+- name: get list of running octavia containers
+  become: true
+  shell: |
+    sudo "{{ container_cli }}" ps -f name=octavia -q
+  register: running_octavia_containers
+  when:
+    - octavia_config_updated
+
 - name: restart octavia containers
   become: true
   become_user: root
-  shell: "{{ container_cli }} restart $(sudo {{ container_cli }} ps -f name=octavia -q)"
+  shell: "{{ container_cli }} restart {{ running_octavia_containers.stdout }}"
   when:
     - octavia_config_updated
+    - running_octavia_containers.rc != 0
+    - (running_octavia_containers.stdout|length) > 0
 
 - name: remove directory /etc/octavia/conf.d/common (LP#1836074)
   file:
