@@ -16,11 +16,15 @@
 
 - name: "Tear-down containers that need to be re-created (new-config detected)"
   when:
-    - tripleo_container_manage_cli == 'podman'
-  include_tasks: podman/delete.yml
-  loop: >
-    {{ podman_containers.containers | needs_delete(config=batched_container_data|haskey(attribute='action', reverse=True)|singledict,
-    config_id=tripleo_container_manage_config_id, clean_orphans=False) }}
+    - tripleo_container_manage_systemd_teardown | bool
+  include_role:
+    name: tripleo-container-rm
+  vars:
+    tripleo_container_cli: "{{ tripleo_container_manage_cli }}"
+    tripleo_containers_to_rm: >-
+      {{ podman_containers.containers | needs_delete(config=batched_container_data|
+      haskey(attribute='action', reverse=True)|singledict,
+      config_id=tripleo_container_manage_config_id, clean_orphans=False) }}
 
 - name: "Async container create/run"
   async: "{{ (not ansible_check_mode | bool) | ternary('600', omit) }}"
