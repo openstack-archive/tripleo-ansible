@@ -79,15 +79,27 @@ options:
   puppet_config:
     description: Path to the puppet configs
     type: str
+    default: ""
   short_hostname:
     description:
       - Short hostname
     type: str
+    default: ""
   step:
     description:
       - Step number
     default: 6
     type: int
+  update_config_hash_only:
+    description:
+      - When set to True, the module will only inspect for new config hashes
+        in config_vol_prefix and make sure the container-startup-configs
+        are updated with these hashes. This is useful to execute
+        before we manage the startup containers, so they will be restarted
+        if needed (e.g. new config has been applied, container needs
+        restart).
+    type: bool
+    default: False
 """
 
 EXAMPLES = """
@@ -96,6 +108,10 @@ EXAMPLES = """
     step: 1
     puppet-config: /var/lib/container-puppet/container-puppet.json
     short_hostname: "{{ ansible_hostname }}"
+    update_config_hash_only: false
+- name: Update config hashes for container startup configs
+  container_puppet_config:
+    update_config_hash_only: true
 """
 
 CONTAINER_PUPPET_CONFIG = '/var/lib/tripleo-config/container-puppet-config'
@@ -121,31 +137,34 @@ class ContainerPuppetManager:
 
         # Set parameters
         puppet_config = args['puppet_config']
-        data = json.loads(self._slurp(puppet_config))
-
-        self.step = args['step']
-        self.net_host = args['net_host']
-        self.debug = args['debug']
-        self.check = args['check_mode']
-        self.no_archive = args['no_archive']
+        update_config_hash_only = args['update_config_hash_only']
         self.config_vol_prefix = args['config_vol_prefix']
-        self.hostname = args['short_hostname']
 
-        config_path = os.path.join(CONTAINER_PUPPET_CONFIG,
-                                   'step_' + str(self.step))
+        if not update_config_hash_only:
+            data = json.loads(self._slurp(puppet_config))
 
-        # Cleanup old configs generated in previous versions
-        self._cleanup_old_configs()
+            self.step = args['step']
+            self.net_host = args['net_host']
+            self.debug = args['debug']
+            self.check = args['check_mode']
+            self.no_archive = args['no_archive']
+            self.hostname = args['short_hostname']
 
-        # Make sure config_path exists
-        # Note: it'll cleanup old configs before creating new ones.
-        self._create_dir(config_path)
+            config_path = os.path.join(CONTAINER_PUPPET_CONFIG,
+                                       'step_' + str(self.step))
 
-        # Generate the container configs
-        config = self._get_config(self._merge_volumes_configs(data))
-        for k, v in config.items():
-            config_dest = os.path.join(config_path, k + '.json')
-            self._update_container_config(config_dest, v)
+            # Cleanup old configs generated in previous versions
+            self._cleanup_old_configs()
+
+            # Make sure config_path exists
+            # Note: it'll cleanup old configs before creating new ones.
+            self._create_dir(config_path)
+
+            # Generate the container configs
+            config = self._get_config(self._merge_volumes_configs(data))
+            for k, v in config.items():
+                config_dest = os.path.join(config_path, k + '.json')
+                self._update_container_config(config_dest, v)
 
         # Update container-startup-config with new config hashes
         self._update_hashes()
@@ -415,6 +434,7 @@ class ContainerPuppetManager:
         f = open(path, 'wb')
         f.write(json.dumps(config, indent=2).encode('utf-8'))
         os.chmod(path, 0o600)
+        self.results['changed'] = True
 
     def _get_config_hash(self, config_volume):
         """Returns a config hash from a config_volume.
@@ -470,8 +490,6 @@ class ContainerPuppetManager:
     def _update_hashes(self):
         """Update container startup config with new config hashes if needed.
         """
-        startup_config_path = os.path.join(CONTAINER_STARTUP_CONFIG,
-                                           'step_' + str(self.step))
         configs = self._find(CONTAINER_STARTUP_CONFIG)
         for config in configs:
             old_config_hash = ''
