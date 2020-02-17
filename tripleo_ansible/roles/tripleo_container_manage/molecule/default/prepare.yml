@@ -34,7 +34,24 @@
             "net": "host",
             "command": "sleep 3600",
             "restart": "always",
-            "net": "host",
             "healthcheck": { "test": "echo test" }
           }
         dest: '/tmp/container-configs/fedora.json'
+    - name: Create a secondary configuration file for a fedora container
+      copy:
+        content: |
+          {
+            "image": "fedora:latest",
+            "net": "host",
+            "command": "sleep 3600"
+          }
+        dest: '/tmp/container-configs/fedora_bis.json'
+    - name: Create a third configuration file for a fedora container
+      copy:
+        content: |
+          {
+            "image": "fedora:latest",
+            "net": "host",
+            "command": "sleep 3600"
+          }
+        dest: '/tmp/container-configs/fedora_three.json'
