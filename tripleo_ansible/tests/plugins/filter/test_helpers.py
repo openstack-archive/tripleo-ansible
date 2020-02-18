@@ -371,6 +371,16 @@ class TestHelperFilters(tests_base.TestCase):
                     'Labels': None
                 }
             },
+            {
+                'Name': 'old_tripleo',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'config_data': ""
+                    }
+                }
+            },
         ]
         config = {
             # we don't want that container to be touched: no restart
@@ -391,7 +401,103 @@ class TestHelperFilters(tests_base.TestCase):
             # config_data changed: restart needed
             'test1': {'start_order': 2},
         }
-        expected_list = ['rabbitmq', 'haproxy', 'heat', 'test1']
+        expected_list = ['rabbitmq', 'haproxy', 'heat', 'test1', 'old_tripleo']
+        result = self.filters.needs_delete(container_infos=data,
+                                           config=config,
+                                           config_id='tripleo_step1')
+        self.assertEqual(result, expected_list)
+
+    def test_needs_delete_single_config(self):
+        data = [
+            {
+                'Name': 'rabbitmq',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'rabbitmq',
+                        'name': 'rabbitmq'
+                    }
+                }
+            },
+            {
+                'Name': 'swift',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'swift',
+                        'name': 'swift',
+                        'config_data': {'foo': 'bar'}
+                    }
+                }
+            },
+            {
+                'Name': 'heat',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo-Undercloud',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'heat',
+                        'name': 'heat',
+                        'config_data': "{'start_order': 0}"
+                    }
+                }
+            },
+            {
+                'Name': 'haproxy',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'paunch',
+                        'config_id': 'tripleo_step1',
+                        'config_data': ""
+                    }
+                }
+            },
+            {
+                'Name': 'none_tripleo',
+                'Config': {
+                    'Labels': None
+                }
+            },
+            {
+                'Name': 'old_tripleo',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo_ansible',
+                        'config_id': 'tripleo_step1',
+                        'config_data': ""
+                    }
+                }
+            },
+        ]
+        config = {
+            # config_data changed: restart needed
+            'heat': {'start_order': 1},
+        }
+        expected_list = ['heat']
+        result = self.filters.needs_delete(container_infos=data,
+                                           config=config,
+                                           config_id='tripleo_step1')
+        self.assertEqual(result, expected_list)
+
+    def test_needs_delete_no_config(self):
+        data = [
+            {
+                'Name': 'heat',
+                'Config': {
+                    'Labels': {
+                        'managed_by': 'tripleo-Undercloud',
+                        'config_id': 'tripleo_step1',
+                        'container_name': 'heat',
+                        'name': 'heat',
+                        'config_data': "{'start_order': 0}"
+                    }
+                }
+            },
+        ]
+        config = {}
+        expected_list = []
         result = self.filters.needs_delete(container_infos=data,
                                            config=config,
                                            config_id='tripleo_step1')
