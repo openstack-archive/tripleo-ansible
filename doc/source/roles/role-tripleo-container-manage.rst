@@ -155,6 +155,18 @@ overrides the image setting in one-off.
                   haproxy:
                     image: docker.io/tripleomaster/centos-binary-haproxy:hotfix
 
+The same can be achieved with this command:
+
+.. code-block:: bash
+
+    ansible -m include_role -a role=tripleo-container-manage \
+        -e tripleo_container_manage_systemd_order=True \
+        -e tripleo_container_manage_config_patterns='haproxy.json' \
+        -e tripleo_container_manage_config='/var/lib/tripleo-config/container-startup-config/step_1' \
+        -e tripleo_container_manage_config_id='tripleo_step1' \
+        -e tripleo_container_manage_config_overrides="{'haproxy': {'image': 'docker.io/tripleomaster/centos-binary-haproxy:hotfix'}}" \
+        --become --one-line localhost
+
 If Ansible is run in check mode, no container will be removed nor created,
 however at the end of the playbook a list of commands will be displayed to show
 what would have been run.
