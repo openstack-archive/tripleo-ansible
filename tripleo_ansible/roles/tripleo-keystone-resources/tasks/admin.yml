@@ -44,6 +44,7 @@
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: admin
     password: "{{ tripleo_keystone_resources_admin_password }}"
+    update_password: always
     email: "admin@localhost"
     domain: default
 
