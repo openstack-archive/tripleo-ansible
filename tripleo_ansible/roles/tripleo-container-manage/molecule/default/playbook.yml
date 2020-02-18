@@ -103,18 +103,12 @@
       podman_container_info:
         name: fedora
       register: fedora_infos_old
-    - name: Get fedora container ID before new run
-      set_fact:
-        fedora_old_id: "{{ fedora_infos_old.containers.0.Id }}"
     - include_role:
         name: tripleo-container-manage
     - name: Gather facts about fedora container after new run
       podman_container_info:
         name: fedora
       register: fedora_infos_new
-    - name: Get fedora container ID after new run
-      set_fact:
-        fedora_new_id: "{{ fedora_infos_new.containers.0.Id }}"
   post_tasks:
     - name: Assert that fedora container has not been re-created
       assert:
