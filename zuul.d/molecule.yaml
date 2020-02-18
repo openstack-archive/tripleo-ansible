@@ -172,6 +172,7 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_manage/.*
+    - ^tripleo_ansible/roles/tripleo_container_rm/.*
     - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$

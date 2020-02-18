@@ -15,7 +15,8 @@
 # under the License.
 
 
-- name: Converge
+- name: Create all containers from /tmp/container-configs
+  become: true
   hosts: all
   gather_facts: false
   vars:
@@ -28,7 +29,6 @@
         name: tripleo_container_manage
   post_tasks:
     - name: Verify that Fedora container was created correctly
-      become: true
       block:
         - name: Check for fedora container
           command: podman container exists fedora
@@ -60,3 +60,251 @@
               - tripleo_fedora_healthcheck_active_result.rc == 0
             fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
             success_msg: 'tripleo_fedora systemd healthcheck service is active'
+    - name: Verify that Fedora bis container was created correctly
+      block:
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Gather facts about fedora_bis container
+          podman_container_info:
+            name: fedora_bis
+          register: fedora_bis_infos
+        - name: Assert that fedora_bis container has the right image
+          assert:
+            that:
+              - "'fedora:latest' in fedora_bis_infos.containers.0.ImageName"
+            fail_msg: 'fedora_bis container has wrong image'
+            success_msg: 'fedora_bis container has the right image'
+    - name: Verify that Fedora three container was created correctly
+      block:
+        - name: Check for fedora_three container
+          command: podman container exists fedora_three
+        - name: Gather facts about fedora_three container
+          podman_container_info:
+            name: fedora_three
+          register: fedora_three_infos
+        - name: Assert that fedora_three container has the right image
+          assert:
+            that:
+              - "'fedora:latest' in fedora_three_infos.containers.0.ImageName"
+            fail_msg: 'fedora_three container has wrong image'
+            success_msg: 'fedora_three container has the right image'
+
+- name: Test idempotency on fedora container
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: '*.json'
+    tripleo_container_manage_systemd_order: true
+  tasks:
+    - name: Gather facts about fedora container before new run
+      podman_container_info:
+        name: fedora
+      register: fedora_infos_old
+    - name: Get fedora container ID before new run
+      set_fact:
+        fedora_old_id: "{{ fedora_infos_old.containers.0.Id }}"
+    - include_role:
+        name: tripleo_container_manage
+    - name: Gather facts about fedora container after new run
+      podman_container_info:
+        name: fedora
+      register: fedora_infos_new
+    - name: Get fedora container ID after new run
+      set_fact:
+        fedora_new_id: "{{ fedora_infos_new.containers.0.Id }}"
+  post_tasks:
+    - name: Assert that fedora container has not been re-created
+      assert:
+        that:
+          - fedora_infos_new == fedora_infos_old
+        fail_msg: 'fedora container was wrongly re-created'
+        success_msg: 'fedora container was not re-created'
+
+- name: Manage only one container
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'fedora.json'
+  tasks:
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that all containers still exist
+      block:
+        - name: Check for fedora container
+          command: podman container exists fedora
+        - name: Check if tripleo_fedora systemd service is active
+          command: systemctl is-active --quiet tripleo_fedora
+          register: tripleo_fedora_active_result
+        - name: Assert that tripleo_fedora systemd service is active
+          assert:
+            that:
+              - tripleo_fedora_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd service is not active'
+            success_msg: 'tripleo_fedora systemd service is active'
+        - name: Check if tripleo_fedora systemd healthcheck service is active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+        - name: Assert that tripleo_fedora systemd healthcheck service is active
+          assert:
+            that:
+              - tripleo_fedora_healthcheck_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
+            success_msg: 'tripleo_fedora systemd healthcheck service is active'
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Check for fedora_three container
+          command: podman container exists fedora_three
+
+- name: Manage a wrong container (user error)
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'feduraaa.json'
+  tasks:
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that all containers still exist
+      block:
+        - name: Check for fedora container
+          command: podman container exists fedora
+        - name: Check if tripleo_fedora systemd service is active
+          command: systemctl is-active --quiet tripleo_fedora
+          register: tripleo_fedora_active_result
+        - name: Assert that tripleo_fedora systemd service is active
+          assert:
+            that:
+              - tripleo_fedora_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd service is not active'
+            success_msg: 'tripleo_fedora systemd service is active'
+        - name: Check if tripleo_fedora systemd healthcheck service is active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+        - name: Assert that tripleo_fedora systemd healthcheck service is active
+          assert:
+            that:
+              - tripleo_fedora_healthcheck_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
+            success_msg: 'tripleo_fedora systemd healthcheck service is active'
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Check for fedora_three container
+          command: podman container exists fedora_three
+
+- name: Test a container removal
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'fedora_*.json'
+    tripleo_container_manage_systemd_order: true
+  tasks:
+    - name: Remove fedora container config
+      file:
+        path: '/tmp/container-configs/fedora.json'
+        state: absent
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that all containers still exist
+      block:
+        - name: Check that fedora container was removed
+          command: podman container exists fedora
+          register: container_exist
+          failed_when: container_exist.rc == 0
+        - name: Check if tripleo_fedora systemd service is still active
+          command: systemctl is-active --quiet tripleo_fedora
+          register: tripleo_fedora_active_result
+          failed_when: tripleo_fedora_active_result.rc == 0
+        - name: Check if tripleo_fedora systemd healthcheck service is still active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+          failed_when: tripleo_fedora_healthcheck_active_result.rc == 0
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Check for fedora_three container
+          command: podman container exists fedora_three
+
+- name: Test a container update
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'fedora_*.json'
+    tripleo_container_manage_systemd_order: true
+  tasks:
+    - name: Modify the fedora_bis container config
+      copy:
+        content: |
+          {
+            "image": "fedora:rawhide",
+            "net": "host",
+            "command": "sleep 3600"
+          }
+        dest: '/tmp/container-configs/fedora_bis.json'
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that Fedora bis container was re-created correctly
+      block:
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Gather facts about fedora_bis container
+          podman_container_info:
+            name: fedora_bis
+          register: fedora_bis_infos
+        - name: Assert that fedora_bis container has the right image
+          assert:
+            that:
+              - "'fedora:rawhide' in fedora_bis_infos.containers.0.ImageName"
+            fail_msg: 'fedora_bis container has wrong image'
+            success_msg: 'fedora_bis container has the right image'
+    - name: Check for fedora_three container
+      command: podman container exists fedora_three
+
+- name: Test a container config override
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'fedora_*.json'
+    tripleo_container_manage_systemd_order: true
+    tripleo_container_manage_config_overrides:
+      fedora_bis:
+        image: fedora:latest
+  tasks:
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that Fedora bis container was re-created correctly
+      block:
+        - name: Check for fedora_bis container
+          command: podman container exists fedora_bis
+        - name: Gather facts about fedora_bis container
+          podman_container_info:
+            name: fedora_bis
+          register: fedora_bis_infos
+        - name: Assert that fedora_bis container has the right image
+          assert:
+            that:
+              - "'fedora:latest' in fedora_bis_infos.containers.0.ImageName"
+            fail_msg: 'fedora_bis container has wrong image'
+            success_msg: 'fedora_bis container has the right image'
+    - name: Check for fedora_three container
+      command: podman container exists fedora_three
