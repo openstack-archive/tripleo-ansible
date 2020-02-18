@@ -24,7 +24,7 @@ from datetime import datetime
 
 import base64
 import copy
-import glob
+import fnmatch
 import json
 import os
 import shutil
@@ -377,16 +377,18 @@ class ContainerPuppetManager:
             self._remove_dir(path)
         os.makedirs(path)
 
-    def _find(self, path):
+    def _find(self, path, pattern='*.json'):
         """Returns a list of files in a directory.
 
         :param path: string
+        :param pattern: string
         :returns: list
         """
         configs = []
         if self._exists(path):
-            path = os.path.join(path, '*')
-            configs = glob.glob(path)
+            for root, dirnames, filenames in os.walk(path):
+                for filename in fnmatch.filter(filenames, pattern):
+                    configs.append(os.path.join(root, filename))
         else:
             self.module.warn('{} does not exists'.format(path))
         return configs
@@ -470,14 +472,15 @@ class ContainerPuppetManager:
         """
         startup_config_path = os.path.join(CONTAINER_STARTUP_CONFIG,
                                            'step_' + str(self.step))
-        for config in self._find(startup_config_path):
-            if config.startswith('hashed-'):
+        configs = self._find(CONTAINER_STARTUP_CONFIG)
+        for config in configs:
+            old_config_hash = ''
+            cname = os.path.splitext(os.path.basename(config))[0]
+            if cname.startswith('hashed-'):
                 # Take the opportunity to cleanup old hashed files which
                 # don't exist anymore.
                 self._remove_file(config)
                 continue
-            old_config_hash = ''
-            cname = os.path.splitext(os.path.basename(config))[0]
             startup_config_json = json.loads(self._slurp(config))
             config_volumes = self._match_config_volumes(startup_config_json)
             config_hashes = [
@@ -493,7 +496,7 @@ class ContainerPuppetManager:
                     # config doesn't need an update
                     continue
                 self.module.warn('Config change detected for {}, new '
-                                 'hash: {}'.format(config, config_hash))
+                                 'hash: {}'.format(cname, config_hash))
                 if 'environment' not in startup_config_json:
                     startup_config_json['environment'] = {}
                 startup_config_json['environment']['TRIPLEO_CONFIG_HASH'] = (
