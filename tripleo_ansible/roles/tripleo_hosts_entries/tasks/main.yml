@@ -31,26 +31,27 @@
   run_once: true
   set_fact:
     tripleo_hosts_entries_block: |
-      {{ tripleo_hosts_entries_undercloud_hosts_entries | join('') }}
+      {{ tripleo_hosts_entries_undercloud_hosts_entries | default([]) | join('') }}
 
-      {{ tripleo_hosts_entries_vip_hosts_entries | join('') }}
+      {{ tripleo_hosts_entries_vip_hosts_entries | default([]) | join('') }}
 
-      {% for host in groups['overcloud'] %}
+      {% for host in groups['overcloud'] -%}
       {{ hostvars[host][hostvars[host]['hostname_resolve_network'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ cloud_domain ~ ' ' ~ host }}
-      {% if role_networks is not none %}
-      {% for network in role_networks | default([]) %}
+      {% if role_networks is not none -%}
+      {% set _networks = (enabled_networks | default([])) | union(role_networks | default([])) -%}
+      {% for network in _networks -%}
       {{ hostvars[host][networks[network]['name_lower'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ' ' ~
          host ~ '.' ~ network.lower() }}
-      {% endfor %}
-      {% endif %}
+      {% endfor -%}
+      {% endif -%}
       {{ hostvars[host]['ctlplane_ip'] ~ ' ' ~
          host ~ '.ctlplane' ~ '.' ~ cloud_domain ~ ' ' ~ host ~ '.ctlplane' }}
 
-      {% endfor %}
+      {% endfor -%}
 
-      {{ tripleo_hosts_entries_extra_hosts_entries | join('') }}
+      {{ tripleo_hosts_entries_extra_hosts_entries | default([]) | join('') }}
   tags:
     - tripleo_hosts_entries
 
