@@ -133,4 +133,4 @@ swift_get_url: ''
 swift_put_url: ''
 ceph_ansible_skip_tags: 'package-install,with_pkg'
 ceph_ansible_environment_variables: {}
-ceph_ansible_inherits_calling_ansible_environment: true
+ceph_ansible_inherits_calling_ansible_environment: false
