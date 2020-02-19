@@ -101,6 +101,11 @@ options:
     description:
       - Absolute path for the paunch log file.
     default: /var/log/paunch.log
+  cleanup:
+    description:
+      - Whether or not we cleanup containers not in config. Useful only for apply action.
+    type: bool
+    default: True
 """
 
 EXAMPLES = """
@@ -112,6 +117,7 @@ EXAMPLES = """
       haproxy:
         image: docker.io/tripleomaster/centos-binary-haproxy:current-tripleo-hotfix
     config_id: tripleo_step1
+    cleanup: false
     action: apply
 # Paunch cleanup example
 - name: Cleanup containers for step 1 and step 2
@@ -141,6 +147,7 @@ class PaunchManager:
         self.healthcheck_disabled = \
             self.module.params['healthcheck_disabled']
         self.container_cli = self.module.params['container_cli']
+        self.cleanup = self.module.params['cleanup']
         self.config_overrides = self.module.params['config_overrides']
         self.container_log_stdout_path = \
             self.module.params['container_log_stdout_path']
@@ -159,6 +166,9 @@ class PaunchManager:
                                                    log_file=self.log_file)
 
         if self.config:
+            if self.config.endswith('.json'):
+                self.module.warn('Only one config was given, cleanup disabled')
+                self.cleanup = False
             self.config_yaml = putils_common.load_config(
                 self.config,
                 overrides=self.config_overrides)
@@ -187,7 +197,8 @@ class PaunchManager:
             log_level=self.log_level,
             log_file=self.log_file,
             cont_log_path=self.container_log_stdout_path,
-            healthcheck_disabled=self.healthcheck_disabled
+            healthcheck_disabled=self.healthcheck_disabled,
+            cleanup=self.cleanup
         )
         stdout, stderr = ["\n".join(i) for i in (stdout_list, stderr_list)]
 
