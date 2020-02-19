@@ -340,6 +340,7 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-manage/.*
+    - ^tripleo_ansible/roles/tripleo-container-rm/.*
     name: tripleo-ansible-centos-7-molecule-tripleo-container-manage
     parent: tripleo-ansible-centos-7-base
     vars:
