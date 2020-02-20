@@ -41,16 +41,10 @@ provisioner:
     ANSIBLE_FILTER_PLUGINS: "${ANSIBLE_FILTER_PLUGINS:-/usr/share/ansible/plugins/filter}"
 
 scenario:
-  name: podman_container_info
   test_sequence:
     - prepare
     - converge
     - verify
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8

@@ -64,7 +64,6 @@ provisioner:
                 ctlplane_ip: 192.168.24.2
                 internal_api_ip: 172.17.0.2
 
-
 scenario:
   test_sequence:
     - destroy
@@ -74,10 +73,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: ansible
-  lint:
-    name: ansible-lint

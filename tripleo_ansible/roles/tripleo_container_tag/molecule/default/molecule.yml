@@ -44,10 +44,5 @@ scenario:
     - converge
     - verify
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8
