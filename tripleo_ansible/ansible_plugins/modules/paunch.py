@@ -137,6 +137,18 @@ class PaunchManager:
 
         self.module = module
         self.results = results
+
+        # Fail early if containers were not deployed by Paunch before.
+        if os.path.isfile('/var/lib/tripleo-config/.ansible-managed'):
+            msg = ('Containers were previously deployed with '
+                   'tripleo-ansible, paunch module can not be used. '
+                   'Make sure EnablePaunch is set to False.')
+            self.module.fail_json(
+                msg=msg,
+                stdout='',
+                stderr='',
+                rc=1)
+
         self.config = self.module.params['config']
         if (isinstance(self.module.params['config_id'], list)
            and len(self.module.params['config_id']) == 1):
