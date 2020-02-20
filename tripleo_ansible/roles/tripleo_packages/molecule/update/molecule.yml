@@ -28,6 +28,7 @@ platforms:
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
 
 # TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
 #
