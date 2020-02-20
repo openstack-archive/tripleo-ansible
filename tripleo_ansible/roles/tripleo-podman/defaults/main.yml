@@ -23,3 +23,4 @@ tripleo_container_registry_logins: {}
 tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
 tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
 tripleo_podman_tls_verify: true
+tripleo_podman_debug: false
