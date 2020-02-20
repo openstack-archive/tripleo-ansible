@@ -25,6 +25,7 @@ platforms:
     volumes:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
 
   - name: centos8
     hostname: centos8
@@ -44,6 +45,7 @@ platforms:
     volumes:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
 
 provisioner:
   name: ansible
