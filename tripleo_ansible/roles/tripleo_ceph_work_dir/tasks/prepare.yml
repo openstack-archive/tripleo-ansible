@@ -39,10 +39,28 @@
     - run_uuid_ansible
     - run_ceph_ansible
 
+- name: gather hiera metadata
+  command: /bin/hiera -c /etc/puppet/hiera.yaml enabled_services
+  register: enabled_services
+
+- name: build the openstack pool list
+  import_tasks: build_pools.yml
+  vars:
+    tripleo_pool_images: "{{ ceph_pools.glance_pool.enabled }}"
+    tripleo_pool_vms: "{{ ceph_pools.nova_pool.enabled }}"
+    tripleo_pool_volumes: "{{ ceph_pools.cinder_pool.enabled }}"
+    tripleo_pool_backup: "{{ ceph_pools.cinder_backup_pool.enabled }}"
+    tripleo_pool_metrics: "{{ ceph_pools.gnocchi_pool.enabled }}"
+
+- name: build openstack keys
+  include_tasks: build_keys.yml
+
 - name: generate ceph-ansible group vars all
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
-    content: "{{ ceph_ansible_group_vars_all | to_nice_yaml }}"
+    content: "{{ ceph_ansible_group_vars_all | combine(openstack_pools|default({'openstack_pools': []}))
+             | combine(openstack_keys|default({'openstack_keys': []})) | combine(keys|default({'keys': []}))
+             | combine(cephfs_data|default({})) | combine(cephfs_metadata|default({})) | to_nice_yaml }}"
 
 - name: generate ceph-ansible extra vars
   copy:
