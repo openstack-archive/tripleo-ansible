@@ -31,6 +31,37 @@
   tags:
     - always
 
+- name: Detect mirrors file
+  stat:
+    path: "{{ test_deps_mirrors_file_path }}"
+  register: mirrors_file
+
+- when: mirrors_file.stat.exists
+  block:
+
+    - name: Discover mirror for RDO if exists
+      shell: |
+        source {{ test_deps_mirrors_file_path }}
+        echo $NODEPOOL_RDO_PROXY
+      register: rdo_mirror_proxy
+      changed_when: false
+
+    - name: Set fact for the mirror with proxy
+      set_fact:
+        rdo_mirror: "{{ rdo_mirror_proxy.stdout|default('https://trunk.rdoproject.org', true) }}"
+
+- name: Set fact for the mirror without proxy
+  set_fact:
+    rdo_mirror: 'https://trunk.rdoproject.org'
+  when: not mirrors_file.stat.exists
+
+- name: Print used mirror
+  debug: var=rdo_mirror
+
+- name: Set test_deps_repo
+  set_fact:
+    test_deps_repo: "{{ test_deps_repo.replace('https://trunk.rdoproject.org', rdo_mirror) }}"
+
 - name: RHEL Block
   become: true
   when:
@@ -38,12 +69,12 @@
   block:
     - name: install deplorean repo
       get_url:
-        url: "https://trunk.rdoproject.org/{{ test_deps_repo_version }}/current-tripleo/delorean.repo"
+        url: "{{ rdo_mirror }}/{{ test_deps_repo_version }}/current-tripleo/delorean.repo"
         dest: /etc/yum.repos.d/delorean.repo
 
     - name: install deplorean-deps repo
       get_url:
-        url: "https://trunk.rdoproject.org/{{ test_deps_repo_version }}/delorean-deps.repo"
+        url: "{{ rdo_mirror }}/{{ test_deps_repo_version }}/delorean-deps.repo"
         dest: /etc/yum.repos.d/delorean-deps.repo
 
 - include_tasks: tripleo-setup.yml

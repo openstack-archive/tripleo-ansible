@@ -10,6 +10,8 @@ platforms:
     image: centos:7
     dockerfile: Dockerfile
     network_mode: host
+    volumes:
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     easy_install:
       - pip
     environment: &env
