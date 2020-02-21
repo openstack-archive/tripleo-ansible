@@ -72,3 +72,12 @@
             daemon_reload: true
           when:
             - systemd_healthcheck.changed or systemd_timer.changed
+        - name: "Add systemd require for {{ container_sysd_name }} healthcheck"
+          command: "systemctl add-requires tripleo_{{ container_sysd_name }}.service tripleo_{{ container_sysd_name }}_healthcheck.timer"
+          when:
+            - systemd_healthcheck.changed or systemd_timer.changed
+        - name: "Force systemd daemon reload"
+          systemd:
+            daemon_reload: true
+          when:
+            - systemd_healthcheck.changed or systemd_timer.changed
