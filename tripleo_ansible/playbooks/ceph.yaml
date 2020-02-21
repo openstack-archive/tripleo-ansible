@@ -15,10 +15,28 @@
 # under the License.
 
 - hosts: Undercloud
-  roles:
-    - role: tripleo-ceph-run-ansible
-  post_tasks:
-    - name: backup and clean fetch directory after ceph-ansible run
+  tasks:
+    # tripleo heat templates call these on step1
+    - name: include common ceph defaults
       include_role:
-        name: tripleo-ceph-fetch-dir
-        tasks_from: backup_and_clean
+        name: tripleo-ceph-common
+    - name: create ceph-ansible working directory
+      include_role:
+        name: tripleo-ceph-work-dir
+        tasks_from: prepare
+    - name: prepare for ceph-ansible uuid gathering
+      include_role:
+        name: tripleo-ceph-uuid
+        tasks_from: prepare
+    # tripleo heat templates call these on step2
+    - name: get ssh private key
+      include_role:
+        name: tripleo-ceph-work-dir
+        tasks_from: get-ssh-private-key
+    - name: run nodes-uuid
+      include_role:
+        name: tripleo-ceph-uuid
+        tasks_from: gather
+    - name: run ceph-ansible
+      include_role:
+        name: tripleo-ceph-run-ansible

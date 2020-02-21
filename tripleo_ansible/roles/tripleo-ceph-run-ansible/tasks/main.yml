@@ -109,7 +109,11 @@
         ceph_scripts: "{{ ceph_scripts|default(ceph_default) + [ceph_prefix + item + ceph_suffix] }}"
       loop: "{{ ceph_external_multi_config | map(attribute='cluster') | list }}"
 
-- name: run {{ ceph_scripts|length|default(1) }} ceph-ansible playbook(s) (immediate log at {{ calling_ansible_log_path }})
+- name: "Notify user about upcoming ceph-ansible execution(s)"
+  debug:
+    msg: "Running {{ ceph_scripts|default(['ceph_ansible_command.sh'])|length }} ceph-ansible playbook(s) (immediate log at {{ calling_ansible_log_path }})"
+
+- name: run ceph-ansible
   # Needs become to be able to read the ssh private key
   become: true
   shell: "{{ item }}"

@@ -37,9 +37,3 @@ galaxy_info:
 
   galaxy_tags:
     - tripleo
-
-dependencies:
-  - tripleo-ceph-common
-  - tripleo-ceph-work-dir
-  - tripleo-ceph-fetch-dir
-  - tripleo-ceph-uuid
