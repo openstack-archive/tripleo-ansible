@@ -125,6 +125,9 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora.json'
+    tripleo_container_manage_config_overrides:
+      fedora:
+        image: fedora:rawhide
   tasks:
     - include_role:
         name: tripleo-container-manage
@@ -133,6 +136,16 @@
       block:
         - name: Check for fedora container
           command: podman container exists fedora
+        - name: Gather facts about fedora container
+          podman_container_info:
+            name: fedora
+          register: fedora_infos
+        - name: Assert that fedora container has the right image
+          assert:
+            that:
+              - "'fedora:rawhide' in fedora_infos.containers.0.ImageName"
+            fail_msg: 'fedora container has wrong image'
+            success_msg: 'fedora container has the right image'
         - name: Check if tripleo_fedora systemd service is active
           command: systemctl is-active --quiet tripleo_fedora
           register: tripleo_fedora_active_result
