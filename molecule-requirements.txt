@@ -9,6 +9,7 @@ pytest-html
 pytest-xdist
 mock
 molecule>=3.0,<3.1
+ruamel.yaml
 testinfra
 netaddr
 jinja2>=2.8.0,<3
