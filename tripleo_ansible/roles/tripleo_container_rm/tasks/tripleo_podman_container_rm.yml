@@ -60,9 +60,21 @@
         path: "/etc/systemd/system/tripleo_{{ container }}.service"
         state: absent
 
+- name: "check if {{ container }} service requires exists in systemd"
+  stat:
+    path: "/etc/systemd/system/tripleo_{{ container }}.service.requires"
+  register: systemd_requires_exists
+
+- name: "remove {{ container }} systemd requires"
+  file:
+    path: "/etc/systemd/system/tripleo_{{ container }}.service.requires"
+    state: absent
+  when:
+    - systemd_requires_exists.stat.exists
+
 - name: Reload systemd services if needed
   when:
-    - systemd_healthcheck_exists.stat.exists or systemd_exists.stat.exists
+    - systemd_healthcheck_exists.stat.exists or systemd_exists.stat.exists or systemd_requires_exists.stat.exists
   systemd:
     daemon_reload: true
 
