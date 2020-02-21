@@ -49,21 +49,52 @@
   when:
     - octavia_config_updated
 
+- name: get list of running octavia services
+  become: true
+  become_user: root
+  shell: |
+    systemctl is-active --quiet {{ item }} && echo {{ item }}
+  ignore_errors: true
+  register: octavia_active_services
+  loop:
+    - tripleo_octavia_api
+    - tripleo_octavia_worker
+    - tripleo_octavia_health_manager
+    - tripleo_octavia_housekeeping
+    - tripleo_octavia_driver_agent
+  when:
+    - container_cli == "podman"
+    - octavia_config_updated
+
+- name: restart octavia services
+  become: true
+  become_user: root
+  systemd:
+    name: "{{ item.stdout }}"
+    state: restarted
+  loop: "{{ octavia_active_services.results }}"
+  when:
+    - container_cli == "podman"
+    - octavia_config_updated
+    - item.rc == 0
+
 - name: get list of running octavia containers
   become: true
+  become_user: root
   shell: |
-    sudo "{{ container_cli }}" ps -f name=octavia -q
+    "{{ container_cli }}" ps -f name=octavia -q
   register: running_octavia_containers
   when:
+    - container_cli == "docker"
     - octavia_config_updated
 
 - name: restart octavia containers
   become: true
   become_user: root
-  shell: "{{ container_cli }} restart {{ running_octavia_containers.stdout }}"
+  shell: "{{ container_cli }} restart {{ running_octavia_containers.stdout_lines|join(' ') }}"
   when:
+    - container_cli == "docker"
     - octavia_config_updated
-    - running_octavia_containers.rc != 0
     - (running_octavia_containers.stdout|length) > 0
 
 - name: remove directory /etc/octavia/conf.d/common (LP#1836074)
