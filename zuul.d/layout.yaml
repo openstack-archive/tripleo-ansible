@@ -10,7 +10,9 @@
       - openstack-tox-docs: &tripleo-docs
           files:
           - ^doc/.*
+          - ^molecule-requirements.txt
           - ^README.rst
+          - ^requirements.txt
       - tripleo-ci-centos-7-containers-multinode: &containers_multinode
           dependencies: &deps
             - openstack-tox-linters
