@@ -26,6 +26,12 @@
   when:
     - ansible_user_dir is undefined
 
+- name: set calling_ansible_environment_variables fact
+  set_fact:
+    calling_ansible_environment_variables: []
+  when:
+    - (not ceph_ansible_inherits_calling_ansible_environment | default(true)) | bool
+
 - name: Local environment inherit
   when:
     - (ceph_ansible_inherits_calling_ansible_environment | default(false)) | bool
