@@ -70,6 +70,8 @@
           files:
           - ^tripleo_ansible/roles/tripleo_hieradata/.*
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
+          - ^tripleo_ansible/roles/tripleo_container_manage/.*
+          - ^tripleo_ansible/roles/tripleo_container_rm/.*
           irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
