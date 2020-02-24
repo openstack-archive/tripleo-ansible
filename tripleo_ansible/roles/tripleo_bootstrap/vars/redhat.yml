@@ -24,4 +24,5 @@ _tripleo_bootstrap_packages_bootstrap:
   - openstack-selinux
   - openvswitch
   - puppet-tripleo
+  - rsync
   - tmpwatch
