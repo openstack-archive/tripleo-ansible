@@ -7,7 +7,7 @@
         zuul:
           project:
             src_dir: "{{ tripleo_src }}"
-        ansible_connection: ssh
+        ansible_connection: local
 
 - import_playbook: pre.yml
 
