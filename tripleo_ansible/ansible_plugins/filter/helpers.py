@@ -367,9 +367,12 @@ class FilterModule(object):
         This filter taks in input a domain name and a dictionary with all
         domain informations.
         """
+        if domain_name == '':
+            return
         for d in all_domains:
             if d.get('name') == domain_name:
                 return d.get('id')
+        raise KeyError('Could not get domain ID for "%s"' % domain_name)
 
     def get_changed_containers(self, async_results):
         """Return a list of containers that changed.

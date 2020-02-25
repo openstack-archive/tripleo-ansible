@@ -21,7 +21,7 @@
     project: "{{ lookup('dict', tripleo_keystone_resources_data_user).value.project | default(omit) }}"
     # TODO(emilien) remove the custom filter once the module moved to OpenStack collections and we can make changes
     domain: >-
-      {{ lookup('dict', tripleo_keystone_resources_data_user).value.domain | default(omit) |
+      {{ lookup('dict', tripleo_keystone_resources_data_user).value.domain | default('') |
       get_domain_id(all_domains=openstack_domains) | default(omit) }}
     role: "{{ batched_tripleo_keystone_resources_roles_data.key }}"
     state: present
