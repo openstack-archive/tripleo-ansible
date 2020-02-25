@@ -64,7 +64,7 @@ options:
       type: int
       default: 1200
     quiet:
-      descriptio:
+      description:
         - Don't provide instrospection info in output of the module
       type: bool
       default: False
