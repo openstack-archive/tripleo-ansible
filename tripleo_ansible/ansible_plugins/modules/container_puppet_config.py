@@ -266,6 +266,9 @@ class ContainerPuppetManager:
                            '/dev/log:/dev/log:rw']
         # Defaults
         default_data = {
+            # the security_opt can be removed once we properly address:
+            # https://bugs.launchpad.net/tripleo/+bug/1864501
+            'security_opt': 'label=disable',
             'user': 0,
             'entrypoint': CONTAINER_ENTRYPOINT,
             'environment': self._get_environment_config()
