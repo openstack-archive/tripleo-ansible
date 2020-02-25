@@ -46,6 +46,8 @@
         node_uuids_clean: "{{ node_uuids }}"
 
     - name: exit if nothing to do
+      when:
+        - (node_uuids_clean | length) < 1
       block:
         - name: Notice
           debug:
@@ -53,15 +55,18 @@
 
         - name: end play
           meta: end_play
-      when:
-        - (node_uuids_clean | length) < 1
+
+    - name: Notice
+      debug:
+        msg: >-
+          Running cleaning on the following nodes, {{ node_uuids_clean }}.
 
     # Clean nodes
     - name: Start baremetal cleaning
       os_baremetal_clean_node:
         cloud: undercloud
         node_uuid: "{{ node_uuids_clean }}"
-        # concurrency: "{{ concurrency }}"  NotImplemented
+        concurrency: "{{ concurrency }}"
         # max_retries: "{{ max_retries }}"  NotImplemented
         timeout: "{{ node_timeout }}"
         clean_steps:
