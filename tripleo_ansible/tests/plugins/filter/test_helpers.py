@@ -757,6 +757,31 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.get_domain_id('heat_stack', openstack_domains)
         self.assertEqual(result, 'fd85b560d4554fd8bf363728e4a3863e')
 
+    def test_get_domain_id_empty(self):
+        openstack_domains = []
+        result = self.filters.get_domain_id('', openstack_domains)
+        self.assertEqual(result, None)
+
+    def test_get_domain_id_not_found(self):
+        openstack_domains = [
+            {
+                "description": "The default domain",
+                "enabled": "true",
+                "id": "default",
+                "name": "Default"
+            },
+            {
+                "description": "The heat stack domain",
+                "enabled": "true",
+                "id": "fd85b560d4554fd8bf363728e4a3863e",
+                "name": "heat_stack"
+            }
+        ]
+        self.assertRaises(
+            KeyError,
+            lambda: self.filters.get_domain_id('ghost', openstack_domains)
+        )
+
     def test_get_changed_containers(self):
         data = [
             {
