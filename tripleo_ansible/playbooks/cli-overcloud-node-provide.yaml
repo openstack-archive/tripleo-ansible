@@ -24,36 +24,40 @@
     - name: Check for required inputs
       fail:
         msg: >
-          `node_uuids` or `all_manageable` are required inputs but
-          currently undefined. Check you inputs and try again.
-      when:
-        - node_uuids is undefined
-        - all_manageable is undefined
+          Either `node_uuids` or `all_manageable` are required inputs but
+          currently are not set. Check you inputs and try again.
+      when: >-
+        (node_uuids is undefined and all_manageable is undefined) or
+        (node_uuids is undefined and not all_manageable|bool)
 
-    - name: Check for required inputs
-      fail:
-        msg: >
-          The option `all_manageable` is "false" but `node_uuids` is
-          undefined. Check your inputs and try again.
-      when:
-        - node_uuids is undefined
-        - not (all_manageable | bool)
   tasks:
     - name: Run all manageable block
       block:
         # Get Node UUIDs, if "all_manageable" is True
         - name: Get node UUIDS
-          command: >
-            openstack baremetal node list --provision-state=manageable -c UUID -f value
-          register: command_output
-          changed_when: false
+          os_baremetal_node_info:
+            auth_type: password
+            cloud: undercloud
+            filters:
+              provision_state: manageable
+          register: manageable_nodes
 
-        - name: Set node_uuids fact
+        - name: Set node_uuids_provide fact
           set_fact:
-            node_uuids: "{{ command_output.stdout_lines }}"
+            node_uuids_provide: "{{ manageable_nodes.baremetal_nodes | default([]) | map(attribute='id') | list }}"
+
       when:
         - all_manageable | bool
         - node_uuids is undefined
+
+    - name: Process only passed node UUIDs
+      when:
+        - all_manageable is not defined or not all_manageable|bool
+      block:
+
+        - name: Set node_uuids_provide fact
+          set_fact:
+            node_uuids_provide: "{{ node_uuids }}"
 
     - name: exit if nothing to do
       block:
@@ -64,13 +68,13 @@
         - name: end play
           meta: end_play
       when:
-        - (node_uuids | length) < 1
+        - node_uuids_provide == []
 
     # Set nodes to available
     - name: Make nodes available
       command: >-
         openstack baremetal node provide {{ item }} --wait 1200
-      loop: "{{ node_uuids }}"
+      loop: "{{ node_uuids_provide }}"
       async: 2400
       poll: 0
       register: node_provide
@@ -94,7 +98,7 @@
     - name: Wait for nova resources
       command: >-
         openstack hypervisor show {{ item }}
-      loop: "{{ node_uuids }}"
+      loop: "{{ node_uuids_provide }}"
       changed_when: false
       register: hypervisor_check
       until: hypervisor_check is success
@@ -105,7 +109,7 @@
     - name: Power off nodes
       command: >-
         openstack baremetal node power off {{ item }}
-      loop: "{{ node_uuids }}"
+      loop: "{{ node_uuids_provide }}"
       async: 2400
       poll: 0
       register: node_power_off
