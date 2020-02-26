@@ -53,17 +53,17 @@
 # from OpenStack collections.
 # In recents version of Ansible, this module was renamed to os_keystone_domain_info.
 # Which is why we don't use the same module to gather domains infos.
-- name: Gather all OpenStack domains for Ansible < 2.9.2
+- name: Gather all OpenStack domains for Ansible < 2.9.0
   include_tasks: gather_domains_old.yml
   # See https://github.com/ansible/ansible/commit/c91929b2b302b37af22d785641a7fe704003662a
   when:
-    - ansible_version.full is version_compare('2.9.2', '<')
+    - ansible_version.full is version_compare('2.9.0', '<')
 
-- name: Gather all OpenStack domains for Ansible >= 2.9.2
+- name: Gather all OpenStack domains for Ansible >= 2.9.0
   include_tasks: gather_domains_new.yml
   # See https://github.com/ansible/ansible/commit/c91929b2b302b37af22d785641a7fe704003662a
   when:
-    - ansible_version.full is version_compare('2.9.2', '>=')
+    - ansible_version.full is version_compare('2.9.0', '>=')
 
 - name: Create Keystone Services
   include_tasks: services.yml
