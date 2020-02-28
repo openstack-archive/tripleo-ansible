@@ -29,47 +29,15 @@
     - name: Check for required inputs
       fail:
         msg: >
-          Either `node_uuids` or `all_manageable` are required inputs but
-          currently are not set. Check you inputs and try again.
-      when: >-
-        (node_uuids is undefined and all_manageable is undefined) or
-        (node_uuids is undefined and not all_manageable|bool)
-
+          Input missing `{{ item }}`
+      when:
+        - hostvars[inventory_hostname][item] is undefined
+      loop:
+        - node_uuids
   tasks:
-    # Pre-introspection validation
-    - name: Run Validations
-      command: >
-        openstack tripleo validator run --group "pre-introspection"
-      when:
-        - run_validations | bool
-
-    # TODO(sshnaidm): change to module when https://review.opendev.org/#/c/694751/ merges
-    - name: Run all manageable block
-      when:
-        - all_manageable is defined
-        - all_manageable|bool
-      block:
-        # Get Node UUIDs, if "all_manageable" is True
-        - name: Get node UUIDS
-          os_baremetal_node_info:
-            auth_type: password
-            cloud: undercloud
-            filters:
-              provision_state: manageable
-          register: manageable_nodes
-
-        - name: Set node_uuids_intro fact
-          set_fact:
-            node_uuids_intro: "{{ manageable_nodes.baremetal_nodes | default([]) | map(attribute='id') | list }}"
-
-    - name: Process only passed node UUIDs
-      when:
-        - all_manageable is not defined or not all_manageable|bool
-      block:
-
-        - name: Set node_uuids_intro fact
-          set_fact:
-            node_uuids_intro: "{{ node_uuids }}"
+    - name: Set node_uuids_intro fact
+      set_fact:
+        node_uuids_intro: "{{ node_uuids }}"
 
     - name: exit if nothing to do
       block:
@@ -81,6 +49,13 @@
           meta: end_play
       when:
         - node_uuids_intro == []
+
+    # Pre-introspection validation
+    - name: Run Validations
+      command: >
+        openstack tripleo validator run --group "pre-introspection"
+      when:
+        - run_validations | bool
 
     # Introspect nodes
     - name: Start baremetal introspection
