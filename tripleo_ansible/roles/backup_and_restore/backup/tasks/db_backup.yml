@@ -48,7 +48,8 @@
     - bar_create_recover_image
 
 - name: Get the mysql container id when galera is enabled
-  command: |
+  shell: |
+    set -o pipefail
     {{ tripleo_container_cli }} ps -a | grep galera | awk '{print $1}'
   when: enabled_galera
   register: galera_container_id
