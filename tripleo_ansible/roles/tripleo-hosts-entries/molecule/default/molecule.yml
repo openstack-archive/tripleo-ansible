@@ -44,9 +44,13 @@ provisioner:
           tripleo_hosts_entries_extra_hosts_entries: []
           tripleo_hosts_entries_vip_hosts_entries: []
           cloud_domain: localdomain
+          enabled_networks:
+            - ctlplane
+            - InternalApi
           role_networks:
             - ctlplane
             - InternalApi
+            - DisabledNet
           networks:
             ctlplane:
               name_lower: ctlplane

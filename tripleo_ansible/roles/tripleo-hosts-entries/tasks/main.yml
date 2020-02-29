@@ -38,8 +38,11 @@
       {% for host in groups['overcloud'] %}
       {{ hostvars[host][hostvars[host]['hostname_resolve_network'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ cloud_domain ~ ' ' ~ host }}
-      {% if role_networks is not none %}
-      {% for network in role_networks | default([]) %}
+      {# ## NOTE(hjensas): The Undercloud Minion has no networks, need to check for that here. -#}
+      {% if hostvars[host]['role_networks'] is not none -%}
+      {% set _role_networks = hostvars[host]['role_networks'] | default ([]) -%}
+      {% set _networks = (enabled_networks | default([])) | intersect(_role_networks) -%}
+      {% for network in _networks -%}
       {{ hostvars[host][networks[network]['name_lower'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ network.lower() ~ '.' ~ cloud_domain ~ ' ' ~
          host ~ '.' ~ network.lower() }}
