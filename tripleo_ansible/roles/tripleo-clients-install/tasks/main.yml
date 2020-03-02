@@ -14,12 +14,46 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Install all clients
-  include_tasks: install_pkgs.yml
-  vars:
-    tripleo_clients_install_client: "{{ pkg.key }}"
-    tripleo_clients_install_pkg_state: "{{ pkg.value }}"
-  loop: "{{ tripleo_clients_install_dict|dict2items }}"
-  loop_control:
-    loop_var: 'pkg'
-    label: "{{ pkg.key }}"
+# found within the "vars/" path. If no OS files are found the task will skip.
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - skip: true
+      files:
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+        - "{{ ansible_os_family | lower }}.yml"
+  tags:
+    - always
+
+- name: Set packages facts
+  set_fact:
+    client_package_facts: |-
+      {% set package_sets = {
+           'absent': [],
+           'installed': [],
+           'latest': [],
+           'present': [],
+           'removed': []
+         }
+      %}
+      {% for k, v in tripleo_clients_install_dict.items() %}
+      {%   set pkg_name = tripleo_clients_install_python_prefix ~ '-' ~ k ~ 'client' %}
+      {%   if (tripleo_clients_install_pkg_state == 'present') and (v != tripleo_clients_install_pkg_state) %}
+      {%     set _ = package_sets[v].append(pkg_name) %}
+      {%   else %}
+      {%     set _ = package_sets[tripleo_clients_install_pkg_state].append(pkg_name) %}
+      {%   endif %}
+      {% endfor %}
+      {{ package_sets }}
+
+- name: "Run package install"
+  package:
+    name: "{{ item.value }}"
+    state: "{{ item.key }}"
+  when:
+    - (item.value | length) > 0
+  loop: "{{ client_package_facts | dict2items }}"
