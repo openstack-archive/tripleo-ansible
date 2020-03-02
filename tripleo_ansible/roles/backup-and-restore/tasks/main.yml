@@ -45,8 +45,6 @@
 
 - name: Backup the database
   import_tasks: ../backup/tasks/db_backup.yml
-  when:
-    - tripleo_backup_and_restore_service_manager
 
 - name: Create recovery images with ReaR
   import_tasks: ../backup/tasks/main.yml
