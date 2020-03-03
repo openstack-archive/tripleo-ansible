@@ -81,6 +81,11 @@ options:
       type: int
       required: False
       default: 20
+    raid_config:
+      description:
+        - Sets the raid configuration for a given node.
+      type: dict
+      required: False
 requirements: ["openstacksdk"]
 '''
 
@@ -342,6 +347,11 @@ EXAMPLES = '''
     cloud: undercloud
     node_uuid:
       - 0593c323-ad62-4ce9-b431-3c322827a428
+    raid_config:
+      logical_disks:
+        - "size_gb": 100
+          "raid_level": "1"
+          "controller": "software"
     clean_steps:
       - interface: raid
         step: delete_configuration
@@ -384,6 +394,8 @@ import yaml
 
 from concurrent import futures
 
+from openstack import exceptions
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import (openstack_full_argument_spec,
                                             openstack_module_kwargs,
@@ -396,7 +408,34 @@ def parallel_nodes_cleaning(conn, module):
     nodes = module.params['node_uuid'] + module.params['node_name']
     clean_steps = module.params['clean_steps']
     result = {}
-    workers = min(len(nodes), module.params['concurrency'])
+
+    if module.params['raid_config']:
+        for node in nodes:
+            try:
+                node_info = client.update_node(
+                    node,
+                    target_raid_config=module.params['raid_config']
+                )
+                result.update({node: {
+                    'msg': 'Setting the raid configuration'
+                           ' for node {} succeeded.'.format(node),
+                    'failed': False,
+                    'info': node_info,
+                }})
+            except exceptions.BadRequestException as e:
+                result.update({node: {
+                    'msg': 'Setting raid configuration'
+                           ' for node {} failed. Error: {}'.format(
+                               node,
+                               str(e)
+                            ),
+                    'failed': True,
+                    'error': str(e),
+                    'info': {},
+                }})
+                nodes.pop(nodes.index(node))
+
+    workers = min(len(nodes), module.params['concurrency']) or 1
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         future_to_build = {
             executor.submit(
