@@ -39,7 +39,7 @@
     - name: get all ansible environment variables
       shell: "env | grep ^ANSIBLE_"
       register: env_shell_output
-      ignore_errors: true
+      failed_when: false
       delegate_to: localhost
       connection: local
       run_once: true

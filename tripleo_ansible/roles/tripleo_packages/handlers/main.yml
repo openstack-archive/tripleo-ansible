@@ -24,7 +24,7 @@
   systemd:
     name: openvswitch
   changed_when: false
-  ignore_errors: true
+  failed_when: false
   register: openvswitch_service_state
   listen: start openvswitch
 
