@@ -69,6 +69,18 @@ options:
         - Don't provide cleaned nodes info in output of the module
       type: bool
       default: False
+    max_retries:
+      description:
+        - Number of attempts before failing.
+      type: int
+      required: False
+      default: 0
+    concurrency:
+      description:
+        - Max level of concurrency.
+      type: int
+      required: False
+      default: 20
 requirements: ["openstacksdk"]
 '''
 
@@ -367,8 +379,10 @@ EXAMPLES = '''
               checksum: "a94e683ea16d9ae44768f0a65942234d"
               component: "ilo"
 '''
-import time
+
 import yaml
+
+from concurrent import futures
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import (openstack_full_argument_spec,
@@ -382,55 +396,85 @@ def parallel_nodes_cleaning(conn, module):
     nodes = module.params['node_uuid'] + module.params['node_name']
     clean_steps = module.params['clean_steps']
     result = {}
-    nodes_wait = nodes[:]
-    for node in nodes:
-        try:
-            client.set_node_provision_state(
+    workers = min(len(nodes), module.params['concurrency'])
+    with futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_build = {
+            executor.submit(
+                client.set_node_provision_state,
                 node,
                 "clean",
                 clean_steps=clean_steps,
-                wait=False)
-        except Exception as e:
-            nodes_wait.remove(node)
+                wait=True
+            ): node for node in nodes
+        }
+
+        done, not_done = futures.wait(
+            future_to_build,
+            timeout=node_timeout,
+            return_when=futures.ALL_COMPLETED
+        )
+
+    nodes_wait = list()
+    for job in done:
+        if job._exception:
+            result.update(
+                {
+                    future_to_build[job]: {
+                        'msg': 'Cleaning failed for node {}: {}'.format(
+                            future_to_build[job],
+                            str(job._exception)
+                        ),
+                        'failed': True,
+                        'info': {}
+                    }
+                }
+            )
+        else:
+            nodes_wait.append(future_to_build[job])
+    else:
+        if not_done:
+            for job in not_done:
+                result.update(
+                    {
+                        future_to_build[job]: {
+                            'msg': 'Cleaning incomplete for node {}'.format(
+                                future_to_build[job],
+                            ),
+                            'failed': True,
+                            'info': {}
+                        }
+                    }
+                )
+
+    nodes_to_delete = []
+    for node in nodes_wait:
+        node_info = client.get_node(
+            node,
+            fields=['provision_state', 'last_error']
+        ).to_dict()
+        state = node_info['provision_state']
+        if state == 'manageable':
+            nodes_to_delete.append(node)
             result.update({node: {
-                'msg': 'Can not start cleaning for node %s: %s' % (
-                    node, str(e)),
-                'failed': True,
-                'info': {}
+                'msg': 'Successful cleaning for node %s' % node,
+                'failed': False,
+                'error': '',
+                'info': node_info,
             }})
-    start = time.time()
-    while nodes_wait and time.time() - start < node_timeout:
-        nodes_to_delete = []
-        for node in nodes_wait:
-            node_info = client.get_node(
-                node,
-                fields=['provision_state', 'last_error']
-            ).to_dict()
-            state = node_info['provision_state']
-            if state == 'manageable':
-                nodes_to_delete.append(node)
-                result.update({node: {
-                    'msg': 'Successful cleaning for node %s' % node,
-                    'failed': False,
-                    'error': '',
-                    'info': node_info,
-                }})
-            elif state not in [
-                    'manageable', 'cleaning', 'clean wait', 'available']:
-                nodes_to_delete.append(node)
-                result.update({node: {
-                    'msg': 'Failed cleaning for node %s: %s' % (
-                        node,
-                        node_info['last_error'] or 'state %s' % state),
-                    'failed': True,
-                    'info': node_info,
-                }})
-            # timeout between get_node() calls
-            time.sleep(1)
-        for node in nodes_to_delete:
-            nodes_wait.remove(node)
-        # timeout between cycles
-        time.sleep(5)
+        elif state not in [
+                'manageable', 'cleaning', 'clean wait', 'available']:
+            nodes_to_delete.append(node)
+            result.update({node: {
+                'msg': 'Failed cleaning for node %s: %s' % (
+                    node,
+                    node_info['last_error'] or 'state %s' % state),
+                'failed': True,
+                'info': node_info,
+            }})
+
+    for node in nodes_to_delete:
+        nodes_wait.remove(node)
+
     if nodes_wait:
         for node in nodes_wait:
             node_info = client.get_node(
@@ -444,8 +488,7 @@ def parallel_nodes_cleaning(conn, module):
                 'failed': True,
                 'info': node_info,
             }})
-            # timeout between get_node() calls
-            time.sleep(1)
+
     return result
 
 
