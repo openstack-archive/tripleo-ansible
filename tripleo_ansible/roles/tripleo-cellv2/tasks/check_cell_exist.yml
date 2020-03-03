@@ -26,7 +26,7 @@
       {{ tripleo_cellv2_containercli }} exec -i -u root nova_api \
       nova-manage {{ (tripleo_cellv2_debug | bool) | ternary('--debug', '') }} \
       cell_v2 list_cells | grep {{ tripleo_cellv2_cell_name }}
-    ignore_errors: true
+    failed_when: false
     register: cell_check_result
   - name: Fail if cell already exist
     fail: msg="Cell with name {{ tripleo_cellv2_cell_name }} already exist!"

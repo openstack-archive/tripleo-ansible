@@ -22,7 +22,6 @@
   register: config_contents
   failed_when: config_contents.rc != 0
   changed_when: false
-  ignore_errors: true
 
 - name: retrieve current ip list
   set_fact:

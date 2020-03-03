@@ -38,7 +38,8 @@
     - name: get all ansible environment variables
       shell: "env | grep ^ANSIBLE_"
       register: env_shell_output
-      ignore_errors: true
+      failed_when: false
+
     - name: set calling_ansible_environment_variables
       set_fact:
         calling_ansible_environment_variables: "{{ env_shell_output.stdout_lines }}"
