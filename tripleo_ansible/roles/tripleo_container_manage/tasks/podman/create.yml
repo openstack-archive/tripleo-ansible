@@ -85,7 +85,7 @@
     loop_var: "create_async_result_item"
   register: create_async_poll_results
   until: create_async_poll_results.finished
-  retries: 30
+  retries: 60
   when:
     - not ansible_check_mode|bool
 
