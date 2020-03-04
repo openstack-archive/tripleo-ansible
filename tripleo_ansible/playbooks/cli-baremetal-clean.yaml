@@ -37,7 +37,7 @@
     # Pre-cleaning validation
     - name: Run Validations
       command: >-
-        openstack tripleo validator run --group "pre-clean"
+        openstack --os-cloud undercloud tripleo validator run --group "pre-clean"
       when:
         - run_validations | bool
 

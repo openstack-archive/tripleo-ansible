@@ -45,7 +45,7 @@
     #                   https://github.com/ansible/ansible/issues/60449
     - name: Delete container and objects
       command: >
-        openstack container delete "{{ item }}" --recursive
+        openstack --os-cloud undercloud container delete "{{ item }}" --recursive
       failed_when:
         - container_objects.rc != 0
         - "'Not Found' not in container_objects.stderr"

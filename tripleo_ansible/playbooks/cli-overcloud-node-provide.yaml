@@ -48,7 +48,7 @@
     # Set nodes to available
     - name: Make nodes available
       command: >-
-        openstack baremetal node provide {{ item }} --wait 1200
+        openstack --os-cloud undercloud baremetal node provide {{ item }} --wait 1200
       loop: "{{ node_uuids_provide }}"
       async: 2400
       poll: 0
@@ -72,7 +72,7 @@
 
     - name: Wait for nova resources
       command: >-
-        openstack hypervisor show {{ item }}
+        openstack --os-cloud undercloud hypervisor show {{ item }}
       loop: "{{ node_uuids_provide }}"
       changed_when: false
       register: hypervisor_check
@@ -83,7 +83,7 @@
     # Power off nodes the nodes
     - name: Power off nodes
       command: >-
-        openstack baremetal node power off {{ item }}
+        openstack --os-cloud undercloud baremetal node power off {{ item }}
       loop: "{{ node_uuids_provide }}"
       async: 2400
       poll: 0

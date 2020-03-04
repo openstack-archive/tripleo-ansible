@@ -77,7 +77,7 @@
 
     - name: Make nodes available
       command: >-
-        openstack baremetal node manage {{ item.uuid }} --wait 1200
+        openstack --os-cloud undercloud baremetal node manage {{ item.uuid }} --wait 1200
       loop: "{{ new_nodes }}"
       async: 2400
       poll: 0
