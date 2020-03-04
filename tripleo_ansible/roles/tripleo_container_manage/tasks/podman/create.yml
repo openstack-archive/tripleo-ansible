@@ -146,9 +146,9 @@
           rejectattr('State.ExitCode', 'in', tripleo_container_manage_valid_exit_code) | map(attribute='Name') | list }}
     - name: "Print running containers"
       fail:
-        msg: "Container(s) which are still running after 5 min: {{ running_containers }}, check logs in /var/log/containers/stdout/"
+        msg: "Container(s) which are still running after 5 min: {{ running_containers }}, check logs in /var/log/containers/stdouts/"
       when: running_containers|length != 0
     - name: "Print failing containers"
       fail:
-        msg: "Container(s) with bad ExitCode: {{ broken_containers }}, check logs in /var/log/containers/stdout/"
+        msg: "Container(s) with bad ExitCode: {{ broken_containers }}, check logs in /var/log/containers/stdouts/"
       when: broken_containers|length != 0
