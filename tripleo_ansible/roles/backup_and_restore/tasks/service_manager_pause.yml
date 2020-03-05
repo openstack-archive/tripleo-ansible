@@ -19,7 +19,7 @@
 # the backup to start.
 
 - name: Get Container cli
-  command: /bin/hiera -c /etc/puppet/hiera.yaml container_cli
+  command: hiera -c /etc/puppet/hiera.yaml container_cli
   register: tripleo_backup_and_restore_container_cli
   changed_when: tripleo_backup_and_restore_container_cli.stdout is undefined
   tags:
