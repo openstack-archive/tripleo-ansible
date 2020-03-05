@@ -45,10 +45,16 @@
         - ansible_user_dir is undefined
   roles:
     - role: test_deps
-    - role: ensure-docker
-      when:
-        - (docker_cli.rc != 0) or
-          (docker_ps.rc != 0)
+      test_deps_setup_tripleo: true
+      test_deps_tripleo_packages:
+        - hiera
+      test_deps_extra_packages:
+        - rear
+        - syslinux
+        - genisoimage
+        - kbd
+        - hiera
+
   post_tasks:
     - name: Install docker-sdk
       pip:

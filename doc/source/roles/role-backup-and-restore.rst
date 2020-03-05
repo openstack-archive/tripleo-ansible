@@ -78,6 +78,17 @@ Now we create the playbook to create the actual backup.
   # Playbook
   # We run ReaR in the control plane nodes.
   - become: true
+    hosts: ceph_mon
+    name: Backup ceph authentication
+    tasks:
+      - name: Backup ceph authentication role
+        include_role:
+          name: backup_and_restore
+          tasks_from: ceph_authentication
+        tags:
+        -  bar_create_recover_image
+
+  - become: true
     hosts: Controller
     name: Create the recovery images for the control plane
     roles:
@@ -113,7 +124,7 @@ Then, we install ReaR in the desired nodes.
       --tags bar_setup_rear \
       ~/bar_rear_setup.yaml
 
-Lastly, we execute the actual backup step.
+Lastly, we execute the actual backup step. With or without ceph.
 
 ::
 
