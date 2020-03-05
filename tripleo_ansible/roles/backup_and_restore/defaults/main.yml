@@ -63,3 +63,9 @@ tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_nfs_
 
 # Ceph authentication backup file
 tripleo_backup_and_restore_ceph_auth_file: "ceph_auth_export.bak"
+
+# Ceph backup file
+tripleo_backup_and_restore_ceph_backup_file: "/var/lib/ceph.tar.gz"
+
+# Ceph directory to back up
+tripleo_backup_and_restore_ceph_path: "/var/lib/ceph"
