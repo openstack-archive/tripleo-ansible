@@ -16,7 +16,7 @@
       - tripleo-ci-centos-7-containers-multinode: &containers_multinode
           dependencies: &deps
             - openstack-tox-linters
-          files:
+          files: &containers_files
           - ^tripleo_ansible/.*
           irrelevant-files: &irrelevant_scenario_files
           - .*.md$
@@ -26,6 +26,10 @@
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
           - ^tripleo_ansible/roles/test_deps/.*
+      - tripleo-ci-centos-8-standalone: &basic_standalone
+          dependencies: *deps
+          files: *containers_files
+          irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-containers-undercloud-minion: &undercloud_minion
           dependencies: *deps
           files:
@@ -36,7 +40,7 @@
           files:
           - ^tripleo_ansible/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario001-standalone: &scenario001
+      - tripleo-ci-centos-8-scenario001-standalone: &scenario001
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_ceph_.*/.*
@@ -44,20 +48,20 @@
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
           - ^setup.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario002-standalone: &scenario002
+      - tripleo-ci-centos-8-scenario002-standalone: &scenario002
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_hieradata/.*
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario003-standalone: &scenario003
+      - tripleo-ci-centos-8-scenario003-standalone: &scenario003
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_create_admin/.*
           - ^tripleo_ansible/roles/tripleo_hieradata/.*
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario004-standalone: &scenario004
+      - tripleo-ci-centos-8-scenario004-standalone: &scenario004
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_ceph_.*/.*
@@ -82,10 +86,11 @@
       - tripleo-ci-centos-7-containers-multinode: *containers_multinode
       - tripleo-ci-centos-7-containers-undercloud-minion: *undercloud_minion
       - tripleo-ci-centos-7-undercloud-containers: *undercloud_containers
-      - tripleo-ci-centos-7-scenario001-standalone: *scenario001
-      - tripleo-ci-centos-7-scenario002-standalone: *scenario002
-      - tripleo-ci-centos-7-scenario003-standalone: *scenario003
-      - tripleo-ci-centos-7-scenario004-standalone: *scenario004
+      - tripleo-ci-centos-8-standalone: *basic_standalone
+      - tripleo-ci-centos-8-scenario001-standalone: *scenario001
+      - tripleo-ci-centos-8-scenario002-standalone: *scenario002
+      - tripleo-ci-centos-8-scenario003-standalone: *scenario003
+      - tripleo-ci-centos-8-scenario004-standalone: *scenario004
       - tripleo-ci-centos-7-scenario010-standalone: *scenario010
     post:
       jobs:
