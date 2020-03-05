@@ -38,12 +38,14 @@
 
   roles:
     - role: test_deps
+      test_deps_setup_tripleo: true
+      test_deps_tripleo_packages:
+        - hiera
       test_deps_extra_packages:
         - rear
         - syslinux
         - genisoimage
         - kbd
-        - puppet
         - hiera
 
   post_tasks:
