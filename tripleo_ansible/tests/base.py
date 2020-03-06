@@ -13,9 +13,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from ansible.plugins import loader
+
 from oslotest import base
 
 
-class TestCase(base.BaseTestCase):
+def load_module_utils(*args):
+    """Ensure requested module_utils are loaded into ansible.module_utils"""
+    if args:
+        for m in args:
+            try:
+                loader.module_utils_loader.get(m)
+            except AttributeError:
+                pass
+    else:
+        # search and load all module_utils, its noisy and slower
+        list(loader.module_utils_loader.all())
 
+
+class TestCase(base.BaseTestCase):
     """Test case base class for all unit tests."""
