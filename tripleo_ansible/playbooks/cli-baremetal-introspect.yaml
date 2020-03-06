@@ -39,7 +39,7 @@
     # Pre-introspection validation
     - name: Run Validations
       command: >
-        openstack tripleo validator run --group "pre-introspection"
+        openstack --os-cloud undercloud tripleo validator run --group "pre-introspection"
       when:
         - run_validations | bool
 
