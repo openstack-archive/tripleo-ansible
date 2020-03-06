@@ -113,7 +113,8 @@ of the python dependencies in a virtual environment.
 
     $ python -m virtualenv --system-site-packages "${HOME}/test-python"
     $ ${HOME}/test-python/bin/pip install -r requirements.txt \
-                                          -r test-requirements.txt
+                                          -r test-requirements.txt \
+                                          -r molecule-requirements.txt
     $ source ${HOME}/test-python/bin/activate
 
 
