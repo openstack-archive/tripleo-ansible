@@ -13,7 +13,7 @@
           - ^molecule-requirements.txt
           - ^README.rst
           - ^requirements.txt
-      - tripleo-ci-centos-7-containers-multinode: &containers_multinode
+      - tripleo-ci-centos-8-containers-multinode: &containers_multinode
           dependencies: &deps
             - openstack-tox-linters
           files: &containers_files
@@ -30,12 +30,12 @@
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-containers-undercloud-minion: &undercloud_minion
+      - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
           dependencies: *deps
           files:
           - ^tripleo_ansible/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-undercloud-containers: &undercloud_containers
+      - tripleo-ci-centos-8-undercloud-containers: &undercloud_containers
           dependencies: *deps
           files:
           - ^tripleo_ansible/.*
@@ -66,7 +66,7 @@
           files:
           - ^tripleo_ansible/roles/tripleo_ceph_.*/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-scenario010-standalone: &scenario010
+      - tripleo-ci-centos-8-scenario010-standalone: &scenario010
           dependencies: *deps
           files:
           - ^tripleo_ansible/.*octavia.*
@@ -83,15 +83,15 @@
       jobs:
       - openstack-tox-linters
       - openstack-tox-docs: *tripleo-docs
-      - tripleo-ci-centos-7-containers-multinode: *containers_multinode
-      - tripleo-ci-centos-7-containers-undercloud-minion: *undercloud_minion
-      - tripleo-ci-centos-7-undercloud-containers: *undercloud_containers
+      - tripleo-ci-centos-8-containers-multinode: *containers_multinode
+      - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
+      - tripleo-ci-centos-8-undercloud-containers: *undercloud_containers
       - tripleo-ci-centos-8-standalone: *basic_standalone
       - tripleo-ci-centos-8-scenario001-standalone: *scenario001
       - tripleo-ci-centos-8-scenario002-standalone: *scenario002
       - tripleo-ci-centos-8-scenario003-standalone: *scenario003
       - tripleo-ci-centos-8-scenario004-standalone: *scenario004
-      - tripleo-ci-centos-7-scenario010-standalone: *scenario010
+      - tripleo-ci-centos-8-scenario010-standalone: *scenario010
     post:
       jobs:
       - publish-openstack-python-branch-tarball
