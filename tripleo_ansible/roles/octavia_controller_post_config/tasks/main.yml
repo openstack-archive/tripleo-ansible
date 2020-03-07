@@ -22,7 +22,6 @@
   register: config_contents
   failed_when: config_contents.rc != 0
   changed_when: false
-  ignore_errors: true
 
 - name: retrieve current ip list
   set_fact:
@@ -54,7 +53,7 @@
   become_user: root
   shell: |
     systemctl is-active --quiet {{ item }} && echo {{ item }}
-  ignore_errors: true
+  failed_when: false
   register: octavia_active_services
   loop:
     - tripleo_octavia_api
