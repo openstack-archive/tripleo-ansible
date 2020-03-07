@@ -17,6 +17,7 @@
 
 import jsonschema
 
+import metalsmith
 from metalsmith import sources
 
 
@@ -227,6 +228,58 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
     else:
         env = {}
     return instances, env
+
+
+def check_existing(instances, provisioner, baremetal):
+    validate_instances(instances)
+
+    # Due to the name shadowing we should import other way
+    import importlib
+    sdk = importlib.import_module('openstack')
+
+    not_found = []
+    found = []
+    for request in instances:
+        ident = request.get('name', request['hostname'])
+
+        try:
+            instance = provisioner.show_instance(ident)
+        # TODO(dtantsur): replace Error with a specific exception
+        except (sdk.exceptions.ResourceNotFound,
+                metalsmith.exceptions.Error):
+            not_found.append(request)
+        except Exception as exc:
+
+            message = ('Failed to request instance information for %s'
+                       % ident)
+            raise BaremetalDeployException(
+                "%s. %s: %s" % (message, type(exc).__name__, exc)
+            )
+        else:
+            # NOTE(dtantsur): metalsmith can match instances by node names,
+            # provide a safeguard to avoid conflicts.
+            if (instance.hostname
+                    and instance.hostname != request['hostname']):
+                error = ("Requested hostname %s was not found, but the "
+                         "deployed node %s has a matching name. Refusing "
+                         "to proceed to avoid confusing results. Please "
+                         "either rename the node or use a different "
+                         "hostname") % (request['hostname'], instance.uuid)
+                raise BaremetalDeployException(error)
+
+            if (not instance.allocation
+                    and instance.state == metalsmith.InstanceState.ACTIVE
+                    and 'name' in request):
+                # Existing node is missing an allocation record,
+                # so create one without triggering allocation
+                baremetal.create_allocation(
+                    resource_class=request.get('resource_class', 'baremetal'),
+                    name=request['hostname'],
+                    node=request['name']
+                )
+            found.append(instance)
+
+    return found, not_found
 
 
 def build_hostname_format(hostname_format, role_name):

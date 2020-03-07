@@ -13,7 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import metalsmith
+import mock
+from openstack import exceptions as sdk_exc
+
 from tripleo_ansible.tests import base
+
 
 # load baremetal_deploy so the next import works
 base.load_module_utils('baremetal_deploy')
@@ -670,3 +675,91 @@ class TestExpandRoles(base.TestCase):
         self.assertIn('Compute: number of instance entries 4 '
                       'cannot be greater than count 3',
                       str(exc))
+
+
+class TestCheckExistingInstances(base.TestCase):
+
+    def test_success(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        instances = [
+            {'hostname': 'host1',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host3',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host2', 'resource_class': 'compute',
+             'capabilities': {'answer': '42'},
+             'image': {'href': 'overcloud-full'}}
+        ]
+        existing = mock.MagicMock(hostname='host2', allocation=None)
+        existing.uuid = 'aaaa'
+        pr.show_instance.side_effect = [
+            sdk_exc.ResourceNotFound(""),
+            metalsmith.exceptions.Error(""),
+            existing,
+        ]
+        found, not_found = bd.check_existing(instances, pr, baremetal)
+
+        self.assertEqual([existing], found)
+        self.assertEqual([{
+            'hostname': 'host1',
+            'image': {'href': 'overcloud-full'},
+        }, {
+            'hostname': 'host3',
+            'image': {'href': 'overcloud-full'},
+        }], not_found)
+        pr.show_instance.assert_has_calls([
+            mock.call(host) for host in ['host1', 'host3', 'host2']
+        ])
+
+    def test_existing_no_allocation(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        instances = [
+            {'name': 'server2', 'resource_class': 'compute',
+             'hostname': 'host2',
+             'capabilities': {'answer': '42'},
+             'image': {'href': 'overcloud-full'}}
+        ]
+        existing = mock.MagicMock(
+            hostname='host2', allocation=None,
+            state=metalsmith.InstanceState.ACTIVE)
+        existing.uuid = 'aaaa'
+        pr.show_instance.return_value = existing
+
+        found, not_found = bd.check_existing(instances, pr, baremetal)
+        baremetal.create_allocation.assert_called_once_with(
+            name='host2', node='server2', resource_class='compute')
+
+        self.assertEqual([], not_found)
+        self.assertEqual([existing], found)
+        pr.show_instance.assert_called_once_with('server2')
+
+    def test_hostname_mismatch(self):
+        pr = mock.Mock()
+        instances = [
+            {'hostname': 'host1',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        pr.show_instance.return_value.hostname = 'host2'
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, mock.Mock())
+
+        self.assertIn("hostname host1 was not found", str(exc))
+        pr.show_instance.assert_called_once_with('host1')
+
+    def test_unexpected_error(self):
+        pr = mock.Mock()
+        instances = [
+            {'image': {'href': 'overcloud-full'},
+             'hostname': 'host%d' % i} for i in range(3)
+        ]
+        pr.show_instance.side_effect = RuntimeError('boom')
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, mock.Mock())
+
+        self.assertIn("for host0", str(exc))
+        self.assertIn("RuntimeError: boom", str(exc))
+        pr.show_instance.assert_called_once_with('host0')
