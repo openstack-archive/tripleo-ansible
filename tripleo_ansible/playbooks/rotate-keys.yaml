@@ -11,8 +11,8 @@
 
   - name: Set container facts
     set_fact:
-      is_container: containerized_keystone_dir.stat.isdir is defined and containerized_keystone_dir.stat.isdir
-      podman_enabled: '"tripleo_keystone.service" in ansible_facts.services'
+      is_container: "{{ containerized_keystone_dir.stat.isdir is defined and containerized_keystone_dir.stat.isdir }}"
+      podman_enabled: "{{ 'tripleo_keystone.service' in ansible_facts.services }}"
 
   - name: Rotate fernet keys for keystone container
     block:
