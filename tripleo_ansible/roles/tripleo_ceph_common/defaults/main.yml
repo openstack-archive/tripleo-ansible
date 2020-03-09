@@ -17,24 +17,6 @@
 # todo(fultonj): evolve this to derive more of these values from facts
 
 ceph_ansible_group_vars_all:
-  ceph_conf_overrides:
-    global:
-      osd_pool_default_pg_num: 32
-      osd_pool_default_pgp_num: 32
-      osd_pool_default_size: 3
-      rgw_keystone_accepted_admin_roles: ResellerAdmin
-      rgw_keystone_accepted_roles: Member, admin
-      rgw_keystone_admin_domain: default
-      rgw_keystone_admin_password: fEoaZFe0C5ZQ1hvFo7yfxutan
-      rgw_keystone_admin_project: service
-      rgw_keystone_admin_user: swift
-      rgw_keystone_api_version: 3
-      rgw_keystone_implicit_tenants: 'true'
-      rgw_keystone_revocation_interval: '0'
-      rgw_keystone_url: http://192.168.24.18:5000
-      rgw_s3_auth_use_keystone: 'true'
-      rgw_swift_versioning_enabled: 'true'
-      rgw_swift_account_in_url: 'true'
   ceph_container_image: ceph/daemon
   ceph_container_image_tag: v4.0.1-stable-4.0-nautilus-centos-7-x86_64
   ceph_container_registry: 192.168.24.1:8787
@@ -113,3 +95,9 @@ ceph_keys:
       key: AQBRgQ9eAAAAABAAv84zEilJYZPNuJ0Iwn9Ndg==
       mode: '0600'
       name: client.glance
+
+ceph_default_overrides:
+  global:
+    osd_pool_default_pg_num: 32
+    osd_pool_default_pgp_num: 32
+    osd_pool_default_size: 1
