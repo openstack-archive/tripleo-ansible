@@ -54,12 +54,15 @@
 - name: build openstack keys
   include_tasks: build_keys.yml
 
+- name: build ceph config overrides
+  include_tasks: build_config_overrides.yml
+
 - name: generate ceph-ansible group vars all
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
-    content: "{{ ceph_ansible_group_vars_all | combine(openstack_pools|default({'openstack_pools': []}))
-             | combine(openstack_keys|default({'openstack_keys': []})) | combine(keys|default({'keys': []}))
-             | combine(cephfs_data|default({})) | combine(cephfs_metadata|default({})) | to_nice_yaml }}"
+    content: "{{ ceph_ansible_group_vars_all | combine(ceph_overrides|default({}))
+             | combine(openstack_pools|default({'openstack_pools': []})) | combine(openstack_keys|default({'openstack_keys': []}))
+             | combine(keys|default({'keys': []})) | combine(cephfs_data|default({})) | combine(cephfs_metadata|default({})) | to_nice_yaml }}"
 
 - name: generate ceph-ansible extra vars
   copy:
