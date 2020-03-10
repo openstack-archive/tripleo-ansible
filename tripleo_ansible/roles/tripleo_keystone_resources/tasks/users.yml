@@ -18,7 +18,7 @@
   no_log: true
   os_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-    name: "{{ lookup('dict', tripleo_keystone_resources_data).key }}"
+    name: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
     password: "{{ lookup('dict', tripleo_keystone_resources_data).value.password }}"
     update_password: always
     email: "{{ lookup('dict', tripleo_keystone_resources_data).key }}@localhost"
