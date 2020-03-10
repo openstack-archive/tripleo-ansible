@@ -40,7 +40,7 @@
     - run_ceph_ansible
 
 - name: gather hiera metadata
-  command: /bin/hiera -c /etc/puppet/hiera.yaml enabled_services
+  command: hiera -c /etc/puppet/hiera.yaml enabled_services
   register: enabled_services
   become: true
 

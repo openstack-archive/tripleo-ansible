@@ -1,8 +1,8 @@
 ---
 - job:
     description: Base tripleo-ansible job
-    name: tripleo-ansible-centos-7-base
-    nodeset: centos-7
+    name: tripleo-ansible-centos-8-base
+    nodeset: centos-8
     parent: base
     success-url: "reports.html"
     failure-url: "reports.html"
@@ -13,3 +13,9 @@
     - zuul.d/playbooks/run.yml
     timeout: 1800
     voting: true
+
+- job:
+    description: Old base tripleo-ansible job [DEPRECATED]
+    name: tripleo-ansible-centos-7-base
+    nodeset: centos-7
+    parent: tripleo-ansible-centos-8-base

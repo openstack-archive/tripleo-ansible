@@ -48,7 +48,6 @@
       package:
         name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
       when:
-        - (ansible_os_family | lower) == "redhat"
         - (ansible_distribution_major_version | int) >= 8
   tasks:
     - name: Get Ansible Galaxy roles
@@ -59,9 +58,8 @@
       environment:
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
+    # docker is needed by multiple molecule scenarios
     - role: install-docker
-      when:
-        - (ansible_distribution_major_version | int) < 8
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
@@ -77,4 +75,3 @@
         ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
       when:
         - tripleo_docker_enable_vfs is defined
-        - (ansible_distribution_major_version | int) < 8

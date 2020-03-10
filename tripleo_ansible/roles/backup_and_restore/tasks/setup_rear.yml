@@ -51,7 +51,7 @@
   become: true
   register: tripleo_backup_and_restore_bootstrap_nodeid
   command: |
-    /bin/hiera -c {{ tripleo_backup_and_restore_hiera_config_file }}  'mysql_short_bootstrap_node_name'
+    hiera -c {{ tripleo_backup_and_restore_hiera_config_file }}  'mysql_short_bootstrap_node_name'
   tags:
     - bar_setup_rear
 
@@ -59,7 +59,7 @@
   become: true
   register: tripleo_backup_and_restore_enabled_services
   command: |
-    /bin/hiera -c {{ tripleo_backup_and_restore_hiera_config_file }} 'service_names'
+    hiera -c {{ tripleo_backup_and_restore_hiera_config_file }} 'service_names'
   tags:
     - bar_setup_rear
 

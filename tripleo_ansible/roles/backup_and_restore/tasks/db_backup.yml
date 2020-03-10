@@ -17,7 +17,7 @@
 # Create a backup for each database into seperate files.
 - name: Get database root password
   command: |
-    /bin/hiera -c /etc/puppet/hiera.yaml mysql::server::root_password
+    hiera -c /etc/puppet/hiera.yaml mysql::server::root_password
   when: mysql_password is undefined
   register: mysql_password
   become: true
@@ -26,7 +26,7 @@
 
 - name: Get galera bind_address
   command: |
-    /bin/hiera -c /etc/puppet/hiera.yaml 'tripleo::profile::pacemaker::database::mysql::bind_address'
+    hiera -c /etc/puppet/hiera.yaml 'tripleo::profile::pacemaker::database::mysql::bind_address'
   when: tripleo_backup_and_restore_pacemaker_galera_bind_address is undefined
   register: tripleo_backup_and_restore_pacemaker_galera_bind_address
   become: true
