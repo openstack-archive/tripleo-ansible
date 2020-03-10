@@ -37,12 +37,11 @@
     - name: check if pub key file exists
       stat: path="{{ amp_ssh_key_path }}"
       register: key_file_result
-      ignore_errors: true
 
     - name: fail if ssh pub key file does not exist or is not readable
       fail: msg="{{ amp_ssh_key_path }} does not exist or is not readable by user {{ ansible_user }}"
       when:
-        - (key_file_result | failed) or (not (key_file_result.stat.exists | bool)) or (not (key_file_result.stat.readable | bool))
+        - (not (key_file_result.stat.exists | bool)) or (not (key_file_result.stat.readable | bool))
 
     - name: Set final key fact
       set_fact:

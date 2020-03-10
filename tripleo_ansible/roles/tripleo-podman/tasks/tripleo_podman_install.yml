@@ -34,12 +34,18 @@
       when:
         - cni0_interface.rc == 0
 
+    - name: Check if 87-podman-bridge.conflist exists
+      stat:
+        path: /etc/cni/net.d/87-podman-bridge.conflist
+      register: podman_bridge_config
+
     - name: Remove default cni config for cni0 if exists
       copy:
         dest: /etc/cni/net.d/87-podman-bridge.conflist
         content: ''
         force: true
-      ignore_errors: true
+      when:
+        - podman_bridge_config.stat.exists | bool
 
     - name: configure insecure registries /etc/containers/registries.conf
       ini_file:

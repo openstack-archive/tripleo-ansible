@@ -147,7 +147,7 @@
         set -o pipefail
         yum info -q rhosp-openvswitch | awk '/^Version/{print $NF}'
       register: rhosp_package_result
-      ignore_errors: true
+      failed_when: false
 
     - name: Set fact for triggering OpenvSwitch layered product package handling
       set_fact:
@@ -228,7 +228,7 @@
   block:
     - name: check if an upgrade is required
       register: ovs_need_upgrade
-      ignore_errors: true
+      failed_when: false
       shell: |
         yum check-upgrade openvswitch | awk '/openvswitch/{print}'
 
@@ -237,13 +237,13 @@
         set -o pipefail
         rpm -q --scripts openvswitch | awk '/postuninstall/,/*/' | grep -q "systemctl.*try-restart"
       register: ovs_packaging_issue
-      ignore_errors: true
+      failed_when: false
 
 - name: Upgrade openvswitch
   when:
     - (step | int) == 2
     - run_ovs_update | default(true)
-    - ovs_packaging_issue is success
+    - ovs_packaging_issue.rc == 0
     - ovs_need_upgrade.stdout | default('')
   block:
     - name: "Ensure empty directory: emptying."
@@ -293,7 +293,7 @@
   shell: |-
     set -o pipefail
     yum check-upgrade | awk '/os-net-config/{print}'
-  ignore_errors: true
+  failed_when: false
   register: os_net_config_need_upgrade
   when:
     - (step | int) == 3
@@ -301,7 +301,7 @@
 - name: Check that os-net-config has configuration
   shell: test -s /etc/os-net-config/config.json
   register: os_net_config_has_config
-  ignore_errors: true
+  failed_when: false
   when:
     - (step | int) == 3
 

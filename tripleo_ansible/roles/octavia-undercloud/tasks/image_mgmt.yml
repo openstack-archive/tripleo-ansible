@@ -38,7 +38,7 @@
     OS_PASSWORD: "{{ auth_password }}"
     OS_PROJECT_NAME: "{{ auth_project_name }}"
   register: glance_id_result
-  ignore_errors: true
+  failed_when: false
 
 - name: set image id fact
   set_fact:
@@ -56,7 +56,7 @@
   when:
     - image_id is defined
   register: glance_results
-  ignore_errors: true
+  failed_when: false
 
 - name: set current_md5 fact from glance if image already exists there
   set_fact:
