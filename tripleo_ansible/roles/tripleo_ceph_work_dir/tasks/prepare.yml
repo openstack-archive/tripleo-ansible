@@ -42,6 +42,7 @@
 - name: gather hiera metadata
   command: /bin/hiera -c /etc/puppet/hiera.yaml enabled_services
   register: enabled_services
+  become: true
 
 - name: build the openstack pool list
   import_tasks: build_pools.yml
