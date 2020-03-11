@@ -29,7 +29,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: os_ironic_info
+module: os_baremetal_node_info
 short_description: Show info about baremetal nodes of Ironic
 extends_documentation_fragment: openstack
 author:
@@ -334,10 +334,10 @@ baremetal_nodes:
 
 EXAMPLES = '''
 # Invoke node inspection
-- os_ironic_info:
+- os_baremetal_node_info:
     name: "testnode1"
 
-- os_ironic_info:
+- os_baremetal_node_info:
     cloud: undercloud
     auth: password
     filters:
