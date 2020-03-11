@@ -1,7 +1,7 @@
 ---
 - project-template:
     check:
-      jobs:
+      jobs: &jobs
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-backup_and_restore
       - tripleo-ansible-centos-8-molecule-login_defs
@@ -88,6 +88,8 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
+    periodic-weekly:
+      jobs: *jobs
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
