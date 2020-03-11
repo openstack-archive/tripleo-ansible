@@ -140,7 +140,7 @@ def run_module():
         result['passwords'] = rotated_passwords
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error rotating fernet keys for plan %s: %s" % (
+        result['msg'] = ("Error rotating passwords for plan %s: %s" % (
             container, err))
         module.fail_json(**result)
 
