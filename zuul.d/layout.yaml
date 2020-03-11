@@ -69,7 +69,6 @@
       - tripleo-ci-centos-8-scenario010-standalone: &scenario010
           dependencies: *deps
           files:
-          - ^tripleo_ansible/.*octavia.*
           - ^tripleo_ansible/roles/octavia_.*/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-7-standalone-upgrade: &standalone_upgrade
