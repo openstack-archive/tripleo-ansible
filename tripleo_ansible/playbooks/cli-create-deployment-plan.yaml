@@ -1,0 +1,113 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Create Deployment Plan
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
+  vars:
+    container: overcloud
+    source_url: null
+    generate_passwords: true
+    plan_environment: plan-environment.yaml
+    default_templates_dir: '/usr/share/openstack-tripleo-heat-templates/'
+    use_default_templates: false
+    validate_stack: true
+
+  handlers:
+    - name: Cleanup temp directory
+      file:
+        path: "{{ temp_dir.path }}"
+        state: absent
+        when: temp_dir is defined
+
+  pre_tasks:
+    - name: Set facts from environment
+      set_fact:
+        auth_version: "{{ lookup('env', 'OS_IDENTITY_API_VERSION') }}"
+        os_auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+        os_username: "{{ lookup('env', 'OS_USERNAME') }}"
+        os_password: "{{ lookup('env', 'OS_PASSWORD') }}"
+        os_project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      run_once: true
+
+  tasks:
+    - name: crate container and upload templates
+      block:
+        - name: Create plan if does not exist
+          shell: >
+            swift --os-auth-url "{{ os_auth_url }}"
+            --os-username "{{ os_username }}"
+            --os-password "{{ os_password }}"
+            --os-project-name "{{ os_project_name }}"
+            --auth-version "{{ auth_version }}"
+            post "{{ container }}" --header 'x-container-meta-usage-tripleo:plan'
+
+        - name: Create temp directory
+          tempfile:
+            state: directory
+            suffix: "{{ '_' + container + '_import' }}"
+          register: temp_dir
+          notify:
+            - "Cleanup temp directory"
+          when: source_url is not none
+
+        - name: Git clone remote url
+          git:
+            repo: "{{ source_url }}"
+            dest: "{{ temp_dir }}"
+          when: source_url is not none
+
+        - name: Upload templates
+          tripleo_templates_upload:
+            container: "{{ container }}"
+            templates_dir: "{{ temp_dir.path }}"
+          when: source_url is not none
+
+        - name: Upload default templates
+          tripleo_templates_upload:
+            container: "{{ container }}"
+            templates_dir: "{{ default_templates_dir }}"
+          when: use_default_templates|bool
+
+      when: use_default_templates or source_url is not none
+
+    - name: Create plan environment if does not exit
+      os_object:
+        container: "{{ container }}"
+        name: plan-environment.yaml
+        filename: "{{ default_templates_dir + plan_environment }}"
+        state: present
+
+    - name: Generate passwords and update plan
+      tripleo_passwords_rotate:
+        container: "{{ container }}"
+      when: generate_passwords|bool
+
+    - name: Prepare Container images and update plan
+      tripleo_image_params_prepare:
+        container: "{{ container }}"
+        with_roledata: false
+
+    - name: Add root stack name
+      tripleo_plan_parameters_update:
+        container: "{{ container }}"
+        parameters:
+          RootStackName: "{{ container }}"
+        parameter_key: parameter_defaults
+        validate: false
