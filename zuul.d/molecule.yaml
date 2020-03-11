@@ -9,7 +9,9 @@
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
-      - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible:
+          # See https://bugs.launchpad.net/tripleo/+bug/1867012
+          voting: false
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
@@ -52,7 +54,7 @@
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
-      - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible
+      # - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
