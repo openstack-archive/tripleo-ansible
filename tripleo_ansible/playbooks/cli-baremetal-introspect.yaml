@@ -74,11 +74,8 @@
     - name: exit if nothing to do
       block:
         - name: Notice
-          debug:
+          fail:
             msg: No nodes are manageable at this time.
-
-        - name: end play
-          meta: end_play
       when:
         - node_uuids_intro == []
 
