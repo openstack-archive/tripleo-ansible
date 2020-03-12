@@ -334,10 +334,10 @@ baremetal_nodes:
 
 EXAMPLES = '''
 # Invoke node inspection
-- os_ironic_info:
+- os_baremetal_node_info:
     name: "testnode1"
 
-- os_ironic_info:
+- os_baremetal_node_info:
     cloud: undercloud
     auth: password
     filters:
