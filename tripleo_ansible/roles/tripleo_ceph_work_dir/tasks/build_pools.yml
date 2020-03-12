@@ -48,7 +48,7 @@
                    'application': 'openstack_gnocchi'}]
       when:
         - tripleo_pool_metrics
-        - "'gnocchi_api' in {{ enabled_services.stdout }}"
+        - tripleo_enabled_services | intersect(['gnocchi_api'])
         - ceph_pools.gnocchi_pool.name not in overrides|default([])
 
     - name: add cinder backup pool
@@ -58,7 +58,7 @@
       when:
         - tripleo_pool_volumes
         - tripleo_pool_backup
-        - "'cinder_backup' in {{ enabled_services.stdout }}"
+        - tripleo_enabled_services | intersect(['cinder_backup'])
         - ceph_pools.cinder_backup_pool.name not in overrides|default([])
 
     - name: add cinder extra pools
@@ -88,4 +88,4 @@
         cephfs_metadata: {'cephfs_metadata_pool': {'name': '{{ manila_pools.metadata }}', 'pg_num': '{{ manila_pools.metadata_pg_num }}',
                                                    'rule_name': 'replicated_rule', 'application': 'cephfs'}}
   when:
-    - "'manila_api' in {{ enabled_services.stdout }}"
+    - tripleo_enabled_services | intersect(['manila_api'])
