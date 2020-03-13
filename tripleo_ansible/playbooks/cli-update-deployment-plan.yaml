@@ -1,0 +1,101 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Update Deployment Plan
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
+  vars:
+    container: overcloud
+    source_url: null
+    generate_passwords: true
+    validate_stack: true
+
+  handlers:
+    - name: Cleanup temp directory
+      file:
+        path: "{{ temp_dir.path }}"
+        state: absent
+        when: temp_dir is defined
+
+  tasks:
+    - name: Clone repo and upload templates
+      block:
+        - name: Create temp directory
+          tempfile:
+            state: directory
+            suffix: "{{ '_' + container + '_import' }}"
+          register: temp_dir
+          notify:
+            - "Cleanup temp directory"
+          when: source_url is not none
+
+        - name: Git clone remote url
+          git:
+            repo: "{{ source_url }}"
+            dest: "{{ temp_dir }}"
+          when: source_url is not none
+
+        - name: Upload templates
+          tripleo_templates_upload:
+            container: "{{ container }}"
+            templates_dir: "{{ temp_dir.path }}"
+          when: source_url is not none
+
+      when: source_url is not none
+
+    - name: Generate passwords and update plan
+      tripleo_passwords_rotate:
+        container: "{{ container }}"
+      when: generate_passwords|bool
+
+    - name: Prepare Container images and update plan
+      tripleo_image_params_prepare:
+        container: "{{ container }}"
+        with_roledata: false
+
+    - name: Add root stack name
+      tripleo_plan_parameters_update:
+        container: "{{ container }}"
+        parameters:
+          RootStackName: "{{ container }}"
+        parameter_key: parameter_defaults
+        validate: false
+
+    - name: Get backup tempurl for GET
+      tripleo_swift_tempurl:
+        container: "{{container + 'swift-rings' }}"
+        object: "swift-rings.tar.gz"
+        method: GET
+      register: backup_get_tempurl
+
+    - name: Get backup tempurl for POST
+      tripleo_swift_tempurl:
+        container: "{{container + 'swift-rings' }}"
+        object: "swift-rings.tar.gz"
+        method: PUT
+      register: backup_put_tempurl
+
+    - name: Update plan with backup tempurl parameters
+      tripleo_plan_parameters_update:
+        container: "{{ container }}"
+        parameters:
+          SwiftRingGetTempurl: "{{ backup_get_tempurl.tempurl }}"
+          SwiftRingPutTempurl: "{{ backup_put_tempurl.tempurl }}"
+        parameter_key: parameter_defaults
+        validate: false
