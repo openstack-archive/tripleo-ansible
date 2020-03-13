@@ -44,7 +44,7 @@
     manila_key: [{'name': '{{ ".".join(("client", ceph_keys.manila.name)) }}', 'key': '{{ ceph_keys.manila.key }}',
                   'mode': '0600', 'caps': '{{ manila_caps }}'}]
   when:
-    - "'manila_api' in {{ enabled_services.stdout }}"
+    - tripleo_enabled_services | intersect(['manila_api'])
 
 - name: build radosgw key for openstack
   vars:
@@ -53,7 +53,7 @@
     rgw_key: [{'name': '{{ ".".join(("client", ceph_keys.radosgw.name)) }}', 'key': '{{ ceph_keys.radosgw.key }}',
                'mode': '0600', 'caps': '{{ rgw_caps }}'}]
   when:
-    - "'ceph_rgw' in {{ enabled_services.stdout }}"
+    - tripleo_enabled_services | intersect(['ceph_rgw'])
 
 - name: build the resulting keys
   set_fact:

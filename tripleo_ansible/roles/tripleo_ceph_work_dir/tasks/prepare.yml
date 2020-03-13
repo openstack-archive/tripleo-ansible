@@ -39,10 +39,9 @@
     - run_uuid_ansible
     - run_ceph_ansible
 
-- name: gather hiera metadata
-  command: hiera -c /etc/puppet/hiera.yaml enabled_services
-  register: enabled_services
-  become: true
+- name: get the list of enabled services on the overcloud
+  set_fact:
+    tripleo_enabled_services: "{{ enabled_services | default([]) }}"
 
 - name: build the openstack pool list
   import_tasks: build_pools.yml
