@@ -65,9 +65,10 @@
       when:
         - (tripleo_target_host is defined) | ternary('ssh', 'local') == 'local'
 
-    - name: Set ssh servers
+    - name: Set facts for ssh servers and user private key file
       set_fact:
         set_ssh_servers: "{{ ssh_servers }}"
+        defined_user_private_key_file: "{{ user_private_key_file | default(ansible_home ~ '/.ssh/id_rsa_tripleo') }}"
       run_once: true
 
     - name: Ensure .ssh directory
@@ -86,42 +87,27 @@
         ssh_key_file: "{{ ansible_home }}/.ssh/id_rsa"
       become: true
 
-    # TODO(cloudnull): When mistral is removed, remove this mistral block
-    - name: Mistral block
-      when:
-        - user_private_key_file is undefined
+    - name: Key block
       run_once: true
       block:
-        - name: Get the mistral ssh_keys environment
-          command: >-
-            openstack --os-cloud undercloud workflow env show ssh_keys -f yaml
-          register: mistral_check
-          failed_when: false
-          changed_when: false
+        - name: Get local private key
+          slurp:
+            src: "{{ defined_user_private_key_file }}"
+          register: private_key_get
+          become: true
 
-        - name: Load mistral yaml
-          set_fact:
-            mistral_data: "{{ mistral_check.stdout | from_yaml }}"
-
-        - name: Get mistral variables
-          set_fact:
-            mistral_variables: "{{ mistral_data['Variables'] | from_json }}"
+        - name: Get local public key
+          slurp:
+            src: "{{ defined_user_private_key_file }}.pub"
+          register: public_key_get
+          become: true
 
         - name: Set key facts
           set_fact:
-            user_public_key: "{{ mistral_variables['public_key'] }}"
-            user_private_key: "{{ mistral_variables['private_key'] }}"
-            user_private_key_file: "{{ ansible_home }}/.ssh/id_rsa_tripleo"
+            user_public_key: "{{ public_key_get['content'] | b64decode }}"
+            user_private_key: "{{ private_key_get['content'] | b64decode }}"
+            user_private_key_file: "{{ defined_user_private_key_file }}"
       rescue:
-        - name: Fallback notice
-          debug:
-            msg: "Capturing the tripleo-admin key from mistral failed, falling back."
-
-    - name: Local user block
-      when:
-        - user_private_key_file is undefined
-      run_once: true
-      block:
         - name: Get local private key
           slurp:
             src: "{{ ansible_home }}/.ssh/id_rsa"
@@ -134,54 +120,26 @@
           register: public_key_get
           become: true
 
-        # NOTE(cloudnull): Ensures that mistral is in-sync with the local file system.
-        # TODO(cloudnull): Delete this block when mistral is no longer managing ssh keys.
-        - name: Create temporary file
-          tempfile:
-            state: file
-            suffix: temp
-          register: tempfile_1
-
-        - name: Write mistral private key
-          copy:
-            content: |-
-              {% set mistral = {
-                  "name": "ssh_keys",
-                  "description": "SSH keys for TripleO validations",
-                  "variables": {
-                    "private_key": (private_key_get['content'] | b64decode),
-                    "public_key": (public_key_get['content'] | b64decode)
-                  }
-                }
-              %}
-              {{ mistral | to_json }}
-            dest: "{{ tempfile_1.path }}"
-            mode: "0600"
-          notify:
-            - Remove mistral tmp file
-
-        - name: Create mistral environment
-          command: >-
-            openstack --os-cloud undercloud workflow env create {{ tempfile_1.path }}
-          ignore_errors: true
-
         - name: Set key facts
           set_fact:
             user_public_key: "{{ public_key_get['content'] | b64decode }}"
             user_private_key: "{{ private_key_get['content'] | b64decode }}"
-            user_private_key_file: "{{ ansible_home }}/.ssh/id_rsa_tripleo"
 
-    - name: Write tripleo private key
-      copy:
-        content: "{{ user_private_key }}"
-        dest: "{{ user_private_key_file }}"
-        mode: "0600"
+        - name: Write tripleo private key
+          copy:
+            content: "{{ user_private_key }}"
+            dest: "{{ defined_user_private_key_file }}"
+            mode: "0600"
 
-    - name: Write tripleo public key
-      copy:
-        content: "{{ user_public_key }}"
-        dest: "{{ user_private_key_file }}.pub"
-        mode: "0640"
+        - name: Write tripleo public key
+          copy:
+            content: "{{ user_public_key }}"
+            dest: "{{ defined_user_private_key_file }}.pub"
+            mode: "0640"
+
+        - name: Set key file fact
+          set_fact:
+            user_private_key_file: "{{ defined_user_private_key_file }}"
 
     - name: Ensure user can ssh to localhost
       authorized_key:
