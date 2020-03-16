@@ -1,23 +1,24 @@
+# Managed via ./role-addition.yml, do not edit manually without testing that
+# new role addition does not reformat it.
 ---
 - project-template:
     check:
-      jobs: &jobs
+      jobs:
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-backup_and_restore
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
+      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
-      - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible:
-          # See https://bugs.launchpad.net/tripleo/+bug/1867012
-          voting: false
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
-      - tripleo-ansible-centos-7-molecule-tripleo_container_manage
-      - tripleo-ansible-centos-7-molecule-tripleo_container_rm
-      - tripleo-ansible-centos-7-molecule-tripleo_container_stop
+      - tripleo-ansible-centos-8-molecule-tripleo_container_manage
+      - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_stop
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
       - tripleo-ansible-centos-8-molecule-tripleo_firewall
@@ -27,7 +28,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
       - tripleo-ansible-centos-8-molecule-tripleo_packages
@@ -52,15 +52,59 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
+      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
-      # - tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
-      - tripleo-ansible-centos-7-molecule-tripleo_container_manage
-      - tripleo-ansible-centos-7-molecule-tripleo_container_rm
-      - tripleo-ansible-centos-7-molecule-tripleo_container_stop
+      - tripleo-ansible-centos-8-molecule-tripleo_container_manage
+      - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_stop
+      - tripleo-ansible-centos-8-molecule-tripleo_container_tag
+      - tripleo-ansible-centos-8-molecule-tripleo_create_admin
+      - tripleo-ansible-centos-8-molecule-tripleo_firewall
+      - tripleo-ansible-centos-8-molecule-tripleo_hieradata
+      - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
+      - tripleo-ansible-centos-8-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-8-molecule-tripleo_kernel
+      - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-8-molecule-tripleo_module_load
+      - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
+      - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
+      - tripleo-ansible-centos-8-molecule-tripleo_packages
+      - tripleo-ansible-centos-8-molecule-tripleo_persist
+      - tripleo-ansible-centos-8-molecule-tripleo_podman
+      - tripleo-ansible-centos-8-molecule-tripleo_ptp
+      - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
+      - tripleo-ansible-centos-8-molecule-tripleo_securetty
+      - tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
+      - tripleo-ansible-centos-8-molecule-tripleo_sshd
+      - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
+      - tripleo-ansible-centos-8-molecule-tripleo_timezone
+      - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
+      - tripleo-ansible-centos-8-molecule-tripleo_validations_package
+      - tripleo-ansible-centos-8-molecule-tuned
+      - tripleo-ansible-centos-8-role-addition
+    name: tripleo-ansible-molecule-jobs
+    periodic-weekly:
+      jobs:
+      - tripleo-ansible-centos-8-molecule-aide
+      - tripleo-ansible-centos-8-molecule-backup_and_restore
+      - tripleo-ansible-centos-8-molecule-login_defs
+      - tripleo-ansible-centos-8-molecule-test_deps
+      - tripleo-ansible-centos-8-molecule-test_package_action
+      - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
+      - tripleo-ansible-centos-8-molecule-tripleo_cellv2
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-8-molecule-tripleo_clients_install
+      - tripleo-ansible-centos-8-molecule-tripleo_config
+      - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
+      - tripleo-ansible-centos-8-molecule-tripleo_container_manage
+      - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_stop
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
       - tripleo-ansible-centos-8-molecule-tripleo_firewall
@@ -88,9 +132,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-    periodic-weekly:
-      jobs: *jobs
-    name: tripleo-ansible-molecule-jobs
 - job:
     files:
     - ^tripleo_ansible/roles/aide/.*
@@ -130,6 +171,13 @@
       tripleo_role_name: test_package_action
 - job:
     files:
+    - ^tripleo_ansible/ansible_plugins/.*$
+    - ^tox.ini
+    - ^molecule-requirements.txt
+    name: tripleo-ansible-centos-8-molecule-tripleo-modules
+    parent: tripleo-ansible-centos-8-base
+- job:
+    files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/.*
     name: tripleo-ansible-centos-8-molecule-tripleo_bootstrap
     parent: tripleo-ansible-centos-8-base
@@ -143,13 +191,15 @@
     vars:
       tripleo_role_name: tripleo_cellv2
 - job:
+    description: Non-voting due to https://bugs.launchpad.net/tripleo/+bug/1867012
     files:
     - ^tripleo_ansible/roles/tripleo_ceph_run_ansible/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo_ceph_run_ansible
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
       tripleo_role_name: tripleo_ceph_run_ansible
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_clients_install/.*
@@ -182,24 +232,24 @@
     - ^tripleo_ansible/ansible_plugins/modules/container_puppet_config.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
-    name: tripleo-ansible-centos-7-molecule-tripleo_container_manage
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo_container_manage
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_manage
     voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_rm/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo_container_rm
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo_container_rm
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_rm
     voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_stop/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo_container_stop
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo_container_stop
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_stop
     voting: false
@@ -266,13 +316,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_module_load
-- job:
-    files:
-    - ^tripleo_ansible/ansible_plugins/.*$
-    - ^tox.ini
-    - ^molecule-requirements.txt
-    name: tripleo-ansible-centos-8-molecule-tripleo-modules
-    parent: tripleo-ansible-centos-8-base
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_nova_image_cache/.*
@@ -395,6 +438,7 @@
     - ^tox.ini
     - ^molecule-requirements.txt
     - ^zuul.d/playbooks/.*
+    - ^zuul.d/molecule.yaml
     name: tripleo-ansible-centos-8-role-addition
     nodeset: centos-8
     parent: tox-molecule

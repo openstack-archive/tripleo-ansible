@@ -22,8 +22,8 @@ When the role is ready for CI, add a **job** entry into the
     - job:
         files:
         - ^tripleo_ansible/roles/${NEWROLENAME}/.*
-        name: tripleo-ansible-centos-7-molecule-${NEWROLENAME}
-        parent: tripleo-ansible-centos-7-base
+        name: tripleo-ansible-centos-8-molecule-${NEWROLENAME}
+        parent: tripleo-ansible-centos-8-base
         vars:
           tox_envlist: mol-${NEWROLENAME}
 
@@ -36,10 +36,10 @@ of the `molecule.yaml` file.
     - project:
         check:
           jobs:
-            - tripleo-ansible-centos-7-molecule-${NEWROLENAME}
+            - tripleo-ansible-centos-8-molecule-${NEWROLENAME}
         gate:
           jobs:
-            - tripleo-ansible-centos-7-molecule-${NEWROLENAME}
+            - tripleo-ansible-centos-8-molecule-${NEWROLENAME}
 
 
 Finally add a role documentation file at

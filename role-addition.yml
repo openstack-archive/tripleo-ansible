@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 # Copyright 2019 Red Hat, Inc.
 # All Rights Reserved.
@@ -46,10 +47,12 @@
     - name: Create molecule entry
       copy:
         content: |-
+          # Managed via ./role-addition.yml, do not edit manually without testing that
+          # new role addition does not reformat it.
           ---
           {% set items = molecule_yaml['content'] | b64decode | from_yaml %}
           {% set job_index = [] %}
-          {% set new_job_name = "tripleo-ansible-centos-7-molecule-" ~ _role_name %}
+          {% set new_job_name = "tripleo-ansible-centos-8-molecule-" ~ _role_name %}
           {% for item in items %}
           {%   if 'project-template' in item %}
           {%     if item['project-template']['name'] == "tripleo-ansible-molecule-jobs" %}
@@ -73,7 +76,7 @@
           {% if (job_index | length) < 1 %}
           {%   set new_job = {
                   "name": new_job_name,
-                  "parent": "tripleo-ansible-centos-7-base",
+                  "parent": "tripleo-ansible-centos-8-base",
                   "files": [
                     "^tripleo_ansible/roles/" ~ _role_name ~ "/.*"
                   ],
