@@ -47,76 +47,9 @@ ceph_ansible_group_vars_all:
   fsid: b8df929e-7c29-11e9-b1bd-244253215215
   generate_fsid: false
   ip_version: ipv4
-  keys:
-    - caps:
-        mgr: allow *
-        mon: profile rbd
-        osd: profile rbd pool=volumes, profile rbd pool=backups, profile rbd pool=vms,
-          profile rbd pool=images
-      key: AQCwmeRcAAAAABAA6SQU/bGqFjlfLro5KxrB1Q==
-      mode: '0600'
-      name: client.openstack
-    - caps:
-        mds: allow *
-        mgr: allow *
-        mon: allow r, allow command 'auth del', allow command 'auth caps', allow
-          command 'auth get', allow command 'auth get-or-create'
-        osd: allow rw
-      key: AQCwmeRcAAAAABAAiglHZveUQUmoSsYbZcbMEA==
-      mode: '0600'
-      name: client.manila
-    - caps:
-        mgr: allow *
-        mon: allow rw
-        osd: allow rwx
-      key: AQCwmeRcAAAAABAAvd9OK2qeXNaD4rL/wP7D0Q==
-      mode: '0600'
-      name: client.radosgw
   monitor_address_block: 192.168.24.0/24
   ntp_service_enabled: false
   openstack_config: true
-  openstack_keys:
-    - caps:
-        mgr: allow *
-        mon: profile rbd
-        osd: profile rbd pool=volumes, profile rbd pool=backups, profile rbd pool=vms,
-          profile rbd pool=images
-      key: AQCwmeRcAAAAABAA6SQU/bGqFjlfLro5KxrB1Q==
-      mode: '0600'
-      name: client.openstack
-    - caps:
-        mds: allow *
-        mgr: allow *
-        mon: allow r, allow command 'auth del', allow command 'auth caps', allow
-          command 'auth get', allow command 'auth get-or-create'
-        osd: allow rw
-      key: AQCwmeRcAAAAABAAiglHZveUQUmoSsYbZcbMEA==
-      mode: '0600'
-      name: client.manila
-    - caps:
-        mgr: allow *
-        mon: allow rw
-        osd: allow rwx
-      key: AQCwmeRcAAAAABAAvd9OK2qeXNaD4rL/wP7D0Q==
-      mode: '0600'
-      name: client.radosgw
-  openstack_pools:
-    - application: rbd
-      name: images
-      pg_num: 32
-      rule_name: replicated_rule
-    - application: rbd
-      name: backups
-      pg_num: 32
-      rule_name: replicated_rule
-    - application: rbd
-      name: vms
-      pg_num: 32
-      rule_name: replicated_rule
-    - application: rbd
-      name: volumes
-      pg_num: 32
-      rule_name: replicated_rule
   pools: []
   public_network: 192.168.24.0/24
   user_config: true
@@ -131,3 +64,52 @@ ceph_ansible_playbooks_param: ['default']
 ceph_ansible_skip_tags: 'package-install,with_pkg'
 ceph_ansible_environment_variables: []
 ceph_ansible_inherits_calling_ansible_environment: false
+
+ceph_pools:
+  gnocchi_pool:
+    name: 'metrics'
+    enabled: true
+  nova_pool:
+    name: 'vms'
+    enabled: true
+  glance_pool:
+    name: 'images'
+    enabled: true
+  cinder_pool:
+    name: 'volumes'
+    enabled: true
+    cinder_extra_pools: [altrbd, pool2, pool3]
+  cinder_backup_pool:
+    name: 'backups'
+    enabled: false
+  extra_pools:
+    - application: rbd
+      name: altrbd
+      pg_num: 1
+      rule_name: replicated_rule
+  pg_num: 32
+
+manila_pools:
+  data: 'manila_data'
+  data_pg_num: 16
+  metadata: 'manila_metadata'
+  metadata_pg_num: 16
+
+ceph_keys:
+  openstack_client:
+    name: "openstack"
+    key: "AQC+vYNXgDAgAhAAc8UoYt+OTz5uhV7ItLdwUw=="
+  manila:
+    name: "manila"
+    key: "AQDVdVZeAAAAABAAhhhLNK3G8Bb8kShtnPBXnA=="
+  radosgw:
+    name: "radosgw"
+    key: "AQDVdVZeAAAAABAAzv4Bo8gRRyuOvs2MaLtnYQ=="
+  extra_keys:
+    - caps:
+        mgr: allow *
+        mon: profile rbd
+        osd: profile rbd pool=images
+      key: AQBRgQ9eAAAAABAAv84zEilJYZPNuJ0Iwn9Ndg==
+      mode: '0600'
+      name: client.glance
