@@ -236,7 +236,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_manage
-    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_rm/.*
@@ -244,7 +243,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_rm
-    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_stop/.*
@@ -252,7 +250,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_stop
-    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_tag/.*
