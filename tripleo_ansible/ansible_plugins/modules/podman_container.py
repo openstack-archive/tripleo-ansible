@@ -1524,6 +1524,7 @@ class PodmanContainerDiff:
         strip_from_name = [
             "docker.io/library/",
             "docker.io/",
+            "registry.fedoraproject.org/",
             ":latest",
         ]
         for repl in strip_from_name:

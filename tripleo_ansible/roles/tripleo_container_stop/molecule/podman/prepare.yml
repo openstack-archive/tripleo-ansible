@@ -35,7 +35,7 @@
       command: "podman pull centos:8"
 
     - name: Create test containers
-      command: "podman run -itd --systemd --name {{ item }} fedora bash"
+      command: "podman run -itd --systemd true --name {{ item }} fedora bash"
       with_items:
         - podman-container1
         - podman-container2
