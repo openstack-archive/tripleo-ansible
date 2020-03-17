@@ -357,6 +357,12 @@ options:
       - 'bind'
       - 'tmpfs'
       - 'ignore'
+  image_strict:
+    description:
+      - Whether to compare images in idempotency by taking into account a full
+        name with registry and namespaces.
+    type: bool
+    default: False
   init:
     description:
       - Run an init inside the container that forwards signals and reaps
@@ -1518,18 +1524,16 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('hostname', before, after)
 
     def diffparam_image(self):
-        # TODO(sshnaidm): for strict image compare use SHAs
+        # TODO(sshnaidm): for strict image compare mode use SHAs
         before = self.info['config']['image']
         after = self.params['image']
-        strip_from_name = [
-            "docker.io/library/",
-            "docker.io/",
-            "registry.fedoraproject.org/",
-            ":latest",
-        ]
-        for repl in strip_from_name:
-            before = before.replace(repl, "")
-            after = after.replace(repl, "")
+        mode = self.params['image_strict']
+        if mode is None or not mode:
+            # In a idempotency 'lite mode' assume all images from different registries are the same
+            before = before.replace(":latest", "")
+            after = after.replace(":latest", "")
+            before = before.split("/")[-1]
+            after = after.split("/")[-1]
         return self._diff_update_and_compare('image', before, after)
 
     def diffparam_ipc(self):
