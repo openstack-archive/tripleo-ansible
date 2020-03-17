@@ -32,6 +32,12 @@
         msg: baremetal_deployment is a required input
       when:
         - baremetal_deployment is undefined
+    - fail:
+        msg: unprovision_confirm or unprovision_environment is required when prompt is true
+      when:
+        - prompt
+        - unprovision_confirm is undefined or
+          unprovision_environment is undefined
 
   tasks:
 
@@ -48,9 +54,24 @@
       register: baremetal_existing
 
     - name: Write unprovision confirmation
-      copy:
-        dest: "{{ unprovision_confirm }}"
-        content: "{{ baremetal_existing.instances | to_json }}"
+      block:
+        - name: Write instances for confirmation
+          copy:
+            dest: "{{ unprovision_confirm }}"
+            content: "{{ baremetal_existing.instances | to_json }}"
+          when: unprovision_confirm is defined
+        - name: Expand roles for provisioned instances
+          tripleo_baremetal_expand_roles:
+            baremetal_deployment: "{{ baremetal_deployment }}"
+            stack_name: "{{ stack_name }}"
+            state: present
+          register: baremetal_instances_existing
+          when: unprovision_environment is defined
+        - name: Write environment for node delete resource mapping
+          copy:
+            dest: "{{ unprovision_environment }}"
+            content: "{{ baremetal_instances_existing.environment | to_json }}"
+          when: unprovision_environment is defined
       when: prompt|bool
 
     - name: Unprovision instances
