@@ -6,7 +6,8 @@
     - openstack-python3-ussuri-jobs
     check:
       jobs:
-      - openstack-tox-linters
+      - openstack-tox-linters: &tripleo-linters
+          nodeset: centos-8
       - openstack-tox-docs: &tripleo-docs
           files:
           - ^doc/.*
@@ -81,7 +82,7 @@
           irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
-      - openstack-tox-linters
+      - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
       - tripleo-ci-centos-8-containers-multinode: *containers_multinode
       - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
