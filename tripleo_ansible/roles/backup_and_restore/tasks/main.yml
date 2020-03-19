@@ -48,6 +48,9 @@
   when:
     - tripleo_backup_and_restore_service_manager
 
+- name: Backup pacemaker configuration
+  import_tasks: pacemaker_backup.yml
+
 - name: Create recovery images with ReaR
   import_tasks: run_backup.yml
 
