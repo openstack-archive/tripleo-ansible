@@ -41,7 +41,7 @@ for LINE in $(cat {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_w
     NETNS=$(echo $LINE | awk '{ print $1 }')
     IFS=$' ' ARGS=$(echo $LINE | sed -e "s|$NETNS ||" | xargs)
     # TODO(emilien) investigate if we should rather run docker/podman ps instead of ps on the host
-    if ! ps -e -o pid,command | grep "$(echo $NETNS | sed 's|^[^-]*\-||')" | grep -v grep &> /dev/null; then
+    if ! ps -e -o pid,command | grep "$(echo $NETNS | sed 's|^[^-]*\-||')" | egrep -v "grep | netns exec" &> /dev/null; then
         start_service $NETNS $ARGS
     fi
 done
