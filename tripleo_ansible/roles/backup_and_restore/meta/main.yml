@@ -28,12 +28,10 @@ galaxy_info:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
   platforms:
-    - name: Fedora
-      versions:
-        - 28
     - name: CentOS
       versions:
         - 7
+        - 8
 
   galaxy_tags:
     - tripleo
