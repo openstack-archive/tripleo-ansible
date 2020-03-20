@@ -31,10 +31,6 @@
   run_once: true
   set_fact:
     tripleo_hosts_entries_block: |
-      {{ tripleo_hosts_entries_undercloud_hosts_entries | default([]) | join('') }}
-
-      {{ tripleo_hosts_entries_vip_hosts_entries | default([]) | join('') }}
-
       {% for host in groups['overcloud'] -%}
       {{ hostvars[host][hostvars[host]['hostname_resolve_network'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ cloud_domain ~ ' ' ~ host }}
@@ -50,10 +46,7 @@
       {% endif -%}
       {{ hostvars[host]['ctlplane_ip'] ~ ' ' ~
          host ~ '.ctlplane' ~ '.' ~ cloud_domain ~ ' ' ~ host ~ '.ctlplane' }}
-
-      {% endfor -%}
-
-      {{ tripleo_hosts_entries_extra_hosts_entries | default([]) | join('') }}
+      {% endfor %}
   tags:
     - tripleo_hosts_entries
 
@@ -64,6 +57,12 @@
     path: "{{ tripleo_hosts_entries_hosts_path }}"
     # BOF denotes the beginning of the file.
     insertbefore: BOF
-    block: "{{ tripleo_hosts_entries_block }}"
+    block: |
+      {{ tripleo_hosts_entries_block }}
+      {% for host in tripleo_hosts_entries_undercloud_hosts_entries | default([]) +
+          tripleo_hosts_entries_vip_hosts_entries | default([]) +
+          tripleo_hosts_entries_extra_hosts_entries | default([]) %}
+      {{ host }}
+      {% endfor %}
   tags:
     - tripleo_hosts_entries
