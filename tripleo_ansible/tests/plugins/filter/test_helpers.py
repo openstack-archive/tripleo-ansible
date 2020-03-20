@@ -800,3 +800,52 @@ class TestHelperFilters(tests_base.TestCase):
         expected_list = ['mysql']
         result = self.filters.get_changed_containers(data)
         self.assertEqual(result, expected_list)
+
+    def test_get_failed_containers(self):
+        data = [
+            {
+                "ansible_job_id": "948704694230.17597",
+                "ansible_loop_var": "container_data",
+                "changed": True,
+                "container_data": {
+                    "haproxy": {
+                        "image": "haproxy:latest",
+                    }
+                },
+                "failed": False,
+                "finished": 1,
+                "results_file": "/root/.ansible_async/948704694230.17597",
+                "started": 1
+            },
+            {
+                "ansible_job_id": "948704694230.17597",
+                "ansible_loop_var": "container_data",
+                "changed": True,
+                "container_data": {
+                    "memcached": {
+                        "image": "memcached:latest",
+                    }
+                },
+                "failed": True,
+                "finished": 1,
+                "results_file": "/root/.ansible_async/948704694230.17597",
+                "started": 1
+            },
+            {
+                "ansible_job_id": "316140143697.17616",
+                "ansible_loop_var": "container_data",
+                "changed": True,
+                "container_data": {
+                    "mysql": {
+                        "image": "mysql:latest",
+                    }
+                },
+                "failed": False,
+                "finished": 0,
+                "results_file": "/root/.ansible_async/316140143697.17616",
+                "started": 1
+            }
+        ]
+        expected_list = ['memcached', 'mysql']
+        result = self.filters.get_failed_containers(data)
+        self.assertEqual(result, expected_list)

@@ -41,7 +41,8 @@ class FilterModule(object):
             'get_key_from_dict': self.get_key_from_dict,
             'get_role_assignments': self.get_role_assignments,
             'get_domain_id': self.get_domain_id,
-            'get_changed_containers': self.get_changed_containers
+            'get_changed_containers': self.get_changed_containers,
+            'get_failed_containers': self.get_failed_containers
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -370,3 +371,17 @@ class FilterModule(object):
                 if item['container'].get('Name'):
                     changed.append(item['container'].get('Name'))
         return changed
+
+    def get_failed_containers(self, async_results):
+        """Return a list of containers that failed to start on time.
+
+        This filter takes in input async results of a podman_container
+        invocation and returns the list of containers that did not
+        finished correctly.
+        """
+        failed = []
+        for item in async_results:
+            if item['failed'] or not item['finished']:
+                for k, v in item['container_data'].items():
+                    failed.append(k)
+        return failed
