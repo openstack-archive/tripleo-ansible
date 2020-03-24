@@ -102,6 +102,9 @@
         state: reserved
         clean_up: true
       register: baremetal_reserved
+      until: baremetal_reserved is success
+      retries: 3
+      delay: 2
 
     - name: Provision instances
       metalsmith_instances:
@@ -112,6 +115,9 @@
         timeout: "{{ node_timeout }}"
         concurrency: "{{ concurrency }}"
       register: baremetal_provisioned
+      until: baremetal_provisioned is success
+      retries: 3
+      delay: 2
 
     - name: Populate environment
       tripleo_baremetal_populate_environment:
