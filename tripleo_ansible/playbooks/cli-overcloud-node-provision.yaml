@@ -39,7 +39,6 @@
         - baremetal_deployed_path is undefined
 
   tasks:
-
     - name: Detect default overcloud-full image
       block:
         - name: stat overcloud-full.qcow2
@@ -103,6 +102,15 @@
         clean_up: true
       register: baremetal_reserved
 
+    # NOTE(cloudnull): This limits the concurrency so that we're not adding
+    #                  more threads than needed.
+    - name: Set concurrency fact
+      set_fact:
+        runtime_concurrency: "{{
+          ((concurrency | int) > (baremetal_reserved.instances | length)) |
+          ternary((baremetal_reserved.instances | length), (concurrency | int))
+        }}"
+
     - name: Provision instances
       metalsmith_instances:
         instances: "{{ baremetal_reserved.instances }}"
@@ -110,7 +118,7 @@
         wait: true
         clean_up: false
         timeout: "{{ node_timeout }}"
-        concurrency: "{{ concurrency }}"
+        concurrency: "{{ runtime_concurrency }}"
       register: baremetal_provisioned
 
     - name: Populate environment

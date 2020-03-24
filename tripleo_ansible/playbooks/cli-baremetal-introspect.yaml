@@ -47,6 +47,15 @@
       when:
         - node_uuids_intro == []
 
+    # NOTE(cloudnull): This limits the concurrency so that we're not adding
+    #                  more threads than needed.
+    - name: Set concurrency fact
+      set_fact:
+        runtime_concurrency: "{{
+          ((concurrency | int) > (node_uuids_intro | length)) |
+          ternary((node_uuids_intro | length), (concurrency | int))
+        }}"
+
     # Pre-introspection validation
     - name: Run Validations
       command: >
@@ -60,7 +69,7 @@
         auth_type: password
         cloud: undercloud
         node_uuids: "{{ node_uuids_intro }}"
-        concurrency: "{{ concurrency }}"
+        concurrency: "{{ runtime_concurrency }}"
         max_retries: "{{ max_retries }}"
         node_timeout: "{{ node_timeout }}"
       register: baremetal_introspection_result

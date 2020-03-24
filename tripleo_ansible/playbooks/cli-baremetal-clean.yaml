@@ -45,6 +45,15 @@
       set_fact:
         node_uuids_clean: "{{ node_uuids }}"
 
+    # NOTE(cloudnull): This limits the concurrency so that we're not adding
+    #                  more threads than needed.
+    - name: Set concurrency fact
+      set_fact:
+        runtime_concurrency: "{{
+          ((concurrency | int) > (node_uuids_clean | length)) |
+          ternary((node_uuids_clean | length), (concurrency | int))
+        }}"
+
     - name: exit if nothing to do
       when:
         - (node_uuids_clean | length) < 1
@@ -66,7 +75,7 @@
       os_baremetal_clean_node:
         cloud: undercloud
         node_uuid: "{{ node_uuids_clean }}"
-        concurrency: "{{ concurrency }}"
+        concurrency: "{{ runtime_concurrency }}"
         # max_retries: "{{ max_retries }}"  NotImplemented
         timeout: "{{ node_timeout }}"
         clean_steps:
