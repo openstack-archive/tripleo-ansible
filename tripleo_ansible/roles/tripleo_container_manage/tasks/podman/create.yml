@@ -86,6 +86,8 @@
   register: create_async_poll_results
   until: create_async_poll_results.finished
   retries: 60
+  # We fail later if a container has failed to start
+  failed_when: false
   when:
     - not ansible_check_mode|bool
 
@@ -94,6 +96,13 @@
 - name: "Create a list of containers which changed"
   set_fact:
     containers_changed: "{{ create_async_poll_results.results | get_changed_containers }}"
+    containers_failed: "{{ create_async_poll_results.results | get_failed_containers }}"
+
+- name: Print the containers that failed to start
+  fail:
+    msg: "{{ containers_failed }} failed to start, check logs in /var/log/containers/stdouts/"
+  when:
+    - containers_failed|length != 0
 
 - name: Block for container commands
   when:
