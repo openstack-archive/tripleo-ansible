@@ -98,6 +98,7 @@
       tripleo_passwords_rotate:
         container: "{{ container }}"
       when: generate_passwords|bool
+      no_log: true
 
     - name: Prepare Container images and update plan
       tripleo_image_params_prepare:
