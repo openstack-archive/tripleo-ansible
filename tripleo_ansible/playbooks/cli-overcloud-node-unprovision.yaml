@@ -36,8 +36,8 @@
         msg: unprovision_confirm or unprovision_environment is required when prompt is true
       when:
         - prompt
-        - unprovision_confirm is undefined or
-          unprovision_environment is undefined
+        - unprovision_confirm is undefined
+        - unprovision_environment is undefined
 
   tasks:
 

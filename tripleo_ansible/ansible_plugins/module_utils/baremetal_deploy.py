@@ -130,6 +130,11 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             role['defaults'].setdefault('image', default_image)
         if default_network:
             role['defaults'].setdefault('nics', default_network)
+        if ssh_public_keys:
+            role['defaults'].setdefault('ssh_public_keys', ssh_public_keys)
+        if user_name:
+            role['defaults'].setdefault('user_name', user_name)
+
         for inst in role.get('instances', []):
             for k, v in role['defaults'].items():
                 inst.setdefault(k, v)
@@ -169,11 +174,6 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             # is a valid generated name
             if inst.get('hostname') in potential_gen_names:
                 hostname_map[inst['hostname']] = inst['hostname']
-
-            if ssh_public_keys:
-                inst['ssh_public_keys'] = ssh_public_keys
-            if user_name:
-                inst['user_name'] = user_name
 
             role_instances.append(inst)
 

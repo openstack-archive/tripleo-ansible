@@ -143,20 +143,31 @@ class TestExpandRoles(base.TestCase):
             'hostname_format': 'controller-%index%.example.com'
         }]
         instances, environment = bd.expand(
-            roles, 'overcloud', True, self.default_image
+            roles, 'overcloud', True, self.default_image,
+            user_name='heat-admin', ssh_public_keys='aaaa'
         )
         self.assertEqual(
             [
                 {'hostname': 'compute-0.example.com', 'profile': 'compute',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'ssh_public_keys': 'aaaa',
+                 'user_name': 'heat-admin'},
                 {'hostname': 'compute-1.example.com', 'profile': 'compute',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'ssh_public_keys': 'aaaa',
+                 'user_name': 'heat-admin'},
                 {'hostname': 'controller-0.example.com', 'profile': 'control',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'ssh_public_keys': 'aaaa',
+                 'user_name': 'heat-admin'},
                 {'hostname': 'controller-1.example.com', 'profile': 'control',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'ssh_public_keys': 'aaaa',
+                 'user_name': 'heat-admin'},
                 {'hostname': 'controller-2.example.com', 'profile': 'control',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'ssh_public_keys': 'aaaa',
+                 'user_name': 'heat-admin'},
             ],
             instances)
         self.assertEqual(
