@@ -35,22 +35,33 @@
         - (tripleo_target_host is defined) | ternary('ssh', 'local') == 'local'
 
   tasks:
-    - name: Check if validation enabled
-      command: >
-        hiera tripleo_validations_enabled
-      register: validations_enabled
-      become: true
-
-    - name: Run Validations
-      # 1. tripleo-validations does not work with clouds.yaml
-      # 2. Ignore errors as certain validations in 'pre-deployment'
-      # group i.e tls-everywhere-pre-deployment.yaml would fail.
-      shell: |
-        source "{{ ansible_home }}/stackrc"
-        openstack tripleo validator run --group "pre-deployment"
+    - name: Validations block
       when:
-        - validations_enabled.stdout | bool
-      ignore_errors: true
+        - run_validations | bool
+      block:
+        - name: Check if validation enabled
+          set_fact:
+            validations_enabled: "{{ lookup('hiera', 'tripleo_validations_enabled') }}"
+          run_once: true
+          become: true
+
+        # Pre-deployment validation
+        # NOTE(cloudnull): The stackrc file is sourced because validations are not
+        #                  100% compatible with clouds.yaml at this time.
+        - name: Run Validations
+          shell: |-
+            source "{{ ansible_home }}/stackrc"
+            openstack --os-cloud undercloud tripleo validator run --group "pre-deployment"
+          when:
+            - validations_enabled | bool
+
+        - name: Fail if validations are disabled
+          fail:
+            msg: >-
+              Run validations were enabled but via hiera information disabled.
+              Check the configuration and try again.
+          when:
+            - not (validations_enabled | bool)
 
     - name: Prepare Container images and update plan
       tripleo_image_params_prepare:

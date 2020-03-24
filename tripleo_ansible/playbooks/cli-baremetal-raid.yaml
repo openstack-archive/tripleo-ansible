@@ -21,7 +21,6 @@
   gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
   any_errors_fatal: true
   vars:
-    run_validations: false
     concurrency: 20
     max_retries: 2
     node_timeout: 1200
