@@ -47,22 +47,10 @@
 
     # Set nodes to available
     - name: Make nodes available
-      command: >-
-        openstack --os-cloud undercloud baremetal node provide {{ item }} --wait 1200
-      loop: "{{ node_uuids_provide }}"
-      async: 2400
-      poll: 0
-      register: node_provide
-
-    - name: poll for completion
-      async_status:
-        jid: "{{ item.ansible_job_id }}"
-      loop: "{{ node_provide.results }}"
-      loop_control:
-        label: "{{ item.item }}"
-      register: wait
-      until: wait.finished
-      retries: 120
+      os_baremetal_provide_node:
+        cloud: undercloud
+        node_uuid: "{{ node_uuids_provide }}"
+        timeout: 1200
 
     # Run cellv2 discovery of hosts
     - name: Run cell_v2 host discovery
