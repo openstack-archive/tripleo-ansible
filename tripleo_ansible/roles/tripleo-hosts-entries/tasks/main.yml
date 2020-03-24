@@ -62,6 +62,8 @@
   blockinfile:
     create: true
     path: "{{ tripleo_hosts_entries_hosts_path }}"
+    # BOF denotes the beginning of the file.
+    insertbefore: BOF
     block: "{{ tripleo_hosts_entries_block }}"
   tags:
     - tripleo_hosts_entries
