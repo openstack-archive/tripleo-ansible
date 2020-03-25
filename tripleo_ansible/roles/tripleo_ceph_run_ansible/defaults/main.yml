@@ -16,6 +16,5 @@
 
 
 # All variables intended for modification should be placed in this file.
-
-# All variables within this role should have a prefix of "tripleo_tripleo_nvdimm"
-tripleo_tripleo_nvdimm_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
+tripleo_ceph_run_ansible_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
+tripleo_ceph_run_ansible_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"

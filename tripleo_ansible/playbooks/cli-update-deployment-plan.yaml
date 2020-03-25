@@ -26,6 +26,7 @@
     generate_passwords: true
     reset_passwords: false
     validate_stack: true
+    hide_sensitive_logs: true
 
   handlers:
     - name: Cleanup temp directory
@@ -64,8 +65,9 @@
       tripleo_passwords_rotate:
         container: "{{ container }}"
         rotate_passwords: "{{ reset_passwords }}"
-      when: generate_passwords|bool or reset_passwords|bool
-      no_log: true
+      when:
+        - (generate_passwords | bool) or (reset_passwords | bool)
+      no_log: "{{ hide_sensitive_logs | bool }}"
 
     - name: Prepare Container images and update plan
       tripleo_image_params_prepare:

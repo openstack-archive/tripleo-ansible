@@ -16,6 +16,8 @@
 
 
 # All variables intended for modification should be placed in this file.
+tripleo_podman_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
+tripleo_podman_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 
 tripleo_container_registry_insecure_registries: []
 tripleo_container_registry_login: false
@@ -23,7 +25,6 @@ tripleo_container_registry_logins: {}
 tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
 tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
 tripleo_podman_tls_verify: true
-tripleo_podman_debug: false
 tripleo_podman_unqualified_search_registries:
   - registry.redhat.io
   - registry.access.redhat.com

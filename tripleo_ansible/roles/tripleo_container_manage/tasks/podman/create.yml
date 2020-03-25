@@ -27,7 +27,7 @@
       config_id=tripleo_container_manage_config_id, clean_orphans=False) }}
 
 - name: "Async container create/run"
-  no_log: "{{ not tripleo_container_manage_debug }}"
+  no_log: "{{ tripleo_container_manage_hide_sensitive_logs | bool }}"
   async: "{{ (not ansible_check_mode | bool) | ternary('600', omit) }}"
   poll: "{{ (not ansible_check_mode | bool) | ternary('0', omit) }}"
   register: create_async_results
@@ -86,7 +86,7 @@
     volumes_from: "{{ lookup('dict', container_data).value.volumes_from | default([]) }}"
 
 - name: "Check podman create status"
-  no_log: "{{ not tripleo_container_manage_debug }}"
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   async_status:
     jid: "{{ create_async_result_item.ansible_job_id }}"
   loop: "{{ create_async_results.results }}"

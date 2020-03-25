@@ -18,7 +18,7 @@
 # All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_hosts_entries"
-tripleo_hosts_entries_debug: false
+tripleo_hosts_entries_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_hosts_entries_hosts_path: /etc/hosts
 tripleo_hosts_entries_undercloud_hosts_entries: ""
 tripleo_hosts_entries_extra_hosts_entries: ""
