@@ -23,7 +23,7 @@
   vars:
     run_validations: false
     concurrency: 20
-    max_retries: 2
+    max_retries: 1
     node_timeout: 1200
   pre_tasks:
     - name: Check for required inputs
@@ -63,35 +63,30 @@
         concurrency: "{{ concurrency }}"
         max_retries: "{{ max_retries }}"
         node_timeout: "{{ node_timeout }}"
-      async: 1000
-      poll: 0
-      register: baremetal_introspection_async
-
-    # NOTE: This isn't ideal, but it is the best way I can find to give user
-    #       updates. The Ansible module logs when nodes start/fail/finish etc.
-    - name: Viewing introspection progress
-      debug:
-        msg: Introspection progress can been viewed in the syslog
-
-    - name: Wait for introspection to complete
-      async_status:
-        jid: "{{ baremetal_introspection_async.ansible_job_id }}"
-      register: introspection_result
-      until: introspection_result.finished
-      retries: 1000
-      ignore_errors: true
+      register: baremetal_introspection_result
+      failed_when: false
 
     - name: Nodes that passed introspection
       debug:
         msg: >-
-          {% if introspection_result.passed_nodes != [] %}
-          {{ introspection_result.passed_nodes | join(' ') }}{% else %}
+          {% if baremetal_introspection_result.passed_nodes != [] %}
+          {{ baremetal_introspection_result.passed_nodes | join(' ') }}{% else %}
           No nodes completed introspection successfully!{% endif %}
+      when: baremetal_introspection_result.passed_nodes is defined
 
     - name: Nodes that failed introspection
       debug:
         msg: >-
-          {% if introspection_result.failed_nodes != [] %}
-          {{ introspection_result.failed_nodes | join(' ') }}{% else %}
+          {% if baremetal_introspection_result.failed_nodes != [] %}
+          {{ baremetal_introspection_result.failed_nodes | join(' ') }}{% else %}
           All nodes completed introspection successfully!{% endif %}
-      failed_when: introspection_result.failed_nodes != []
+      failed_when: baremetal_introspection_result.failed_nodes != []
+      when: baremetal_introspection_result.failed_nodes is defined
+
+    - name: Node introspection failed and no results are provided
+      fail:
+        msg: >-
+          Nodes failed introspection and no info was provided
+      when:
+        - baremetal_introspection_result.failed_nodes is not defined
+        - baremetal_introspection_result.passed_nodes is not defined
