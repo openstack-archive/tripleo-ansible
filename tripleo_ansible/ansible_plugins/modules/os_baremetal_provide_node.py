@@ -66,6 +66,12 @@ options:
         - Don't wait for other nodes to provide if at least one failed
       type: bool
       default: True
+    wait_for_bridge_mappings:
+      description:
+        - Whether to poll neutron agents for an agent with populated mappings
+          before doing the provide
+      type: bool
+      default: False
 requirements: ["openstacksdk"]
 '''
 
@@ -329,6 +335,7 @@ EXAMPLES = '''
 '''
 import yaml
 from openstack.exceptions import ResourceFailure, ResourceTimeout
+from openstack.utils import iterate_timeout
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
@@ -362,13 +369,29 @@ def get_info_nodes(nodes_wait, msg, result, client):
     return result, msg
 
 
+def wait_for_bridge_mapping(conn, node):
+    client = conn.network
+    timeout_msg = ('Timeout waiting for node %(node) to have bridge_mappings '
+                   'set in the ironic-neutron-agent entry')
+    # default agent polling period is 30s, so wait 60s
+    timeout = 60
+    for count in iterate_timeout(timeout, timeout_msg):
+        agents = list(client.agents(host=node, binary='ironic-neutron-agent'))
+        if agents:
+            if agents[0].configuration.get('bridge_mappings'):
+                return
+
+
 def parallel_nodes_providing(conn, module):
     client = conn.baremetal
     node_timeout = module.params['timeout']
+    wait_for_bridge_mappings = module.params['wait_for_bridge_mappings']
     nodes = list(set(module.params['node_uuid'] + module.params['node_name']))
     result = {}
     nodes_wait = nodes[:]
     for node in nodes:
+        if wait_for_bridge_mappings:
+            wait_for_bridge_mapping(conn, node)
         try:
             client.set_node_provision_state(
                 node,

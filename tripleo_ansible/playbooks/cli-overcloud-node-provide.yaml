@@ -51,6 +51,7 @@
         cloud: undercloud
         node_uuid: "{{ node_uuids_provide }}"
         timeout: 1200
+        wait_for_bridge_mappings: true
 
     # Run cellv2 discovery of hosts
     - name: Run cell_v2 host discovery
