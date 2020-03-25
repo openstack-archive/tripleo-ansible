@@ -87,59 +87,74 @@
         ssh_key_file: "{{ ansible_home }}/.ssh/id_rsa"
       become: true
 
+    - name: Stat key file
+      stat:
+        path: "{{ defined_user_private_key_file }}"
+      register: key_check
+
     - name: Key block
-      run_once: true
+      when:
+        - user_public_key is undefined
+        - user_private_key is undefined
+        - user_private_key_file is undefined
       block:
-        - name: Get local private key
-          slurp:
-            src: "{{ defined_user_private_key_file }}"
-          register: private_key_get
-          become: true
+        - name: Read key block
+          run_once: true
+          when:
+            - key_check.stat.exists | bool
+          block:
+            - name: Get local private key
+              slurp:
+                src: "{{ defined_user_private_key_file }}"
+              register: private_key_get
+              become: true
 
-        - name: Get local public key
-          slurp:
-            src: "{{ defined_user_private_key_file }}.pub"
-          register: public_key_get
-          become: true
+            - name: Get local public key
+              slurp:
+                src: "{{ defined_user_private_key_file }}.pub"
+              register: public_key_get
+              become: true
 
-        - name: Set key facts
-          set_fact:
-            user_public_key: "{{ public_key_get['content'] | b64decode }}"
-            user_private_key: "{{ private_key_get['content'] | b64decode }}"
-            user_private_key_file: "{{ defined_user_private_key_file }}"
-      rescue:
-        - name: Get local private key
-          slurp:
-            src: "{{ ansible_home }}/.ssh/id_rsa"
-          register: private_key_get
-          become: true
+            - name: Set key facts
+              set_fact:
+                user_public_key: "{{ public_key_get['content'] | b64decode }}"
+                user_private_key: "{{ private_key_get['content'] | b64decode }}"
+                user_private_key_file: "{{ defined_user_private_key_file }}"
 
-        - name: Get local public key
-          slurp:
-            src: "{{ ansible_home }}/.ssh/id_rsa.pub"
-          register: public_key_get
-          become: true
+        - name: Read and create key block
+          run_once: true
+          when:
+            - not (key_check.stat.exists | bool)
+          block:
+            - name: Get local private key
+              slurp:
+                src: "{{ ansible_home }}/.ssh/id_rsa"
+              register: private_key_get
+              become: true
 
-        - name: Set key facts
-          set_fact:
-            user_public_key: "{{ public_key_get['content'] | b64decode }}"
-            user_private_key: "{{ private_key_get['content'] | b64decode }}"
+            - name: Get local public key
+              slurp:
+                src: "{{ ansible_home }}/.ssh/id_rsa.pub"
+              register: public_key_get
+              become: true
 
-        - name: Write tripleo private key
-          copy:
-            content: "{{ user_private_key }}"
-            dest: "{{ defined_user_private_key_file }}"
-            mode: "0600"
+            - name: Write tripleo private key
+              copy:
+                content: "{{ private_key_get['content'] | b64decode }}"
+                dest: "{{ defined_user_private_key_file }}"
+                mode: "0600"
 
-        - name: Write tripleo public key
-          copy:
-            content: "{{ user_public_key }}"
-            dest: "{{ defined_user_private_key_file }}.pub"
-            mode: "0640"
+            - name: Write tripleo public key
+              copy:
+                content: "{{ public_key_get['content'] | b64decode }}"
+                dest: "{{ defined_user_private_key_file }}.pub"
+                mode: "0640"
 
-        - name: Set key file fact
-          set_fact:
-            user_private_key_file: "{{ defined_user_private_key_file }}"
+            - name: Set key file fact
+              set_fact:
+                user_public_key: "{{ public_key_get['content'] | b64decode }}"
+                user_private_key: "{{ private_key_get['content'] | b64decode }}"
+                user_private_key_file: "{{ defined_user_private_key_file }}"
 
     - name: Ensure user can ssh to localhost
       authorized_key:
