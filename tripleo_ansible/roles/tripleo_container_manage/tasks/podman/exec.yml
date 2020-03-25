@@ -22,7 +22,7 @@
   when: not ansible_check_mode|bool
 
 - name: "Async container exec"
-  no_log: "{{ not tripleo_container_manage_debug }}"
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   command:
     argv: "{{ lookup('dict', container_exec_data).value | container_exec_cmd(cli=tripleo_container_manage_cli) }}"
   async: "{{ (not ansible_check_mode | bool) | ternary('60', omit) }}"
@@ -34,7 +34,7 @@
   when: not ansible_check_mode|bool
 
 - name: "Check podman exec status"
-  no_log: "{{ not tripleo_container_manage_debug }}"
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   async_status:
     jid: "{{ exec_async_result_item.ansible_job_id }}"
   loop: "{{ exec_async_results.results }}"

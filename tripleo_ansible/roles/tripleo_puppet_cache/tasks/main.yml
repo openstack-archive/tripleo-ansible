@@ -82,7 +82,7 @@
   shell: facter --config "{{ tripleo_puppet_cache_base_dir }}/facter.conf"
   retries: 5
   delay: 5
-  no_log: true
+  no_log: "{{ tripleo_puppet_hide_sensitive_logs | bool }}"
   failed_when: false
   register: _facter_cache_run
 

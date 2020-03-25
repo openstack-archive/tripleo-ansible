@@ -18,7 +18,7 @@
 # All variables intended for modification should place placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_ovs_dpdk"
-tripleo_ovs_dpdk_debug: false
+tripleo_ovs_dpdk_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_ovs_dpdk_pmd_core_list: ""
 tripleo_ovs_dpdk_lcore_list: ""
 tripleo_ovs_dpdk_memory_channels: 4

@@ -44,7 +44,7 @@
 
 # Using the "archive" module lists lists all tarred files in module
 # output, if there's too many files, it can crash ansible even with
-# "no_log: true".
+# "no_log: "{{ not tripleo_transfer_debug | bool }}"".
 - name: create the archive
   shell: |-
     set -euo pipefail

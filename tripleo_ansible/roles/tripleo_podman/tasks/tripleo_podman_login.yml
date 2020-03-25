@@ -26,6 +26,6 @@
     REGISTRY_USERNAME: "{{ lookup('dict', item.value).key }}"
     REGISTRY_PASSWORD: "{{ lookup('dict', item.value).value }}"
     REGISTRY: "{{ item.key }}"
-  no_log: "{{ not tripleo_podman_debug|bool }}"
+  no_log: "{{ tripleo_podman_hide_sensitive_logs | bool }}"
   loop: "{{ query('dict', tripleo_container_registry_logins) }}"
   register: registry_login_podman

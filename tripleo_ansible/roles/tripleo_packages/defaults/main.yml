@@ -60,7 +60,7 @@ tripleo_packages_fast_forward_custom_repo_script_content: |
 tripleo_packages_upgrade_leapp_enabled: true
 
 # Print debugging output when running Leapp
-tripleo_packages_upgrade_leapp_debug: true
+tripleo_packages_upgrade_leapp_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 
 # Skip RHSM when running Leapp in development/testing.
 tripleo_packages_upgrade_leapp_devel_skip_rhsm: false

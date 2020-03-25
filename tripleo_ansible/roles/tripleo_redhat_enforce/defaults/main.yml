@@ -18,7 +18,7 @@
 # All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_redhat_enforce"
-tripleo_redhat_enforce_debug: false
+tripleo_redhat_enforce_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_redhat_enforce: false
 tripleo_redhat_enforce_osp: ''
 tripleo_redhat_enforce_os: ''

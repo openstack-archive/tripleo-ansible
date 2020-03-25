@@ -28,6 +28,7 @@
     default_templates_dir: '/usr/share/openstack-tripleo-heat-templates/'
     use_default_templates: false
     validate_stack: true
+    hide_sensitive_logs: true
 
   handlers:
     - name: Cleanup temp directory
@@ -45,7 +46,7 @@
         os_password: "{{ lookup('env', 'OS_PASSWORD') }}"
         os_project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
       run_once: true
-      no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
+      no_log: "{{ hide_sensitive_logs | bool }}"
 
   tasks:
     - name: crate container and upload templates
@@ -58,7 +59,7 @@
             --os-project-name "{{ os_project_name }}"
             --auth-version "{{ auth_version }}"
             post "{{ container }}" --header 'x-container-meta-usage-tripleo:plan'
-          no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
+          no_log: "{{ hide_sensitive_logs | bool }}"
 
         - name: Create temp directory
           tempfile:
@@ -100,7 +101,7 @@
       tripleo_passwords_rotate:
         container: "{{ container }}"
       when: generate_passwords|bool
-      no_log: true
+      no_log: "{{ hide_sensitive_logs | bool }}"
 
     - name: Prepare Container images and update plan
       tripleo_image_params_prepare:
