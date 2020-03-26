@@ -399,6 +399,7 @@ class FilterModule(object):
         failed = []
         for item in async_results:
             if item['failed'] or not item['finished']:
-                for k, v in item['container_data'].items():
+                async_result_item = item['create_async_result_item']
+                for k, v in async_result_item['container_data'].items():
                     failed.append(k)
         return failed

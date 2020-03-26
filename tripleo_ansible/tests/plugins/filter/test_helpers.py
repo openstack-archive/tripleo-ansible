@@ -827,9 +827,11 @@ class TestHelperFilters(tests_base.TestCase):
                 "ansible_job_id": "948704694230.17597",
                 "ansible_loop_var": "container_data",
                 "changed": True,
-                "container_data": {
-                    "haproxy": {
-                        "image": "haproxy:latest",
+                "create_async_result_item": {
+                    "container_data": {
+                        "haproxy": {
+                            "image": "haproxy:latest",
+                        }
                     }
                 },
                 "failed": False,
@@ -841,9 +843,11 @@ class TestHelperFilters(tests_base.TestCase):
                 "ansible_job_id": "948704694230.17597",
                 "ansible_loop_var": "container_data",
                 "changed": True,
-                "container_data": {
-                    "memcached": {
-                        "image": "memcached:latest",
+                "create_async_result_item": {
+                    "container_data": {
+                        "memcached": {
+                            "image": "memcached:latest",
+                        }
                     }
                 },
                 "failed": True,
@@ -855,9 +859,11 @@ class TestHelperFilters(tests_base.TestCase):
                 "ansible_job_id": "316140143697.17616",
                 "ansible_loop_var": "container_data",
                 "changed": True,
-                "container_data": {
-                    "mysql": {
-                        "image": "mysql:latest",
+                "create_async_result_item": {
+                    "container_data": {
+                        "mysql": {
+                            "image": "mysql:latest",
+                        }
                     }
                 },
                 "failed": False,

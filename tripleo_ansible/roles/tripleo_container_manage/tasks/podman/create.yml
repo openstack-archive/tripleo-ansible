@@ -91,9 +91,7 @@
   when:
     - not ansible_check_mode|bool
 
-# This fact will be used in systemd playbook to figure out if whether or not
-# a container managed by systemd needs to be restarted
-- name: "Create a list of containers which changed"
+- name: "Create facts for containers which changed or failed"
   set_fact:
     containers_changed: "{{ create_async_poll_results.results | get_changed_containers }}"
     containers_failed: "{{ create_async_poll_results.results | get_failed_containers }}"
