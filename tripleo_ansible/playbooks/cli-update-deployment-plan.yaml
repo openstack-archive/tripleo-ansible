@@ -59,9 +59,10 @@
 
       when: source_url is not none
 
-    - name: Generate passwords and update plan
+    - name: Generate passwords if does not exist and update plan
       tripleo_passwords_rotate:
         container: "{{ container }}"
+        rotate_passwords: false
       when: generate_passwords|bool
 
     - name: Prepare Container images and update plan
