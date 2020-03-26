@@ -278,8 +278,6 @@ class ContainerPuppetManager:
             volumes = copy.deepcopy(default_volumes)
             cname = 'container-puppet-' + config_volume
             if self.check:
-                volumes.append(
-                    '/etc/puppet/check-mode:/tmp/puppet-check-mode:ro')
                 volumes += ['/etc/puppet/check-mode:'
                             '/tmp/puppet-check-mode:ro']
             if self.net_host:
