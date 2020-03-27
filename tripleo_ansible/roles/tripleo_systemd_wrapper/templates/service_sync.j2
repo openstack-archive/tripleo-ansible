@@ -32,12 +32,15 @@ function start_service {
         $CONTAINER_CMD $@
 }
 
+jobs_file="{{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes"
+[ -s "$jobs_file" ] || exit 0  # nothing to do, no need for locking, just exit
+
 exec {lock_fd}>/var/lock/{{ tripleo_systemd_wrapper_service_name }}-processes.lock || exit 1
-# In case service_wrapper script already locked the commands, we just wait.
-flock "$lock_fd"
+# In case service_wrapper script already locked the commands, we just wait for a 10 sec.
+flock -w 10 "$lock_fd" || exit 1
 
 IFS=$'\n'
-for LINE in $(cat {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes); do
+for LINE in $(cat ${jobs_file}); do
     NETNS=$(echo $LINE | awk '{ print $1 }')
     IFS=$' ' ARGS=$(echo $LINE | sed -e "s|$NETNS ||" | xargs)
     # TODO(emilien) investigate if we should rather run docker/podman ps instead of ps on the host
@@ -46,6 +49,6 @@ for LINE in $(cat {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_w
     fi
 done
 # truncate the file so we don't start them again
-:> {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes
+:> "$jobs_file"
 
 flock -u "$lock_fd"
