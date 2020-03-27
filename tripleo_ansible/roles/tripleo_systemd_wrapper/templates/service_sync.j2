@@ -6,7 +6,8 @@ set -x
 function start_service {
     local NETNS=$1
     shift
-    local NAME="{{ tripleo_systemd_wrapper_service_name }}-${NETNS}"
+    local NAME=$1
+    shift
     local CLI='{{ tripleo_systemd_wrapper_container_cli }}'
     local CMD="{{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/command"
     local CONTAINER_CMD="ip netns exec ${NETNS} ${CMD}"
@@ -39,10 +40,26 @@ flock "$lock_fd"
 IFS=$'\n'
 for LINE in $(cat {{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes); do
     NETNS=$(echo $LINE | awk '{ print $1 }')
-    IFS=$' ' ARGS=$(echo $LINE | sed -e "s|$NETNS ||" | xargs)
-    # TODO(emilien) investigate if we should rather run docker/podman ps instead of ps on the host
-    if ! ps -e -o pid,command | grep "$(echo $NETNS | sed 's|^[^-]*\-||')" | egrep -v "grep | netns exec" &> /dev/null; then
-        start_service $NETNS $ARGS
+    CONTAINER_NAME="{{ tripleo_systemd_wrapper_service_name }}-${NETNS}"
+    CLI='{{ tripleo_systemd_wrapper_container_cli }}'
+
+    # We do a filter to create a short list and then have to exact name match the results. The reason is that
+    # containers that partially match the filter will show up in the list. This is a little unlikely but there
+    # is nothing to prevent that.
+    start_container=yes
+    container_list=`$CLI ps --format={% raw %}"{{.Names}}"{% endraw %} --filter="name=$CONTAINER_NAME"`
+    for name in ${container_list};
+    do
+        if [ "x$name" = "x$CONTAINER_NAME"];
+        then
+            start_container=no
+            break
+        fi
+    done
+    if [ "$start_container" = "yes" ];
+    then
+        IFS=$' ' ARGS=$(echo $LINE | sed -e "s|$NETNS ||" | xargs)
+        start_service $NETNS $CONTAINER_NAME $ARGS
     fi
 done
 # truncate the file so we don't start them again
