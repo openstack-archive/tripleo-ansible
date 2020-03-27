@@ -59,6 +59,10 @@ options:
         description:
             - Overcloud plan container name
         default: overcloud
+    rotate_passwords:
+        description: flag for rotate passwords or not
+        default: true
+        type: bool
     password_list:
         description:
             - Password list to be rotated
@@ -73,6 +77,7 @@ EXAMPLES = '''
 - name: Rotate passwords and update plan
   tripleo_password_rotate:
       container: overcloud
+      rotate_passwords: true
       password_list: []
 '''
 
@@ -119,6 +124,7 @@ def run_module():
 
     try:
         container = module.params.get('container')
+        rotate_passwords = module.params.get('rotate_passwords')
         password_list = module.params.get('password_list')
         _, conn = openstack_cloud_from_module(module)
         session = conn.session
@@ -134,7 +140,7 @@ def run_module():
         mistral = get_workflow_client(mistral_url, session)
         rotated_passwords = plan_utils.generate_passwords(
             swift, heat, mistral, container,
-            rotate_passwords=True,
+            rotate_passwords=rotate_passwords,
             rotate_pw_list=password_list)
         result['success'] = True
         result['passwords'] = rotated_passwords
