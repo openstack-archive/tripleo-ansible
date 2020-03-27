@@ -43,8 +43,8 @@
   fail:
     msg: "Tuned profile conf file is not available to configure isolated cores"
   when:
-    - tuned_isolated_cores
-    - not tuned_conf_stat_result.stat.exists
+    - tuned_isolated_cores|bool
+    - not tuned_conf_stat_result.stat.exists|bool
 
 - name: "Configure isolated cores for profile {{ tuned_profile }}"
   lineinfile:
@@ -52,8 +52,8 @@
     regexp: '^isolated_cores=.*'
     line: 'isolated_cores={{ tuned_isolated_cores }}'
   when:
-    - tuned_isolated_cores
-    - tuned_conf_stat_result.stat.exists
+    - tuned_isolated_cores|bool
+    - tuned_conf_stat_result.stat.exists|bool
 
 - name: Enable tuned profile
   command: >-
