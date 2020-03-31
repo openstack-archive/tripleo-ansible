@@ -71,14 +71,6 @@
         container: "{{ container }}"
         with_roledata: false
 
-    - name: Add root stack name
-      tripleo_plan_parameters_update:
-        container: "{{ container }}"
-        parameters:
-          RootStackName: "{{ container }}"
-        parameter_key: parameter_defaults
-        validate: false
-
     - name: Get backup tempurl for GET
       tripleo_swift_tempurl:
         container: "{{container + 'swift-rings' }}"
@@ -93,10 +85,11 @@
         method: PUT
       register: backup_put_tempurl
 
-    - name: Update plan with backup tempurl parameters
+    - name: Update plan with root stack and backup tempurl parameters
       tripleo_plan_parameters_update:
         container: "{{ container }}"
         parameters:
+          RootStackName: "{{ container }}"
           SwiftRingGetTempurl: "{{ backup_get_tempurl.tempurl }}"
           SwiftRingPutTempurl: "{{ backup_put_tempurl.tempurl }}"
         parameter_key: parameter_defaults
