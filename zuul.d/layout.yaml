@@ -71,14 +71,6 @@
           files:
           - ^tripleo_ansible/roles/octavia_.*/.*
           irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-7-standalone-upgrade: &standalone_upgrade
-          dependencies: *deps
-          files:
-          - ^tripleo_ansible/roles/tripleo_hieradata/.*
-          - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
-          - ^tripleo_ansible/roles/tripleo_container_manage/.*
-          - ^tripleo_ansible/roles/tripleo_container_rm/.*
-          irrelevant-files: *irrelevant_scenario_files
     gate:
       jobs:
       - openstack-tox-linters
