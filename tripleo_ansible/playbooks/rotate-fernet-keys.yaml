@@ -28,6 +28,7 @@
       tripleo_fernet_keys_rotate:
         container: "{{ container }}"
       register: fernet_keys
+      no_log: true
 
 - name: Rotate fernet keys on controller nodes
   import_playbook: rotate-keys.yaml fernet_keys="{{ hostvars['undercloud']['fernet_keys']['fernet_keys'] }}"
