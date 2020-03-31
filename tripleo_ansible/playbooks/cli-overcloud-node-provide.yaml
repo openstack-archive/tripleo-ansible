@@ -53,21 +53,32 @@
         timeout: 1200
         wait_for_bridge_mappings: true
 
-    # Run cellv2 discovery of hosts
-    - name: Run cell_v2 host discovery
-      command: podman exec nova_api /bin/nova-manage cell_v2 discover_hosts --verbose
-      changed_when: false
-      become: true
+    - name: Nova cell host discovery
+      block:
+        - name: Detect nova service endpoint
+          command: >-
+            openstack --os-cloud undercloud catalog show nova
+          register: nova_catalog_show
+          failed_when: "'service nova not found' in nova_catalog_show.stderr"
 
-    - name: Wait for nova resources
-      command: >-
-        openstack --os-cloud undercloud hypervisor show {{ item }}
-      loop: "{{ node_uuids_provide }}"
-      changed_when: false
-      register: hypervisor_check
-      until: hypervisor_check is success
-      delay: 30
-      retries: 30
+        # Run cellv2 discovery of hosts
+        - name: Run cell_v2 host discovery
+          command: podman exec nova_api /bin/nova-manage cell_v2 discover_hosts --verbose
+          changed_when: false
+          become: true
+
+        - name: Wait for nova resources
+          command: >-
+            openstack --os-cloud undercloud hypervisor show {{ item }}
+          loop: "{{ node_uuids_provide }}"
+          changed_when: false
+          register: hypervisor_check
+          until: hypervisor_check is success
+          delay: 30
+          retries: 30
+      rescue:
+        - debug:
+            msg: 'Nova endpoint not found, skipping cell host discovery'
 
     # Power off nodes the nodes
     - name: Power off nodes
