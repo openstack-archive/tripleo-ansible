@@ -88,8 +88,8 @@
 
     - name: Wait for stack status
       command: |
-        openstack --os-cloud undercloud stack show "{{ container }}" -c stack_status
+        openstack --os-cloud undercloud stack show --no-resolve-outputs "{{ container }}" -c stack_status
       register: check_status
       until: "'IN_PROGRESS' not in check_status.stdout"
-      retries: "{{ (timeout_mins|int * 60 / 15)|int }}"
-      delay: 15
+      retries: "{{ (timeout_mins|int * 60 / 10)|int }}"
+      delay: 10
