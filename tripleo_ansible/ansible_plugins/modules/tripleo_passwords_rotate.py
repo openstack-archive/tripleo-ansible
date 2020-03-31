@@ -93,6 +93,7 @@ passwords:
 def run_module():
     result = dict(
         success=False,
+        changed=False,
         error="",
         passwords={}
     )
@@ -103,7 +104,7 @@ def run_module():
 
     module = AnsibleModule(
         argument_spec,
-        supports_check_mode=True,
+        supports_check_mode=False,
         **openstack_module_kwargs()
     )
 
@@ -118,32 +119,22 @@ def run_module():
         return heatclient.Client(
             session=session)
 
-    def get_workflow_client(mistral_url, session):
-        return mistral_client.client(
-            mistral_url=mistral_url, session=session)
-
     try:
         container = module.params.get('container')
         rotate_passwords = module.params.get('rotate_passwords')
         password_list = module.params.get('password_list')
         _, conn = openstack_cloud_from_module(module)
         session = conn.session
-        mistral_url = conn.workflow.get_endpoint()
 
-        # if the user is working with this module in only check mode we do not
-        # want to make any changes to the environment, just return the current
-        # state with no modifications
-        if module.check_mode:
-            module.exit_json(**result)
         swift = get_object_client(session)
         heat = get_orchestration_client(session)
-        mistral = get_workflow_client(mistral_url, session)
         rotated_passwords = plan_utils.generate_passwords(
-            swift, heat, mistral, container,
+            swift, heat, container=container,
             rotate_passwords=rotate_passwords,
             rotate_pw_list=password_list)
         result['success'] = True
         result['passwords'] = rotated_passwords
+        result['changed'] = True
     except Exception as err:
         result['error'] = str(err)
         result['msg'] = ("Error rotating passwords for plan %s: %s" % (
