@@ -46,6 +46,9 @@
 - name: Backup the database
   import_tasks: db_backup.yml
 
+- name: Backup pacemaker configuration
+  import_tasks: pacemaker_backup.yml
+
 - name: Create recovery images with ReaR
   import_tasks: run_backup.yml
 
