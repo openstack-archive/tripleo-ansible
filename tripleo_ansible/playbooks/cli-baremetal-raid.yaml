@@ -41,6 +41,15 @@
       set_fact:
         node_uuids_raid: "{{ node_uuids }}"
 
+    # NOTE(cloudnull): This limits the concurrency so that we're not adding
+    #                  more threads than needed.
+    - name: Set concurrency fact
+      set_fact:
+        runtime_concurrency: "{{
+          ((concurrency | int) > (node_uuids_raid | length)) |
+          ternary((node_uuids_raid | length), (concurrency | int))
+        }}"
+
     - name: exit if nothing to do
       block:
         - name: Notice
@@ -61,7 +70,7 @@
       os_baremetal_clean_node:
         cloud: undercloud
         node_uuid: "{{ node_uuids_raid }}"
-        concurrency: "{{ concurrency }}"
+        concurrency: "{{ runtime_concurrency }}"
         raid_config: "{{ raid_configuration }}"
         timeout: "{{ node_timeout }}"
         clean_steps:
