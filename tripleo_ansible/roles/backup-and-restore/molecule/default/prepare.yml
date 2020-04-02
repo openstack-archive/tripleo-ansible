@@ -68,18 +68,48 @@
           - kbd
           - puppet
           - hiera
+          - python2-docker
 
     - name: Create hiera config file
       file:
         path: "{{ ansible_user_dir }}/hiera.yaml"
         state: touch
 
-    - name: pull an image
+    - name: Create hieradata directory
+      file:
+        path: "{{ ansible_user_dir }}/hieradata"
+        state: directory
+        mode: '0755'
+
+    - name: Insert some data into hiera.yaml
+      copy:
+        dest: "{{ ansible_user_dir }}/hiera.yaml"
+        content: |
+            ---
+            :backends:
+              - json
+            :json:
+              :datadir: {{ ansible_user_dir }}/hieradata
+            :hierarchy:
+              - service_configs
+
+    - name: Insert some data into service_configs.json
+      copy:
+        dest: "{{ ansible_user_dir }}/hieradata/service_configs.json"
+        content: |
+            {
+                "mysql::server::root_password": "password"
+            }
+
+    - name: pull some images
       docker_image:
-        name: centos:8
+        name: "{{ item }}"
         source: pull
       vars:
         ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+      with_items:
+        - centos:8
+        - mysql
 
     - name: Create a data container
       docker_container:
@@ -92,3 +122,11 @@
         - docker-container2
       vars:
         ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+
+    - name: Start myql container
+      docker_container:
+        name: mysql
+        image: mysql
+        detach: true
+        env:
+          MYSQL_ROOT_PASSWORD: password
