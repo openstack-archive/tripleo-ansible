@@ -19,11 +19,6 @@
     msg: "List of PMD cores cannot be empty - tripleo_ovs_dpdk_pmd_core_list"
   when: not tripleo_ovs_dpdk_pmd_core_list|string or tripleo_ovs_dpdk_pmd_core_list == 'null'
 
-- name: Check valid input for tripleo_ovs_dpdk_lcore_list
-  fail:
-    msg: "List of DPDK lcores cannot be empty - tripleo_ovs_dpdk_lcore_list"
-  when: not tripleo_ovs_dpdk_lcore_list|string or tripleo_ovs_dpdk_lcore_list == 'null'
-
 - name: Check valid input for tripleo_ovs_dpdk_socket_memory
   fail:
     msg: "Socket Memory cannot be empty - tripleo_ovs_dpdk_socket_memory"
@@ -38,7 +33,7 @@
     value: "{{ tripleo_ovs_dpdk_pmd_core_list | cpu_mask }}"
   when: tripleo_ovs_dpdk_pmd_core_list|string
 
-- name: Apply DPDK lcores config
+- name: Set DPDK lcores config
   openvswitch_db:
     table: open_vswitch
     record: .
@@ -46,6 +41,15 @@
     key: dpdk-lcore-mask
     value: "{{ tripleo_ovs_dpdk_lcore_list | cpu_mask }}"
   when: tripleo_ovs_dpdk_lcore_list|string
+
+- name: Remove DPDK lcores config
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-lcore-mask
+  when: not tripleo_ovs_dpdk_lcore_list|string or tripleo_ovs_dpdk_lcore_list == 'null'
 
 - name: Add memory channels to dpdk extra
   set_fact:

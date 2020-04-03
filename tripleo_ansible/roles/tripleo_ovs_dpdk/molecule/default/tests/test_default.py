@@ -46,16 +46,15 @@ def test_positive_pmd(host):
     assert val == "e002"
 
 
-def test_positive_lcore(host):
-    other_config = get_config(host)
-    val = other_config['dpdk-lcore-mask'].replace('"', '')
-    assert val == "1001"
-
-
 def test_positive_socket_mem(host):
     other_config = get_config(host)
     val = other_config['dpdk-socket-mem'].replace('"', '')
     assert val == "1024,1024"
+
+
+def test_positive_lcore(host):
+    other_config = get_config(host)
+    assert 'dpdk-lcore-mask' not in other_config
 
 
 def test_positive_validator_threads(host):
