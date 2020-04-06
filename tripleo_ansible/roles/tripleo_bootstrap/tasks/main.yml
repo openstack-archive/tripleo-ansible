@@ -37,6 +37,15 @@
   package:
     name: "{{ tripleo_bootstrap_packages_bootstrap }}"
     state: present
+  # When a node is deployed with overcloud-minimal, OVS isn't required so let's
+  # ignore the case where the package can't be found (e.g. missing subscription).
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1820306
+  failed_when:
+    - (ansible_distribution | lower) == 'redhat'
+    - not ansible_check_mode|bool
+    - (tripleo_bootstrap_packages_bootstrap_result.rc | int) == 1
+    - not ('No package openvswitch available.' in tripleo_bootstrap_packages_bootstrap_result.failures | default([]))
+  register: tripleo_bootstrap_packages_bootstrap_result
 
 - name: Create /var/lib/heat-config/tripleo-config-download directory for deployment data
   become: true
