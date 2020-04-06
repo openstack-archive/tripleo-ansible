@@ -59,7 +59,7 @@
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
     # docker is needed by multiple molecule scenarios
-    - role: install-docker
+    - role: ensure-docker
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
