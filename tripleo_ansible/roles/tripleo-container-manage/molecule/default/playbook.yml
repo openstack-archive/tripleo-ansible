@@ -29,6 +29,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that Fedora container was created correctly
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check for fedora container
           command: podman container exists fedora
@@ -103,12 +105,16 @@
       podman_container_info:
         name: fedora
       register: fedora_infos_old
+      when:
+        - not ansible_check_mode|bool
     - include_role:
         name: tripleo-container-manage
     - name: Gather facts about fedora container after new run
       podman_container_info:
         name: fedora
       register: fedora_infos_new
+      when:
+        - not ansible_check_mode|bool
   post_tasks:
     - name: Assert that fedora container has not been re-created
       assert:
@@ -116,6 +122,8 @@
           - fedora_infos_new == fedora_infos_old
         fail_msg: 'fedora container was wrongly re-created'
         success_msg: 'fedora container was not re-created'
+      when:
+        - not ansible_check_mode|bool
 
 - name: Manage only one container
   become: true
@@ -133,6 +141,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that all containers still exist
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check for fedora container
           command: podman container exists fedora
@@ -182,6 +192,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that all containers still exist
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check for fedora container
           command: podman container exists fedora
@@ -226,6 +238,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that all containers still exist
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check that fedora container was removed
           command: podman container exists fedora
@@ -267,6 +281,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that Fedora bis container was re-created correctly
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
@@ -282,6 +298,8 @@
             success_msg: 'fedora_bis container has the right image'
     - name: Check for fedora_three container
       command: podman container exists fedora_three
+      when:
+        - not ansible_check_mode|bool
 
 - name: Test a container config override
   become: true
@@ -300,6 +318,8 @@
         name: tripleo-container-manage
   post_tasks:
     - name: Verify that Fedora bis container was re-created correctly
+      when:
+        - not ansible_check_mode|bool
       block:
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
@@ -315,3 +335,5 @@
             success_msg: 'fedora_bis container has the right image'
     - name: Check for fedora_three container
       command: podman container exists fedora_three
+      when:
+        - not ansible_check_mode|bool
