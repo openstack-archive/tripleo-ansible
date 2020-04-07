@@ -22,4 +22,5 @@
 - name: remove "{{ container }}" container
   command: "docker rm --force {{ container }}"
   when:
+    - stat_docker_container.rc is defined
     - stat_docker_container.rc == 0

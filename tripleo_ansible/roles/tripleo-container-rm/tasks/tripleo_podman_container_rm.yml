@@ -88,4 +88,5 @@
   command: "podman container rm --force {{ container }}"
   changed_when: true
   when:
+    - stat_container.rc is defined
     - stat_container.rc == 0
