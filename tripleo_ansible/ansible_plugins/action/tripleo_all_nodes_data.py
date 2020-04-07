@@ -126,7 +126,7 @@ class ActionModule(ActionBase):
                 service + '_bootstrap_node_ip', None):
             v = service + '_bootstrap_node_ip'
             service_bootstrap_node_ips = \
-                service_node_ips + self.all_nodes_extra_map_data[v]
+                service_node_ips.append(self.all_nodes_extra_map_data[v])
         else:
             service_bootstrap_node_ips = service_node_ips
         if service_bootstrap_node_ips:
