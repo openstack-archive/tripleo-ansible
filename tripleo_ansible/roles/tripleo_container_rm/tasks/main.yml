@@ -19,6 +19,7 @@
       stat:
         path: "/var/run/docker.sock"
       register: check_docker_cli
+      check_mode: false
 
     - include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
       vars:
@@ -33,6 +34,7 @@
       command: "command -v podman"
       register: check_podman_cli
       failed_when: false
+      check_mode: false
 
     - include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
       vars:
