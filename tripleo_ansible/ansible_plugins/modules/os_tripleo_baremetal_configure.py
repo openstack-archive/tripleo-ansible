@@ -124,8 +124,7 @@ def main():
         **openstack_module_kwargs()
     )
 
-    sdk, _ = openstack_cloud_from_module(module)
-    conn = sdk.connect()
+    _, conn = openstack_cloud_from_module(module)
     tripleo = TripleOCommon(session=conn.session)
 
     if hasattr(tripleo, module.params["action"]):
