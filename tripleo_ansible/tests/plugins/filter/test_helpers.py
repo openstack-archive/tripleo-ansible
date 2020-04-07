@@ -870,6 +870,15 @@ class TestHelperFilters(tests_base.TestCase):
                 "finished": 0,
                 "results_file": "/root/.ansible_async/316140143697.17616",
                 "started": 1
+            },
+            {
+                "ansible_job_id": "3161822143697.17616",
+                "ansible_loop_var": "container_data",
+                "changed": True,
+                "create_async_result_item": {},
+                "finished": 0,
+                "results_file": "/root/.ansible_async/316143697.17616",
+                "started": 1
             }
         ]
         expected_list = ['memcached', 'mysql']

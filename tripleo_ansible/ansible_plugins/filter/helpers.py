@@ -398,8 +398,13 @@ class FilterModule(object):
         """
         failed = []
         for item in async_results:
-            if item['failed'] or not item['finished']:
-                async_result_item = item['create_async_result_item']
-                for k, v in async_result_item['container_data'].items():
-                    failed.append(k)
+            try:
+                if item['failed'] or not item['finished']:
+                    async_result_item = item['create_async_result_item']
+                    for k, v in async_result_item['container_data'].items():
+                        failed.append(k)
+            except KeyError:
+                # if Ansible is run in check mode, the async_results items will
+                # not contain failed or finished keys.
+                continue
         return failed
