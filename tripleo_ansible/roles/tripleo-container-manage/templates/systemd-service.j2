@@ -1,21 +1,21 @@
 [Unit]
-Description={{ container_sysd_name }} container
+Description={{ lookup('dict', container_data_unit).key }} container
 After=tripleo-container-shutdown.service
-Wants={{ container_sysd_data.depends_on | default([]) | join(',') }}
+Wants={{ lookup('dict', container_data_unit).value.depends_on | default([]) | join(',') }}
 [Service]
 Restart=always
-{% if container_sysd_data.depends_on is defined and (container_sysd_data.depends_on | length > 0) and podman_drop_in | default('false') %}
-ExecStart=/usr/libexec/tripleo-start-podman-container {{ container_sysd_name }}
+{% if lookup('dict', container_data_unit).value.depends_on is defined and (lookup('dict', container_data_unit).value.depends_on | length > 0) and podman_drop_in | default('false') %}
+ExecStart=/usr/libexec/tripleo-start-podman-container {{ lookup('dict', container_data_unit).key }}
 {% else %}
-ExecStart=/usr/bin/podman start {{ container_sysd_name }}
+ExecStart=/usr/bin/podman start {{ lookup('dict', container_data_unit).key }}
 {% endif %}
-ExecReload=/usr/bin/podman kill --signal HUP {{ container_sysd_name }}
-ExecStop=/usr/bin/podman stop -t {{ container_sysd_data.stop_grace_period | default(10) | int }} {{ container_sysd_name }}
+ExecReload=/usr/bin/podman kill --signal HUP {{ lookup('dict', container_data_unit).key }}
+ExecStop=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(10) | int }} {{ lookup('dict', container_data_unit).key }}
 KillMode=none
 Type=forking
-PIDFile=/var/run/{{ container_sysd_name }}.pid
-{% if container_sysd_data.systemd_exec_flags is defined %}
-{%   for s_flag, s_value in container_sysd_data.systemd_exec_flags.items() %}
+PIDFile=/var/run/{{ lookup('dict', container_data_unit).key }}.pid
+{% if lookup('dict', container_data_unit).value.systemd_exec_flags is defined %}
+{%   for s_flag, s_value in lookup('dict', container_data_unit).value.systemd_exec_flags.items() %}
 {{ s_flag }}={{ s_value }}
 {%   endfor %}
 {% endif %}

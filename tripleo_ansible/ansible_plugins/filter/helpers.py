@@ -43,7 +43,8 @@ class FilterModule(object):
             'get_domain_id': self.get_domain_id,
             'get_changed_containers': self.get_changed_containers,
             'get_failed_containers': self.get_failed_containers,
-            'recursive_get_key_from_dict': self.recursive_get_key_from_dict
+            'recursive_get_key_from_dict': self.recursive_get_key_from_dict,
+            'get_changed_async_task_names': self.get_changed_async_task_names
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -408,3 +409,19 @@ class FilterModule(object):
                 # not contain failed or finished keys.
                 continue
         return failed
+
+    def get_changed_async_task_names(self, data, extra=[]):
+        """Return a list of ansible resources that changed."
+
+        This filter will take a list of dictionaries (data)
+        and will return a list of resources that changed.
+        An extra list can be given to automatically include the item if
+        part of the list already.
+        """
+        return_list = []
+        for i in data['results']:
+            loop_var = i.get('ansible_loop_var', 'item')
+            for k, v in i[loop_var].items():
+                if ('changed' in i and i['changed']) or k in extra:
+                    return_list.append(k)
+        return return_list
