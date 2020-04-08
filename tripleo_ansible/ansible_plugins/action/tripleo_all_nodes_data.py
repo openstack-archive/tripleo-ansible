@@ -170,8 +170,9 @@ class ActionModule(ActionBase):
 
         enabled_services += self.all_nodes_extra_map_data.get(
             'enabled_services', [])
-        # make enabled_services unique
+        # make enabled_services unique and sorted
         enabled_services = list(set(enabled_services))
+        enabled_services.sort()
 
         all_nodes['enabled_services'] = enabled_services
 
