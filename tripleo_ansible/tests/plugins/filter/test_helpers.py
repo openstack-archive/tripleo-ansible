@@ -884,3 +884,51 @@ class TestHelperFilters(tests_base.TestCase):
         expected_list = ['memcached', 'mysql']
         result = self.filters.get_failed_containers(data)
         self.assertEqual(result, expected_list)
+
+    def test_get_changed_async_task_names(self):
+        results = [
+            {
+                "ansible_loop_var": "systemd_loop",
+                "changed": False,
+                "failed": False,
+                "systemd_loop": {
+                    'keystone': {
+                        "config": "foo"
+                    }
+                },
+            },
+            {
+                "ansible_loop_var": "systemd_loop",
+                "changed": False,
+                "failed": False,
+                "systemd_loop": {
+                    'mysql': {
+                        "config": "foo"
+                    }
+                },
+            },
+            {
+                "ansible_loop_var": "systemd_loop",
+                "changed": True,
+                "failed": False,
+                "systemd_loop": {
+                    'haproxy': {
+                        "config": "foo"
+                    }
+                },
+            },
+            {
+                "changed": True,
+                "failed": False,
+                "item": {
+                    'memcached': {
+                        "config": "foo"
+                    }
+                },
+            },
+        ]
+        data = {}
+        data['results'] = results
+        expected_list = ['mysql', 'haproxy', 'memcached']
+        result = self.filters.get_changed_async_task_names(data=data, extra=['mysql'])
+        self.assertEqual(result, expected_list)

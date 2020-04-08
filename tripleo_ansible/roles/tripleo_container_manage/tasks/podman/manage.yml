@@ -19,15 +19,3 @@
 
 - name: Manage containers asynchronously
   include_tasks: podman/create.yml
-
-# We don't want to use async for the systemd tasks or we can have startup
-# errors when systemd has to deal with multiple services trying to start
-# at the same time. It is more reliable to start them in serial.
-- name: Manage container systemd services and healthchecks in serial
-  include_tasks: podman/systemd.yml
-  # systemd doesn't have the equivalent of docker unless-stopped.
-  # Let's force 'always' so containers aren't restarted when stopped by
-  # systemd, but restarted when in failure.
-  loop: "{{ batched_container_data | haskey(attribute='restart', value=['always','unless-stopped'], any=True) }}"
-  loop_control:
-    loop_var: container_config
