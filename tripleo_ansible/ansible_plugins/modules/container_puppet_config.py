@@ -508,7 +508,7 @@ class ContainerPuppetManager:
             config_hashes = filter(None, config_hashes)
             if 'environment' in startup_config_json:
                 old_config_hash = startup_config_json['environment'].get(
-                    'TRIPLEO_CONFIG_HASH')
+                    'TRIPLEO_CONFIG_HASH', '')
             if config_hashes is not None and config_hashes:
                 config_hash = '-'.join(config_hashes)
                 if config_hash == old_config_hash:
