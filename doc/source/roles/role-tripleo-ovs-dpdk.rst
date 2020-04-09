@@ -22,14 +22,18 @@ Role Defaults
 - ``tripleo_ovs_dpdk_pmd_core_list``
 
   - **Description**: (*Mandatory*) List of PMD Cores for DPDK. Its a
-    comma-separated string of logical cores.
+    comma-separated string of logical cores. These core should be part
+    of ``isolcpus`` kernel parameter and be excluded from ``NovaComputeCpuDedicatedSet``
+    and from ``NovaComputeCpuSharedSet``
   - **Default**: ``''``
   - **Examples**: ``'1,13'``
 
 - ``tripleo_ovs_dpdk_lcore_list``
 
-  - **Description**: (*Mandatory*) List of lcores for DPDK. Its a
+  - **Description**: (*Optional*) List of lcores for DPDK. Its a
     comma-separated string of logical cores.
+    All ovs-vswitchd threads will be pinned to the first core declared
+    in the mask.
   - **Default**: ``''``
   - **Examples**: ``'0,12'``
 
