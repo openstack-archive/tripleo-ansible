@@ -45,6 +45,7 @@
         os_password: "{{ lookup('env', 'OS_PASSWORD') }}"
         os_project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
       run_once: true
+      no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
 
   tasks:
     - name: crate container and upload templates
@@ -57,6 +58,7 @@
             --os-project-name "{{ os_project_name }}"
             --auth-version "{{ auth_version }}"
             post "{{ container }}" --header 'x-container-meta-usage-tripleo:plan'
+          no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
 
         - name: Create temp directory
           tempfile:

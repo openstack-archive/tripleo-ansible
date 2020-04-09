@@ -20,6 +20,7 @@
     hiera -c '{{ tripleo_backup_and_restore_hiera_config_file }}' 'mysql::server::root_password'
   when: mysql_password is undefined
   register: mysql_password
+  no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
   become: true
   tags:
     - bar_create_recover_image
@@ -75,6 +76,7 @@
   when: mysql_password.stderr is defined
   tags:
     - bar_create_recover_image
+  no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
 
 - name: MySQL BBDDs backup
   shell: |
@@ -87,6 +89,7 @@
   when: mysql_password.stderr is defined
   tags:
     - bar_create_recover_image
+  no_log: "{{ not ((ansible_verbosity | int) >= 2) | bool }}"
 
 - name: Pause mysql.
   command: "{{ tripleo_container_cli }} pause {{ tripleo_backup_and_restore_mysql_container }}"
