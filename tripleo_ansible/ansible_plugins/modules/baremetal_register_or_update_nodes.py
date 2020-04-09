@@ -105,8 +105,7 @@ def run_module():
         **openstack_module_kwargs()
     )
 
-    sdk, _ = openstack_cloud_from_module(module)
-    conn = sdk.connect()
+    _, conn = openstack_cloud_from_module(module)
     session = conn.session
 
     # if the user is working with this module in only check mode we do not
