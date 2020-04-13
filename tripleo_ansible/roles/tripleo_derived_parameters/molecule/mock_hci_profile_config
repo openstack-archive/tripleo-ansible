@@ -1,0 +1,12 @@
+default:
+  average_guest_memory_size_in_mb: 2048
+  average_guest_cpu_utilization_percentage: 50
+many_small_vms:
+  average_guest_memory_size_in_mb: 1024
+  average_guest_cpu_utilization_percentage: 20
+few_large_vms:
+  average_guest_memory_size_in_mb: 4096
+  average_guest_cpu_utilization_percentage: 80
+nfv_default:
+  average_guest_memory_size_in_mb: 8192
+  average_guest_cpu_utilization_percentage: 90
