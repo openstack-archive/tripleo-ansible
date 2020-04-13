@@ -17,4 +17,8 @@
 - name: Collect OpenStack Keystone domains infos
   os_keystone_domain_info:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-  register: openstack_domains
+  register: domain_result
+
+- name: Set openstack_domains fact
+  set_fact:
+    openstack_domains: "{{ domain_result.openstack_domains }}"
