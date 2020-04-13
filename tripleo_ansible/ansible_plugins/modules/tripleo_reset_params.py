@@ -74,9 +74,10 @@ def main():
     )
     _, conn = openstack_cloud_from_module(module)
     tripleo = tc.TripleOCommon(session=conn.session)
+    object_client = tripleo.get_object_client()
     try:
         stack_param_utils.reset_parameters(
-            swift=tripleo.get_object_client(),
+            swift=object_client,
             container=module.params["container"],
             key=module.params["parameter_key"]
         )
