@@ -32,6 +32,7 @@
     - name: Delete cni0 interface
       command: ip link delete cni0
       when:
+        - cni0_interface.rc is defined
         - cni0_interface.rc == 0
 
     - name: Check if 87-podman-bridge.conflist exists
