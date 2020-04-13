@@ -22,50 +22,29 @@ from ansible.module_utils.openstack import openstack_cloud_from_module
 
 DOCUMENTATION = """
 ---
-module: os_tripleo_baremetal_configure
-short_description: Configure Baremetal nodes
+module: tripleo_get_flavor_profile
+short_description: Get the flavor profile data
 extends_documentation_fragment: openstack
 author:
-  - "Dougal Matthews (@d0ugal)"
   - "Kevin Carter (@cloudnull)"
 version_added: "2.10"
 description:
-    - Configure baremetal tripleo node.
+    - Pull profile from a given flavor
 options:
-    action:
+    flavor_name:
         description:
-        - Run a given action on a baremetal node target.
+            - Name of flavor
         type: str
         required: true
-        choices:
-        - baremetal_configure_boot
-        - baremetal_configure_root_device
-    args:
-      description:
-      - A set of key=value arguments.
-      type: dict
-      required: true
 
 requirements: ["openstacksdk", "tripleo-common"]
 """
 
 EXAMPLES = """
-# Invoke baremetal setup
-- name: configure boot
-  os_tripleo_baremetal_configure:
-    cloud: undercloud
-    action: baremetal_configure_boot
-    args:
-        node_uuid: "6d225f94-b385-4ac1-ab23-7581de425127"
-        kernel_name: "bm-deploy-kernel"
-        ramdisk_name: "bm-deploy-ramdisk"
-
-- name: configure root device
-  os_tripleo_baremetal_configure:
-    cloud: undercloud
-    action: baremetal_configure_root_device
-    args:
-        node_uuid: "6d225f94-b385-4ac1-ab23-7581de425127"
+- name: Get flavor profile
+  tripleo_get_flavor_profile:
+    flavor_name: m1.tiny
+  register: flavor_profile
 """
 
 
@@ -73,31 +52,42 @@ import os
 
 import yaml
 
+from tripleo_common import exception
+from tripleo_common.utils import stack_parameters as stack_param_utils
+
 
 def main():
-    argument_spec = openstack_full_argument_spec(
-        **yaml.safe_load(DOCUMENTATION)['options']
+    result = dict(
+        success=False,
+        changed=False,
+        error=None,
     )
     module = AnsibleModule(
-        argument_spec,
+        openstack_full_argument_spec(
+            **yaml.safe_load(DOCUMENTATION)['options']
+        ),
         **openstack_module_kwargs()
     )
-
     _, conn = openstack_cloud_from_module(module)
     tripleo = tc.TripleOCommon(session=conn.session)
-
-    if hasattr(tripleo, module.params["action"]):
-        action = getattr(tripleo, module.params["action"])
-        result = action(
-            kwargs=module.params["args"]
+    try:
+        result['profile'] = tripleo.return_flavor_profile(
+            module.params["flavor_name"]
         )
-        module.exit_json(result=result)
+    except exception.DeriveParamsError:
+        result['profile'] = None
+        result['success'] = True
+        module.exit_json(**result)
+    except Exception as exp:
+        result['error'] = str(exp)
+        result['msg'] = 'Error pulling flavor properties for {}: {}'.format(
+            module.params["flavor_name"],
+            exp
+        )
+        module.fail_json(**result)
     else:
-        module.fail_json(
-            msg="Unknown action name {}".format(
-                module.params["action"]
-            )
-        )
+        result['success'] = True
+        module.exit_json(**result)
 
 
 if __name__ == "__main__":

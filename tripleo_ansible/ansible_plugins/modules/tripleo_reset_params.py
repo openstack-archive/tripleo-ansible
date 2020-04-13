@@ -22,50 +22,34 @@ from ansible.module_utils.openstack import openstack_cloud_from_module
 
 DOCUMENTATION = """
 ---
-module: os_tripleo_baremetal_configure
-short_description: Configure Baremetal nodes
+module: tripleo_reset_params
+short_description: Reset params
 extends_documentation_fragment: openstack
 author:
-  - "Dougal Matthews (@d0ugal)"
   - "Kevin Carter (@cloudnull)"
 version_added: "2.10"
 description:
-    - Configure baremetal tripleo node.
+    - This method will reset params for a given parmeter key.
 options:
-    action:
+    container:
         description:
-        - Run a given action on a baremetal node target.
+            - Name of plan / container
         type: str
         required: true
-        choices:
-        - baremetal_configure_boot
-        - baremetal_configure_root_device
-    args:
-      description:
-      - A set of key=value arguments.
-      type: dict
-      required: true
-
+    parameter_key:
+        description:
+            - Heat parameter key
+        type: str
+        default: parameter_defaults
 requirements: ["openstacksdk", "tripleo-common"]
 """
 
 EXAMPLES = """
-# Invoke baremetal setup
 - name: configure boot
-  os_tripleo_baremetal_configure:
+  tripleo_reset_params:
     cloud: undercloud
-    action: baremetal_configure_boot
-    args:
-        node_uuid: "6d225f94-b385-4ac1-ab23-7581de425127"
-        kernel_name: "bm-deploy-kernel"
-        ramdisk_name: "bm-deploy-ramdisk"
-
-- name: configure root device
-  os_tripleo_baremetal_configure:
-    cloud: undercloud
-    action: baremetal_configure_root_device
-    args:
-        node_uuid: "6d225f94-b385-4ac1-ab23-7581de425127"
+    container: overcloud
+    parameter_key: parameter_defaults
 """
 
 
@@ -73,31 +57,40 @@ import os
 
 import yaml
 
+from tripleo_common.utils import stack_parameters as stack_param_utils
+
 
 def main():
-    argument_spec = openstack_full_argument_spec(
-        **yaml.safe_load(DOCUMENTATION)['options']
+    result = dict(
+        success=False,
+        changed=False,
+        error=None,
     )
     module = AnsibleModule(
-        argument_spec,
+        openstack_full_argument_spec(
+            **yaml.safe_load(DOCUMENTATION)['options']
+        ),
         **openstack_module_kwargs()
     )
-
     _, conn = openstack_cloud_from_module(module)
     tripleo = tc.TripleOCommon(session=conn.session)
-
-    if hasattr(tripleo, module.params["action"]):
-        action = getattr(tripleo, module.params["action"])
-        result = action(
-            kwargs=module.params["args"]
+    try:
+        stack_param_utils.reset_parameters(
+            swift=tripleo.get_object_client(),
+            container=module.params["container"],
+            key=module.params["parameter_key"]
         )
-        module.exit_json(result=result)
+        result['changed'] = True
+    except Exception as exp:
+        result['error'] = str(exp)
+        result['msg'] = 'Error resetting params for plan {}: {}'.format(
+            module.params["container"],
+            exp
+        )
+        module.fail_json(**result)
     else:
-        module.fail_json(
-            msg="Unknown action name {}".format(
-                module.params["action"]
-            )
-        )
+        result['success'] = True
+        module.exit_json(**result)
 
 
 if __name__ == "__main__":
