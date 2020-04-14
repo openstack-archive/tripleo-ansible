@@ -298,6 +298,12 @@ class AnsibleAutoPluginDirective(Directive):
                     test,
                     'converge.yml'
                 )
+                if not os.path.exists(molecule_playbook_path):
+                    molecule_playbook_path = os.path.join(
+                        molecule_path,
+                        test,
+                        'playbook.yml'
+                    )
                 with open(molecule_playbook_path) as f:
                     molecule_playbook = DOCYAML.load(f.read())
                 molecule_section.append(
