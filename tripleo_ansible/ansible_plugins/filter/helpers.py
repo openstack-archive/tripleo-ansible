@@ -45,7 +45,13 @@ class FilterModule(object):
             'get_changed_containers': self.get_changed_containers,
             'get_failed_containers': self.get_failed_containers,
             'get_changed_async_task_names': self.get_changed_async_task_names,
-            'dict_to_list': self.dict_to_list
+            'dict_to_list': self.dict_to_list,
+            'get_filtered_resources': self.get_filtered_resources,
+            'get_filtered_resource_chains': self.get_filtered_resource_chains,
+            'get_filtered_service_chain': self.get_filtered_service_chain,
+            'get_filtered_role_resources': self.get_filtered_role_resources,
+            'get_node_capabilities': self.get_node_capabilities,
+            'get_node_profile': self.get_node_profile
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -439,3 +445,120 @@ class FilterModule(object):
         for k, v in data.items():
             return_list.append({k: v})
         return return_list
+
+    @staticmethod
+    def get_filtered_service_chain(resource_chains, role_chain_resources):
+        """Returned filtered service chains.
+
+        :param resource_chains: List of resource chains
+        :type resource_chains: List
+
+        :param role_chain_resources: List of role chains
+        :type role_chain_resources: List
+
+        :returns: Dictionary
+        """
+
+        for resource_id in [i['id'] for i in resource_chains]:
+            if resource_id in role_chain_resources:
+                for resource in resource_chains:
+                    if resource['id'] == resource_id:
+                        return resource
+
+    @staticmethod
+    def get_filtered_role_resources(service_chain_resources, tripleo_resources):
+        """Returned filtered role resources.
+
+        :param service_chain_resources: List of service resources
+        :type service_chain_resources: List
+
+        :param tripleo_resources: Dictionary of tripleo resources
+        :type tripleo_resources: Dictionary
+
+        :returns: Dictionary
+        """
+        role_services = dict()
+        for resource_id in service_chain_resources:
+            if resource_id in tripleo_resources.keys():
+                role_services[resource_id] = tripleo_resources[resource_id]
+        else:
+            return role_services
+
+    @staticmethod
+    def get_filtered_resource_chains(resources, role_name):
+        """Returned filtered resource chains.
+
+        :param resources: Dictionary of resources
+        :type resources: Dictionary
+
+        :param role_name: Name of role
+        :type role_name: String
+
+        :returns: Dictionary
+        """
+        for value in resources.values():
+            if value.get('name') == '{}ServiceChain'.format(role_name):
+                return value
+
+    @staticmethod
+    def get_filtered_resources(resources, filter_value):
+        """Returned filtered resources.
+
+        :param resources: Dictionary of resources
+        :type resources: Dictionary
+
+        :param filter_value: String to filter by
+        :type filter_value: String
+
+        :returns: List
+        """
+        resource_chains = list()
+        for value in resources.values():
+            if value.get('type') == filter_value:
+                resource_chains.append(value)
+        else:
+            return resource_chains
+
+    @staticmethod
+    def get_node_capabilities(nodes):
+        """Convert the Node's capabilities into a dictionary.
+
+        :param nodes: List of nodes
+        :type nodes: List
+
+        :returns: List
+        """
+
+        nodes_datas = list()
+        for node in nodes:
+            nodes_data = dict()
+            nodes_data['uuid'] = node['id']
+            properties = node['properties']
+            caps = properties.get('capabilities', '')
+            capabilities_dict = dict([key.strip().split(':', 1) for key in caps.split(',')])
+            nodes_data['hint'] = capabilities_dict.get('node')
+            nodes_datas.append(nodes_data)
+        else:
+            return nodes_datas
+
+    @staticmethod
+    def get_node_profile(nodes):
+        """Convert the Node's profile into a dictionary.
+
+        :param nodes: List of nodes
+        :type nodes: List
+
+        :returns: List
+        """
+
+        nodes_datas = list()
+        for node in nodes:
+            nodes_data = dict()
+            nodes_data['uuid'] = node['id']
+            properties = node['properties']
+            caps = properties.get('capabilities', '')
+            capabilities_dict = dict([key.strip().split(':', 1) for key in caps.split(',')])
+            nodes_data['profile'] = capabilities_dict.get('profile')
+            nodes_datas.append(nodes_data)
+        else:
+            return nodes_datas
