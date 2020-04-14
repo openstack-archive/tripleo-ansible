@@ -35,3 +35,6 @@ pytestdebug.log
 
 # doc
 doc/build/*
+
+# JetBrain
+.idea/
