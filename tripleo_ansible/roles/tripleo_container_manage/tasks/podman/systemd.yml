@@ -18,13 +18,6 @@
   set_fact:
     container_config: "{{ all_containers_hash | dict_to_list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) | default([]) }}"
 
-- name: Set container_config_healthcheck fact
-  set_fact:
-    # Using intersect to prevent a service which isn't controlled by systemd
-    # but has healthcheck in its configuration (by mistake)
-    # See https://bugs.launchpad.net/tripleo/+bug/1873249
-    container_config_healthcheck: "{{ all_containers_hash | dict_to_list | haskey(attribute='healthcheck') | intersect(container_config) | default([]) }}"
-
 - name: "Manage systemd files"
   no_log: "{{ not tripleo_container_manage_debug }}"
   block:
@@ -35,6 +28,11 @@
       loop: "{{ container_config }}"
       loop_control:
         loop_var: container_data_requires
+    - name: "Cleanup systemd healthchecks"
+      when:
+        - not tripleo_container_manage_healthcheck_disabled
+      include: podman/stat_healthcheck.yml container_systemd_healthcheck_name="{{ lookup('dict', item).key }}"
+      loop: "{{ container_config }}"
     - name: "Create systemd services files"
       template:
         src: systemd-service.j2
@@ -46,50 +44,12 @@
       loop: "{{ container_config }}"
       loop_control:
         loop_var: container_data_unit
-    - name: "Create systemd healthcheck files"
-      when:
-        - not tripleo_container_manage_healthcheck_disabled
-        - (container_config_healthcheck | length) > 0
-      block:
-        - name: "Create systemd unit files healthchecks"
-          template:
-            src: systemd-healthcheck.j2
-            dest: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_healthcheck).key }}_healthcheck.service"
-            mode: '0644'
-            owner: root
-            group: root
-          register: systemd_healthcheck
-          loop: "{{ container_config_healthcheck }}"
-          loop_control:
-            loop_var: container_data_healthcheck
-        - name: "Create systemd timers for healthchecks"
-          template:
-            src: systemd-timer.j2
-            dest: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_timer).key }}_healthcheck.timer"
-            mode: '0644'
-            owner: root
-            group: root
-          register: systemd_timer
-          loop: "{{ container_config_healthcheck }}"
-          loop_control:
-            loop_var: container_data_timer
-
-- name: Create fact for container_systemd_changes
-  set_fact:
-    container_systemd_changes: >-
-      {{ ((systemd_file|default([])|get_changed_async_task_names) + (systemd_healthcheck|default([])|get_changed_async_task_names) +
-      (systemd_timer|default([])|get_changed_async_task_names)|unique) }}
 
 - name: "Force systemd daemon reload if a systemd file changed"
   systemd:
     daemon_reload: true
   when:
-    - (container_systemd_changes | length) > 0
-
-- name: Create fact for container_systemd_restart_list
-  set_fact:
-    container_systemd_services_restart_list: "{{ (systemd_file|get_changed_async_task_names(extra=containers_changed|default([]))) }}"
-    container_systemd_timers_restart_list: "{{ (systemd_timer|get_changed_async_task_names(extra=containers_changed|default([]))) }}"
+    - (systemd_file|get_changed_async_task_names|length) > 0
 
 - name: "Start or restart systemd services"
   systemd:
@@ -98,36 +58,10 @@
     name: "tripleo_{{ container_sysd_name }}.service"
     enabled: true
     daemon_reload: false
-  loop: "{{ container_systemd_services_restart_list }}"
+  loop: "{{ (systemd_file|get_changed_async_task_names(extra=containers_changed|default([]))) }}"
   loop_control:
     loop_var: container_sysd_name
   register: systemd_service_enable
   until: systemd_service_enable.status.Result == "success"
   retries: 5
   delay: 5
-
-- name: "Enable and start systemd timers"
-  systemd:
-    # Restart the timer if it was already running
-    state: restarted
-    name: "tripleo_{{ container_timer_name }}_healthcheck.timer"
-    enabled: true
-    daemon_reload: false
-  loop: "{{ container_systemd_timers_restart_list }}"
-  loop_control:
-    loop_var: container_timer_name
-  when:
-    - not tripleo_container_manage_healthcheck_disabled
-  register: systemd_healthcheck_enable
-  until: systemd_healthcheck_enable.status.Result == "success"
-  retries: 5
-  delay: 5
-
-
-- name: "Add systemd requires for healthchecks"
-  command: "systemctl add-requires tripleo_{{ container_requires_timer_name }}.service tripleo_{{ container_requires_timer_name }}_healthcheck.timer"
-  loop: "{{ container_systemd_timers_restart_list }}"
-  loop_control:
-    loop_var: container_requires_timer_name
-  when:
-    - not tripleo_container_manage_healthcheck_disabled

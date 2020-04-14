@@ -117,6 +117,43 @@ Roles variables
 |                                                |                             | Must be a list. e.g. [0,3] |
 +------------------------------------------------+-----------------------------+----------------------------+
 
+Healthchecks
+~~~~~~~~~~~~
+
+Previously, the container healthcheck was implemented by a systemd timer which
+would run ``podman exec`` to determine if a given container was healthy..
+Now, we are using the native healthcheck interface in Podman; which is easier
+to integrate and consume.
+
+We are now using the native healthcheck interface in Podman; which is easier to
+integrate with and consume.
+
+To check if a container (e.g. keystone)  is healthy, run the following command:
+
+.. code-block:: bash
+
+    $ sudo podman healthcheck run keystone
+
+The return code should be 0 and "healthy" should be printed as the output.
+One can also use the ``podman inspect keystone`` output to figure out that
+the healthcheck is periodically running and healthy:
+
+.. code-block:: bash
+
+    "Healthcheck": {
+        "Status": "healthy",
+        "FailingStreak": 0,
+        "Log": [
+            {
+                "Start": "2020-04-14T18:48:57.272180578Z",
+                "End": "2020-04-14T18:48:57.806659104Z",
+                "ExitCode": 0,
+                "Output": ""
+            },
+            (...)
+        ]
+    }
+
 Debug
 ~~~~~
 

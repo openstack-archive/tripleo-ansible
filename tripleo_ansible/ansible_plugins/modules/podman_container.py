@@ -1055,7 +1055,7 @@ class PodmanModuleParams:
         return c
 
     def addparam_healthcheck(self, c):
-        return c + ['--healthcheck', self.params['healthcheck']]
+        return c + ['--healthcheck-command', self.params['healthcheck']]
 
     def addparam_healthcheck_interval(self, c):
         return c + ['--healthcheck-interval',
@@ -1280,6 +1280,7 @@ class PodmanDefaults:
             "env_host": False,
             "etc_hosts": {},
             "group_add": [],
+            "healthcheck": "",
             "ipc": "",
             "kernelmemory": "0",
             "log_driver": "k8s-file",
@@ -1518,6 +1519,18 @@ class PodmanContainerDiff:
         before = self.info['hostconfig']['groupadd']
         after = self.params['group_add']
         return self._diff_update_and_compare('group_add', before, after)
+
+    # Healthcheck is only defined in container config if a healthcheck
+    # was configured; otherwise the config key isn't part of the config.
+    def diffparam_healthcheck(self):
+        if 'healthcheck' in self.info['config']:
+            # the "test" key is a list of 2 items where the first one is
+            # "CMD-SHELL" and the second one is the actual healthcheck command.
+            before = self.info['config']['healthcheck']['test'][1]
+        else:
+            before = ''
+        after = self.params['healthcheck'] or before
+        return self._diff_update_and_compare('healthcheck', before, after)
 
     # Because of hostname is random generated, this parameter has partial idempotency only.
     def diffparam_hostname(self):
