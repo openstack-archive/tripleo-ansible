@@ -20,8 +20,8 @@
     name: "{{ tripleo_keystone_resources_project }}"
     domain_id: default
     state: present
-  async: 60
-  poll: 0
+  async: "{{ (not ansible_check_mode | bool) | ternary('60', omit) }}"
+  poll: "{{ (not ansible_check_mode | bool) | ternary('0', omit) }}"
   register: tripleo_keystone_resources_project_results
   loop: "{{ batched_tripleo_keystone_resources_projects }}"
   loop_control:
@@ -36,3 +36,5 @@
   register: tripleo_keystone_resources_project_async_poll_results
   until: tripleo_keystone_resources_project_async_poll_results.finished
   retries: 30
+  when:
+    - not ansible_check_mode|bool

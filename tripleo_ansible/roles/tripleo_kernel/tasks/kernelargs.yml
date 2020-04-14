@@ -38,6 +38,7 @@
         reboot_required: true
   become: true
   when:
+    - cmdline.stdout_lines is defined
     - tripleo_kernel_args|string
     - tripleo_kernel_args not in cmdline.stdout_lines[0]
 

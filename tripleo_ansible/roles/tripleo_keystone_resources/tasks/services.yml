@@ -22,8 +22,8 @@
     service_type: "{{ tripleo_keystone_resources_data.value.service }}"
     description: "OpenStack {{ tripleo_keystone_resources_data.value.service | title() }} Service"
     state: present
-  async: 60
-  poll: 0
+  async: "{{ (not ansible_check_mode | bool) | ternary('60', omit) }}"
+  poll: "{{ (not ansible_check_mode | bool) | ternary('0', omit) }}"
   register: tripleo_keystone_resources_service_results
   loop: "{{ batched_tripleo_keystone_resources_data }}"
   loop_control:
@@ -39,3 +39,5 @@
   register: tripleo_keystone_resources_service_async_poll_results
   until: tripleo_keystone_resources_service_async_poll_results.finished
   retries: 30
+  when:
+    - not ansible_check_mode|bool

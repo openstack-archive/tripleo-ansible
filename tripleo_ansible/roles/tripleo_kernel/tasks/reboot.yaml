@@ -49,6 +49,7 @@
         - "{{ ifcfg_files.files }}"
   become: true
   when:
+    - os_net_ifcfg_files.matched is defined
     - os_net_ifcfg_files.matched == 0
 
 - name: Reboot debug message
