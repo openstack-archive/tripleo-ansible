@@ -45,7 +45,7 @@
         - ansible_user_dir is undefined
   roles:
     - role: test_deps
-    - role: install-docker
+    - role: ensure-docker
       when:
         - (docker_cli.rc != 0) or
           (docker_ps.rc != 0)

@@ -53,7 +53,7 @@
       environment:
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
-    - role: install-docker
+    - role: ensure-docker
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
