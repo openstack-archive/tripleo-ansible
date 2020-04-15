@@ -34,7 +34,7 @@
 
   roles:
     - role: test_deps
-    - role: install-docker
+    - role: ensure-docker
 
   tasks:
     - name: Create a docker registry
