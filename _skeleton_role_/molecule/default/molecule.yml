@@ -36,6 +36,7 @@ scenario:
     - create
     - prepare
     - converge
+    - check
     - verify
     - destroy
 

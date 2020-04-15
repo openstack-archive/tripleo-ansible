@@ -37,7 +37,7 @@ scenario:
   test_sequence:
     - prepare
     - converge
-    - verify
+    - check
 
 lint:
   enabled: false
