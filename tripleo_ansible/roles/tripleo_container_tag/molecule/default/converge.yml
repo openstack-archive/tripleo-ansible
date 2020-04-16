@@ -16,16 +16,15 @@
 
 
 - name: Converge
-  become: true
   hosts: all
+  become: true
   roles:
     - role: "tripleo_container_tag"
       tripleo_container_image: centos:8
       tripleo_container_image_latest: test-latest
-      tripleo_container_cli: docker
-      tripleo_container_pull_image: true
+      tripleo_container_cli: podman
     - role: "tripleo_container_tag"
       tripleo_container_image: centos:8
       tripleo_container_image_latest: test-latest-2
-      tripleo_container_cli: docker
+      tripleo_container_cli: podman
       tripleo_container_pull_image: false

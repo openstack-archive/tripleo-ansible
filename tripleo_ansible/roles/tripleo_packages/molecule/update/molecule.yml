@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -20,15 +20,16 @@ platforms:
       /bin/mkdir -p /var/run/dbus &&
       /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
       /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-    tmpfs:
-      - /run
-      - /tmp
+
     capabilities:
       - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: &ulimit
+      - host
 
 # TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
 #
@@ -45,7 +46,7 @@ platforms:
 #      /bin/mkdir -p /var/run/dbus &&
 #      /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
 #      /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-#    privileged: true
+#
 #    tmpfs:
 #      - /run
 #      - /tmp
@@ -54,6 +55,8 @@ platforms:
 #    volumes:
 #      - /dev:/dev
 #      - /lib/modules:/lib/modules
+#    privileged: true
+#    ulimits: *ulimit
 
 provisioner:
   name: ansible

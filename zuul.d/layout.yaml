@@ -24,22 +24,24 @@
           - .*.rst$
           - .*.txt$
           - ^_skeleton_role_/.*
+          - ^scripts/.*
+          - ^tox.ini$
+          - ^tripleo_ansible/playbooks/docker-vfs-setup.yml$
           - ^tripleo_ansible/.*molecule.*
           - ^tripleo_ansible/.*meta.*
           - ^tripleo_ansible/roles/test_deps/.*
+          - ^zuul.d/.*
       - tripleo-ci-centos-8-standalone: &basic_standalone
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
           dependencies: *deps
-          files:
-          - ^tripleo_ansible/.*
+          files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-undercloud-containers: &undercloud_containers
           dependencies: *deps
-          files:
-          - ^tripleo_ansible/.*
+          files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario001-standalone: &scenario001
           dependencies: *deps

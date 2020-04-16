@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -16,15 +16,15 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    tmpfs:
-      - /run
-      - /tmp
     capabilities:
       - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: &ulimit
+      - host
 
 # TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
 #
@@ -37,7 +37,7 @@ platforms:
 #      http_proxy: "{{ lookup('env', 'http_proxy') }}"
 #      https_proxy: "{{ lookup('env', 'https_proxy') }}"
 #    command: /sbin/init
-#    privileged: true
+#
 #    tmpfs:
 #      - /run
 #      - /tmp
@@ -46,6 +46,8 @@ platforms:
 #    volumes:
 #      - /dev:/dev
 #      - /lib/modules:/lib/modules
+#    privileged: true
+#    ulimits: *ulimit
 
 provisioner:
   name: ansible

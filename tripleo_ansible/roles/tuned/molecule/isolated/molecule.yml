@@ -1,65 +1,48 @@
 ---
 driver:
-  name: docker
+  name: delegated
+  options:
+    managed: false
+    login_cmd_template: >-
+      ssh
+      -o UserKnownHostsFile=/dev/null
+      -o StrictHostKeyChecking=no
+      -o Compression=no
+      -o TCPKeepAlive=yes
+      -o VerifyHostKeyDNS=no
+      -o ForwardX11=no
+      -o ForwardAgent=no
+      {instance}
+    ansible_connection_options:
+      ansible_connection: ssh
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - ALL  # CENT7 requires all due to the age of the software
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-
-  - name: centos8
-    hostname: centos8
-    image: centos:8
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    privileged: true
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - SYS_ADMIN
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+  - name: instance
 
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp/molecule/facts
+  inventory:
+    hosts:
+      all:
+        hosts:
+          instance:
+            ansible_host: localhost
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
 
 scenario:
   test_sequence:
-    - destroy
-    - create
     - prepare
     - converge
-    - verify
-    - destroy
+    - check
 
 verifier:
   name: testinfra

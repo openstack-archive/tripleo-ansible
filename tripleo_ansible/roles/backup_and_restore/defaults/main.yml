@@ -18,7 +18,7 @@
 # All variables intended for modification should be placed in this file.
 
 # Set the container command line entry-point
-tripleo_container_cli: "{{ container_cli | default('docker') }}"
+tripleo_container_cli: "{{ container_cli | default('podman') }}"
 # Stop and start all running services before backup is ran.
 tripleo_backup_and_restore_service_manager: true
 

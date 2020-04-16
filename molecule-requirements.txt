@@ -1,6 +1,5 @@
 # this is required for the molecule jobs
 ansi2html
-docker
 # https://github.com/sqlalchemy/dogpile.cache/issues/178 (openstacksdk)
 dogpile.cache>=0.6.5,<0.9.1  # MIT
 openstacksdk

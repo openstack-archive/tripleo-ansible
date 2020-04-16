@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -17,6 +17,8 @@ platforms:
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
   - name: centos8
     hostname: centos8
@@ -27,6 +29,7 @@ platforms:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     environment:
       <<: *env
+    ulimits: *ulimit
 
 provisioner:
   name: ansible
