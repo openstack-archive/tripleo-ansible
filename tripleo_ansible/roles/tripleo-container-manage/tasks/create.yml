@@ -19,3 +19,8 @@
     - tripleo_container_manage_cli == 'podman'
   include: podman/start_order.yml order="{{ item.key }}" data="{{ item.value }}"
   loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) | dict2items | list }}"
+
+- name: "Manage container systemd services and healthchecks for {{ tripleo_container_manage_config }}"
+  include_tasks: podman/systemd.yml
+  when:
+    - tripleo_container_manage_cli == 'podman'

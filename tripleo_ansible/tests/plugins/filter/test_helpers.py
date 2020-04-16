@@ -932,3 +932,23 @@ class TestHelperFilters(tests_base.TestCase):
         expected_list = ['mysql', 'haproxy', 'memcached']
         result = self.filters.get_changed_async_task_names(data=data, extra=['mysql'])
         self.assertEqual(result, expected_list)
+
+    def test_dict_to_list(self):
+        dict = {
+          'keystone': {
+            'image': 'quay.io/tripleo/keystone'
+          },
+          'haproxy': {
+            'image': 'quay.io/tripleo/haproxy'
+          }
+        }
+        expected_list = [
+          {'keystone': {
+            'image': 'quay.io/tripleo/keystone',
+          }},
+          {'haproxy': {
+            'image': 'quay.io/tripleo/haproxy',
+          }}
+        ]
+        result = self.filters.dict_to_list(data=dict)
+        self.assertEqual(result, expected_list)

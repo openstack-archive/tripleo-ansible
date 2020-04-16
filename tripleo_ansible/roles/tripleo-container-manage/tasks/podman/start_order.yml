@@ -26,6 +26,3 @@
   loop: "{{ data | batch(tripleo_container_manage_concurrency) | list }}"
   loop_control:
     loop_var: batched_container_data
-
-- name: Manage container systemd services and healthchecks for start_order {{ order }}"
-  include_tasks: podman/systemd.yml
