@@ -1,23 +1,10 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
   - name: centos8
     hostname: centos8
     image: centos:8
@@ -25,8 +12,11 @@ platforms:
     pkg_extras: python*-setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    environment:
-      <<: *env
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
 provisioner:
   name: ansible
@@ -63,11 +53,6 @@ provisioner:
                 hostname_resolve_network: ctlplane
                 ctlplane_ip: 192.168.24.1
                 internal_api_ip: 172.17.0.1
-              centos7:
-                hostname_resolve_network: ctlplane
-                ctlplane_ip: 192.168.24.2
-                internal_api_ip: 172.17.0.2
-
 
 scenario:
   test_sequence:

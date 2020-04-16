@@ -10,14 +10,19 @@ platforms:
     image: centos:8
     dockerfile: Dockerfile
     pkg_extras: python*-setuptools
+    command: /sbin/init
+    capabilities:
+      - ALL
     volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     ulimits: &ulimit
       - host
-
 
 provisioner:
   name: ansible
@@ -34,10 +39,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8

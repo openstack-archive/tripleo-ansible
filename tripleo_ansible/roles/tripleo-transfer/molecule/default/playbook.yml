@@ -20,7 +20,7 @@
   roles:
     - role: "tripleo-transfer"
       tripleo_transfer_src_host: overcloud-controller-0
-      tripleo_transfer_src_dir: /etc
+      tripleo_transfer_src_dir: /etc/systemd
       tripleo_transfer_dest_host: overcloud-controller-1
       tripleo_transfer_dest_dir: /opt/etc-target
       tripleo_transfer_storage_root_dir: /tmp/transfer-staging

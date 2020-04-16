@@ -25,6 +25,7 @@
           - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
           - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
           - "/usr/share/ansible/plugins/action"
+
   tasks:
     - name: Run role test job
       shell: |-

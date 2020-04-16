@@ -9,7 +9,9 @@ platforms:
     hostname: centos8
     image: centos:8
     dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
+    pkg_extras: python-setuptools openvswitch numactl-libs* unbound-libs*
+    easy_install:
+      - pip
     command: /sbin/init
     capabilities:
       - ALL
@@ -18,9 +20,35 @@ platforms:
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     privileged: true
-    ulimits:
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
       - host
 
+
+# TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
+#
+#  - name: centos8
+#    hostname: centos8
+#    image: centos:8
+#    dockerfile: Dockerfile
+#    pkg_extras: python*-setuptools openvswitch 'dnf-command(download)' unbound-libs*
+#    environment:
+#      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+#      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+#    command: /sbin/init
+#
+#    tmpfs:
+#      - /run
+#      - /tmp
+#    capabilities:
+#      - ALL
+#    volumes:
+#      - /dev:/dev
+#      - /lib/modules:/lib/modules
+#    privileged: true
+#    ulimits: *ulimit
 
 provisioner:
   name: ansible

@@ -92,9 +92,7 @@
   shell: >-
     ln -f -s /usr/share/openstack-puppet/modules/* /etc/puppet/modules/
   register: result
-  failed_when:
-    - result.rc != 0
-    - "'cannot overwrite directory' not in result.stderr"
+  failed_when: false
   tags:
     - skip_ansible_lint
 

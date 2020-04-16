@@ -19,31 +19,23 @@
   hosts: all
   become: true
   gather_facts: true
-  pre_tasks:
-    - name: set basic user fact
-      set_fact:
-        ansible_user: "{{ lookup('env', 'USER') }}"
-      when:
-        - ansible_user is undefined
-
-    - name: set basic home fact
-      set_fact:
-        ansible_user_dir: "{{ lookup('env', 'HOME') }}"
-      when:
-        - ansible_user_dir is undefined
+  vars:
+    required_packages:
+      - podman
   roles:
     - role: test_deps
   post_tasks:
-    - name: pull an image
-      podman_image:
-        name: centos:8
+    - name: Install podman
+      become: true
+      package:
+        name: "{{ required_packages }}"
+        state: latest
 
-    - name: Create a data container
-      podman_container:
-        name: "{{ item }}"
-        image: centos:8
-        detach: true
-        command: sleep 1d
+    - name: Pull container image
+      command: "podman pull centos:8"
+
+    - name: Create test containers
+      command: "podman run -itd --systemd true --name {{ item }} fedora bash"
       with_items:
-        - test-container1
-        - test-container2
+        - podman-container1
+        - podman-container2

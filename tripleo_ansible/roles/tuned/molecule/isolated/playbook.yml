@@ -16,6 +16,7 @@
 
 
 - name: Converge
+  become: true
   hosts: all
   vars:
     tuned_system_packages: "tuned-profiles-cpu-partitioning"

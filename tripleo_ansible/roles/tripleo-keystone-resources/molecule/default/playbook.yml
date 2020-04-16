@@ -17,6 +17,7 @@
 
 - name: Converge
   hosts: all
+  become: true
   tasks:
     - name: Create openstack directory
       file:

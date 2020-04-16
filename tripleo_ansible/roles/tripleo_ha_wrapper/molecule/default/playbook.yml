@@ -18,12 +18,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: "tripleo_ha_wrapper"
-  vars:
-    tripleo_ha_wrapper_service_name: "foo"
-    tripleo_ha_wrapper_resource_name: "foo"
-    tripleo_ha_wrapper_bundle_name: "foo-bundle"
-    tripleo_ha_wrapper_resource_state: "Master"
-    tripleo_ha_wrapper_puppet_execute: "notify{ foo: }"
-    tripleo_ha_wrapper_puppet_tags: "file"
-    tripleo_ha_wrapper_puppet_config_volume: "haproxy"
+    - role: tripleo-container-stop
+      tripleo_containers_to_stop:
+        - podman-container1
+        - podman-container2

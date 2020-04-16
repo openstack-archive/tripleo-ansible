@@ -10,13 +10,7 @@ platforms:
     image: centos:8
     dockerfile: Dockerfile
     pkg_extras: python*-setuptools
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    ulimits:
-      - host
     command: /sbin/init
-    privileged: true
     capabilities:
       - ALL
     volumes:
@@ -24,6 +18,12 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
 provisioner:
   name: ansible

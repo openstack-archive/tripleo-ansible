@@ -1,42 +1,28 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    # needed for systemd stuff
-    command: /sbin/init
-    capabilities:
-      - SYS_ADMIN
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-
   - name: centos8
     hostname: centos8
     image: centos:8
     dockerfile: Dockerfile
     pkg_extras: python*-setuptools
-    environment:
-      <<: *env
     # needed for systemd stuff
     command: /sbin/init
     capabilities:
-      - SYS_ADMIN
+      - ALL
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
 provisioner:
   name: ansible

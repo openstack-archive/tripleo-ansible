@@ -21,6 +21,7 @@
     - import_role:
         name: test_deps
     - name: Ensure legacy scripts installed
+      become: true
       package:
         name: network-scripts
         state: present

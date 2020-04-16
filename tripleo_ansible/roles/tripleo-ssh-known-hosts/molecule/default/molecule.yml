@@ -1,23 +1,10 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
   - name: centos8
     hostname: centos8
     image: centos:8
@@ -25,8 +12,11 @@ platforms:
     pkg_extras: python*-setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    environment:
-      <<: *env
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
 provisioner:
   name: ansible
@@ -45,15 +35,6 @@ provisioner:
                 management_ip: 10.0.0.1  # no management_hostname
                 canonical_hostname: centos8.localdomain
                 tripleo_role_networks: [ctlplane, internal_api, management]
-              centos7:
-                ansible_ssh_host_key_rsa_public: BBBBTEST
-                hostname_resolve_network: ctlplane
-                ctlplane_ip: 10.0.0.2
-                ctlplane_hostname: centos7.ctlplane.localdomain
-                internal_api_ip: 10.0.1.2
-                internal_api_hostname: centos7.internalapi.localdomain
-                canonical_hostname: centos7.localdomain
-                tripleo_role_networks: [ctlplane, internal_api]
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

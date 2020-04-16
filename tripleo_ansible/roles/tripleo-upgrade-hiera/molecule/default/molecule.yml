@@ -12,10 +12,11 @@ platforms:
     pkg_extras: python*-setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    environment:
+    environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
+    ulimits: &ulimit
+      - host
 
 provisioner:
   name: ansible
