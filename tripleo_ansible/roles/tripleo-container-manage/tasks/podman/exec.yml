@@ -46,21 +46,6 @@
   when: not ansible_check_mode|bool
 
 - name: Block for container commands
+  include_tasks: podman/get_commands_exec.yml
   when:
     - ansible_check_mode|bool
-  block:
-    - name: "Create a list of podman exec commands that are run"
-      no_log: "{{ not tripleo_container_manage_debug }}"
-      set_fact:
-        containers_commands: >-
-          {{ (containers_commands | default([])) + ([lookup('dict', container_exec_data).value |
-          container_exec_cmd(cli=tripleo_container_manage_cli) | join(' ')]) }}
-      loop: "{{ batched_container_data | haskey(attribute='action', value='exec') }}"
-      loop_control:
-        loop_var: container_exec_data
-    - name: "Print the list of podman exec commands that are run"
-      debug:
-        var: containers_commands
-    - name: "Append the list of all podman commands that are run for containers with changes"
-      set_fact:
-        all_containers_commands: "{{ containers_commands|default([], true) + (all_containers_commands | default([]) | list) }}"
