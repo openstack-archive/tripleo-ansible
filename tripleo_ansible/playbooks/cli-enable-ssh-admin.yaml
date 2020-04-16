@@ -190,6 +190,24 @@
   hosts: localhost:tripleo_queues
   become: true
   any_errors_fatal: true
+  gather_facts: false
+  pre_tasks:
+    # NOTE(cloudnull): The connection will allow for 40 minutes before failing. This time was chosen
+    #                  because a server may take anywhere from 5 to 40 minutes to boot, and in large
+    #                  deployments the number of "forks" may not accomodate all nodes running this
+    #                  task in parallel. Because we don't know the all of the characteristics of the
+    #                  machine being used, there's no way to compute the value appropriate for a
+    #                  given node(s), so 40 minutes should accommodate most environments.
+    - name: Wait for connection to become available
+      wait_for_connection:
+        sleep: 4
+        timeout: 2400
+
+    - name: Gather facts with an active connection
+      setup:
+        gather_subset:
+          - '!facter'
+          - '!ohai'
   roles:
     - role: tripleo_create_admin
       tripleo_admin_user: tripleo-admin
