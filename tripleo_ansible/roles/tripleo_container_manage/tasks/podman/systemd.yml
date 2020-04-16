@@ -14,10 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Set container_name and container_sysd facts
+- name: Set container_config fact
   set_fact:
-    container_config: "{{ data | list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) }}"
-    container_config_healthcheck: "{{ data | list | haskey(attribute='healthcheck') }}"
+    container_config: "{{ data | list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) | default([]) }}"
+
+- name: Set container_config_healthcheck fact
+  set_fact:
+    # Using intersect to prevent a service which isn't controlled by systemd
+    # but has healthcheck in its configuration (by mistake)
+    # See https://bugs.launchpad.net/tripleo/+bug/1873249
+    container_config_healthcheck: "{{ data | list | haskey(attribute='healthcheck') | intersect(container_config) | default([]) }}"
 
 - name: "Manage systemd files"
   no_log: "{{ not tripleo_container_manage_debug }}"

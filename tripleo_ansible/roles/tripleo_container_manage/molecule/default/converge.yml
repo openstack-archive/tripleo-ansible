@@ -62,6 +62,21 @@
               - tripleo_fedora_healthcheck_active_result.rc == 0
             fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
             success_msg: 'tripleo_fedora systemd healthcheck service is active'
+        - name: Check if tripleo_fedora_bis has systemd service
+          stat:
+            path: /etc/systemd/system/tripleo_fedora_bis.service
+          register: stat_tripleo_fedora_bis_systemd
+        - name: Check if tripleo_fedora_bis has systemd healthcheck timer
+          stat:
+            path: /etc/systemd/system/tripleo_fedora_bis_healthcheck.timer
+          register: stat_tripleo_fedora_bis_systemd_timer
+        - name: Assert that tripleo_fedora_bis has no systemd integration
+          assert:
+            that:
+              - not stat_tripleo_fedora_bis_systemd.stat.exists
+              - not stat_tripleo_fedora_bis_systemd_timer.stat.exists
+            fail_msg: 'tripleo_fedora_bis has systemd service'
+            success_msg: 'tripleo_fedora_bis has no systemd service'
     - name: Verify that Fedora bis container was created correctly
       block:
         - name: Check for fedora_bis container
