@@ -44,7 +44,8 @@ class FilterModule(object):
             'get_domain_id': self.get_domain_id,
             'get_changed_containers': self.get_changed_containers,
             'get_failed_containers': self.get_failed_containers,
-            'get_changed_async_task_names': self.get_changed_async_task_names
+            'get_changed_async_task_names': self.get_changed_async_task_names,
+            'dict_to_list': self.dict_to_list
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -424,4 +425,16 @@ class FilterModule(object):
             for k, v in i[loop_var].items():
                 if ('changed' in i and i['changed']) or k in extra:
                     return_list.append(k)
+        return return_list
+
+    def dict_to_list(self, data):
+        """Return a list of dictionaries."
+
+        This filter will take a dictionary which itself containers
+        multiple dictionaries; and will convert that to a list
+        of dictionaries.
+        """
+        return_list = []
+        for k, v in data.items():
+            return_list.append({k: v})
         return return_list
