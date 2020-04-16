@@ -24,6 +24,7 @@
     container: overcloud
     source_url: null
     generate_passwords: true
+    reset_passwords: false
     validate_stack: true
 
   handlers:
@@ -62,8 +63,8 @@
     - name: Generate passwords if does not exist and update plan
       tripleo_passwords_rotate:
         container: "{{ container }}"
-        rotate_passwords: false
-      when: generate_passwords|bool
+        rotate_passwords: "{{ reset_passwords }}"
+      when: generate_passwords|bool or reset_passwords|bool
       no_log: true
 
     - name: Prepare Container images and update plan
