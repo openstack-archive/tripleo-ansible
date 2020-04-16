@@ -1172,7 +1172,9 @@ class PodmanModuleParams:
         return c + ['--restart=%s' % self.params['restart_policy']]
 
     def addparam_rm(self, c):
-        return c + ['--rm=%s' % self.params['rm']]
+        if self.params['rm']:
+            c += ['--rm']
+        return c
 
     def addparam_rootfs(self, c):
         return c + ['--rootfs=%s' % self.params['rootfs']]
