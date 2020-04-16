@@ -14,32 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- block:
-    - name: Check for docker cli
-      stat:
-        path: "/var/run/docker.sock"
-      register: check_docker_cli
-      check_mode: false
-
-    - include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
-      vars:
-        container: "{{ item }}"
-      with_items: "{{ tripleo_containers_to_rm }}"
-      when: check_docker_cli.stat.exists|bool
-  when:
-    - tripleo_container_cli == 'docker'
-
-- block:
-    - name: Check for podman cli
-      command: "command -v podman"
-      register: check_podman_cli
-      failed_when: false
-      check_mode: false
-
-    - include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
-      vars:
-        container: "{{ item }}"
-      with_items: "{{ tripleo_containers_to_rm }}"
-      when: check_podman_cli.rc == 0
-  when:
-    - tripleo_container_cli == 'podman'
+- include_tasks: "tripleo_{{ tripleo_container_cli }}_container_rm.yml"
+  vars:
+    container: "{{ item }}"
+  with_items: "{{ tripleo_containers_to_rm }}"
