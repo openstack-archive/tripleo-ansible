@@ -88,7 +88,8 @@ bug_project = 'tripleo'
 bug_tag = 'documentation'
 
 needed_module_utils = [
-    'baremetal_deploy'
+    'baremetal_deploy',
+    'tripleo_common_utils'
 ]
 # load our custom module_utils so that modules can be imported for
 # generating docs

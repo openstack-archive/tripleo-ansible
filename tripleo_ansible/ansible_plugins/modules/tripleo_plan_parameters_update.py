@@ -21,18 +21,11 @@ from __future__ import print_function
 
 import yaml
 
+from ansible.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
-
-# NOTE: This is still using the legacy clients. We've not
-#       changed to using the OpenStackSDK fully because
-#       tripleo-common expects the legacy clients. Once
-#       we've updated tripleo-common to use the SDK we
-#       should revise this.
-from heatclient.v1 import client as heatclient
-from swiftclient import client as swift_client
 
 from tripleo_common.utils import stack_parameters as stack_param_utils
 
@@ -106,27 +99,15 @@ def run_module():
         **openstack_module_kwargs()
     )
 
-    def get_object_client(session):
-        return swift_client.Connection(
-            session=session,
-            retries=10,
-            starting_backoff=3,
-            max_backoff=120)
-
-    def get_orchestration_client(session):
-        return heatclient.Client(
-            session=session)
-
     try:
         container = module.params.get('container')
         parameters = module.params.get('parameters')
         parameter_key = module.params.get('parameter_key')
         validate = module.params.get('validate')
         _, conn = openstack_cloud_from_module(module)
-        session = conn.session
-
-        swift = get_object_client(session)
-        heat = get_orchestration_client(session)
+        tripleo = tc.TripleOCommon(session=conn.session)
+        swift = tripleo.get_object_client()
+        heat = tripleo.get_orchestration_client()
         stack_param_utils.update_parameters(
             swift, heat,  parameters,
             container=container,

@@ -21,17 +21,12 @@ from __future__ import print_function
 
 import yaml
 
+from ansible.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
 
-# NOTE: This is still using the legacy clients. We've not
-#       changed to using the OpenStackSDK fully because
-#       tripleo-common expects the legacy clients. Once
-#       we've updated tripleo-common to use the SDK we
-#       should revise this.
-import swiftclient
 from tripleo_common.utils import plan as plan_utils
 
 ANSIBLE_METADATA = {
@@ -109,24 +104,17 @@ def run_module():
         **openstack_module_kwargs()
     )
 
-    def get_object_client(session):
-        return swiftclient.Connection(
-            session=session,
-            retries=10,
-            starting_backoff=3,
-            max_backoff=120)
-
     try:
         container = module.params.get('container')
         _, conn = openstack_cloud_from_module(module)
-        session = conn.session
+        tripleo = tc.TripleOCommon(session=conn.session)
 
         # if the user is working with this module in only check mode we do not
         # want to make any changes to the environment, just return the current
         # state with no modifications
         if module.check_mode:
             module.exit_json(**result)
-        swift = get_object_client(session)
+        swift = tripleo.get_object_client()
         fernet_keys = plan_utils.update_plan_rotate_fernet_keys(swift, container)
         result['success'] = True
         result['fernet_keys'] = fernet_keys

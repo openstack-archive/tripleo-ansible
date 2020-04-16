@@ -21,18 +21,12 @@ from __future__ import print_function
 
 import yaml
 
+from ansible.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
 
-# NOTE(cloudnull): This is still using the legacy clients. We've not
-#                  changed to using the OpenStackSDK fully because
-#                  tripleo-common expects the legacy clients. Once
-#                  we've updated tripleo-common to use the SDK we
-#                  should revise this.
-from glanceclient import client as glanceclient
-from ironicclient import client as ironicclient
 from tripleo_common.utils import nodes
 
 ANSIBLE_METADATA = {
@@ -73,21 +67,6 @@ author:
 '''
 
 
-def _get_baremetal_client(session):
-    return ironicclient.Client(
-        1,
-        session=session,
-        os_ironic_api_version='1.36'
-    )
-
-
-def _get_image_client(session):
-    return glanceclient.Client(
-        2,
-        session=session
-    )
-
-
 def run_module():
     result = dict(
         success=False,
@@ -106,7 +85,7 @@ def run_module():
     )
 
     _, conn = openstack_cloud_from_module(module)
-    session = conn.session
+    tripleo = tc.TripleOCommon(session=conn.session)
 
     # if the user is working with this module in only check mode we do not
     # want to make any changes to the environment, just return the current
@@ -126,8 +105,8 @@ def run_module():
                             module.params['instance_boot_option'])
         node['capabilities'] = nodes.dict_to_capabilities(caps)
 
-    baremetal_client = _get_baremetal_client(session)
-    image_client = _get_image_client(session)
+    baremetal_client = tripleo.get_baremetal_client()
+    image_client = tripleo.get_image_client()
 
     try:
         registered_nodes = nodes.register_all_nodes(

@@ -339,7 +339,6 @@ EXAMPLES = '''
 
 - os_baremetal_node_info:
     cloud: undercloud
-    auth: password
     filters:
       is_maintenance: true
 '''
@@ -362,22 +361,16 @@ def _choose_id_value(module):
 def main():
 
     argument_spec = openstack_full_argument_spec(
-        **yaml.safe_load(DOCUMENTATION)['options'])
+        **yaml.safe_load(DOCUMENTATION)['options']
+    )
     module_kwargs = openstack_module_kwargs()
-    module = AnsibleModule(argument_spec, **module_kwargs)
-
-    if (module.params['auth_type'] in [None, 'None'] and
-            module.params['ironic_url'] is None):
-        module.fail_json(msg="Authentication appears to be disabled, "
-                             "Please define an ironic_url parameter")
-
-    if (module.params['ironic_url'] and
-            module.params['auth_type'] in [None, 'None']):
-        module.params['auth'] = dict(
-            endpoint=module.params['ironic_url']
-        )
-
+    module = AnsibleModule(
+        argument_spec,
+        supports_check_mode=False,
+        **module_kwargs
+    )
     sdk, cloud = openstack_cloud_from_module(module)
+
     try:
         if module.params['name'] or module.params['uuid']:
             result = cloud.get_machine(_choose_id_value(module))

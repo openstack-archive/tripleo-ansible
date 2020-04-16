@@ -14,6 +14,7 @@
 
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
@@ -72,48 +73,6 @@ import os
 
 import yaml
 
-# NOTE(cloudnull): This is still using the legacy clients. We've not
-#                  changed to using the OpenStackSDK fully because
-#                  tripleo-common expects the legacy clients. Once
-#                  we've updated tripleo-common to use the SDK we
-#                  should revise this.
-from tripleo_common.actions import baremetal
-from glanceclient import client as glanceclient
-from ironicclient import client as ironicclient
-import ironic_inspector_client
-
-
-class TripleOCommon(object):
-    def __init__(self, session):
-        self.sess = session
-
-    def baremetal_configure_boot(self, kwargs):
-        action = baremetal.ConfigureBootAction(**kwargs)
-        baremetal_client = ironicclient.Client(
-            1,
-            session=self.sess
-        )
-        image_client = glanceclient.Client(2, session=self.sess)
-        return action.configure_boot(
-            baremetal_client,
-            image_client
-        )
-
-    def baremetal_configure_root_device(self, kwargs):
-        action = baremetal.ConfigureRootDeviceAction(**kwargs)
-        baremetal_client = ironicclient.Client(
-            1,
-            session=self.sess
-        )
-        inspector_client = ironic_inspector_client.ClientV1(session=self.sess)
-        if not action.root_device:
-            return
-        else:
-            return action.configure_root_device(
-                baremetal_client,
-                inspector_client
-            )
-
 
 def main():
     argument_spec = openstack_full_argument_spec(
@@ -125,7 +84,7 @@ def main():
     )
 
     _, conn = openstack_cloud_from_module(module)
-    tripleo = TripleOCommon(session=conn.session)
+    tripleo = tc.TripleOCommon(session=conn.session)
 
     if hasattr(tripleo, module.params["action"]):
         action = getattr(tripleo, module.params["action"])
