@@ -77,8 +77,8 @@
 - name: Create fact for container_systemd_changes
   set_fact:
     container_systemd_changes: >-
-      {{ ((systemd_file|get_changed_async_task_names) + (systemd_healthcheck|get_changed_async_task_names) +
-      (systemd_timer|get_changed_async_task_names)|default([])|unique) }}
+      {{ ((systemd_file|default([])|get_changed_async_task_names) + (systemd_healthcheck|default([])|get_changed_async_task_names) +
+      (systemd_timer|default([])|get_changed_async_task_names)|unique) }}
 
 - name: "Force systemd daemon reload if a systemd file changed"
   systemd:

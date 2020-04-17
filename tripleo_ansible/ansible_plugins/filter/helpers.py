@@ -420,11 +420,12 @@ class FilterModule(object):
         part of the list already.
         """
         return_list = []
-        for i in data['results']:
-            loop_var = i.get('ansible_loop_var', 'item')
-            for k, v in i[loop_var].items():
-                if ('changed' in i and i['changed']) or k in extra:
-                    return_list.append(k)
+        if 'results' in data:
+            for i in data['results']:
+                loop_var = i.get('ansible_loop_var', 'item')
+                for k, v in i[loop_var].items():
+                    if ('changed' in i and i['changed']) or k in extra:
+                        return_list.append(k)
         return return_list
 
     def dict_to_list(self, data):

@@ -952,3 +952,7 @@ class TestHelperFilters(tests_base.TestCase):
         ]
         result = self.filters.dict_to_list(data=dict)
         self.assertEqual(result, expected_list)
+
+    def test_get_changed_async_task_names_empty(self):
+        result = self.filters.get_changed_async_task_names(data=[])
+        self.assertEqual(result, [])
