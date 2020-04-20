@@ -28,11 +28,17 @@ allovercloud:
     Controller: {}
   vars: {}
 Controller:
+  children:
+    overcloud_Controller: {}
+overcloud_Controller:
   hosts:
     overcloud-controller-0: {foo_bar: baz}
   vars:
     tripleo_role_name: Controller
 Compute:
+  children:
+    overcloud_Compute: {}
+overcloud_Compute:
   hosts:
     overcloud-novacompute-0: {foo_bar: baz}
   vars:
@@ -49,10 +55,16 @@ dynamic_inventory = """
     "vars" : {}
   },
   "Controller" : {
+    "children": [ "overcloud_Controller" ]
+  },
+  "overcloud_Controller" : {
     "hosts": [ "overcloud-controller-0" ],
     "vars": { "tripleo_role_name": "Controller" }
   },
   "Compute" : {
+    "children": [ "overcloud_Compute" ]
+  },
+  "overcloud_Compute" : {
     "hosts": ["overcloud-novacompute-0" ],
     "vars": { "tripleo_role_name": "Compute" }
   }
@@ -68,7 +80,9 @@ class TestInventoryFilters(tests_base.TestCase):
     def _test_hostmap(self, inventory):
         expected = {
           "Compute": ["overcloud-novacompute-0"],
+          "overcloud_Compute": ["overcloud-novacompute-0"],
           "Controller": ["overcloud-controller-0"],
+          "overcloud_Controller": ["overcloud-controller-0"],
           "overcloud": ["overcloud-controller-0", "overcloud-novacompute-0"],
           "allovercloud": ["overcloud-controller-0", "overcloud-novacompute-0"],
         }
@@ -80,6 +94,24 @@ class TestInventoryFilters(tests_base.TestCase):
 
     def test_hostmap_dynamic(self):
         self._test_hostmap(dynamic_inventory)
+
+    def _test_rolemap(self, inventory):
+        expected = {
+          "overcloud": ["Compute", "Controller"],
+          "allovercloud": ["Compute", "Controller"],
+          "Controller": ["Controller"],
+          "overcloud_Controller": ["Controller"],
+          "Compute": ["Compute"],
+          "overcloud_Compute": ["Compute"]
+        }
+        result = tripleo_inventory.to_inventory_rolemap(inventory)
+        self.assertEqual(expected, result)
+
+    def test_rolemap_static(self):
+        self._test_rolemap(static_inventory)
+
+    def test_rolemap_dynamic(self):
+        self._test_rolemap(dynamic_inventory)
 
     def _test_roles(self, inventory):
         expected = ["Compute", "Controller"]
