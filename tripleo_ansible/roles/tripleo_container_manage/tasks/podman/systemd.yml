@@ -101,6 +101,10 @@
   loop: "{{ container_systemd_services_restart_list }}"
   loop_control:
     loop_var: container_sysd_name
+  register: systemd_service_enable
+  until: systemd_service_enable.status.Result == "success"
+  retries: 5
+  delay: 5
 
 - name: "Enable and start systemd timers"
   systemd:
@@ -114,6 +118,11 @@
     loop_var: container_timer_name
   when:
     - not tripleo_container_manage_healthcheck_disabled
+  register: systemd_healthcheck_enable
+  until: systemd_healthcheck_enable.status.Result == "success"
+  retries: 5
+  delay: 5
+
 
 - name: "Add systemd requires for healthchecks"
   command: "systemctl add-requires tripleo_{{ container_requires_timer_name }}.service tripleo_{{ container_requires_timer_name }}_healthcheck.timer"
