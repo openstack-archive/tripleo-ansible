@@ -98,22 +98,12 @@
     path: /usr/bin/ansible-playbook-3
   register: stat_ansible_playbook_3
 
-- name: Symlink /usr/local/bin/ansible-playbook to /usr/bin/ansible-playbook-3
-  become: true
-  file:
-    state: link
-    src: /usr/bin/ansible-playbook-3
-    path: /usr/local/bin/ansible-playbook
-  when:
-    - not stat_ansible_playbook.stat.exists
-    - stat_ansible_playbook_3.stat.exists
-
-- name: Symlink /usr/local/bin/ansible-playbook-3 to /usr/bin/ansible-playbook
+- name: Symlink /usr/bin/ansible-playbook-3 to /usr/bin/ansible-playbook
   become: true
   file:
     state: link
     src: /usr/bin/ansible-playbook
-    path: /usr/local/bin/ansible-playbook-3
+    path: /usr/bin/ansible-playbook-3
   when:
     - stat_ansible_playbook.stat.exists
     - not stat_ansible_playbook_3.stat.exists
