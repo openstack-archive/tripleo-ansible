@@ -103,20 +103,9 @@
     - containers_failed|length != 0
 
 - name: Block for container commands
+  include_tasks: podman/get_commands_create.yml
   when:
     - ansible_check_mode|bool
-  block:
-    - name: "Create a list of podman commands that are run for containers with changes"
-      set_fact:
-        containers_commands: >-
-          {{ create_async_results.results | selectattr('changed', 'equalto', true) |
-          map(attribute='podman_actions') | default([]) | list }}
-    - name: "Print the list of commands that are run for containers with changes"
-      debug:
-        var: containers_commands
-    - name: "Append the list of all podman commands that are run for containers with changes"
-      set_fact:
-        all_containers_commands: "{{ containers_commands|default([], true) + (all_containers_commands | default([]) | list) }}"
 
 - name: "Print the list of containers which changed"
   debug:
