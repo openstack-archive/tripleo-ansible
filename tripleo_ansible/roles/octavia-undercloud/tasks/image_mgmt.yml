@@ -44,7 +44,9 @@
   set_fact:
     image_id: "{{ glance_id_result.stdout }}"
   when:
+    - glance_id_result.rc is defined
     - glance_id_result.rc == 0
+    - (glance_id_result.stdout | length) > 0
 
 - name: get checksum if there's an image in glance already
   shell: |
@@ -62,6 +64,7 @@
   set_fact:
     current_md5: "{{ glance_results.stdout }}"
   when:
+    - glance_results.rc is defined
     - glance_results.rc == 0
 
 - name: determine if the image needs to be replaced
