@@ -206,7 +206,7 @@ class TripleOCommon(object):
                 inspector_client
             )
 
-    def return_baremetal_data(self, node_id):
+    def return_introspected_node_data(self, node_id):
         """Return baremetal data from the ironic inspector.
 
         :param node_id: Node UUID
