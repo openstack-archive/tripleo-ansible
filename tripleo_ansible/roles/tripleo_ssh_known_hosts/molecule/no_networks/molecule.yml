@@ -34,7 +34,7 @@ provisioner:
     hosts:
       all:
         children:
-          overcloud:
+          allovercloud:
             hosts:
               centos8:
                 ansible_ssh_host_key_rsa_public: AAAATEST
