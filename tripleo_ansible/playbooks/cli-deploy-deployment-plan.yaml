@@ -59,14 +59,14 @@
 
     - name: Get backup tempurl for GET
       tripleo_swift_tempurl:
-        container: "{{container + 'swift-rings' }}"
+        container: "{{container + '-swift-rings' }}"
         object: "swift-rings.tar.gz"
         method: GET
       register: backup_get_tempurl
 
     - name: Get backup tempurl for POST
       tripleo_swift_tempurl:
-        container: "{{container + 'swift-rings' }}"
+        container: "{{container + '-swift-rings' }}"
         object: "swift-rings.tar.gz"
         method: PUT
       register: backup_put_tempurl
