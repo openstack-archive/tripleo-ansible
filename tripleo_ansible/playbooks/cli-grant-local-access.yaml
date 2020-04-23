@@ -35,9 +35,6 @@
       file:
         path: "{{ access_path }}"
         state: directory
-        owner: "42430"  # Used to ensure mistral has access, remove this when mistral is gone.
-        group: "42430"  # Used to ensure mistral has access, remove this when mistral is gone.
-      register: access_path
 
     - name: Grant privileges to the execution user
       acl:
