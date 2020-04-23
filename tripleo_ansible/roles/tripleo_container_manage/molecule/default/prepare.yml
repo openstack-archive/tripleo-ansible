@@ -17,6 +17,7 @@
 
 - name: Prepare
   hosts: all
+  become: true
   roles:
     - role: test_deps
       test_deps_extra_packages:
@@ -34,6 +35,7 @@
             "net": "host",
             "command": "sleep 3600",
             "restart": "always",
+            "check_interval": "500s",
             "healthcheck": { "test": "echo test" }
           }
         dest: '/tmp/container-configs/fedora.json'
@@ -43,8 +45,7 @@
           {
             "image": "fedora:latest",
             "net": "host",
-            "command": "sleep 3600",
-            "healthcheck": { "test": "echo test" }
+            "command": "sleep 3600"
           }
         dest: '/tmp/container-configs/fedora_bis.json'
     - name: Create a third configuration file for a fedora container
@@ -56,3 +57,34 @@
             "command": "sleep 3600"
           }
         dest: '/tmp/container-configs/fedora_three.json'
+    - name: Create old healthcheck service for fedora container
+      copy:
+        content: |
+          [Unit]
+          Description=tripleo_fedora healthcheck
+          Requisite=tripleo_fedora.service
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/podman exec --user root fedora sleep 3600 }}
+          [Install]
+          WantedBy=multi-user.target
+        dest: '/etc/systemd/system/tripleo_fedora_healthcheck.service'
+        mode: '0644'
+        owner: root
+        group: root
+    - name: Create old healthcheck timer for fedora container
+      copy:
+        content: |
+          [Unit]
+          Description=tripleo_fedora container healthcheck
+          PartOf=tripleo_fedora.service
+          [Timer]
+          OnActiveSec=120
+          OnUnitActiveSec=60
+          RandomizedDelaySec=5
+          [Install]
+          WantedBy=timers.target
+        dest: '/etc/systemd/system/tripleo_fedora_healthcheck.timer'
+        mode: '0644'
+        owner: root
+        group: root

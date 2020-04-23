@@ -47,6 +47,12 @@
     env_file: "{{ lookup('dict', container_data).value.env_file | default(omit) }}"
     etc_hosts: "{{ lookup('dict', container_data).value.extra_hosts | default({}) }}"
     group_add: "{{ lookup('dict', container_data).value.group_add | default(omit) }}"
+    healthcheck: >-
+      {{ (not tripleo_container_manage_healthcheck_disabled | bool) |
+      ternary((lookup('dict', container_data).value.healthcheck.test|default(omit)), omit) }}
+    healthcheck_interval: >-
+      {{ lookup('dict', container_data).value.check_interval|default('60s')
+      if lookup('dict', container_data).value.healthcheck is defined else omit }}
     hostname: "{{ lookup('dict', container_data).value.hostname | default(omit) }}"
     image: "{{ lookup('dict', container_data).value.image }}"
     interactive: "{{ lookup('dict', container_data).value.interactive | default(false) }}"

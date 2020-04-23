@@ -15,6 +15,46 @@
 # under the License.
 
 
+- name: Create fedora container from /tmp/container-configs with old healthcheck
+  become: true
+  hosts: all
+  gather_facts: false
+  vars:
+    tripleo_container_manage_config: '/tmp/container-configs'
+    tripleo_container_manage_healthcheck_disabled: true
+    tripleo_container_manage_debug: true
+    tripleo_container_manage_config_patterns: 'fedora.json'
+    tripleo_container_manage_systemd_order: true
+  tasks:
+    - include_role:
+        name: tripleo_container_manage
+  post_tasks:
+    - name: Verify that Fedora container was created correctly and manually create old healthcheck for migration testing
+      when:
+        - not ansible_check_mode|bool
+      block:
+        # Reproduce what was done before to create and enable healthchecks
+        - name: "Enable and start systemd timers"
+          systemd:
+            state: started
+            name: "tripleo_fedora_healthcheck.timer"
+            enabled: true
+            daemon_reload: false
+        - name: "Add systemd requires for healthchecks"
+          command: "systemctl add-requires tripleo_fedora.service tripleo_fedora_healthcheck.timer"
+        # Check that migration is ready to be tested
+        - name: Check for fedora container
+          command: podman container exists fedora
+        - name: Check if tripleo_fedora systemd healthcheck service is active
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+        - name: Assert that tripleo_fedora systemd healthcheck service is active
+          assert:
+            that:
+              - tripleo_fedora_healthcheck_active_result.rc == 0
+            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
+            success_msg: 'tripleo_fedora systemd healthcheck service is active'
+
 - name: Create all containers from /tmp/container-configs
   become: true
   hosts: all
@@ -53,30 +93,12 @@
               - tripleo_fedora_active_result.rc == 0
             fail_msg: 'tripleo_fedora systemd service is not active'
             success_msg: 'tripleo_fedora systemd service is active'
-        - name: Check if tripleo_fedora systemd healthcheck service is active
-          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
-          register: tripleo_fedora_healthcheck_active_result
-        - name: Assert that tripleo_fedora systemd healthcheck service is active
+        - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - tripleo_fedora_healthcheck_active_result.rc == 0
-            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
-            success_msg: 'tripleo_fedora systemd healthcheck service is active'
-        - name: Check if tripleo_fedora_bis has systemd service
-          stat:
-            path: /etc/systemd/system/tripleo_fedora_bis.service
-          register: stat_tripleo_fedora_bis_systemd
-        - name: Check if tripleo_fedora_bis has systemd healthcheck timer
-          stat:
-            path: /etc/systemd/system/tripleo_fedora_bis_healthcheck.timer
-          register: stat_tripleo_fedora_bis_systemd_timer
-        - name: Assert that tripleo_fedora_bis has no systemd integration
-          assert:
-            that:
-              - not stat_tripleo_fedora_bis_systemd.stat.exists
-              - not stat_tripleo_fedora_bis_systemd_timer.stat.exists
-            fail_msg: 'tripleo_fedora_bis has systemd service'
-            success_msg: 'tripleo_fedora_bis has no systemd service'
+              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+            fail_msg: 'fedora container healthcheck is not healthy'
+            success_msg: 'fedora container healthcheck is healthy'
     - name: Verify that Fedora bis container was created correctly
       block:
         - name: Check for fedora_bis container
@@ -180,15 +202,12 @@
               - tripleo_fedora_active_result.rc == 0
             fail_msg: 'tripleo_fedora systemd service is not active'
             success_msg: 'tripleo_fedora systemd service is active'
-        - name: Check if tripleo_fedora systemd healthcheck service is active
-          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
-          register: tripleo_fedora_healthcheck_active_result
-        - name: Assert that tripleo_fedora systemd healthcheck service is active
+        - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - tripleo_fedora_healthcheck_active_result.rc == 0
-            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
-            success_msg: 'tripleo_fedora systemd healthcheck service is active'
+              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+            fail_msg: 'fedora container healthcheck is not healthy'
+            success_msg: 'fedora container healthcheck is healthy'
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Check for fedora_three container
@@ -212,6 +231,10 @@
       block:
         - name: Check for fedora container
           command: podman container exists fedora
+        - name: Gather facts about fedora container
+          podman_container_info:
+            name: fedora
+          register: fedora_infos
         - name: Check if tripleo_fedora systemd service is active
           command: systemctl is-active --quiet tripleo_fedora
           register: tripleo_fedora_active_result
@@ -221,15 +244,12 @@
               - tripleo_fedora_active_result.rc == 0
             fail_msg: 'tripleo_fedora systemd service is not active'
             success_msg: 'tripleo_fedora systemd service is active'
-        - name: Check if tripleo_fedora systemd healthcheck service is active
-          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
-          register: tripleo_fedora_healthcheck_active_result
-        - name: Assert that tripleo_fedora systemd healthcheck service is active
+        - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - tripleo_fedora_healthcheck_active_result.rc == 0
-            fail_msg: 'tripleo_fedora systemd healthcheck service is not active'
-            success_msg: 'tripleo_fedora systemd healthcheck service is active'
+              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+            fail_msg: 'fedora container healthcheck is not healthy'
+            success_msg: 'fedora container healthcheck is healthy'
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Check for fedora_three container
@@ -264,10 +284,6 @@
           command: systemctl is-active --quiet tripleo_fedora
           register: tripleo_fedora_active_result
           failed_when: tripleo_fedora_active_result.rc == 0
-        - name: Check if tripleo_fedora systemd healthcheck service is still active
-          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
-          register: tripleo_fedora_healthcheck_active_result
-          failed_when: tripleo_fedora_healthcheck_active_result.rc == 0
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Check for fedora_three container
