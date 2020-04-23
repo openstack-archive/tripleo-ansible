@@ -31,7 +31,7 @@
   run_once: true
   set_fact:
     tripleo_hosts_entries_block: |
-      {% for host in groups['overcloud'] -%}
+      {% for host in groups['allovercloud'] -%}
       {{ hostvars[host][hostvars[host]['hostname_resolve_network'] ~ '_ip'] ~ ' ' ~
          host ~ '.' ~ cloud_domain ~ ' ' ~ host }}
       {# ## NOTE(hjensas): The Undercloud Minion has no networks, need to check for that here. -#}

@@ -47,7 +47,7 @@
       run_once: true
       set_fact:
         ssh_known_hosts_lines: |-
-          {%- for host in groups['overcloud'] | intersect(play_hosts) %}
+          {%- for host in groups['allovercloud'] | intersect(play_hosts) %}
           [{{ ctlplane_ip }}]*,[{{ host }}.{{ cloud_domain }}]*,[{{ host }}]*
           {%- if (enabled_networks and enabled_networks | length > 0 and 'role_networks' in hostvars[host]
                   and hostvars[host]['role_networks'] and hostvars[host]['role_networks'] | length > 0) %},
