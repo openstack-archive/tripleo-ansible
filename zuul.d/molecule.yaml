@@ -22,6 +22,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ptp
       - tripleo-ansible-centos-7-molecule-tripleo-timezone
       - tripleo-ansible-centos-7-molecule-tripleo-config
+      - tripleo-ansible-centos-7-molecule-tripleo-container-image-build
       - tripleo-ansible-centos-7-molecule-tripleo-container-stop
       - tripleo-ansible-centos-7-molecule-tripleo-hieradata
       - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
@@ -66,6 +67,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-ptp
       - tripleo-ansible-centos-7-molecule-tripleo-timezone
       - tripleo-ansible-centos-7-molecule-tripleo-config
+      - tripleo-ansible-centos-7-molecule-tripleo-container-image-build
       - tripleo-ansible-centos-7-molecule-tripleo-container-stop
       - tripleo-ansible-centos-7-molecule-tripleo-hieradata
       - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
@@ -235,6 +237,13 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-config
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-container-image-build/.*
+    name: tripleo-ansible-centos-7-molecule-tripleo-container-image-build
+    parent: tripleo-ansible-centos-7-base
+    vars:
+      tripleo_role_name: tripleo-container-image-build
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-stop/.*
