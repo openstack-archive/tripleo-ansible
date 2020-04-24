@@ -22,5 +22,8 @@
 
 - name: "Manage container systemd services and healthchecks for {{ tripleo_container_manage_config }}"
   include_tasks: podman/systemd.yml
+  vars:
+    container_config: "{{ all_containers_hash | dict_to_list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) | default([]) }}"
   when:
     - tripleo_container_manage_cli == 'podman'
+    - (container_config|length) > 0

@@ -14,36 +14,34 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Set container_config fact
-  set_fact:
-    container_config: "{{ all_containers_hash | dict_to_list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) | default([]) }}"
-
-- name: "Manage systemd files"
+- name: "Remove trailing .requires"
   no_log: "{{ not tripleo_container_manage_debug }}"
-  block:
-    - name: "Remove trailing .requires"
-      file:
-        path: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_requires).key }}.requires"
-        state: absent
-      loop: "{{ container_config }}"
-      loop_control:
-        loop_var: container_data_requires
-    - name: "Cleanup systemd healthchecks"
-      when:
-        - not tripleo_container_manage_healthcheck_disabled
-      include: podman/stat_healthcheck.yml container_systemd_healthcheck_name="{{ lookup('dict', item).key }}"
-      loop: "{{ container_config }}"
-    - name: "Create systemd services files"
-      template:
-        src: systemd-service.j2
-        dest: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_unit).key }}.service"
-        mode: '0644'
-        owner: root
-        group: root
-      register: systemd_file
-      loop: "{{ container_config }}"
-      loop_control:
-        loop_var: container_data_unit
+  file:
+    path: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_requires).key }}.requires"
+    state: absent
+  loop: "{{ container_config }}"
+  loop_control:
+    loop_var: container_data_requires
+
+- name: "Cleanup systemd healthchecks"
+  no_log: "{{ not tripleo_container_manage_debug }}"
+  when:
+    - not tripleo_container_manage_healthcheck_disabled
+  include: podman/stat_healthcheck.yml container_systemd_healthcheck_name="{{ lookup('dict', item).key }}"
+  loop: "{{ container_config }}"
+
+- name: "Create systemd services files"
+  no_log: "{{ not tripleo_container_manage_debug }}"
+  template:
+    src: systemd-service.j2
+    dest: "/etc/systemd/system/tripleo_{{ lookup('dict', container_data_unit).key }}.service"
+    mode: '0644'
+    owner: root
+    group: root
+  register: systemd_file
+  loop: "{{ container_config }}"
+  loop_control:
+    loop_var: container_data_unit
 
 - name: "Force systemd daemon reload if a systemd file changed"
   systemd:
