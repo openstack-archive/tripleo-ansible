@@ -56,3 +56,5 @@ hieradata_templates_list:
 # loopback device the local address will be set to "localhost" otherwise
 # the local address will be defined as "127.0.0.1".
 hieradata_localhost_address: "{{ ('ipv6' in (ansible_lo | default({}))) | ternary('localhost', '127.0.0.1') }}"
+# file included in hieradata hierarchy for ansible to pass data to puppet
+hieradata_ansible_file: /etc/puppet/hieradata/ansible_managed.json
