@@ -53,7 +53,7 @@ for LINE in $(cat ${jobs_file}); do
     container_list=`$CLI ps --format={% raw %}"{{.Names}}"{% endraw %} --filter="name=$CONTAINER_NAME"`
     for name in ${container_list};
     do
-        if [ "x$name" = "x$CONTAINER_NAME"];
+        if [ "x$name" = "x$CONTAINER_NAME" ];
         then
             start_container=no
             break
