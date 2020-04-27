@@ -956,3 +956,43 @@ class TestHelperFilters(tests_base.TestCase):
     def test_get_changed_async_task_names_empty(self):
         result = self.filters.get_changed_async_task_names(data=[])
         self.assertEqual(result, [])
+
+    def test_get_filtered_service_chain(self):
+        expected_dict = {'id': 1, 'data': 'things'}
+        role_chain_resources = [1, 3, 4]
+        resource_chains = [{'id': 1, 'data': 'things'}, {'id': 2}]
+        result = self.filters.get_filtered_service_chain(resource_chains, role_chain_resources)
+        self.assertEqual(result, expected_dict)
+
+    def test_get_filtered_role_resources(self):
+        expected_dict = {'test1': {'data': 'things'}}
+        service_chain_resources = ['test1', 'test3']
+        tripleo_resources = {'test1': {'data': 'things'}, 'test2': {}}
+        result = self.filters.get_filtered_role_resources(service_chain_resources, tripleo_resources)
+        self.assertEqual(result, expected_dict)
+
+    def test_get_filtered_resource_chains(self):
+        expected_dict = {'name': 'testServiceChain', 'data': 'things'}
+        resources = {'test1': {'name': 'testServiceChain', 'data': 'things'}, 'test2': {'name': 'broken'}}
+        role_name = 'test'
+        result = self.filters.get_filtered_resource_chains(resources, role_name)
+        self.assertEqual(result, expected_dict)
+
+    def test_get_filtered_resources(self):
+        expected_list = [{'type': 'test::Type', 'data': 'things'}]
+        resources = {'test1': {'type': 'test::Type', 'data': 'things'}, 'test2': {'type': 'broken'}}
+        filter_value = 'test::Type'
+        result = self.filters.get_filtered_resources(resources, filter_value)
+        self.assertEqual(result, expected_list)
+
+    def test_get_node_capabilities(self):
+        expected_list = [{'uuid': 1, 'hint': 'x'}]
+        nodes = [{'id': 1, 'properties': {'capabilities': 'profile:value, cap1:testing, node:x'}}]
+        result = self.filters.get_node_capabilities(nodes)
+        self.assertEqual(result, expected_list)
+
+    def test_get_node_profile(self):
+        expected_list = [{'uuid': 1, 'profile': 'value'}]
+        nodes = [{'id': 1, 'properties': {'capabilities': 'profile:value, cap1:testing'}}]
+        result = self.filters.get_node_profile(nodes)
+        self.assertEqual(result, expected_list)
