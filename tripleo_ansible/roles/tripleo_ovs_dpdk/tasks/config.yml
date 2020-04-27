@@ -125,3 +125,21 @@
     col: other_config
     key: emc-insert-inv-prob
   when: not tripleo_ovs_dpdk_emc_insertion_probablity|string
+
+- name: Enable TSO in datapath
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: userspace-tso-enable
+    value: "{{ tripleo_ovs_dpdk_enable_tso }}"
+  when: tripleo_ovs_dpdk_enable_tso|bool
+
+- name: Disable TSO in datapath
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: userspace-tso-enable
+  when: not tripleo_ovs_dpdk_enable_tso|bool

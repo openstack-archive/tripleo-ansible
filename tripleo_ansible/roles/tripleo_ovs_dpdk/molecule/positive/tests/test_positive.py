@@ -74,3 +74,9 @@ def test_positive_emc_prob(host):
     other_config = get_config(host)
     dpdk_extra = other_config['emc-insert-inv-prob'].replace('"', '')
     assert dpdk_extra == "0"
+
+
+def test_positive_enable_tso(host):
+    other_config = get_config(host)
+    tso_enabled = other_config['userspace-tso-enable'].replace('"', '')
+    assert tso_enabled == "true"

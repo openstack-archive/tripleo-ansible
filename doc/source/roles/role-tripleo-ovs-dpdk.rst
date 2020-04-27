@@ -75,13 +75,19 @@ Role Defaults
   - **Default**: ``''``
   - **Examples**: ``'2'``
 
-- ``triploe_ovs_dpdk_emc_insertion_probablity``
+- ``tripleo_ovs_dpdk_emc_insertion_probablity``
 
   - **Description**: (*Optional*) EMC insertion inverse probability. Its a
     string with a number of flows (out of which 1 flow will cached). Having
     100, results in caching 1 in 100 flows. Having 0, disables EMC cache.
   - **Default**: ``''``
   - **Examples**: ``'100'``
+
+- ``tripleo_ovs_dpdk_enable_tso``
+
+  - **Description**: (*Optional*) Enable TSO support in OVS DPDK datapath.
+  - **Default**: ``false``
+  - **Examples**: ``true``
 
 
 

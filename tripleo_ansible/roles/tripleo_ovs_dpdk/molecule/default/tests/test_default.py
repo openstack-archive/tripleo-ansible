@@ -70,3 +70,8 @@ def test_positive_handler_threads(host):
 def test_positive_emc_prob(host):
     other_config = get_config(host)
     assert 'emc-insert-inv-prob' not in other_config
+
+
+def test_positive_enable_tso(host):
+    other_config = get_config(host)
+    assert 'userspace-tso-enable' not in other_config
