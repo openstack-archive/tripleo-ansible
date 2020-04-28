@@ -95,5 +95,6 @@
   vars:
     octavia_confd_prefix: "/var/lib/config-data/puppet-generated/octavia"
     container_cli: "{{ container_cli }}"
+    enable_log_offloading: "{{ enable_log_offloading }}"
   roles:
     - octavia_controller_post_config
