@@ -14,6 +14,35 @@
   set_fact:
     o_hm_ip_list: "{{ o_hm_ip_list[:-2] }}"
 
+- name: configure amphora log offloading
+  block:
+    - name: create ip list (rsyslog)
+      set_fact:
+        o_rsyslog_ip_list: "{% for octavia_node in groups['octavia_nodes'] %}{{ hostvars[octavia_node].mgmt_port_ip }}:514, {%endfor%}"
+
+    - name: create ip list (remove the last two characters) (rsyslog)
+      set_fact:
+        o_rsyslog_ip_list: "{{ o_rsyslog_ip_list[:-2] }}"
+
+    - name: create /etc/rsyslog.d
+      become: true
+      become_user: root
+      file:
+        state: directory
+        path: "{{ octavia_confd_prefix }}/etc/rsyslog.d"
+        selevel: s0
+        setype: svirt_sandbox_file_t
+
+    - name: create rsyslog 10-octavia.conf
+      become: true
+      become_user: root
+      template:
+        src: templates/10-octavia.conf.j2
+        dest: "{{ octavia_confd_prefix }}/etc/rsyslog.d/10-octavia.conf"
+        selevel: s0
+        setype: svirt_sandbox_file_t
+  when: enable_log_offloading | bool
+
 - name: read the current IP list
   become: true
   become_user: root
@@ -47,6 +76,32 @@
     setype: svirt_sandbox_file_t
   when:
     - octavia_config_updated
+
+- name: setting [amphora_agent]/tenant_log_targets
+  become: true
+  become_user: root
+  ini_file:
+    section: "amphora_agent"
+    option: "tenant_log_targets"
+    value: "{{ o_rsyslog_ip_list }}"
+    path: "{{ octavia_confd_prefix }}/etc/octavia/post-deploy.conf"
+    selevel: s0
+    setype: svirt_sandbox_file_t
+  when:
+    - enable_log_offloading | bool
+
+- name: setting [amphora_agent]/admin_log_targets
+  become: true
+  become_user: root
+  ini_file:
+    section: "amphora_agent"
+    option: "admin_log_targets"
+    value: "{{ o_rsyslog_ip_list }}"
+    path: "{{ octavia_confd_prefix }}/etc/octavia/post-deploy.conf"
+    selevel: s0
+    setype: svirt_sandbox_file_t
+  when:
+    - enable_log_offloading | bool
 
 - name: get list of running octavia services
   become: true
