@@ -57,7 +57,7 @@ provisioner:
             InternalApi:
               name_lower: internal_api
         children:
-          overcloud:
+          allovercloud:
             hosts:
               centos8:
                 hostname_resolve_network: ctlplane
