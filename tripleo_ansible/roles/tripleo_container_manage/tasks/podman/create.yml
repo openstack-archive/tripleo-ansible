@@ -91,7 +91,7 @@
     loop_var: "create_async_result_item"
   register: create_async_poll_results
   until: create_async_poll_results.finished
-  retries: 60
+  retries: "{{ tripleo_container_manage_create_retries }}"
   # We fail later if a container has failed to start
   failed_when: false
   when:

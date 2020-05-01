@@ -42,7 +42,7 @@
     loop_var: "exec_async_result_item"
   register: exec_async_poll_results
   until: exec_async_poll_results.finished
-  retries: 30
+  retries: "{{ tripleo_container_manage_exec_retries }}"
   when: not ansible_check_mode|bool
 
 - name: Block for container commands

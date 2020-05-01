@@ -26,6 +26,12 @@ tripleo_container_manage_config_id: tripleo
 tripleo_container_manage_config_overrides: {}
 tripleo_container_manage_config_patterns: '*.json'
 tripleo_container_manage_debug: false
+# Some containers where Puppet is run, can take up to 10 minutes to finish
+# in slow environments.
+tripleo_container_manage_create_retries: 60
+# Default delay is 10s so 60 retries makes a timeout of 10 minutes which is
+# what we have observed a necessary value for nova and neutron db-sync execs.
+tripleo_container_manage_exec_retries: 60
 tripleo_container_manage_healthcheck_disabled: false
 tripleo_container_manage_log_path: '/var/log/containers/stdouts'
 tripleo_container_manage_systemd_order: false
