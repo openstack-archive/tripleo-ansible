@@ -46,6 +46,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-network-config
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
+      - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -92,6 +93,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-network-config
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
+      - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -425,3 +427,10 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_nvdimm
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_ha_wrapper/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_ha_wrapper
