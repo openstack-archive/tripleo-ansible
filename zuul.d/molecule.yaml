@@ -24,6 +24,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
       - tripleo-ansible-centos-8-molecule-tripleo_derived_parameters
       - tripleo-ansible-centos-8-molecule-tripleo_firewall
+      - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_hieradata
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
@@ -73,6 +74,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
       - tripleo-ansible-centos-8-molecule-tripleo_derived_parameters
       - tripleo-ansible-centos-8-molecule-tripleo_firewall
+      - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_hieradata
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
@@ -122,6 +124,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
       - tripleo-ansible-centos-8-molecule-tripleo_firewall
+      - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_hieradata
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
@@ -302,6 +305,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_firewall
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_ha_wrapper/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_ha_wrapper
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_hieradata/.*
