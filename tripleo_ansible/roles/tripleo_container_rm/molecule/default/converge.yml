@@ -20,10 +20,7 @@
   hosts: all
   roles:
     - role: tripleo_container_rm
+      tripleo_container_cli: podman
       tripleo_containers_to_rm:
-        - docker-container1
-        - docker-container2
-      tripleo_container_cli: docker
-
-  vars:
-    ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+        - podman-container1
+        - podman-container2

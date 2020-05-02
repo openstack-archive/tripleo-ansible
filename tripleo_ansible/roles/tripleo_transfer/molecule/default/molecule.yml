@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -16,15 +16,13 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    tmpfs:
-      - /run
-      - /tmp
     capabilities:
-      - ALL  # CENT7 requires all due to the age of the software
+      - ALL
     volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: &ulimit
+      - host
 
   - name: overcloud-controller-1
     hostname: overcloud-controller-1
@@ -36,15 +34,12 @@ platforms:
     environment:
       <<: *env
     command: /sbin/init
-    tmpfs:
-      - /run
-      - /tmp
     capabilities:
-      - ALL  # CENT7 requires all due to the age of the software
+      - ALL
     volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: *ulimit
 
 provisioner:
   name: ansible

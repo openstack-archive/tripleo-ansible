@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -18,10 +18,13 @@ platforms:
     # needed for systemd stuff
     command: /sbin/init
     capabilities:
-      - SYS_ADMIN
+      - ALL
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: &ulimit
+      - host
 
   - name: centos8
     hostname: centos8
@@ -33,10 +36,12 @@ platforms:
     # needed for systemd stuff
     command: /sbin/init
     capabilities:
-      - SYS_ADMIN
+      - ALL
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+    privileged: true
+    ulimits: *ulimit
 
 provisioner:
   name: ansible

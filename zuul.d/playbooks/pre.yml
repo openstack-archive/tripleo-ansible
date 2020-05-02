@@ -41,14 +41,45 @@
         . {{ ansible_user_dir }}/test-python/bin/activate
         pip freeze
 
-    # NOTE(cloudnull): This is being done because docker is not supported on RHEL-8
-    #                  and tests within this repo still require docker.
-    - name: Manual install container.io
+    - name: Basic ci setup
       become: true
-      package:
-        name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
-      when:
-        - (ansible_distribution_major_version | int) >= 8
+      block:
+        - name: Ensure ci directories
+          file:
+            path: "/etc/ci"
+            state: "directory"
+
+        - name: Ensure ci mirror file
+          file:
+            path: "/etc/ci/mirror_info.sh"
+            state: "touch"
+
+        - name: Set an appropriate fs.file-max
+          sysctl:
+            name: fs.file-max
+            value: 2048000
+            sysctl_set: true
+            state: present
+            reload: true
+
+        - name: Set container_manage_cgroup boolean
+          seboolean:
+            name: container_manage_cgroup
+            state: true
+            persistent: true
+          failed_when: false
+
+        - name: Create limits file for containers
+          copy:
+            content: |
+              * soft nofile 102400
+              * hard nofile 204800
+              * soft nproc 2048
+              * hard nproc 4096
+            dest: /etc/security/limits.d/containers.conf
+
+        - name: Reset ssh connection
+          meta: reset_connection
   tasks:
     - name: Get Ansible Galaxy roles
       command: >-
@@ -57,21 +88,3 @@
         {{ tripleo_ansible_project_path }}/tripleo_ansible/ansible-role-requirements.yml
       environment:
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
-  roles:
-    # docker is needed by multiple molecule scenarios
-    - role: ensure-docker
-  post_tasks:
-    - name: Run docker vfs setup
-      shell: |-
-        . {{ ansible_user_dir }}/test-python/bin/activate
-        . {{ tripleo_ansible_project_path }}/ansible-test-env.rc
-        ansible-playbook -i 'localhost,' \
-                         -e tripleo_docker_enable_vfs={{ tripleo_docker_enable_vfs }} \
-                         docker-vfs-setup.yml
-      args:
-        chdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/playbooks"
-        executable: /bin/bash
-      environment:
-        ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
-      when:
-        - tripleo_docker_enable_vfs is defined
