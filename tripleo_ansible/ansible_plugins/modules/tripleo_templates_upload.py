@@ -59,6 +59,7 @@ options:
         default: '/usr/share/openstack-tripleo-heat-templates/'
 author:
     - Rabi Mishra (@ramishra)
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''

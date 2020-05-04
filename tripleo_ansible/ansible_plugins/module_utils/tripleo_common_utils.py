@@ -154,13 +154,12 @@ class TripleOCommon(object):
         if 'swift_client' in self.client_cache:
             return self.client_cache['swift_client']
         else:
-            self.client_cache['swift_client'] = \
-                swift_client.Connection(
-                    session=self.sess,
-                    retries=10,
-                    starting_backoff=3,
-                    max_backoff=120
-                )
+            self.client_cache['swift_client'] = swift_client.Connection(
+                session=self.sess,
+                retries=10,
+                starting_backoff=3,
+                max_backoff=120
+            )
             return self.client_cache['swift_client']
 
     def baremetal_configure_boot(self, kwargs):

@@ -53,6 +53,7 @@ options:
         default: overcloud
 author:
     - Rabi Mishra (@ramishra)
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''

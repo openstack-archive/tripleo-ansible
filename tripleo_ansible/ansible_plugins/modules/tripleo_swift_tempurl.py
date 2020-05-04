@@ -65,6 +65,7 @@ options:
 
 author:
     - Rabi Mishra (@ramishra)
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''

@@ -63,6 +63,7 @@ options:
         no_log: true
 author:
     - Rabi Mishra (@ramishra)
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''

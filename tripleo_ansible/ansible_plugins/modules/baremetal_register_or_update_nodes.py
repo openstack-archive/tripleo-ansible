@@ -64,6 +64,7 @@ options:
 
 author:
     - Adriano Petrich (@frac)
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 

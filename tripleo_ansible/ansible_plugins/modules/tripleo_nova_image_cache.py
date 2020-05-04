@@ -65,7 +65,7 @@ options:
         - Fallback to image download if scp fails
       default: false
 
-requirements: ["openstacksdk"]
+requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''
