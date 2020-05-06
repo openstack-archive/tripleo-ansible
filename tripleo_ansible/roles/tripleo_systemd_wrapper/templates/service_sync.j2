@@ -36,7 +36,7 @@ function start_service {
 jobs_file="{{ tripleo_systemd_wrapper_service_dir }}/{{ tripleo_systemd_wrapper_service_name }}/processes"
 [ -s "$jobs_file" ] || exit 0  # nothing to do, no need for locking, just exit
 
-exec {lock_fd}>/var/lock/{{ tripleo_systemd_wrapper_service_name }}-processes.lock || exit 1
+exec {lock_fd}>/var/lock/containers/{{ tripleo_systemd_wrapper_service_name }}-processes.lock || exit 1
 # In case service_wrapper script already locked the commands, we just wait for a 10 sec.
 flock -w 10 "$lock_fd" || exit 1
 
