@@ -28,6 +28,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-kernel
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
+      - tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
@@ -70,6 +71,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-kernel
       - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-7-molecule-tripleo-firewall
+      - tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
       - tripleo-ansible-centos-7-molecule-tripleo-securetty
       - tripleo-ansible-centos-7-molecule-tripleo-cellv2
       - tripleo-ansible-centos-7-molecule-tripleo-clients-install
@@ -304,6 +306,13 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-validations-package
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-redhat-enforce/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tox_envlist: tripleo-redhat-enforce
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-ovs-dpdk/.*
