@@ -35,22 +35,43 @@
     - role: test_deps
 
   tasks:
+
+    - name: Ensure registry doesn't exist
+      podman_container:
+        name: registry
+        state: absent
+
+    - name: Pull ubuntu image
+      podman_image:
+        name: ubuntu
+        tag: 16.04
+
+    - name: Create auth directory
+      file:
+        state: directory
+        path: "{{ ansible_user_dir }}/auth"
+
     - name: Create registry
       shell: |-
-        podman container rm --force registry || true
-        podman pull ubuntu:16.04
         podman tag ubuntu:16.04 localhost:5000/my-ubuntu
-        mkdir -p {{ ansible_user_dir }}/auth
         podman run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > {{ ansible_user_dir }}/auth/htpasswd
-        podman run -d -p 5000:5000 --restart=always \
-                                   --name registry \
-                                   -v "{{ ansible_user_dir }}/auth:/auth" \
-                                   -e "REGISTRY_AUTH=htpasswd" \
-                                   -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
-                                   -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
-                                   registry:2
       args:
         executable: /bin/bash
+
+    - name: Create registry
+      podman_container:
+        name: registry
+        image: "registry:2"
+        restart_policy: always
+        detach: true
+        ports:
+          - "5000:5000"
+        volume:
+          - "{{ ansible_user_dir }}/auth:/auth"
+        env:
+          REGISTRY_AUTH: "htpasswd"
+          REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+          REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
 
     - name: Run install
       include_role:

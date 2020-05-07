@@ -38,9 +38,15 @@
       shell: "podman build -t keystone-img -f {{ playbook_dir }}/Dockerfile.keystone ."
       become: false
 
-    - name: Run keystone container
-      shell: |-
-        podman rm --force keystone-podman || true
-        podman run -d -p 5000:5000 --name keystone-podman keystone-img
-        sleep 30
+    - name: Create test containers
+      podman_container:
+        name: keystone-podman
+        image: keystone-img
+        detach: true
+        ports:
+          - "5000:5000"
       become: false
+
+    - name: Give keystone time to go up
+      pause:
+        seconds: 30
