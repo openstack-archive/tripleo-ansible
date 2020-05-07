@@ -107,6 +107,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
+      - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
       - tripleo-ansible-centos-8-molecule-tripleo_container_manage
       - tripleo-ansible-centos-8-molecule-tripleo_container_rm
@@ -122,12 +123,14 @@
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
+      - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
       - tripleo-ansible-centos-8-molecule-tripleo_podman
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
+      - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
       - tripleo-ansible-centos-8-molecule-tripleo_securetty
       - tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
       - tripleo-ansible-centos-8-molecule-tripleo_sshd
