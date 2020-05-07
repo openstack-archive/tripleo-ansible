@@ -37,6 +37,7 @@ provisioner:
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
     ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
+    ANSIBLE_LIBRARY: "${ANSIBLE_LIBRARY:-/usr/share/ansible/plugins/modules}"
 
 scenario:
   name: podman
