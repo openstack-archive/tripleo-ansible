@@ -66,6 +66,11 @@
           {%         set gate_jobs = (item['project-template']['gate']['jobs'] | sort) %}
           {%         set _ = item['project-template']['gate'].update({'jobs': gate_jobs}) %}
           {%       endif %}
+          {%       if not (new_job_name in item['project-template']['periodic-weekly']['jobs']) %}
+          {%         set _ = item['project-template']['periodic-weekly']['jobs'].append(new_job_name) %}
+          {%         set periodic_jobs = (item['project-template']['periodic-weekly']['jobs'] | sort) %}
+          {%         set _ = item['project-template']['periodic-weekly'].update({'jobs': periodic_jobs}) %}
+          {%       endif %}
           {%     endif %}
           {%   else %}
           {%     if item['job']['name'] == new_job_name %}
