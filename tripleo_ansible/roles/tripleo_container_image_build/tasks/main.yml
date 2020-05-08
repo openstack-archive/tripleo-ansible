@@ -17,7 +17,7 @@
 
 # "tripleo_container_image_build" will search for and load any operating system variable file
 
-- name: Ensure path exists
+- name: "Ensure {{ tcib_path }} exists"
   file:
     path: "{{ tcib_path }}"
     state: "directory"
@@ -28,8 +28,6 @@
     dest: "{{ tcib_path }}/{{ item }}"
     flat: true
   loop: "{{ tcib_gather_files }}"
-  when:
-    - tcib_pre_build | bool
 
 - name: Create a container file
   template:
