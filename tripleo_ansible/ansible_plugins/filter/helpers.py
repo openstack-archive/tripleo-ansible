@@ -400,9 +400,10 @@ class FilterModule(object):
         """
         failed = []
         for item in async_results:
+            async_result_item = item['create_async_result_item']
             try:
-                if item['failed'] or not item['finished']:
-                    async_result_item = item['create_async_result_item']
+                if (item['failed'] or not item['finished']
+                        or async_result_item['stderr'] != ''):
                     for k, v in async_result_item['container_data'].items():
                         failed.append(k)
             except KeyError:

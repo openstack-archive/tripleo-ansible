@@ -840,6 +840,23 @@ class TestHelperFilters(tests_base.TestCase):
                 "started": 1
             },
             {
+                "ansible_job_id": "9487088344230.17597",
+                "ansible_loop_var": "container_data",
+                "changed": True,
+                "create_async_result_item": {
+                    "stderr": "not happy",
+                    "container_data": {
+                        "haproxy_failed": {
+                            "image": "haproxy:latest",
+                        }
+                    }
+                },
+                "failed": False,
+                "finished": 1,
+                "results_file": "/root/.ansible_async/948704694230.17597",
+                "started": 1
+            },
+            {
                 "ansible_job_id": "948704694230.17597",
                 "ansible_loop_var": "container_data",
                 "changed": True,
@@ -881,7 +898,7 @@ class TestHelperFilters(tests_base.TestCase):
                 "started": 1
             }
         ]
-        expected_list = ['memcached', 'mysql']
+        expected_list = ['haproxy_failed', 'memcached', 'mysql']
         result = self.filters.get_failed_containers(data)
         self.assertEqual(result, expected_list)
 
