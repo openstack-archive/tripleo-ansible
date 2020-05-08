@@ -91,7 +91,7 @@
   loop_control:
     loop_var: container_sysd_name
   register: systemd_service_enable
-  until: systemd_service_enable.status.Result == "success"
+  until: (systemd_service_enable.status is defined) and (systemd_service_enable.status.Result == "success")
   retries: 5
   delay: 5
 
@@ -108,7 +108,7 @@
   when:
     - not tripleo_container_manage_healthcheck_disabled
   register: systemd_healthcheck_enable
-  until: systemd_healthcheck_enable.status.Result == "success"
+  until: (systemd_healthcheck_enable.status is defined) and (systemd_healthcheck_enable.status.Result == "success")
   retries: 5
   delay: 5
 
