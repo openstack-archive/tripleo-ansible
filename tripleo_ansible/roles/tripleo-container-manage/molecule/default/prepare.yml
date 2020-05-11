@@ -44,6 +44,7 @@
             "image": "fedora:latest",
             "net": "host",
             "command": "sleep 3600",
+            "command": "sleep 5",
             "healthcheck": { "test": "echo test" }
           }
         dest: '/tmp/container-configs/fedora_bis.json'
@@ -53,6 +54,6 @@
           {
             "image": "fedora:latest",
             "net": "host",
-            "command": "sleep 3600"
+            "command": "sleep 5"
           }
         dest: '/tmp/container-configs/fedora_three.json'

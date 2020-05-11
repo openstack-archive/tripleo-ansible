@@ -16,7 +16,7 @@
 
 - name: "Wait for containers to be exit"
   podman_container_info:
-    name: "{{ batched_container_data | haskey(attribute='action', reverse=True) | list_of_keys }}"
+    name: "{{ containers_with_exit_code }}"
   register: podman_containers_infos
   until: ( podman_containers_infos.containers | selectattr('State.Running', 'equalto', True) |list|length ) == 0
   # Retry 30 times every 10 seconds so we wait 5 min in total

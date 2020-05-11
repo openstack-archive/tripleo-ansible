@@ -24,6 +24,7 @@
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: '*.json'
     tripleo_container_manage_systemd_order: true
+    tripleo_container_manage_valid_exit_code: [0]
   tasks:
     - include_role:
         name: tripleo-container-manage

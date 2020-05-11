@@ -200,6 +200,90 @@ class TestHelperFilters(tests_base.TestCase):
                                      attribute='restart', value='always')
         self.assertEqual(result, expected_list)
 
+    def test_haskey_exclude(self):
+        data = [
+            {
+                'keystone': {
+                  'start_order': 1,
+                  'image': 'quay.io/tripleo/keystone',
+                  'command': 'sleep 10',
+                  'restart': 'always'
+                },
+            },
+            {
+                'nova': {
+                  'start_order': 1,
+                  'image': 'quay.io/tripleo/nova',
+                  'command': 'sleep 10',
+                  'action': 'exec'
+                },
+            },
+            {
+                'mysql': {
+                  'start_order': 0,
+                  'command': 'sleep 10',
+                  'image': 'quay.io/tripleo/mysql'
+                }
+            },
+            {
+                'haproxy': {
+                  'start_order': 0,
+                  'image': 'quay.io/tripleo/haproxy'
+                }
+            }
+        ]
+        expected_list = [
+            {
+                'mysql': {
+                  'start_order': 0,
+                  'command': 'sleep 10',
+                  'image': 'quay.io/tripleo/mysql'
+                },
+            }
+        ]
+        result = self.filters.haskey(data=data,
+                                     attribute='command',
+                                     excluded_keys=['action', 'restart'])
+        self.assertEqual(result, expected_list)
+
+    def test_haskey_reverse_exclude(self):
+        data = [
+            {
+                'keystone': {
+                  'start_order': 1,
+                  'image': 'quay.io/tripleo/keystone',
+                  'restart': 'always'
+                },
+            },
+            {
+                'nova': {
+                  'start_order': 1,
+                  'image': 'quay.io/tripleo/nova',
+                  'action': 'exec'
+                },
+            },
+            {
+                'mysql': {
+                  'start_order': 0,
+                  'image': 'quay.io/tripleo/mysql'
+                }
+            }
+        ]
+        expected_list = [
+            {
+                'mysql': {
+                  'start_order': 0,
+                  'image': 'quay.io/tripleo/mysql'
+                },
+            }
+        ]
+        result = self.filters.haskey(data=data,
+                                     attribute='restart',
+                                     value='always',
+                                     reverse=True,
+                                     excluded_keys=['action'])
+        self.assertEqual(result, expected_list)
+
     def test_haskey_reverse(self):
         data = [
             {
