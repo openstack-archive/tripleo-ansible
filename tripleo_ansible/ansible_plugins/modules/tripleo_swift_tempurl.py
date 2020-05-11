@@ -117,7 +117,7 @@ def run_module():
         result['tempurl'] = tempurl
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error getting % tempurl for %/%s" % (
+        result['msg'] = ("Error getting %s tempurl for %s/%s: %s" % (
             method, container, obj, err))
         module.fail_json(**result)
 
