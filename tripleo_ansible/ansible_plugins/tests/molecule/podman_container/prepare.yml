@@ -27,6 +27,7 @@
       command: podman version
       register: p_ver
       changed_when: false
+      become: true
 
     - name: Print podman version
       debug:

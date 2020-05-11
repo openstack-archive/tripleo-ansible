@@ -264,7 +264,6 @@
               BAR: foo
               TEST: 1
               BOOL: false
-            group_add: "somegroup"
             label:
               somelabel: labelvalue
               otheralbe: othervalue
@@ -382,6 +381,48 @@
             that:
               - "'podman rm -f testidem' in remove.podman_actions"
 
+        - name: Check basic idempotency of pod container
+          podman_container:
+            name: testidem-pod
+            image: docker.io/alpine
+            state: present
+            command: sleep 20m
+            pod: "new:testidempod"
+
+        - name: Check basic idempotency of pod container - run it again
+          podman_container:
+            name: testidem-pod
+            image: alpine:latest
+            state: present
+            command: sleep 20m
+            pod: testidempod
+          register: idem
+
+        - name: Check that nothing was changed in pod containers
+          assert:
+            that:
+              - not idem.changed
+
+        - name: Run changed pod container (with tty enabled)
+          podman_container:
+            name: testidem-pod
+            image: alpine
+            state: present
+            command: sleep 20m
+            tty: true
+            pod: testidempod
+          register: idem1
+
+        - name: Check that container is recreated when changed
+          assert:
+            that:
+              - idem1 is changed
+
+        - name: Remove container
+          podman_container:
+            name: testidem-pod
+            state: absent
+
       always:
         - name: Delete all container leftovers from tests
           podman_container:
@@ -391,3 +432,6 @@
             - "alpine:3.7"
             - "container"
             - "container2"
+
+        - name: Remove pod
+          shell: podman pod rm -f testidempod
