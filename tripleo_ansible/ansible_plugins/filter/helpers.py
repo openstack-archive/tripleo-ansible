@@ -197,7 +197,8 @@ class FilterModule(object):
 
         return to_delete
 
-    def haskey(self, data, attribute, value=None, reverse=False, any=False):
+    def haskey(self, data, attribute, value=None, reverse=False, any=False,
+               excluded_keys=[]):
         """Return dict data with a specific key.
 
         This filter will take a list of dictionaries (data)
@@ -207,10 +208,21 @@ class FilterModule(object):
         which have the attribute.
         If any is set to True, the returned list will match any value in
         the list of values for "value" parameter which has to be a list.
+        If we want to exclude items which have certain key(s); these keys
+        should be added to the excluded_keys list. If excluded_keys is used
+        with reverse, we'll just exclude the items which had a key from
+        excluded_keys in the reversed list.
         """
         return_list = []
         for i in data:
+            to_skip = False
             for k, v in json.loads(json.dumps(i)).items():
+                for e in excluded_keys:
+                    if e in v:
+                        to_skip = True
+                        break
+                if to_skip:
+                    break
                 if attribute in v and not reverse:
                     if value is None:
                         return_list.append(i)
