@@ -1265,7 +1265,6 @@ class PodmanDefaults:
         self.defaults = {
             "blkio_weight": 0,
             "cgroups": "default",
-            "cgroup_parent": "",
             "cidfile": "",
             "cpus": 0.0,
             "cpu_shares": 0,
@@ -1280,7 +1279,6 @@ class PodmanDefaults:
             "env_host": False,
             "etc_hosts": {},
             "group_add": [],
-            "healthcheck": "",
             "ipc": "",
             "kernelmemory": "0",
             "log_driver": "k8s-file",
@@ -1296,16 +1294,16 @@ class PodmanDefaults:
             "privileged": False,
             "rm": False,
             "security_opt": [],
-            "stop_signal": 15,
             "tty": False,
-            "user": "",
             "uts": "",
-            "volume": [],
-            "workdir": "/",
         }
 
     def default_dict(self):
         # make here any changes to self.defaults related to podman version
+        # https://github.com/containers/libpod/pull/5669
+        if (LooseVersion(self.version) >= LooseVersion('1.8.0')
+                and LooseVersion(self.version) < LooseVersion('1.9.0')):
+            self.defaults['cpu_shares'] = 1024
         return self.defaults
 
 
@@ -1390,6 +1388,8 @@ class PodmanContainerDiff:
     def diffparam_cgroup_parent(self):
         before = self.info['hostconfig']['cgroupparent']
         after = self.params['cgroup_parent']
+        if after is None:
+            after = before
         return self._diff_update_and_compare('cgroup_parent', before, after)
 
     def diffparam_cgroups(self):
@@ -1554,6 +1554,8 @@ class PodmanContainerDiff:
     def diffparam_ipc(self):
         before = self.info['hostconfig']['ipcmode']
         after = self.params['ipc']
+        if self.params['pod'] and not after:
+            after = before
         return self._diff_update_and_compare('ipc', before, after)
 
     def diffparam_label(self):
@@ -1603,6 +1605,8 @@ class PodmanContainerDiff:
     def diffparam_network(self):
         before = [self.info['hostconfig']['networkmode']]
         after = self.params['network']
+        if self.params['pod'] and not self.module.params['network']:
+            after = before
         return self._diff_update_and_compare('network', before, after)
 
     def diffparam_no_hosts(self):
@@ -1641,6 +1645,8 @@ class PodmanContainerDiff:
     def diffparam_stop_signal(self):
         before = self.info['config']['stopsignal']
         after = self.params['stop_signal']
+        if after is None:
+            after = before
         return self._diff_update_and_compare('stop_signal', before, after)
 
     def diffparam_tty(self):
@@ -1650,15 +1656,16 @@ class PodmanContainerDiff:
 
     def diffparam_user(self):
         before = self.info['config']['user']
-        if self.module.params['user'] is None and before:
+        after = self.params['user']
+        if after is None:
             after = before
-        else:
-            after = self.params['user']
         return self._diff_update_and_compare('user', before, after)
 
     def diffparam_uts(self):
         before = self.info['hostconfig']['utsmode']
         after = self.params['uts']
+        if self.params['pod'] and not after:
+            after = before
         return self._diff_update_and_compare('uts', before, after)
 
     def diffparam_volume(self):
@@ -1672,18 +1679,24 @@ class PodmanContainerDiff:
                     volumes.append([m['source'], m['destination']])
             before = [":".join(v) for v in volumes]
         # Ignore volumes option for idempotency
-        after = [":".join(v.split(":")[:2]) for v in self.params['volume']]
+        if self.params['volume'] is not None:
+            after = [":".join(v.split(":")[:2]) for v in self.params['volume']]
+        else:
+            after = before
         before, after = sorted(list(set(before))), sorted(list(set(after)))
         return self._diff_update_and_compare('volume', before, after)
 
     def diffparam_volumes_from(self):
-        before = self.info['hostconfig']['volumesfrom'] or []
+        # Possibly volumesfrom is not in config
+        before = self.info['hostconfig'].get('volumesfrom', []) or []
         after = self.params['volumes_from'] or []
         return self._diff_update_and_compare('volumes_from', before, after)
 
     def diffparam_workdir(self):
         before = self.info['config']['workingdir']
         after = self.params['workdir']
+        if after is None:
+            after = before
         return self._diff_update_and_compare('workdir', before, after)
 
     def is_different(self):
@@ -1786,11 +1799,13 @@ class PodmanContainer:
 
     def get_info(self):
         """Inspect container and gather info about it."""
+        # pylint: disable=unused-variable
         rc, out, err = self.module.run_command(
             [self.module.params['executable'], b'container', b'inspect', self.name])
         return json.loads(out)[0] if rc == 0 else {}
 
     def _get_podman_version(self):
+        # pylint: disable=unused-variable
         rc, out, err = self.module.run_command(
             [self.module.params['executable'], b'--version'])
         if rc != 0 or not out or "version" not in out:
