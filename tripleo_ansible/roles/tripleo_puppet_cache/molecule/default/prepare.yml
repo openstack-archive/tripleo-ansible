@@ -19,7 +19,7 @@
   hosts: all
   vars:
     required_packages:
-      - puppet
+      - facter
       - rsync
   roles:
     - role: test_deps
