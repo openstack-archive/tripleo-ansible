@@ -57,11 +57,33 @@
         }}"
 
     # Pre-introspection validation
-    - name: Run Validations
-      command: >
-        openstack tripleo validator run --group "pre-introspection"
+    - name: Validations block
       when:
         - run_validations | bool
+      block:
+        - name: Check if validation enabled
+          set_fact:
+            validations_enabled: "{{ lookup('hiera', 'tripleo_validations_enabled') }}"
+          run_once: true
+          become: true
+
+        # Pre-introspection validation
+        # NOTE(cloudnull): The stackrc file is sourced because validations are not
+        #                  100% compatible with clouds.yaml at this time.
+        - name: Run Validations
+          shell: |-
+            source "{{ ansible_home }}/stackrc"
+            openstack --os-cloud undercloud tripleo validator run --group "pre-introspection"
+          when:
+            - validations_enabled | bool
+
+        - name: Fail if validations are disabled
+          fail:
+            msg: >-
+              Run validations were enabled but via hiera information disabled.
+              Check the configuration and try again.
+          when:
+            - not (validations_enabled | bool)
 
     # Introspect nodes
     - name: Start baremetal introspection

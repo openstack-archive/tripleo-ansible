@@ -34,13 +34,6 @@
         - node_uuids is undefined
 
   tasks:
-    # Pre-cleaning validation
-    - name: Run Validations
-      command: >-
-        openstack --os-cloud undercloud tripleo validator run --group "pre-clean"
-      when:
-        - run_validations | bool
-
     - name: Set node_uuids_clean fact
       set_fact:
         node_uuids_clean: "{{ node_uuids }}"
