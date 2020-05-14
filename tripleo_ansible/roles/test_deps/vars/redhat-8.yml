@@ -15,12 +15,9 @@
 # under the License.
 
 
-test_deps_repo: https://trunk.rdoproject.org/fedora/current
+test_deps_repo: https://trunk.rdoproject.org/redhat8-master/current
 test_deps_selinux_packages:
   - python3-libselinux
 test_deps_tripleo_packages:
   - python3-tripleoclient
 test_deps_tripleo_repos: current-tripleo
-
-# TODO(cloudnull): when RDO has centos8 repos remove this.
-test_deps_repo_version: fedora28-master
