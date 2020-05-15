@@ -71,6 +71,8 @@
 - name: Symlink puppet modules under /etc/puppet/modules
   shell: >-
     ln -f -s /usr/share/openstack-puppet/modules/* /etc/puppet/modules/
+  args:
+    warn: false
   register: result
   failed_when: false
   tags:
