@@ -38,6 +38,7 @@
       loop:
         - /boot/grub2/grub.cfg
         - /boot/efi/EFI/redhat/grub.cfg
+        - /boot/efi/EFI/centos/grub.cfg
         - /boot/efi/EFI/fedora/grub.cfg
     - name: Generate grub config
       command: "grub2-mkconfig -o {{ item.stat.path }}"
