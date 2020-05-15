@@ -45,7 +45,7 @@
           {
             "image": "fedora:latest",
             "net": "host",
-            "command": "sleep 3600"
+            "command": "sleep 5"
           }
         dest: '/tmp/container-configs/fedora_bis.json'
     - name: Create a third configuration file for a fedora container
@@ -54,7 +54,7 @@
           {
             "image": "fedora:latest",
             "net": "host",
-            "command": "sleep 3600"
+            "command": "sleep 5"
           }
         dest: '/tmp/container-configs/fedora_three.json'
     - name: Create old healthcheck service for fedora container

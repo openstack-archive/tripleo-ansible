@@ -97,10 +97,11 @@
   when:
     - not ansible_check_mode|bool
 
-- name: "Create facts for containers which changed or failed"
+- name: "Create facts for containers which changed or failed or which require rc check"
   set_fact:
     containers_changed: "{{ create_async_poll_results.results | get_changed_containers }}"
     containers_failed: "{{ create_async_poll_results.results | get_failed_containers }}"
+    containers_to_check: "{{ batched_container_data | haskey(attribute='command', excluded_keys=['action', 'restart']) | list_of_keys | default([]) }}"
 
 - name: Print the containers that failed to start
   fail:
@@ -120,6 +121,9 @@
 
 - name: "Block for container exit codes"
   when:
-    - tripleo_container_manage_valid_exit_code|length != 0
     - not ansible_check_mode|bool
+    - tripleo_container_manage_valid_exit_code|length != 0
+    - containers_to_check|length != 0
   include_tasks: podman/check_exit_code.yml
+  vars:
+    containers_with_exit_code: "{{ containers_to_check }}"
