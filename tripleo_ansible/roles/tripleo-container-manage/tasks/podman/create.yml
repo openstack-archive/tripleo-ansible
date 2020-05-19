@@ -92,11 +92,24 @@
   when:
     - not ansible_check_mode|bool
 
-- name: "Create facts for containers which changed or failed or which require rc check"
+- name: "Create fact for containers which changed"
   set_fact:
-    containers_changed: "{{ create_async_poll_results.results | get_changed_containers }}"
-    containers_failed: "{{ create_async_poll_results.results | get_failed_containers }}"
-    containers_to_check: "{{ batched_container_data | haskey(attribute='command', excluded_keys=['action', 'restart']) | list_of_keys | default([]) }}"
+    # List of containers which have changed (created or updated)
+    containers_changed: "{{ create_async_poll_results.results | get_changed_containers | default([]) }}"
+
+- name: "Create fact for containers which failed"
+  set_fact:
+    # List of containers which returned an error when creating or updating them
+    containers_failed: "{{ create_async_poll_results.results | get_failed_containers | default([]) }}"
+
+- name: "Create fact for containers which require rc check"
+  set_fact:
+    # List of containers which would terminate with a return code that needs to be valid.
+    # We assume that container configs that don't have a restart policy nor action
+    # (used for podman exec) will run something and then exit with a return code.
+    containers_to_check: >-
+      {{ batched_container_data | haskey(attribute='image', excluded_keys=['action', 'restart']) |
+      list_of_keys | default([]) | difference(containers_failed) }}
 
 - name: Print the containers that failed to start
   fail:
