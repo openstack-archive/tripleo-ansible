@@ -21,6 +21,7 @@
 tripleo_puppet_cache_base_dir: /var/lib/container-puppet/puppetlabs
 tripleo_puppet_cache_config: |
     facts : {
+        blocklist: [ "EC2" ],
         ttls: [
           { "kernel" : 8 hour },
           { "memory" : 8 hour },
