@@ -65,6 +65,7 @@
       managed_by: tripleo_ansible
       config_data: "{{ lookup('dict', container_data).value }}"
     log_driver: 'k8s-file'
+    log_level: "{{ tripleo_container_manage_debug | ternary('debug', 'error') }}"
     log_opt: "path={{ tripleo_container_manage_log_path }}/{{ lookup('dict', container_data).key }}.log"
     memory: "{{ lookup('dict', container_data).value.mem_limit | default(omit) }}"
     memory_swap: "{{ lookup('dict', container_data).value.mem_swappiness | default(omit) }}"
