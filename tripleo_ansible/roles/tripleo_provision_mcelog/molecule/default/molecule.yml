@@ -1,51 +1,50 @@
 ---
 driver:
-  name: podman
+  name: delegated
+  options:
+    managed: false
+    login_cmd_template: >-
+      ssh
+      -o UserKnownHostsFile=/dev/null
+      -o StrictHostKeyChecking=no
+      -o Compression=no
+      -o TCPKeepAlive=yes
+      -o VerifyHostKeyDNS=no
+      -o ForwardX11=no
+      -o ForwardAgent=no
+      {instance}
+    ansible_connection_options:
+      ansible_connection: ssh
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    ulimits: &ulimit
-      - host
-
-  - name: centos8
-    hostname: centos8
-    image: centos:8
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    environment:
-      <<: *env
-    ulimits: *ulimit
+  - name: instance
 
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp/molecule/facts
+  inventory:
+    hosts:
+      all:
+        hosts:
+          instance:
+            ansible_host: localhost
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH:-/usr/share/ansible/roles}:${HOME}/zuul-jobs/roles"
+    ANSIBLE_LIBRARY: "${ANSIBLE_LIBRARY:-/usr/share/ansible/plugins/modules}"
+    ANSIBLE_FILTER_PLUGINS: "${ANSIBLE_FILTER_PLUGINS:-/usr/share/ansible/plugins/filter}"
 
 scenario:
   test_sequence:
-    - destroy
-    - create
     - prepare
     - converge
     - check
-    - verify
-    - destroy
 
 verifier:
   name: testinfra
