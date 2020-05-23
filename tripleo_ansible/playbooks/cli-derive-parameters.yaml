@@ -34,17 +34,35 @@
         - (tripleo_target_host is defined) | ternary('ssh', 'local') == 'local'
 
   tasks:
-    # NOTE(cloudnull): At this time no formulas have been created. As new
-    #                  formulas are created tasks will be added here.
-    - name: Set result fact
-      set_facts:
-        derive_parameters_result:
-          hello: world
-
-  post_tasks:
-    - name: Update derive_parameters in plan
-      tripleo_plan_parameters_update:
+    - name: Get flatten params
+      tripleo_get_flatten_stack:
         container: "{{ plan }}"
-        parameter_key: 'derived_parameters'
-        parameters: "{{ derive_parameters_result }}"
-        validate: true
+      register: tripleo_get_flatten_params
+      when:
+        - tripleo_get_flatten_params is undefined
+
+    - name: Get role list
+      tripleo_get_role_list:
+        container: "{{ plan }}"
+        valid: false
+      register: tripleo_role_list
+      when:
+        - tripleo_role_list is undefined
+
+    - name: Fail if stack_data has not been extracted
+      when:
+        - tripleo_get_flatten_params.stack_data is not defined
+      fail:
+        msg: "{{ plan }} is mising stack_data"
+
+    - name: Derive params for each role
+      include_role:
+        name: tripleo_derived_parameters
+      vars:
+        tripleo_plan_name: "{{ plan }}"
+        tripleo_role_name: "{{ outer_item }}"
+        tripleo_environment_parameters: "{{ tripleo_get_flatten_params.stack_data.environment_parameters }}"
+        tripleo_heat_resource_tree: "{{ tripleo_get_flatten_params.stack_data.heat_resource_tree }}"
+      loop: "{{ tripleo_role_list.roles }}"
+      loop_control:
+        loop_var: outer_item

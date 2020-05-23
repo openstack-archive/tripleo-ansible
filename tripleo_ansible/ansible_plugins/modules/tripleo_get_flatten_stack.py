@@ -70,11 +70,13 @@ def main():
     )
     _, conn = openstack_cloud_from_module(module)
     tripleo = tc.TripleOCommon(session=conn.session)
+    object_client = tripleo.get_object_client()
+    heat = tripleo.get_orchestration_client()
     try:
         result['stack_data'] = stack_param_utils.get_flattened_parameters(
-            tripleo.get_object_client(),
-            tripleo.get_orchestration_client(),
-            module.params["container"]
+            swift=object_client,
+            heat=heat,
+            container=module.params["container"]
         )
     except Exception as exp:
         result['error'] = str(exp)

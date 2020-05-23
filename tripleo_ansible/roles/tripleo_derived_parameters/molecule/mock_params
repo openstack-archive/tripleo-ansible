@@ -1,0 +1,2512 @@
+changed: false
+error: null
+failed: false
+stack_data:
+  environment_parameters:
+    ApacheMaxRequestWorkers: 100
+    ApacheServerLimit: 100
+    CephAnsibleDisksConfig:
+      devices:
+      - /dev/sdb
+      osd_objectstore: bluestore
+      osd_scenario: lvm
+    CephAnsibleEnvironmentVariables:
+      ANSIBLE_HOST_KEY_CHECKING: 'False'
+      ANSIBLE_SSH_CONTROL_PATH: /home/stack/ansible-ssh
+    CephAnsibleExtraConfig:
+      ceph_osd_docker_cpu_limit: 1
+    CephAnsiblePlaybook:
+    - default
+    CephAnsiblePlaybookVerbosity: 3
+    CephAnsibleRepo: storage8-ceph-nautilus
+    CephConfigOverrides:
+      osd_max_backfills: 1
+      osd_recovery_max_active: 3
+      osd_recovery_op_priority: 3
+    CephPoolDefaultPgNum: 32
+    CephPoolDefaultSize: 1
+    CinderBackupBackend: ceph
+    CinderEnableIscsiBackend: false
+    CinderEnableRbdBackend: true
+    CinderWorkers: 1
+    CloudDomain: localdomain
+    CloudName: overcloud.localdomain
+    CloudNameCtlplane: overcloud.ctlplane.localdomain
+    CloudNameInternal: overcloud.internalapi.localdomain
+    CloudNameStorage: overcloud.storage.localdomain
+    CloudNameStorageManagement: overcloud.storagemgmt.localdomain
+    ComputeCount: 0
+    ComputeHCICount: 1
+    ComputeHCISchedulerHints:
+      capabilities:node: 0-ceph-%index%
+    ConfigDebug: true
+    ControllerCount: 1
+    ControllerExtraConfig:
+      nova::network::neutron::timeout: '60'
+    ControllerSchedulerHints:
+      capabilities:node: 0-controller-%index%
+    DatabaseSyncTimeout: 900
+    DeployIdentifier: ''
+    DockerInsecureRegistryAddress:
+    - 192.168.24.1:8787
+    EnablePaunch: false
+    GlanceBackend: rbd
+    GlanceWorkers: 1
+    GnocchiMetricdWorkers: 1
+    GnocchiRbdPoolName: ''
+    HeatWorkers: 1
+    KeystoneWorkers: 1
+    ManilaCephFSDataPoolPGNum: 16
+    ManilaCephFSMetadataPoolPGNum: 16
+    MistralDockerGroup: false
+    NeutronMetadataWorkers: 1
+    NeutronWorkers: 1
+    NotificationDriver: noop
+    NovaComputeLibvirtType: qemu
+    NovaEnableRbdBackend: true
+    NovaReservedHostMemory: 512
+    NovaSchedulerWorkers: 1
+    NovaWorkers: 1
+    NtpServer: pool.ntp.org
+    OvercloudComputeFlavor: baremetal
+    OvercloudComputeHCIFlavor: baremetal
+    OvercloudControlFlavor: baremetal
+    PlacementWorkers: 1
+    RootStackName: overcloud
+    SaharaWorkers: 1
+    StackAction: CREATE
+    SwiftWorkers: 1
+    UndercloudHostsEntries:
+    - 192.168.24.1 undercloud.ctlplane.localdomain undercloud.ctlplane
+    UpdateIdentifier: ''
+  heat_resource_tree:
+    parameters:
+      AddVipsToEtcHosts:
+        default: true
+      ApacheMaxRequestWorkers:
+        default: 100
+      ApacheServerLimit:
+        default: 100
+      CloudDomain:
+        default: localdomain
+      CloudEndpoints:
+        default: {}
+      CloudName:
+        default: overcloud.localdomain
+      CloudNameCtlplane:
+        default: overcloud.ctlplane.localdomain
+      CloudNameInternal:
+        default: overcloud.internalapi.localdomain
+      CloudNameStorage:
+        default: overcloud.storage.localdomain
+      CloudNameStorageManagement:
+        default: overcloud.storagemgmt.localdomain
+      ClusterCommonTag:
+        default: false
+      ComputeHCIAnyErrorsFatal:
+        default: true
+      ComputeHCIControlPlaneSubnet:
+        default: ctlplane-subnet
+      ComputeHCICount:
+        default: 1
+      ComputeHCIExtraConfig:
+        default: {}
+      ComputeHCIExtraGroupVars:
+        default: {}
+      ComputeHCIHostnameFormat:
+        default: '%stackname%-computehci-%index%'
+      ComputeHCIIPs:
+        default: {}
+      ComputeHCIImage:
+        default: overcloud-full
+      ComputeHCIMaxFailPercentage:
+        default: 15
+      ComputeHCINetworkDeploymentActions:
+        default: []
+      ComputeHCIParameters:
+        default: {}
+      ComputeHCIRemovalPolicies:
+        default: []
+      ComputeHCIRemovalPoliciesMode:
+        default: append
+      ComputeHCISchedulerHints:
+        default:
+          capabilities:node: 0-ceph-%index%
+      ComputeHCIServerMetadata:
+        default: {}
+      ComputeHCIServices:
+        default:
+        - OS::TripleO::Services::Aide
+        - OS::TripleO::Services::AuditD
+        - OS::TripleO::Services::BootParams
+        - OS::TripleO::Services::CACerts
+        - OS::TripleO::Services::CephClient
+        - OS::TripleO::Services::CephExternal
+        - OS::TripleO::Services::CephOSD
+        - OS::TripleO::Services::CertmongerUser
+        - OS::TripleO::Services::Collectd
+        - OS::TripleO::Services::ComputeCeilometerAgent
+        - OS::TripleO::Services::ComputeNeutronCorePlugin
+        - OS::TripleO::Services::ComputeNeutronL3Agent
+        - OS::TripleO::Services::ComputeNeutronMetadataAgent
+        - OS::TripleO::Services::ComputeNeutronOvsAgent
+        - OS::TripleO::Services::IpaClient
+        - OS::TripleO::Services::Ipsec
+        - OS::TripleO::Services::Iscsid
+        - OS::TripleO::Services::Kernel
+        - OS::TripleO::Services::LoginDefs
+        - OS::TripleO::Services::MetricsQdr
+        - OS::TripleO::Services::Multipathd
+        - OS::TripleO::Services::MySQLClient
+        - OS::TripleO::Services::NeutronBgpVpnBagpipe
+        - OS::TripleO::Services::NeutronLinuxbridgeAgent
+        - OS::TripleO::Services::NeutronVppAgent
+        - OS::TripleO::Services::NovaAZConfig
+        - OS::TripleO::Services::NovaCompute
+        - OS::TripleO::Services::NovaLibvirt
+        - OS::TripleO::Services::NovaLibvirtGuests
+        - OS::TripleO::Services::NovaMigrationTarget
+        - OS::TripleO::Services::ContainersLogrotateCrond
+        - OS::TripleO::Services::Podman
+        - OS::TripleO::Services::Rear
+        - OS::TripleO::Services::Rhsm
+        - OS::TripleO::Services::Rsyslog
+        - OS::TripleO::Services::RsyslogSidecar
+        - OS::TripleO::Services::Securetty
+        - OS::TripleO::Services::Snmp
+        - OS::TripleO::Services::Sshd
+        - OS::TripleO::Services::Timesync
+        - OS::TripleO::Services::Timezone
+        - OS::TripleO::Services::TripleoFirewall
+        - OS::TripleO::Services::TripleoPackages
+        - OS::TripleO::Services::Tuned
+        - OS::TripleO::Services::Vpp
+        - OS::TripleO::Services::OVNController
+        - OS::TripleO::Services::OVNMetadataAgent
+      ConfigCollectSplay:
+        default: 30
+      ConfigCommand:
+        default: os-refresh-config --timeout 14400
+      ConfigDebug:
+        default: true
+      ControlFixedIPs:
+        default: []
+      ControlPlaneDefaultRoute:
+        default: ''
+      ControlPlaneIP:
+        default:
+          description: IP address on the control plane
+          label: ControlPlaneIP
+          name: ControlPlaneIP
+          noEcho: 'false'
+          type: String
+      ControlPlaneIp:
+        default: ''
+      ControlPlaneMtu:
+        default: 1500
+      ControlPlaneNetwork:
+        default: ctlplane
+      ControlPlaneStaticRoutes:
+        default: []
+      ControlPlaneSubnet:
+        default: ctlplane-subnet
+      ControlPlaneSubnetCidr:
+        default: ''
+      ControllerAnyErrorsFatal:
+        default: true
+      ControllerCount:
+        default: 1
+      ControllerExtraConfig:
+        default:
+          nova::network::neutron::timeout: '60'
+      ControllerExtraGroupVars:
+        default: {}
+      ControllerHostnameFormat:
+        default: '%stackname%-controller-%index%'
+      ControllerMaxFailPercentage:
+        default: 15
+      ControllerNetworkDeploymentActions:
+        default: []
+      ControllerParameters:
+        default: {}
+      ControllerRemovalPolicies:
+        default: []
+      ControllerRemovalPoliciesMode:
+        default: append
+      ControllerSchedulerHints:
+        default:
+          capabilities:node: 0-controller-%index%
+      ControllerServices:
+        default:
+        - OS::TripleO::Services::Aide
+        - OS::TripleO::Services::AodhApi
+        - OS::TripleO::Services::AodhEvaluator
+        - OS::TripleO::Services::AodhListener
+        - OS::TripleO::Services::AodhNotifier
+        - OS::TripleO::Services::AuditD
+        - OS::TripleO::Services::BarbicanApi
+        - OS::TripleO::Services::BarbicanBackendSimpleCrypto
+        - OS::TripleO::Services::BarbicanBackendDogtag
+        - OS::TripleO::Services::BarbicanBackendKmip
+        - OS::TripleO::Services::BarbicanBackendPkcs11Crypto
+        - OS::TripleO::Services::BootParams
+        - OS::TripleO::Services::CACerts
+        - OS::TripleO::Services::CeilometerAgentCentral
+        - OS::TripleO::Services::CeilometerAgentNotification
+        - OS::TripleO::Services::CephExternal
+        - OS::TripleO::Services::CephGrafana
+        - OS::TripleO::Services::CephMds
+        - OS::TripleO::Services::CephMgr
+        - OS::TripleO::Services::CephMon
+        - OS::TripleO::Services::CephRbdMirror
+        - OS::TripleO::Services::CephRgw
+        - OS::TripleO::Services::CertmongerUser
+        - OS::TripleO::Services::CinderApi
+        - OS::TripleO::Services::CinderBackendDellSc
+        - OS::TripleO::Services::CinderBackendDellEMCPowermax
+        - OS::TripleO::Services::CinderBackendDellEMCUnity
+        - OS::TripleO::Services::CinderBackendDellEMCVMAXISCSI
+        - OS::TripleO::Services::CinderBackendDellEMCVNX
+        - OS::TripleO::Services::CinderBackendDellEMCXTREMIOISCSI
+        - OS::TripleO::Services::CinderBackendNetApp
+        - OS::TripleO::Services::CinderBackendPure
+        - OS::TripleO::Services::CinderBackendScaleIO
+        - OS::TripleO::Services::CinderBackendVRTSHyperScale
+        - OS::TripleO::Services::CinderBackendNVMeOF
+        - OS::TripleO::Services::CinderBackup
+        - OS::TripleO::Services::CinderHPELeftHandISCSI
+        - OS::TripleO::Services::CinderScheduler
+        - OS::TripleO::Services::CinderVolume
+        - OS::TripleO::Services::Clustercheck
+        - OS::TripleO::Services::Collectd
+        - OS::TripleO::Services::ContainerImagePrepare
+        - OS::TripleO::Services::DesignateApi
+        - OS::TripleO::Services::DesignateCentral
+        - OS::TripleO::Services::DesignateProducer
+        - OS::TripleO::Services::DesignateWorker
+        - OS::TripleO::Services::DesignateMDNS
+        - OS::TripleO::Services::DesignateSink
+        - OS::TripleO::Services::Etcd
+        - OS::TripleO::Services::ExternalSwiftProxy
+        - OS::TripleO::Services::GlanceApi
+        - OS::TripleO::Services::GnocchiApi
+        - OS::TripleO::Services::GnocchiMetricd
+        - OS::TripleO::Services::GnocchiStatsd
+        - OS::TripleO::Services::HAproxy
+        - OS::TripleO::Services::HeatApi
+        - OS::TripleO::Services::HeatApiCloudwatch
+        - OS::TripleO::Services::HeatApiCfn
+        - OS::TripleO::Services::HeatEngine
+        - OS::TripleO::Services::Horizon
+        - OS::TripleO::Services::IpaClient
+        - OS::TripleO::Services::Ipsec
+        - OS::TripleO::Services::IronicApi
+        - OS::TripleO::Services::IronicConductor
+        - OS::TripleO::Services::IronicInspector
+        - OS::TripleO::Services::IronicPxe
+        - OS::TripleO::Services::IronicNeutronAgent
+        - OS::TripleO::Services::Iscsid
+        - OS::TripleO::Services::Keepalived
+        - OS::TripleO::Services::Kernel
+        - OS::TripleO::Services::Keystone
+        - OS::TripleO::Services::LoginDefs
+        - OS::TripleO::Services::ManilaApi
+        - OS::TripleO::Services::ManilaBackendCephFs
+        - OS::TripleO::Services::ManilaBackendIsilon
+        - OS::TripleO::Services::ManilaBackendNetapp
+        - OS::TripleO::Services::ManilaBackendUnity
+        - OS::TripleO::Services::ManilaBackendVNX
+        - OS::TripleO::Services::ManilaBackendVMAX
+        - OS::TripleO::Services::ManilaScheduler
+        - OS::TripleO::Services::ManilaShare
+        - OS::TripleO::Services::Memcached
+        - OS::TripleO::Services::MetricsQdr
+        - OS::TripleO::Services::MistralApi
+        - OS::TripleO::Services::MistralEngine
+        - OS::TripleO::Services::MistralExecutor
+        - OS::TripleO::Services::MistralEventEngine
+        - OS::TripleO::Services::Multipathd
+        - OS::TripleO::Services::MySQL
+        - OS::TripleO::Services::MySQLClient
+        - OS::TripleO::Services::NeutronApi
+        - OS::TripleO::Services::NeutronBgpVpnApi
+        - OS::TripleO::Services::NeutronSfcApi
+        - OS::TripleO::Services::NeutronCorePlugin
+        - OS::TripleO::Services::NeutronDhcpAgent
+        - OS::TripleO::Services::NeutronL2gwAgent
+        - OS::TripleO::Services::NeutronL2gwApi
+        - OS::TripleO::Services::NeutronL3Agent
+        - OS::TripleO::Services::NeutronLinuxbridgeAgent
+        - OS::TripleO::Services::NeutronMetadataAgent
+        - OS::TripleO::Services::NeutronML2FujitsuCfab
+        - OS::TripleO::Services::NeutronML2FujitsuFossw
+        - OS::TripleO::Services::NeutronOvsAgent
+        - OS::TripleO::Services::NeutronVppAgent
+        - OS::TripleO::Services::NeutronAgentsIBConfig
+        - OS::TripleO::Services::NovaApi
+        - OS::TripleO::Services::NovaConductor
+        - OS::TripleO::Services::NovaIronic
+        - OS::TripleO::Services::NovaMetadata
+        - OS::TripleO::Services::NovaScheduler
+        - OS::TripleO::Services::NovaVncProxy
+        - OS::TripleO::Services::ContainersLogrotateCrond
+        - OS::TripleO::Services::OctaviaApi
+        - OS::TripleO::Services::OctaviaDeploymentConfig
+        - OS::TripleO::Services::OctaviaHealthManager
+        - OS::TripleO::Services::OctaviaHousekeeping
+        - OS::TripleO::Services::OctaviaWorker
+        - OS::TripleO::Services::OpenStackClients
+        - OS::TripleO::Services::OVNDBs
+        - OS::TripleO::Services::OVNController
+        - OS::TripleO::Services::Pacemaker
+        - OS::TripleO::Services::PlacementApi
+        - OS::TripleO::Services::OsloMessagingRpc
+        - OS::TripleO::Services::OsloMessagingNotify
+        - OS::TripleO::Services::Podman
+        - OS::TripleO::Services::Rear
+        - OS::TripleO::Services::Redis
+        - OS::TripleO::Services::Rhsm
+        - OS::TripleO::Services::Rsyslog
+        - OS::TripleO::Services::RsyslogSidecar
+        - OS::TripleO::Services::SaharaApi
+        - OS::TripleO::Services::SaharaEngine
+        - OS::TripleO::Services::Securetty
+        - OS::TripleO::Services::Snmp
+        - OS::TripleO::Services::Sshd
+        - OS::TripleO::Services::SwiftProxy
+        - OS::TripleO::Services::SwiftDispersion
+        - OS::TripleO::Services::SwiftRingBuilder
+        - OS::TripleO::Services::SwiftStorage
+        - OS::TripleO::Services::Timesync
+        - OS::TripleO::Services::Timezone
+        - OS::TripleO::Services::TripleoFirewall
+        - OS::TripleO::Services::TripleoPackages
+        - OS::TripleO::Services::Tuned
+        - OS::TripleO::Services::Vpp
+        - OS::TripleO::Services::Zaqar
+      DatabaseSyncTimeout:
+        default: 900
+      Debug:
+        default: false
+      DefaultHeatAuthEncryptionKey:
+        default:
+          description: ''
+          label: DefaultHeatAuthEncryptionKey
+          name: DefaultHeatAuthEncryptionKey
+          noEcho: 'false'
+          type: String
+      DefaultHorizonSecret:
+        default:
+          description: ''
+          label: DefaultHorizonSecret
+          name: DefaultHorizonSecret
+          noEcho: 'false'
+          type: String
+      DefaultMysqlRootPassword:
+        default:
+          description: ''
+          label: DefaultMysqlRootPassword
+          name: DefaultMysqlRootPassword
+          noEcho: 'false'
+          type: String
+      DefaultPasswords:
+        default: {}
+      DefaultPcsdPassword:
+        default:
+          description: ''
+          label: DefaultPcsdPassword
+          name: DefaultPcsdPassword
+          noEcho: 'false'
+          type: String
+      DefaultRabbitCookie:
+        default:
+          description: ''
+          label: DefaultRabbitCookie
+          name: DefaultRabbitCookie
+          noEcho: 'false'
+          type: String
+      DeployIdentifier:
+        default: ''
+      DeploymentServerBlacklist:
+        default: []
+      DeploymentServerBlacklistDict:
+        default: {}
+      DnsName:
+        default: ''
+      DnsServers:
+        default: []
+      EnableConfigPurge:
+        default: false
+      EnableGalera:
+        default: true
+      EnableInternalTLS:
+        default: false
+      EnableMysqlAuthEd25519:
+        default: false
+      EnableSQLAlchemyCollectd:
+        default: false
+      EndpointMap:
+        default: {}
+      EndpointMapOverride:
+        default: {}
+      ExternalInterfaceDefaultRoute:
+        default: ''
+      ExternalInterfaceRoutes:
+        default: []
+      ExternalIp:
+        default: ''
+      ExternalIpSubnet:
+        default: ''
+      ExternalIpUri:
+        default: ''
+      ExternalMtu:
+        default: 1500
+      ExternalNetName:
+        default: external
+      ExternalNetworkVlanID:
+        default: 10
+      ExternalVirtualFixedIPs:
+        default: []
+      ExtraConfig:
+        default: {}
+      ExtraHostFileEntries:
+        default: []
+      ExtractedPlacementEnabled:
+        default: false
+      FixedIPs:
+        default: []
+      GlobalConfigExtraMapData:
+        default: {}
+      Hostname:
+        default: ''
+      HostnameMap:
+        default: {}
+      HypervisorNeutronPhysicalBridge:
+        default: br-ex
+      HypervisorNeutronPublicInterface:
+        default: nic1
+      IPPool:
+        default: {}
+      ImageUpdatePolicy:
+        default: REBUILD_PRESERVE_EPHEMERAL
+      InstanceNameTemplate:
+        default: instance-%08x
+      InternalApiInterfaceDefaultRoute:
+        default: ''
+      InternalApiInterfaceRoutes:
+        default: []
+      InternalApiIp:
+        default: ''
+      InternalApiIpSubnet:
+        default: ''
+      InternalApiIpUri:
+        default: ''
+      InternalApiMtu:
+        default: 1500
+      InternalApiNetName:
+        default: internal_api
+      InternalApiNetworkVlanID:
+        default: 20
+      InternalApiVirtualFixedIPs:
+        default: []
+      InternalTLSCAFile:
+        default: /etc/ipa/ca.crt
+      KeyName:
+        default: default
+      KeystoneRegion:
+        default: regionOne
+      ManagementInterfaceDefaultRoute:
+        default: ''
+      ManagementInterfaceRoutes:
+        default: []
+      ManagementIp:
+        default: ''
+      ManagementIpSubnet:
+        default: ''
+      ManagementIpUri:
+        default: ''
+      ManagementMtu:
+        default: 1500
+      ManagementNetName:
+        default: management
+      ManagementNetworkVlanID:
+        default: 60
+      MonitoringSubscriptionNovaApi:
+        default: overcloud-nova-api
+      MonitoringSubscriptions:
+        default: []
+      MysqlClustercheckPassword:
+        default: aWasbmo9utzj3JajswxxHelmC
+      MysqlIPv6:
+        default: false
+      MysqlIncreaseFileLimit:
+        default: true
+      MysqlMaxConnections:
+        default: 4096
+      MysqlRootPassword:
+        default: E2OOW2ageI
+      MysqlUpgradePersist:
+        default: false
+      MysqlUpgradeTransfer:
+        default: true
+      NetIpMap:
+        default: {}
+      NetworkDeploymentActions:
+        default:
+        - CREATE
+      NetworkName:
+        default: ctlplane
+      NeutronControlPlaneID:
+        default: ctlplane
+      NeutronMetadataProxySharedSecret:
+        default: dAyHEgvOzNnSMqFR7K86qUrw3
+      NeutronPassword:
+        default: NeTOhGFgULdW0IXcQiKF3RyeG
+      NeutronPhysicalBridge:
+        default: br-ex
+      NeutronPublicInterface:
+        default: nic1
+      NodeCreateBatchSize:
+        default: 30
+      NodeIndex:
+        default: 0
+      NotificationDriver:
+        default: noop
+      NovaAdditionalCell:
+        default: false
+      NovaApiLoggingSource:
+        default:
+          file: /var/log/containers/nova/nova-api.log
+          tag: openstack.nova.api
+      NovaApiPolicies:
+        default: {}
+      NovaCronArchiveDeleteAllCells:
+        default: true
+      NovaCronArchiveDeleteRowsAge:
+        default: 90
+      NovaCronArchiveDeleteRowsDestination:
+        default: /var/log/nova/nova-rowsflush.log
+      NovaCronArchiveDeleteRowsHour:
+        default: '0'
+      NovaCronArchiveDeleteRowsMaxDelay:
+        default: '3600'
+      NovaCronArchiveDeleteRowsMaxRows:
+        default: '1000'
+      NovaCronArchiveDeleteRowsMinute:
+        default: '1'
+      NovaCronArchiveDeleteRowsMonth:
+        default: '*'
+      NovaCronArchiveDeleteRowsMonthday:
+        default: '*'
+      NovaCronArchiveDeleteRowsPurge:
+        default: false
+      NovaCronArchiveDeleteRowsUntilComplete:
+        default: true
+      NovaCronArchiveDeleteRowsUser:
+        default: nova
+      NovaCronArchiveDeleteRowsWeekday:
+        default: '*'
+      NovaCronPurgeShadowTablesAge:
+        default: 14
+      NovaCronPurgeShadowTablesAllCells:
+        default: true
+      NovaCronPurgeShadowTablesDestination:
+        default: /var/log/nova/nova-rowspurge.log
+      NovaCronPurgeShadowTablesHour:
+        default: '5'
+      NovaCronPurgeShadowTablesMaxDelay:
+        default: '3600'
+      NovaCronPurgeShadowTablesMinute:
+        default: '0'
+      NovaCronPurgeShadowTablesMonth:
+        default: '*'
+      NovaCronPurgeShadowTablesMonthday:
+        default: '*'
+      NovaCronPurgeShadowTablesUser:
+        default: nova
+      NovaCronPurgeShadowTablesVerbose:
+        default: false
+      NovaCronPurgeShadowTablesWeekday:
+        default: '*'
+      NovaCrossAZAttach:
+        default: true
+      NovaDbSyncTimeout:
+        default: 300
+      NovaDebug:
+        default: ''
+      NovaDefaultFloatingPool:
+        default: public
+      NovaEnableDBArchive:
+        default: true
+      NovaEnableDBPurge:
+        default: true
+      NovaLocalMetadataPerCell:
+        default: false
+      NovaOVSBridge:
+        default: br-int
+      NovaOVSDBConnection:
+        default: ''
+      NovaPassword:
+        default: mXCUg871bUaFDLm4OtIyXPX3G
+      NovaSyncPowerStateInterval:
+        default: 0
+      NovaWorkers:
+        default: 1
+      OVNDBsVirtualFixedIPs:
+        default: []
+      OvercloudComputeHCIFlavor:
+        default: baremetal
+      PcmkConfigRestartTimeout:
+        default: 600
+      PlacementAPIInterface:
+        default: internal
+      PlacementPassword:
+        default: mXCUg871bUaFDLm4OtIyXPX3G
+      PortName:
+        default: ''
+      PublicVirtualFixedIPs:
+        default: []
+      RabbitCookieSalt:
+        default: unset
+      RedisVirtualFixedIPs:
+        default: []
+      RoleName:
+        default: ''
+      RoleParameters:
+        default: {}
+      RpcPassword:
+        default: O6oSCC5G7S6EaT6wnq7kFaRHr
+      RpcPort:
+        default: 5672
+      RpcUseSSL:
+        default: false
+      RpcUserName:
+        default: guest
+      ServerDeletionPolicy:
+        default: delete
+      ServerMetadata:
+        default: {}
+      ServiceData:
+        default: {}
+      ServiceMetadataSettings:
+        default: {}
+      ServiceName:
+        default: ''
+      ServiceNames:
+        default: []
+      ServiceNetMap:
+        default: {}
+      ServiceNetMapDefaults:
+        default:
+          AodhApiNetwork: internal_api
+          ApacheNetwork: internal_api
+          BINDNetwork: external
+          BarbicanApiNetwork: internal_api
+          CephClusterNetwork: storage_mgmt
+          CephDashboardNetwork: ctlplane
+          CephGrafanaNetwork: storage
+          CephMonNetwork: storage
+          CephRgwNetwork: storage
+          CinderApiNetwork: internal_api
+          CinderIscsiNetwork: storage
+          ComputeHCIHostnameResolveNetwork: internal_api
+          ComputeHCIMetricsQdrNetwork: internal_api
+          ControllerHostnameResolveNetwork: internal_api
+          ControllerMetricsQdrNetwork: internal_api
+          DesignateApiNetwork: internal_api
+          DockerRegistryNetwork: ctlplane
+          EtcdNetwork: internal_api
+          GaneshaNetwork: ctlplane
+          GlanceApiEdgeNetwork: internal_api
+          GlanceApiNetwork: internal_api
+          GnocchiApiNetwork: internal_api
+          HaproxyNetwork: ctlplane
+          HeatApiCfnNetwork: internal_api
+          HeatApiCloudwatchNetwork: internal_api
+          HeatApiNetwork: internal_api
+          HorizonNetwork: internal_api
+          IronicApiNetwork: ctlplane
+          IronicInspectorNetwork: ctlplane
+          IronicNetwork: ctlplane
+          KeystoneAdminApiNetwork: ctlplane
+          KeystonePublicApiNetwork: internal_api
+          ManilaApiNetwork: internal_api
+          MemcachedNetwork: internal_api
+          MistralApiNetwork: internal_api
+          MongodbNetwork: internal_api
+          MysqlNetwork: internal_api
+          NeutronApiNetwork: internal_api
+          NeutronTenantNetwork: tenant
+          NovaApiNetwork: internal_api
+          NovaLibvirtNetwork: internal_api
+          NovaMetadataNetwork: internal_api
+          NovaVncProxyNetwork: internal_api
+          NovajoinNetwork: internal_api
+          OctaviaApiNetwork: internal_api
+          OpendaylightApiNetwork: internal_api
+          OsloMessagingNotifyNetwork: internal_api
+          OsloMessagingRpcNetwork: internal_api
+          OvnDbsNetwork: internal_api
+          PacemakerNetwork: internal_api
+          PacemakerRemoteNetwork: internal_api
+          PlacementNetwork: internal_api
+          PublicNetwork: external
+          QdrNetwork: internal_api
+          RabbitmqNetwork: internal_api
+          RedisNetwork: internal_api
+          SaharaApiNetwork: internal_api
+          SnmpdNetwork: ctlplane
+          SwiftProxyNetwork: storage
+          SwiftStorageNetwork: storage_mgmt
+          ZaqarApiNetwork: internal_api
+      ServiceNetMapDeprecatedMapping:
+        default:
+          CephPublicNetwork: CephMonNetwork
+          RabbitMqNetwork: RabbitmqNetwork
+          SwiftMgmtNetwork: SwiftStorageNetwork
+      Services:
+        default: []
+      SoftwareConfigTransport:
+        default: POLL_TEMP_URL
+      StorageInterfaceDefaultRoute:
+        default: ''
+      StorageInterfaceRoutes:
+        default: []
+      StorageIp:
+        default: ''
+      StorageIpSubnet:
+        default: ''
+      StorageIpUri:
+        default: ''
+      StorageMgmtInterfaceDefaultRoute:
+        default: ''
+      StorageMgmtInterfaceRoutes:
+        default: []
+      StorageMgmtIp:
+        default: ''
+      StorageMgmtIpSubnet:
+        default: ''
+      StorageMgmtIpUri:
+        default: ''
+      StorageMgmtMtu:
+        default: 1500
+      StorageMgmtNetName:
+        default: storage_mgmt
+      StorageMgmtNetworkVlanID:
+        default: 40
+      StorageMgmtVirtualFixedIPs:
+        default: []
+      StorageMtu:
+        default: 1500
+      StorageNetName:
+        default: storage
+      StorageNetworkVlanID:
+        default: 30
+      StorageVirtualFixedIPs:
+        default: []
+      TenantInterfaceDefaultRoute:
+        default: ''
+      TenantInterfaceRoutes:
+        default: []
+      TenantIp:
+        default: ''
+      TenantIpSubnet:
+        default: ''
+      TenantIpUri:
+        default: ''
+      TenantMtu:
+        default: 1500
+      TenantNetName:
+        default: tenant
+      TenantNetworkVlanID:
+        default: 50
+      UndercloudHostsEntries:
+        default:
+        - 192.168.24.1 undercloud.ctlplane.localdomain undercloud.ctlplane
+      UpdateIdentifier:
+        default: ''
+      UpgradeInitCommand:
+        default: ''
+      UpgradeInitCommonCommand:
+        default: ''
+      UpgradeLevelNovaCompute:
+        default: ''
+      UserData:
+        default:
+          description: ''
+          label: UserData
+          name: UserData
+          noEcho: 'false'
+          type: String
+          value: ComputeHCIUserData
+      VipSubnetMap:
+        default: {}
+      VipSubnetMapDefaults:
+        default:
+          External: external_subnet
+          InternalApi: internal_api_subnet
+          Storage: storage_subnet
+          StorageMgmt: storage_mgmt_subnet
+          ctlplane: ctlplane-subnet
+          ovn_dbs: internal_api_subnet
+          redis: internal_api_subnet
+      controllerExtraConfig:
+        default: {}
+      node_admin_extra_ssh_keys:
+        default: []
+      node_admin_username:
+        default: heat-admin
+      server:
+        default:
+          description: ''
+          label: server
+          name: server
+          noEcho: 'false'
+          type: String
+          value: ComputeHCI
+    resources:
+      004cb0fa-cb58-45f0-bfc2-8e3232271578:
+        id: 004cb0fa-cb58-45f0-bfc2-8e3232271578
+        name: ServiceChain
+        parameters: []
+        resources:
+        - 7bfae25a-a6a3-47a7-8eb8-b1321e8c13f1
+        type: OS::Heat::ResourceChain
+      00ed3a79-d6dd-4b53-bab9-a52dcdee0b9f:
+        id: 00ed3a79-d6dd-4b53-bab9-a52dcdee0b9f
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      09bc2f8a-d0f8-4c85-b1cd-b244e25854f1:
+        id: 09bc2f8a-d0f8-4c85-b1cd-b244e25854f1
+        name: AllNodesExtraConfig
+        parameters:
+        - servers
+        resources:
+        - 20a876b2-8223-4e58-95e9-e487cf02fbd1
+        type: OS::TripleO::AllNodesExtraConfig
+      0af55db1-0452-4cd6-acbb-f6909f130687:
+        id: 0af55db1-0452-4cd6-acbb-f6909f130687
+        name: '22'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::CertmongerUser
+      0c32b774-589e-4023-9ec8-766e3fc1b0fb:
+        id: 0c32b774-589e-4023-9ec8-766e3fc1b0fb
+        name: '16'
+        parameters:
+        - ContainerIscsidImage
+        resources:
+        - c64aae74-3134-4e44-ae12-e836414b24c6
+        type: OS::TripleO::Services::Iscsid
+      0c80f24c-d9b9-440e-9258-fc0fe519be70:
+        id: 0c80f24c-d9b9-440e-9258-fc0fe519be70
+        name: NovaLogging
+        parameters:
+        - ContainerNovaImage
+        type: OS::TripleO::Services::Logging::NovaCommon
+      0c847bbc-bebf-4f28-ab50-c7a2e9961727:
+        id: 0c847bbc-bebf-4f28-ab50-c7a2e9961727
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      0ca632ea-0a9d-42ad-9506-2fad7f97fc1d:
+        id: 0ca632ea-0a9d-42ad-9506-2fad7f97fc1d
+        name: NeutronLogging
+        parameters:
+        - NeutronServiceName
+        type: OS::TripleO::Services::Logging::NeutronCommon
+      0cc85cf4-fd95-45e9-b7a1-10852623a085:
+        id: 0cc85cf4-fd95-45e9-b7a1-10852623a085
+        name: ServiceChain
+        parameters: []
+        resources:
+        - 4884c0be-0024-4237-b63e-f281cda89815
+        type: OS::Heat::ResourceChain
+      0d4a2a4d-2ed0-4873-960f-295989ffbd19:
+        id: 0d4a2a4d-2ed0-4873-960f-295989ffbd19
+        name: MysqlBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-base.yaml
+      0d62cc6c-669c-4ce5-b1a9-97bdf3773d93:
+        id: 0d62cc6c-669c-4ce5-b1a9-97bdf3773d93
+        name: MysqlBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-base.yaml
+      10c58912-e9d5-4433-a975-28f919a4ea57:
+        id: 10c58912-e9d5-4433-a975-28f919a4ea57
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      11f681b2-8bbf-4638-a99c-0e57f1d26473:
+        id: 11f681b2-8bbf-4638-a99c-0e57f1d26473
+        name: '137'
+        parameters:
+        - ContainerSwiftConfigImage
+        type: OS::TripleO::Services::SwiftRingBuilder
+      14e42484-0919-4498-aeef-d5ad8133f7bf:
+        id: 14e42484-0919-4498-aeef-d5ad8133f7bf
+        name: EndpointMap
+        parameters:
+        - NetIpMap
+        type: OS::TripleO::EndpointMap
+      1585a934-adef-4c62-a5c5-04d238202fd6:
+        id: 1585a934-adef-4c62-a5c5-04d238202fd6
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      16e0f81d-e490-4baf-880e-4b45b7929172:
+        id: 16e0f81d-e490-4baf-880e-4b45b7929172
+        name: ControllerExtraConfigPre
+        parameters:
+        - server
+        type: OS::TripleO::ControllerExtraConfigPre
+      18074ad0-1e9f-4ae1-a16d-464eb7d08fb3:
+        id: 18074ad0-1e9f-4ae1-a16d-464eb7d08fb3
+        name: NodeUserData
+        parameters: []
+        type: OS::TripleO::NodeUserData
+      1a81c590-502d-42ad-81e7-ca82513ffe31:
+        id: 1a81c590-502d-42ad-81e7-ca82513ffe31
+        name: '38'
+        parameters:
+        - ContainerCinderVolumeImage
+        resources:
+        - f968ffe5-e310-4cd9-919d-1005924cbdfa
+        type: OS::TripleO::Services::CinderVolume
+      1b07f27d-328c-418c-ae5b-6c4359174bba:
+        id: 1b07f27d-328c-418c-ae5b-6c4359174bba
+        name: '43'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Tuned
+      1bebc39f-ce92-4753-9b10-c44648cb40f6:
+        id: 1bebc39f-ce92-4753-9b10-c44648cb40f6
+        name: ComputeHCIExtraConfigPre
+        parameters:
+        - server
+        type: OS::TripleO::ComputeHCIExtraConfigPre
+      1f5e5466-4acb-4e25-baef-82abc2a67094:
+        id: 1f5e5466-4acb-4e25-baef-82abc2a67094
+        name: '139'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Timesync
+      20527635-eb42-48fd-875b-c873f9d16c43:
+        id: 20527635-eb42-48fd-875b-c873f9d16c43
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      20a876b2-8223-4e58-95e9-e487cf02fbd1:
+        id: 20a876b2-8223-4e58-95e9-e487cf02fbd1
+        name: ComputeHCISwapDeployment
+        parameters: []
+        type: OS::Heat::SoftwareDeploymentGroup
+      212b07dc-b305-4598-a9e3-4b004659e73b:
+        id: 212b07dc-b305-4598-a9e3-4b004659e73b
+        name: '27'
+        parameters:
+        - ContainerNovaLibvirtImage
+        resources:
+        - aaa47372-008b-420e-a787-fa9a7c694005
+        type: OS::TripleO::Services::NovaLibvirt
+      22095df0-a048-4a32-91db-8c78ae2c2e05:
+        id: 22095df0-a048-4a32-91db-8c78ae2c2e05
+        name: HeatBase
+        parameters:
+        - Debug
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/heat/heat-base-puppet.yaml
+      2366cde5-e545-4919-9743-ca1ecb14ab86:
+        id: 2366cde5-e545-4919-9743-ca1ecb14ab86
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      23822700-13b5-449a-8993-884a470eec95:
+        id: 23822700-13b5-449a-8993-884a470eec95
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      2393bb0a-5d47-4349-a87e-5ed371b153ec:
+        id: 2393bb0a-5d47-4349-a87e-5ed371b153ec
+        name: SwiftBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/swift/swift-base.yaml
+      23b0a631-1af8-4fb1-a858-d1eb967146ce:
+        id: 23b0a631-1af8-4fb1-a858-d1eb967146ce
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      23c405b1-ab22-45b2-be11-e66b1ee97dce:
+        id: 23c405b1-ab22-45b2-be11-e66b1ee97dce
+        name: HAProxyPublicTLS
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::HAProxyPublicTLS
+      24395c55-f3c9-4076-ad3b-b02912ffb0e2:
+        id: 24395c55-f3c9-4076-ad3b-b02912ffb0e2
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      25a7fcb5-752e-48fc-b4e0-e3bbd2c89c32:
+        id: 25a7fcb5-752e-48fc-b4e0-e3bbd2c89c32
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      2728a299-e633-4d03-ad21-d21caefd1e0f:
+        id: 2728a299-e633-4d03-ad21-d21caefd1e0f
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      274f0104-42e6-4c03-a263-ffd10c819e34:
+        id: 274f0104-42e6-4c03-a263-ffd10c819e34
+        name: '119'
+        parameters:
+        - EndpointMap
+        resources:
+        - bde6c8da-0657-4837-acaa-a1e26d57b853
+        type: OS::TripleO::Services::OVNController
+      276eb741-a213-418a-b3f6-80fb2960ce71:
+        id: 276eb741-a213-418a-b3f6-80fb2960ce71
+        name: NodeAdminUserData
+        parameters:
+        - node_admin_username
+        type: OS::TripleO::NodeAdminUserData
+      27c9cffb-b173-4e4d-8c15-d8d7b0f38bdd:
+        id: 27c9cffb-b173-4e4d-8c15-d8d7b0f38bdd
+        name: '41'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::TripleoFirewall
+      27d3d525-0f0d-483a-9668-ba3020a80315:
+        id: 27d3d525-0f0d-483a-9668-ba3020a80315
+        name: NovaLibvirtLogging
+        parameters:
+        - LibvirtLogLevel
+        type: OS::TripleO::Services::Logging::NovaLibvirt
+      27df5684-d49c-4be6-87ad-d20ab0ba3028:
+        id: 27df5684-d49c-4be6-87ad-d20ab0ba3028
+        name: NetworkConfig
+        parameters:
+        - ControlPlaneIp
+        type: OS::TripleO::Controller::Net::SoftwareConfig
+      28330b08-6d44-44e2-8754-3cf7fdade336:
+        id: 28330b08-6d44-44e2-8754-3cf7fdade336
+        name: '29'
+        parameters:
+        - ContainerNovaComputeImage
+        resources:
+        - eae34461-2081-449d-b929-73b116e5feab
+        type: OS::TripleO::Services::NovaMigrationTarget
+      2952b53f-a030-4a14-ba4e-b573dca5773f:
+        id: 2952b53f-a030-4a14-ba4e-b573dca5773f
+        name: NeutronBase
+        parameters:
+        - ServiceData
+        resources:
+        - 3c5a339c-58cc-4ebe-9ead-f310608dff57
+        type: OS::TripleO::Docker::NeutronMl2PluginBase
+      295498ae-62f9-4cd9-92d8-e0ed33a9df80:
+        id: 295498ae-62f9-4cd9-92d8-e0ed33a9df80
+        name: GlanceLogging
+        parameters:
+        - ContainerGlanceApiImage
+        type: OS::TripleO::Services::Logging::GlanceApi
+      29a0a459-f512-4d22-80ca-33b3d465ddfe:
+        id: 29a0a459-f512-4d22-80ca-33b3d465ddfe
+        name: '57'
+        parameters:
+        - ContainerHeatApiCfnImage
+        resources:
+        - 69c2a5a6-e9ee-4edf-8178-247634cbec70
+        type: OS::TripleO::Services::HeatApiCfn
+      2a4a933e-adce-4dd5-b5f5-2891086e88c1:
+        id: 2a4a933e-adce-4dd5-b5f5-2891086e88c1
+        name: RedisVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::RedisVipPort
+      2b6911c7-6f35-49e2-a7fc-7e6d2142967b:
+        id: 2b6911c7-6f35-49e2-a7fc-7e6d2142967b
+        name: NovaLogging
+        parameters:
+        - ContainerNovaImage
+        type: OS::TripleO::Services::Logging::NovaCommon
+      2c5ec96d-c4d3-4caf-93d7-3761bec9041c:
+        id: 2c5ec96d-c4d3-4caf-93d7-3761bec9041c
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      2f7d4154-1985-4778-9848-553c28994a5e:
+        id: 2f7d4154-1985-4778-9848-553c28994a5e
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      30417c34-8010-4dc2-a2f8-e66ec01dd3b4:
+        id: 30417c34-8010-4dc2-a2f8-e66ec01dd3b4
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      304ed0e4-c5f4-454b-967e-bd5202e34392:
+        id: 304ed0e4-c5f4-454b-967e-bd5202e34392
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      3196b360-6fe2-40b6-b6d0-fd410baf7415:
+        id: 3196b360-6fe2-40b6-b6d0-fd410baf7415
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      322bfe51-7ce0-47a0-b029-a4011e620651:
+        id: 322bfe51-7ce0-47a0-b029-a4011e620651
+        name: CephBase
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ManilaCephFSDataPoolPGNum
+          - ManilaCephFSMetadataPoolPGNum
+          - LocalCephAnsibleFetchDirectoryBackup
+          - SwiftFetchDirGetTempurl
+          - SwiftFetchDirPutTempurl
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/ceph-ansible/ceph-base.yaml
+      33dc9a02-6fb5-4701-abaa-0352a1bf4c59:
+        id: 33dc9a02-6fb5-4701-abaa-0352a1bf4c59
+        name: CephBase
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ManilaCephFSDataPoolPGNum
+          - ManilaCephFSMetadataPoolPGNum
+          - LocalCephAnsibleFetchDirectoryBackup
+          - SwiftFetchDirGetTempurl
+          - SwiftFetchDirPutTempurl
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/ceph-ansible/ceph-base.yaml
+      391f013b-1f02-4ca1-ba1d-4cb60556466c:
+        id: 391f013b-1f02-4ca1-ba1d-4cb60556466c
+        name: '143'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Tuned
+      394599c5-bb76-40da-8083-a66870596faf:
+        id: 394599c5-bb76-40da-8083-a66870596faf
+        name: '11'
+        parameters:
+        - RoleNetIpMap
+        type: OS::TripleO::Services::BootParams
+      398a2971-be85-4cf4-973d-028fdfc09e8f:
+        id: 398a2971-be85-4cf4-973d-028fdfc09e8f
+        name: VipMap
+        parameters:
+        - ControlPlaneIp
+        type: OS::TripleO::Network::Ports::NetVipMap
+      3b09e624-9c89-4702-a8a7-437d82029011:
+        id: 3b09e624-9c89-4702-a8a7-437d82029011
+        name: HAProxyBase
+        parameters:
+        - ContainerHAProxyImage
+        resources:
+        - 23c405b1-ab22-45b2-be11-e66b1ee97dce
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/haproxy/haproxy-container-puppet.yaml
+      3ba767fd-1d91-4a5c-aaf2-2844c20dc63e:
+        id: 3ba767fd-1d91-4a5c-aaf2-2844c20dc63e
+        name: '93'
+        parameters:
+        - EndpointMap
+        resources:
+        - 2952b53f-a030-4a14-ba4e-b573dca5773f
+        type: OS::TripleO::Services::NeutronCorePlugin
+      3c5a339c-58cc-4ebe-9ead-f310608dff57:
+        id: 3c5a339c-58cc-4ebe-9ead-f310608dff57
+        name: NeutronMl2Base
+        parameters:
+        - ServiceData
+        resources:
+        - 819e904d-344b-4044-a89c-bb288e61e6d2
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/neutron/neutron-plugin-ml2.yaml
+      3d3181b3-5038-4001-bf99-e3157053b0ad:
+        id: 3d3181b3-5038-4001-bf99-e3157053b0ad
+        name: TenantPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Controller::Ports::TenantPort
+      3fb1fbb6-44ae-4840-9ed4-63d7ed433ab1:
+        id: 3fb1fbb6-44ae-4840-9ed4-63d7ed433ab1
+        name: '109'
+        parameters:
+        - ContainerNovaSchedulerImage
+        resources:
+        - 44f697c0-8eaf-4d14-b537-e5d13dfc4a8d
+        type: OS::TripleO::Services::NovaScheduler
+      409542ee-0e71-4489-a619-327f6cf343b1:
+        id: 409542ee-0e71-4489-a619-327f6cf343b1
+        name: InternalApiPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::ComputeHCI::Ports::InternalApiPort
+      40e1cfe5-2528-493d-adac-4f9cefb634ef:
+        id: 40e1cfe5-2528-493d-adac-4f9cefb634ef
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      43575489-2803-4195-ace9-f51f053c44fb:
+        id: 43575489-2803-4195-ace9-f51f053c44fb
+        name: '106'
+        parameters:
+        - ContainerNovaConductorImage
+        resources:
+        - d4f59ee2-1541-4f8a-9b4c-f0bc5e1a6063
+        type: OS::TripleO::Services::NovaConductor
+      44f697c0-8eaf-4d14-b537-e5d13dfc4a8d:
+        id: 44f697c0-8eaf-4d14-b537-e5d13dfc4a8d
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      46a75587-0d7c-4b40-a81b-e2e87254a5c3:
+        id: 46a75587-0d7c-4b40-a81b-e2e87254a5c3
+        name: '30'
+        parameters:
+        - ContainerCrondImage
+        resources:
+        - 4feb0fb6-8671-4793-bcd6-3366628643ed
+        type: OS::TripleO::Services::ContainersLogrotateCrond
+      4801ac69-fd0e-460f-aec3-b0dc7d4dbca4:
+        id: 4801ac69-fd0e-460f-aec3-b0dc7d4dbca4
+        name: '56'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::HeatApiCloudwatch
+      480893c2-b973-45dd-baf2-054ea3ca5463:
+        id: 480893c2-b973-45dd-baf2-054ea3ca5463
+        name: '50'
+        parameters:
+        - ServiceData
+        resources:
+        - e2b9b42a-1764-4cdc-9f8e-f66e07d52530
+        type: OS::TripleO::Services::GlanceApi
+      4884c0be-0024-4237-b63e-f281cda89815:
+        id: 4884c0be-0024-4237-b63e-f281cda89815
+        name: '123'
+        parameters:
+        - EndpointMap
+        resources:
+        - f6888a56-ee82-4394-bf7c-e8dae793a2fc
+        type: OS::TripleO::Services::OsloMessagingNotify
+      48972da9-05a8-485e-9e98-7290a46377b6:
+        id: 48972da9-05a8-485e-9e98-7290a46377b6
+        name: '118'
+        parameters:
+        - ContainerOvnDbsImage
+        resources:
+        - be706183-e800-484e-a272-697c3fd276e1
+        type: OS::TripleO::Services::OVNDBs
+      4aaeb9ce-f15a-4362-a55f-32af5a4929ac:
+        id: 4aaeb9ce-f15a-4362-a55f-32af5a4929ac
+        name: '45'
+        parameters:
+        - EndpointMap
+        resources:
+        - c4c6acfa-7fcd-414a-b654-d989c034fb25
+        type: OS::TripleO::Services::OVNController
+      4af53931-47e2-4b7b-93d0-e58c1352cdb0:
+        id: 4af53931-47e2-4b7b-93d0-e58c1352cdb0
+        name: '3'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::CACerts
+      4d2f8f25-600a-47dc-8427-e22f21948f4b:
+        id: 4d2f8f25-600a-47dc-8427-e22f21948f4b
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      4da892dd-18d4-492d-abb0-4308d2849997:
+        id: 4da892dd-18d4-492d-abb0-4308d2849997
+        name: '0'
+        parameters:
+        - OvercloudComputeHCIFlavor
+        resources:
+        - d27cb27e-1b9c-41c3-a3ac-9c1ee1ee0e53
+        type: OS::TripleO::ComputeHCI
+      4e170317-fdb6-4d12-9a8f-ca7a1c712122:
+        id: 4e170317-fdb6-4d12-9a8f-ca7a1c712122
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      4e877e54-2f52-4a6c-92fc-5a68f6a60450:
+        id: 4e877e54-2f52-4a6c-92fc-5a68f6a60450
+        name: '18'
+        parameters:
+        - ServiceData
+        resources:
+        - eab60557-66d3-4a91-b329-f743fef383eb
+        type: OS::TripleO::Services::CephMgr
+      4fe6a4eb-7c9b-48f1-97d8-036de18a9e00:
+        id: 4fe6a4eb-7c9b-48f1-97d8-036de18a9e00
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      4feb0fb6-8671-4793-bcd6-3366628643ed:
+        id: 4feb0fb6-8671-4793-bcd6-3366628643ed
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      504a81f8-6e6c-4b03-82b8-1d19a6cfe215:
+        id: 504a81f8-6e6c-4b03-82b8-1d19a6cfe215
+        name: Networks
+        parameters:
+        - CtlplaneNetworkCidrs
+        type: OS::TripleO::Network
+      511cfe81-764b-4971-bee1-1f3b8860f790:
+        id: 511cfe81-764b-4971-bee1-1f3b8860f790
+        name: CinderBase
+        parameters:
+        - ContainerCinderVolumeImage
+        resources:
+        - 5872db09-dca4-4bf2-b2c2-35c5121f9f54
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-volume-container-puppet.yaml
+      54477a11-db5b-4a89-95c0-bb76fcd00e24:
+        id: 54477a11-db5b-4a89-95c0-bb76fcd00e24
+        name: '21'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::MySQLClient
+      54750310-50c3-4199-8bfc-61a363a6e6e9:
+        id: 54750310-50c3-4199-8bfc-61a363a6e6e9
+        name: '67'
+        parameters:
+        - ContainerIscsidImage
+        resources:
+        - 1585a934-adef-4c62-a5c5-04d238202fd6
+        type: OS::TripleO::Services::Iscsid
+      556c22da-b706-455e-a3d4-2ed7b0e632e0:
+        id: 556c22da-b706-455e-a3d4-2ed7b0e632e0
+        name: CephBase
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ManilaCephFSDataPoolPGNum
+          - ManilaCephFSMetadataPoolPGNum
+          - LocalCephAnsibleFetchDirectoryBackup
+          - SwiftFetchDirGetTempurl
+          - SwiftFetchDirPutTempurl
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/ceph-ansible/ceph-base.yaml
+      56b2d69e-c45e-4aad-92ef-3fef13bb1ee1:
+        id: 56b2d69e-c45e-4aad-92ef-3fef13bb1ee1
+        name: NodeExtraConfig
+        parameters:
+        - server
+        type: OS::TripleO::NodeExtraConfig
+      580f0aa5-16f7-48bd-b0f8-d9171701e3b8:
+        id: 580f0aa5-16f7-48bd-b0f8-d9171701e3b8
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      5872db09-dca4-4bf2-b2c2-35c5121f9f54:
+        id: 5872db09-dca4-4bf2-b2c2-35c5121f9f54
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      58fd3bdf-f270-4c90-a3f3-0e6147162c2c:
+        id: 58fd3bdf-f270-4c90-a3f3-0e6147162c2c
+        name: ControllerIpListMap
+        parameters:
+        - ControlPlaneIpList
+        type: OS::TripleO::Network::Ports::NetIpListMap
+      5a293ec9-56f4-481d-a8d9-957d9a090fc5:
+        id: 5a293ec9-56f4-481d-a8d9-957d9a090fc5
+        name: ComputeHCIServiceChain
+        parameters:
+        - Services
+        resources:
+        - 004cb0fa-cb58-45f0-bfc2-8e3232271578
+        type: OS::TripleO::ComputeHCIServices
+      5a57324b-30db-4ab7-bed2-98fa414eb491:
+        id: 5a57324b-30db-4ab7-bed2-98fa414eb491
+        name: ControllerRoleUserData
+        parameters: []
+        type: OS::TripleO::Controller::NodeUserData
+      5ab807f4-fd5e-4876-99d2-6fa6812407ac:
+        id: 5ab807f4-fd5e-4876-99d2-6fa6812407ac
+        name: '142'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::TripleoPackages
+      5ddd4e24-3ead-4d5a-a8d3-7c29252b2d95:
+        id: 5ddd4e24-3ead-4d5a-a8d3-7c29252b2d95
+        name: '58'
+        parameters:
+        - ContainerHeatEngineImage
+        resources:
+        - 7c5fb290-55ed-43dc-b59d-4cae63efa634
+        type: OS::TripleO::Services::HeatEngine
+      5f9019bf-c6f1-452e-9804-9ad623a085c9:
+        id: 5f9019bf-c6f1-452e-9804-9ad623a085c9
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      5fc2a04f-370c-4e19-b210-edb345e66931:
+        id: 5fc2a04f-370c-4e19-b210-edb345e66931
+        name: HeatBase
+        parameters:
+        - Debug
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/heat/heat-base-puppet.yaml
+      60ded895-2ef2-408c-a910-a8cd98071ea9:
+        id: 60ded895-2ef2-408c-a910-a8cd98071ea9
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      631f40fb-d15e-47d5-86a7-ddc65e1265d9:
+        id: 631f40fb-d15e-47d5-86a7-ddc65e1265d9
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      64d4a37f-e9b7-4baa-a7c2-281751bb8662:
+        id: 64d4a37f-e9b7-4baa-a7c2-281751bb8662
+        name: CinderBase
+        parameters:
+        - CinderStorageAvailabilityZone
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-base.yaml
+      696485d1-1a5b-4abc-84eb-9e392fb8cd5c:
+        id: 696485d1-1a5b-4abc-84eb-9e392fb8cd5c
+        name: Controller
+        parameters: []
+        resources:
+        - 9ea872a1-2f59-4464-b4fc-9b16ce956a41
+        type: OS::Heat::ResourceGroup
+      6995cb1c-7ba1-489c-9dcf-049a1aa60ada:
+        id: 6995cb1c-7ba1-489c-9dcf-049a1aa60ada
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      69b9ad28-14c0-47fd-9adb-e25e49fed1a8:
+        id: 69b9ad28-14c0-47fd-9adb-e25e49fed1a8
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      69c2a5a6-e9ee-4edf-8178-247634cbec70:
+        id: 69c2a5a6-e9ee-4edf-8178-247634cbec70
+        name: HeatApiCfnLogging
+        parameters: []
+        type: OS::TripleO::Services::Logging::HeatApiCfn
+      69ebf83a-5956-457d-bdf7-e4d004f72467:
+        id: 69ebf83a-5956-457d-bdf7-e4d004f72467
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      6bb1c294-813d-4709-afd5-ebc5545a3240:
+        id: 6bb1c294-813d-4709-afd5-ebc5545a3240
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      6d8208df-6a06-4185-aa83-b0a99c797aa5:
+        id: 6d8208df-6a06-4185-aa83-b0a99c797aa5
+        name: HAProxyLogging
+        parameters: []
+        type: OS::TripleO::Services::Logging::HAProxy
+      6de84d54-d293-4f0d-8b46-17f7ae0caf16:
+        id: 6de84d54-d293-4f0d-8b46-17f7ae0caf16
+        name: CinderCommon
+        parameters:
+        - EndpointMap
+        resources:
+        - 8a3aa4a1-6838-41cd-ba15-962b2af4020b
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-common-container-puppet.yaml
+      6f83500b-c197-4dee-9e9e-d080b07317fa:
+        id: 6f83500b-c197-4dee-9e9e-d080b07317fa
+        name: NeutronBase
+        parameters:
+        - DatabaseSyncTimeout
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/neutron/neutron-base.yaml
+      72b79376-ae59-4524-bc73-a1b402c07f1b:
+        id: 72b79376-ae59-4524-bc73-a1b402c07f1b
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      72efacde-3ab0-43d0-9f85-857fe1405ab7:
+        id: 72efacde-3ab0-43d0-9f85-857fe1405ab7
+        name: '111'
+        parameters:
+        - ContainerCrondImage
+        resources:
+        - 3196b360-6fe2-40b6-b6d0-fd410baf7415
+        type: OS::TripleO::Services::ContainersLogrotateCrond
+      7312bbd3-0495-496c-809c-b5c528b3bb78:
+        id: 7312bbd3-0495-496c-809c-b5c528b3bb78
+        name: PublicVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::ExternalVipPort
+      731ea344-7063-4208-af85-e96ea19d074b:
+        id: 731ea344-7063-4208-af85-e96ea19d074b
+        name: '88'
+        parameters:
+        - ContainerMysqlImage
+        resources:
+        - 0d4a2a4d-2ed0-4873-960f-295989ffbd19
+        type: OS::TripleO::Services::MySQL
+      734afb18-6755-4918-82d2-9f47e2679981:
+        id: 734afb18-6755-4918-82d2-9f47e2679981
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      74743613-26f3-4439-a10f-6826a0cc9368:
+        id: 74743613-26f3-4439-a10f-6826a0cc9368
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      76550500-3598-415d-bee1-4e9069d95375:
+        id: 76550500-3598-415d-bee1-4e9069d95375
+        name: Root
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - controllerExtraConfig
+        parameters:
+        - CloudNameStorage
+        resources:
+        - cf9072c0-2c28-4f6c-b459-eaa182ebb52e
+      776bd938-41d2-44b1-964b-5e0639ae39fb:
+        id: 776bd938-41d2-44b1-964b-5e0639ae39fb
+        name: ComputeHCIRoleUserData
+        parameters: []
+        type: OS::TripleO::ComputeHCI::NodeUserData
+      790dbe8e-7a59-4a37-be92-fe047716230b:
+        id: 790dbe8e-7a59-4a37-be92-fe047716230b
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      7953ddbb-76f7-4bb3-a016-953e4a09f730:
+        id: 7953ddbb-76f7-4bb3-a016-953e4a09f730
+        name: RabbitMQServiceBase
+        parameters:
+        - ContainerRabbitmqImage
+        resources:
+        - d41ab8fd-4b09-4d76-848a-32938ef02704
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/rabbitmq/rabbitmq-container-puppet.yaml
+      79dd0af5-c3bc-4356-9af6-4db7bb4694c1:
+        id: 79dd0af5-c3bc-4356-9af6-4db7bb4694c1
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      79ec4402-3a2c-4934-bf79-f8ac48d2a140:
+        id: 79ec4402-3a2c-4934-bf79-f8ac48d2a140
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      7acce70e-6d80-4202-ad6a-22d562b9acd6:
+        id: 7acce70e-6d80-4202-ad6a-22d562b9acd6
+        name: SwiftBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/swift/swift-base.yaml
+      7ad274fe-7081-4d3e-83f3-719d711b31b6:
+        id: 7ad274fe-7081-4d3e-83f3-719d711b31b6
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      7bfae25a-a6a3-47a7-8eb8-b1321e8c13f1:
+        id: 7bfae25a-a6a3-47a7-8eb8-b1321e8c13f1
+        name: '6'
+        parameters:
+        - ServiceData
+        resources:
+        - 33dc9a02-6fb5-4701-abaa-0352a1bf4c59
+        type: OS::TripleO::Services::CephOSD
+      7c5fb290-55ed-43dc-b59d-4cae63efa634:
+        id: 7c5fb290-55ed-43dc-b59d-4cae63efa634
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      7f09fe9b-81c3-46c2-874a-f69ccbed5d8e:
+        id: 7f09fe9b-81c3-46c2-874a-f69ccbed5d8e
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      8093f6f5-86d0-40bf-bf5d-493c84e30f6d:
+        id: 8093f6f5-86d0-40bf-bf5d-493c84e30f6d
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      819e904d-344b-4044-a89c-bb288e61e6d2:
+        id: 819e904d-344b-4044-a89c-bb288e61e6d2
+        name: NeutronBase
+        parameters:
+        - DatabaseSyncTimeout
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/neutron/neutron-base.yaml
+      83629074-1742-425b-91b2-3e46f3c873c2:
+        id: 83629074-1742-425b-91b2-3e46f3c873c2
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      843028a9-3b70-4fc7-8a91-35d696a01941:
+        id: 843028a9-3b70-4fc7-8a91-35d696a01941
+        name: NovaMetadataLogging
+        parameters:
+        - ContainerNovaMetadataImage
+        type: OS::TripleO::Services::Logging::NovaMetadata
+      85779215-ae55-4991-84bb-620454766413:
+        id: 85779215-ae55-4991-84bb-620454766413
+        name: '81'
+        parameters:
+        - ContainerMemcachedImage
+        resources:
+        - a054fc44-759f-4f97-ab11-03fd5f0bd1e2
+        type: OS::TripleO::Services::Memcached
+      85fa65e3-dd28-471b-af93-a0c06de02ab9:
+        id: 85fa65e3-dd28-471b-af93-a0c06de02ab9
+        name: '122'
+        parameters:
+        - ContainerRabbitmqImage
+        resources:
+        - b07eba27-222b-41de-b5ba-72c9e329460a
+        type: OS::TripleO::Services::OsloMessagingRpc
+      86d0e9ae-c443-46af-bb1b-8ab7382661ca:
+        id: 86d0e9ae-c443-46af-bb1b-8ab7382661ca
+        name: '19'
+        parameters:
+        - ServiceData
+        resources:
+        - 556c22da-b706-455e-a3d4-2ed7b0e632e0
+        type: OS::TripleO::Services::CephMon
+      877b3f15-6b14-4754-972e-acbc93f64923:
+        id: 877b3f15-6b14-4754-972e-acbc93f64923
+        name: '110'
+        parameters:
+        - ContainerNovaVncProxyImage
+        resources:
+        - d5ef9973-46c2-4865-b446-403c6d65411f
+        type: OS::TripleO::Services::NovaVncProxy
+      8910a4fd-b075-441e-8f1f-f2a77ca7e2ad:
+        id: 8910a4fd-b075-441e-8f1f-f2a77ca7e2ad
+        name: '38'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Sshd
+      8a397498-06a3-4525-b13a-45851a7359c2:
+        id: 8a397498-06a3-4525-b13a-45851a7359c2
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      8a3aa4a1-6838-41cd-ba15-962b2af4020b:
+        id: 8a3aa4a1-6838-41cd-ba15-962b2af4020b
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      8b3b3394-d622-4914-a313-6ea5bbdcd19a:
+        id: 8b3b3394-d622-4914-a313-6ea5bbdcd19a
+        name: HeatApiLogging
+        parameters: []
+        type: OS::TripleO::Services::Logging::HeatApi
+      8ed68679-8d5b-41a0-a2bd-4b390503442c:
+        id: 8ed68679-8d5b-41a0-a2bd-4b390503442c
+        name: ApacheServiceBase
+        parameters:
+        - ApacheMaxRequestWorkers
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/apache/apache-baremetal-puppet.yaml
+      8f549b6e-8b60-4baf-8c27-cebf53516844:
+        id: 8f549b6e-8b60-4baf-8c27-cebf53516844
+        name: ControllerSwapDeployment
+        parameters: []
+        type: OS::Heat::SoftwareDeploymentGroup
+      904b1440-dcb6-41cc-820b-9bbc1a58f75f:
+        id: 904b1440-dcb6-41cc-820b-9bbc1a58f75f
+        name: InternalApiPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Controller::Ports::InternalApiPort
+      91510eb0-45d4-4904-a69a-f0ceaf6319b3:
+        id: 91510eb0-45d4-4904-a69a-f0ceaf6319b3
+        name: NovaLogging
+        parameters:
+        - ContainerNovaImage
+        type: OS::TripleO::Services::Logging::NovaCommon
+      917b6d74-8b78-421b-bd62-2ab99aa3eb68:
+        id: 917b6d74-8b78-421b-bd62-2ab99aa3eb68
+        name: '133'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Snmp
+      924170d9-967f-476f-b457-715752961615:
+        id: 924170d9-967f-476f-b457-715752961615
+        name: '69'
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - InotifyIntancesMax
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Kernel
+      929d0618-95b3-4ca7-8f6e-1459d53b06e0:
+        id: 929d0618-95b3-4ca7-8f6e-1459d53b06e0
+        name: CinderCommon
+        parameters:
+        - EndpointMap
+        resources:
+        - 7ad274fe-7081-4d3e-83f3-719d711b31b6
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-common-container-puppet.yaml
+      938481ee-f329-4f15-9e00-9facee925838:
+        id: 938481ee-f329-4f15-9e00-9facee925838
+        name: HeatBase
+        parameters:
+        - Debug
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/heat/heat-base-puppet.yaml
+      93fce5a3-4036-46f6-bf9f-dff4560613f7:
+        id: 93fce5a3-4036-46f6-bf9f-dff4560613f7
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      94d88eb7-99fa-4153-a970-5994aea089f1:
+        id: 94d88eb7-99fa-4153-a970-5994aea089f1
+        name: TenantPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::ComputeHCI::Ports::TenantPort
+      9527c1ca-ed06-40e2-a746-90a620878d91:
+        id: 9527c1ca-ed06-40e2-a746-90a620878d91
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      96316dd6-c7aa-41e6-9954-884a9c44644e:
+        id: 96316dd6-c7aa-41e6-9954-884a9c44644e
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      96acbc98-721b-49c9-b3d8-6d702f6e92b8:
+        id: 96acbc98-721b-49c9-b3d8-6d702f6e92b8
+        name: NeutronLogging
+        parameters:
+        - ContainerNeutronApiImage
+        type: OS::TripleO::Services::Logging::NeutronApi
+      96db323e-368e-446d-954e-f1b45c57bafa:
+        id: 96db323e-368e-446d-954e-f1b45c57bafa
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      98a47189-32d0-4185-8930-b6885b700293:
+        id: 98a47189-32d0-4185-8930-b6885b700293
+        name: '55'
+        parameters:
+        - ContainerHeatApiImage
+        resources:
+        - 938481ee-f329-4f15-9e00-9facee925838
+        type: OS::TripleO::Services::HeatApi
+      990443f1-ae57-452b-a6e6-72ee81043caa:
+        id: 990443f1-ae57-452b-a6e6-72ee81043caa
+        name: NodeTimesyncUserData
+        parameters:
+        - NtpServer
+        type: OS::TripleO::NodeTimesyncUserData
+      9a5f35ea-87bd-4e0c-9876-429c55a7767c:
+        id: 9a5f35ea-87bd-4e0c-9876-429c55a7767c
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      9a6e77f8-aa28-41b5-b63d-1ba75f6a6e95:
+        id: 9a6e77f8-aa28-41b5-b63d-1ba75f6a6e95
+        name: '40'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Timezone
+      9bdeba5b-4d1b-4879-935d-aefc642d4d6c:
+        id: 9bdeba5b-4d1b-4879-935d-aefc642d4d6c
+        name: '105'
+        parameters:
+        - ContainerNovaApiImage
+        resources:
+        - a782b3f5-0fe7-4c3a-b19d-e138fc7e340c
+        type: OS::TripleO::Services::NovaApi
+      9c1bf18a-b131-41c4-bf3e-79db2026e0cd:
+        id: 9c1bf18a-b131-41c4-bf3e-79db2026e0cd
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      9e1ef9bd-c0cb-4cb4-b4a2-f89bfa54b855:
+        id: 9e1ef9bd-c0cb-4cb4-b4a2-f89bfa54b855
+        name: '4'
+        parameters:
+        - ServiceData
+        resources:
+        - 322bfe51-7ce0-47a0-b029-a4011e620651
+        type: OS::TripleO::Services::CephClient
+      9ea872a1-2f59-4464-b4fc-9b16ce956a41:
+        id: 9ea872a1-2f59-4464-b4fc-9b16ce956a41
+        name: '0'
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - OvercloudControlFlavor
+          - controllerImage
+        parameters:
+        - OvercloudControlFlavor
+        resources:
+        - 27df5684-d49c-4be6-87ad-d20ab0ba3028
+        type: OS::TripleO::Controller
+      9effbcca-b66a-4618-a30e-c8aa9f2365b2:
+        id: 9effbcca-b66a-4618-a30e-c8aa9f2365b2
+        name: '124'
+        parameters:
+        - DockerInsecureRegistryAddress
+        type: OS::TripleO::Services::Podman
+      a054fc44-759f-4f97-ab11-03fd5f0bd1e2:
+        id: a054fc44-759f-4f97-ab11-03fd5f0bd1e2
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      a0f4ea19-4a8c-4651-8678-4ca47edbf95f:
+        id: a0f4ea19-4a8c-4651-8678-4ca47edbf95f
+        name: '39'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Timesync
+      a243db9d-8b02-4ce2-8d0e-114284f031e9:
+        id: a243db9d-8b02-4ce2-8d0e-114284f031e9
+        name: '28'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::NovaLibvirtGuests
+      a2c4a8c4-219c-478a-b967-3a50d8c27a4c:
+        id: a2c4a8c4-219c-478a-b967-3a50d8c27a4c
+        name: '120'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Pacemaker
+      a3bead95-55a2-429b-aee3-669025a1be09:
+        id: a3bead95-55a2-429b-aee3-669025a1be09
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      a3f4c288-c2f3-4223-be0d-cb90e8d960e8:
+        id: a3f4c288-c2f3-4223-be0d-cb90e8d960e8
+        name: ControllerServiceChain
+        parameters:
+        - Services
+        resources:
+        - 0cc85cf4-fd95-45e9-b7a1-10852623a085
+        type: OS::TripleO::ControllerServices
+      a479a007-4f28-4d6f-83bd-9100bd293ecf:
+        id: a479a007-4f28-4d6f-83bd-9100bd293ecf
+        name: '23'
+        parameters:
+        - ContainerCinderApiImage
+        resources:
+        - 10c58912-e9d5-4433-a975-28f919a4ea57
+        type: OS::TripleO::Services::CinderApi
+      a526a448-4e24-4914-9445-bfcff2e9dd83:
+        id: a526a448-4e24-4914-9445-bfcff2e9dd83
+        name: '46'
+        parameters:
+        - ContainerOvnMetadataImage
+        resources:
+        - 0ca632ea-0a9d-42ad-9506-2fad7f97fc1d
+        type: OS::TripleO::Services::OVNMetadataAgent
+      a5e0ade6-5698-4755-be82-9d82d5ddfd86:
+        id: a5e0ade6-5698-4755-be82-9d82d5ddfd86
+        name: ComputeHCI
+        parameters: []
+        resources:
+        - 4da892dd-18d4-492d-abb0-4308d2849997
+        type: OS::Heat::ResourceGroup
+      a604d442-94aa-4945-b0b6-5a013c32dc34:
+        id: a604d442-94aa-4945-b0b6-5a013c32dc34
+        name: '134'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Sshd
+      a6319e76-9541-44fc-b477-411d33dbcf55:
+        id: a6319e76-9541-44fc-b477-411d33dbcf55
+        name: ControllerExtraConfigPost
+        parameters:
+        - servers
+        type: OS::TripleO::NodeExtraConfigPost
+      a782b3f5-0fe7-4c3a-b19d-e138fc7e340c:
+        id: a782b3f5-0fe7-4c3a-b19d-e138fc7e340c
+        name: NovaApiLogging
+        parameters:
+        - ContainerNovaApiImage
+        type: OS::TripleO::Services::Logging::NovaApi
+      a87e6e91-d8c6-4cae-9bc1-9e6574e0ad2a:
+        id: a87e6e91-d8c6-4cae-9bc1-9e6574e0ad2a
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      aaa47372-008b-420e-a787-fa9a7c694005:
+        id: aaa47372-008b-420e-a787-fa9a7c694005
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      aaa9302e-1172-4971-8d8b-5cd9bc7211c2:
+        id: aaa9302e-1172-4971-8d8b-5cd9bc7211c2
+        name: '31'
+        parameters:
+        - DockerInsecureRegistryAddress
+        type: OS::TripleO::Services::Podman
+      ab644526-4c07-4ab3-81ee-6a7d07f6efbf:
+        id: ab644526-4c07-4ab3-81ee-6a7d07f6efbf
+        name: '2'
+        parameters:
+        - RoleNetIpMap
+        type: OS::TripleO::Services::BootParams
+      aeed3856-749f-404c-94c8-693794d93405:
+        id: aeed3856-749f-404c-94c8-693794d93405
+        name: '70'
+        parameters:
+        - ContainerKeystoneImage
+        resources:
+        - 93fce5a3-4036-46f6-bf9f-dff4560613f7
+        type: OS::TripleO::Services::Keystone
+      af3ea2d7-4fe5-41f5-bc5e-c647ebfcfe45:
+        id: af3ea2d7-4fe5-41f5-bc5e-c647ebfcfe45
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      b0031af2-37fe-4224-872d-fea79057e19c:
+        id: b0031af2-37fe-4224-872d-fea79057e19c
+        name: StorageVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::StorageVipPort
+      b07eba27-222b-41de-b5ba-72c9e329460a:
+        id: b07eba27-222b-41de-b5ba-72c9e329460a
+        name: RabbitmqBase
+        parameters:
+        - ContainerRabbitmqImage
+        resources:
+        - eaaf1e59-caf0-4307-bb9c-af42c9042e97
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/rabbitmq/rabbitmq-messaging-rpc-container-puppet.yaml
+      b20ddbb5-9555-4a58-8a40-82ea43ba4e51:
+        id: b20ddbb5-9555-4a58-8a40-82ea43ba4e51
+        name: ComputeHCIExtraConfigPost
+        parameters:
+        - servers
+        type: OS::TripleO::NodeExtraConfigPost
+      b2550f71-a2f6-46a7-847f-effba4fbcc39:
+        id: b2550f71-a2f6-46a7-847f-effba4fbcc39
+        name: StorageMgmtPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Controller::Ports::StorageMgmtPort
+      b50db5c5-fb01-4516-aa1b-b0ce3a819ed8:
+        id: b50db5c5-fb01-4516-aa1b-b0ce3a819ed8
+        name: CinderBase
+        parameters:
+        - CinderStorageAvailabilityZone
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-base.yaml
+      b6759c0c-c354-4e11-a728-0e252ccc6741:
+        id: b6759c0c-c354-4e11-a728-0e252ccc6741
+        name: NeutronBase
+        parameters:
+        - DatabaseSyncTimeout
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/neutron/neutron-base.yaml
+      b6b880fa-da18-4ac4-894c-18cf7a2abf95:
+        id: b6b880fa-da18-4ac4-894c-18cf7a2abf95
+        name: NovaComputeCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-compute-common-container-puppet.yaml
+      b7b26969-090c-433d-8213-56a652c8e669:
+        id: b7b26969-090c-433d-8213-56a652c8e669
+        name: NetIpMap
+        parameters:
+        - ControlPlaneIp
+        type: OS::TripleO::Network::Ports::NetIpMap
+      b8546a6c-44ee-42f0-97d1-1684a5b86993:
+        id: b8546a6c-44ee-42f0-97d1-1684a5b86993
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      b890bc93-bbff-4b56-925d-3d74cbef0839:
+        id: b890bc93-bbff-4b56-925d-3d74cbef0839
+        name: '59'
+        parameters:
+        - ContainerHorizonImage
+        resources:
+        - 6bb1c294-813d-4709-afd5-ebc5545a3240
+        type: OS::TripleO::Services::Horizon
+      b8ab9225-69b6-4a26-9443-947d9bceb572:
+        id: b8ab9225-69b6-4a26-9443-947d9bceb572
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      bbc4bc2b-9ff2-4bca-a6a0-1a64b765627a:
+        id: bbc4bc2b-9ff2-4bca-a6a0-1a64b765627a
+        name: StorageMgmtVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::StorageMgmtVipPort
+      bda70130-7945-43b5-ab35-ea9c36409cd1:
+        id: bda70130-7945-43b5-ab35-ea9c36409cd1
+        name: '138'
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ControllerEnableSwiftStorage
+        parameters:
+        - ContainerSwiftProxyImage
+        resources:
+        - 734afb18-6755-4918-82d2-9f47e2679981
+        type: OS::TripleO::Services::SwiftStorage
+      bde6c8da-0657-4837-acaa-a1e26d57b853:
+        id: bde6c8da-0657-4837-acaa-a1e26d57b853
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      be706183-e800-484e-a272-697c3fd276e1:
+        id: be706183-e800-484e-a272-697c3fd276e1
+        name: OVNDbsBase
+        parameters:
+        - ContainerOvnNbDbImage
+        resources:
+        - 8a397498-06a3-4525-b13a-45851a7359c2
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/ovn/ovn-dbs-container-puppet.yaml
+      c36a0b07-85d2-4475-b2da-f1ebfd47f900:
+        id: c36a0b07-85d2-4475-b2da-f1ebfd47f900
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      c469e7c7-fb69-4d24-b3fe-39df1f2d5797:
+        id: c469e7c7-fb69-4d24-b3fe-39df1f2d5797
+        name: HeatEngineLogging
+        parameters:
+        - ContainerHeatEngineImage
+        type: OS::TripleO::Services::Logging::HeatEngine
+      c4c6acfa-7fcd-414a-b654-d989c034fb25:
+        id: c4c6acfa-7fcd-414a-b654-d989c034fb25
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      c5056cd8-4275-423c-b75f-3955f8ec6a19:
+        id: c5056cd8-4275-423c-b75f-3955f8ec6a19
+        name: '140'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Timezone
+      c62eb7d7-66ce-4223-bc28-88cead97f153:
+        id: c62eb7d7-66ce-4223-bc28-88cead97f153
+        name: '26'
+        parameter_groups:
+        - description: 'The following parameters are deprecated and will be removed.
+            They should not
+
+            be relied on for new deployments. If you have concerns regarding deprecated
+
+            parameters, please contact the TripleO development team on IRC or the
+
+            Openstack mailing list.
+
+            '
+          label: deprecated
+          parameters:
+          - NovaVcpuPinSet
+        parameters:
+        - ContainerNovaComputeImage
+        resources:
+        - 580f0aa5-16f7-48bd-b0f8-d9171701e3b8
+        type: OS::TripleO::Services::NovaCompute
+      c64aae74-3134-4e44-ae12-e836414b24c6:
+        id: c64aae74-3134-4e44-ae12-e836414b24c6
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      c78c4df9-aa06-4ffa-a19b-035ccaff8991:
+        id: c78c4df9-aa06-4ffa-a19b-035ccaff8991
+        name: NetIpMap
+        parameters:
+        - ControlPlaneIp
+        type: OS::TripleO::Network::Ports::NetIpMap
+      c863a357-f8e3-4280-92fd-811065305e40:
+        id: c863a357-f8e3-4280-92fd-811065305e40
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      c99a80d5-c9d6-4497-9c13-9596bb93e88a:
+        id: c99a80d5-c9d6-4497-9c13-9596bb93e88a
+        name: StoragePort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Controller::Ports::StoragePort
+      cb71c038-5f8e-47ba-a27b-418b5dd1f362:
+        id: cb71c038-5f8e-47ba-a27b-418b5dd1f362
+        name: StoragePort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::ComputeHCI::Ports::StoragePort
+      cc5101f9-2846-4e63-a70f-554a084efc88:
+        id: cc5101f9-2846-4e63-a70f-554a084efc88
+        name: '135'
+        parameters:
+        - ContainerSwiftProxyImage
+        resources:
+        - 25a7fcb5-752e-48fc-b4e0-e3bbd2c89c32
+        type: OS::TripleO::Services::SwiftProxy
+      cc5b3dc6-8be7-49c5-8a33-084abeb43dbc:
+        id: cc5b3dc6-8be7-49c5-8a33-084abeb43dbc
+        name: PlacementLogging
+        parameters:
+        - ContainerPlacementImage
+        type: OS::TripleO::Services::Logging::PlacementApi
+      cf9072c0-2c28-4f6c-b459-eaa182ebb52e:
+        id: cf9072c0-2c28-4f6c-b459-eaa182ebb52e
+        name: DefaultPasswords
+        parameters:
+        - DefaultMysqlRootPassword
+        type: OS::TripleO::DefaultPasswords
+      d2759a63-d17d-47eb-b9f4-c2b9612093b8:
+        id: d2759a63-d17d-47eb-b9f4-c2b9612093b8
+        name: '89'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::MySQLClient
+      d27cb27e-1b9c-41c3-a3ac-9c1ee1ee0e53:
+        id: d27cb27e-1b9c-41c3-a3ac-9c1ee1ee0e53
+        name: NetworkConfig
+        parameters:
+        - ControlPlaneIp
+        type: OS::TripleO::ComputeHCI::Net::SoftwareConfig
+      d41ab8fd-4b09-4d76-848a-32938ef02704:
+        id: d41ab8fd-4b09-4d76-848a-32938ef02704
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      d469f5ec-1858-41bb-9f27-06f8098b0452:
+        id: d469f5ec-1858-41bb-9f27-06f8098b0452
+        name: ExternalPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Controller::Ports::ExternalPort
+      d4f59ee2-1541-4f8a-9b4c-f0bc5e1a6063:
+        id: d4f59ee2-1541-4f8a-9b4c-f0bc5e1a6063
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      d562a5ce-0133-41ad-b52b-d5b902e7b1ec:
+        id: d562a5ce-0133-41ad-b52b-d5b902e7b1ec
+        name: KeystoneLogging
+        parameters:
+        - ContainerKeystoneImage
+        type: OS::TripleO::Services::Logging::Keystone
+      d5ac91a0-d47b-45f9-8f3f-75d0fa4c0947:
+        id: d5ac91a0-d47b-45f9-8f3f-75d0fa4c0947
+        name: AllNodesDeploySteps
+        parameters:
+        - servers
+        resources:
+        - a6319e76-9541-44fc-b477-411d33dbcf55
+        type: OS::TripleO::PostDeploySteps
+      d5ef9973-46c2-4865-b446-403c6d65411f:
+        id: d5ef9973-46c2-4865-b446-403c6d65411f
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      d78e5268-d434-4d77-a07f-f59d10588715:
+        id: d78e5268-d434-4d77-a07f-f59d10588715
+        name: NovaLogging
+        parameters:
+        - ContainerNovaImage
+        type: OS::TripleO::Services::Logging::NovaCommon
+      da167bcb-03bc-4ad8-8246-593b93187aea:
+        id: da167bcb-03bc-4ad8-8246-593b93187aea
+        name: '17'
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - InotifyIntancesMax
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Kernel
+      dc26d938-b7b8-45f0-a5e7-79a4ce922069:
+        id: dc26d938-b7b8-45f0-a5e7-79a4ce922069
+        name: '37'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::Snmp
+      dd5c7d96-b38c-44a4-bde3-1f5a1d8da245:
+        id: dd5c7d96-b38c-44a4-bde3-1f5a1d8da245
+        name: '54'
+        parameters:
+        - ContainerHAProxyImage
+        resources:
+        - 2c5ec96d-c4d3-4caf-93d7-3761bec9041c
+        type: OS::TripleO::Services::HAproxy
+      de3aeaf7-e221-4862-aa30-2ec143562034:
+        id: de3aeaf7-e221-4862-aa30-2ec143562034
+        name: '7'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::CertmongerUser
+      deec0d78-bf77-4803-af30-52a5228f8504:
+        id: deec0d78-bf77-4803-af30-52a5228f8504
+        name: StorageMgmtPort
+        parameters:
+        - ServiceName
+        type: OS::TripleO::ComputeHCI::Ports::StorageMgmtPort
+      df789c53-face-44f1-8a16-04f64535ae18:
+        id: df789c53-face-44f1-8a16-04f64535ae18
+        name: '90'
+        parameter_groups:
+        - description: 'The following parameters are deprecated and will be removed.
+            They should not
+
+            be relied on for new deployments. If you have concerns regarding deprecated
+
+            parameters, please contact the TripleO development team on IRC or the
+
+            OpenStack mailing list.
+
+            '
+          label: deprecated
+          parameters:
+          - NeutronL3HA
+        parameters:
+        - ContainerNeutronApiImage
+        resources:
+        - 96acbc98-721b-49c9-b3d8-6d702f6e92b8
+        type: OS::TripleO::Services::NeutronApi
+      e0654479-b219-4112-a485-a72f280b44ba:
+        id: e0654479-b219-4112-a485-a72f280b44ba
+        name: OVNDBsVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::OVNDBsVipPort
+      e2b9b42a-1764-4cdc-9f8e-f66e07d52530:
+        id: e2b9b42a-1764-4cdc-9f8e-f66e07d52530
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      e3b7fa5b-4d18-4008-8a20-009f5380bdd7:
+        id: e3b7fa5b-4d18-4008-8a20-009f5380bdd7
+        name: '42'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::TripleoPackages
+      e7ef836a-bd03-4202-a032-82b981f874fd:
+        id: e7ef836a-bd03-4202-a032-82b981f874fd
+        name: '121'
+        parameters:
+        - ContainerPlacementImage
+        resources:
+        - 23b0a631-1af8-4fb1-a858-d1eb967146ce
+        type: OS::TripleO::Services::PlacementApi
+      e8d17d7f-0483-4066-b425-cd9eb075b1be:
+        id: e8d17d7f-0483-4066-b425-cd9eb075b1be
+        name: MysqlPuppetBase
+        parameters:
+        - ContainerMysqlImage
+        resources:
+        - 0d62cc6c-669c-4ce5-b1a9-97bdf3773d93
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-pacemaker-puppet.yaml
+      eaaf1e59-caf0-4307-bb9c-af42c9042e97:
+        id: eaaf1e59-caf0-4307-bb9c-af42c9042e97
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      eab60557-66d3-4a91-b329-f743fef383eb:
+        id: eab60557-66d3-4a91-b329-f743fef383eb
+        name: CephBase
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ManilaCephFSDataPoolPGNum
+          - ManilaCephFSMetadataPoolPGNum
+          - LocalCephAnsibleFetchDirectoryBackup
+          - SwiftFetchDirGetTempurl
+          - SwiftFetchDirPutTempurl
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/ceph-ansible/ceph-base.yaml
+      eae34461-2081-449d-b929-73b116e5feab:
+        id: eae34461-2081-449d-b929-73b116e5feab
+        name: SshdBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/sshd/sshd-baremetal-puppet.yaml
+      ebb84b43-aa6f-4352-b1c1-78d2f1368a97:
+        id: ebb84b43-aa6f-4352-b1c1-78d2f1368a97
+        name: '12'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::CACerts
+      ede3480f-65be-4194-b20f-c553265fa790:
+        id: ede3480f-65be-4194-b20f-c553265fa790
+        name: '108'
+        parameters:
+        - ContainerNovaMetadataImage
+        resources:
+        - 843028a9-3b70-4fc7-8a91-35d696a01941
+        type: OS::TripleO::Services::NovaMetadata
+      ee32c1c3-d5b8-4ee3-807d-0a14b11e1fb2:
+        id: ee32c1c3-d5b8-4ee3-807d-0a14b11e1fb2
+        name: InternalApiVirtualIP
+        parameters:
+        - ServiceName
+        type: OS::TripleO::Network::Ports::InternalApiVipPort
+      ee736bc2-35fd-460e-bd46-c7bcf9423378:
+        id: ee736bc2-35fd-460e-bd46-c7bcf9423378
+        name: '141'
+        parameters:
+        - ServiceData
+        type: OS::TripleO::Services::TripleoFirewall
+      f0b0f7c7-2530-4cd5-a1f7-0ed4f7d6e672:
+        id: f0b0f7c7-2530-4cd5-a1f7-0ed4f7d6e672
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      f16b83b7-aca1-47ae-becc-5e5f5ac1e613:
+        id: f16b83b7-aca1-47ae-becc-5e5f5ac1e613
+        name: '39'
+        parameters:
+        - ContainerClustercheckImage
+        resources:
+        - 30417c34-8010-4dc2-a2f8-e66ec01dd3b4
+        type: OS::TripleO::Services::Clustercheck
+      f2710d64-363e-4d15-94da-609887902bf2:
+        id: f2710d64-363e-4d15-94da-609887902bf2
+        name: '37'
+        parameters:
+        - ContainerCinderSchedulerImage
+        resources:
+        - 631f40fb-d15e-47d5-86a7-ddc65e1265d9
+        type: OS::TripleO::Services::CinderScheduler
+      f456aff5-d1e6-4346-9a51-2526de7ed825:
+        id: f456aff5-d1e6-4346-9a51-2526de7ed825
+        name: NodeExtraConfig
+        parameters:
+        - server
+        type: OS::TripleO::NodeExtraConfig
+      f5228973-e111-4864-b13d-ddc08dc20aa0:
+        id: f5228973-e111-4864-b13d-ddc08dc20aa0
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      f537bec9-07ea-40b9-8496-1441b706ff63:
+        id: f537bec9-07ea-40b9-8496-1441b706ff63
+        name: ComputeHCIIpListMap
+        parameters:
+        - ControlPlaneIpList
+        type: OS::TripleO::Network::Ports::NetIpListMap
+      f6888a56-ee82-4394-bf7c-e8dae793a2fc:
+        id: f6888a56-ee82-4394-bf7c-e8dae793a2fc
+        name: ContainersCommon
+        parameters:
+        - EndpointMap
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/containers-common.yaml
+      f742a048-f2d1-4c73-94e0-cf7b009a6db4:
+        id: f742a048-f2d1-4c73-94e0-cf7b009a6db4
+        name: CinderBase
+        parameters:
+        - CinderStorageAvailabilityZone
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/cinder/cinder-base.yaml
+      f9316fa2-1822-4758-9e04-37ded21bebb0:
+        id: f9316fa2-1822-4758-9e04-37ded21bebb0
+        name: ServiceNetMap
+        parameter_groups:
+        - description: Do not use deprecated params, they will be removed.
+          label: deprecated
+          parameters:
+          - ServiceNetMapDeprecatedMapping
+        parameters:
+        - ServiceNetMap
+        type: OS::TripleO::ServiceNetMap
+      f968ffe5-e310-4cd9-919d-1005924cbdfa:
+        id: f968ffe5-e310-4cd9-919d-1005924cbdfa
+        name: MySQLClient
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/database/mysql-client.yaml
+      fa90a5f5-b92b-44a6-9a72-df39c669c5cb:
+        id: fa90a5f5-b92b-44a6-9a72-df39c669c5cb
+        name: NovaBase
+        parameters:
+        - ServiceData
+        type: https://192.168.24.2:13808/v1/AUTH_ca64f567ef1b4db0a789a352c1315a08/overcloud/deployment/nova/nova-base-puppet.yaml
+      fbda4c48-d763-4fc1-8504-1b01781f861e:
+        id: fbda4c48-d763-4fc1-8504-1b01781f861e
+        name: '41'
+        parameters:
+        - EndpointMap
+        type: OS::TripleO::Services::ContainerImagePrepare
+success: true
