@@ -18,5 +18,5 @@
 # All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_systemd_wrapper"
-tripleo_systemd_wrapper_debug: false
+tripleo_systemd_wrapper_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_systemd_wrapper_container_cli: podman

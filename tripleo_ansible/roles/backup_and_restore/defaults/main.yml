@@ -16,6 +16,8 @@
 
 
 # All variables intended for modification should be placed in this file.
+tripleo_backup_and_restore_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
+tripleo_backup_and_restore_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 
 # Set the container command line entry-point
 tripleo_container_cli: "{{ container_cli | default('podman') }}"
@@ -26,7 +28,6 @@ tripleo_backup_and_restore_service_manager: true
 tripleo_backup_and_restore_mysql_container: mysql
 
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
-tripleo_backup_and_restore_debug: false
 # By default this should be the Undercloud node
 tripleo_backup_and_restore_nfs_server: 192.168.24.1
 tripleo_backup_and_restore_nfs_storage_folder: /ctl_plane_backups

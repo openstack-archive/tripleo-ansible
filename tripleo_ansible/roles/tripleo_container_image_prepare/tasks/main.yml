@@ -57,7 +57,7 @@
         {% if (tripleo_container_image_prepare_debug | bool) %}
         --debug
         {% endif %}
-      no_log: "{{ not (tripleo_container_image_prepare_debug | bool) }}"
+      no_log: "{{ not tripleo_container_image_prepare_debug | bool }}"
       when:
         - (tripleo_container_image_prepare_content | dict2items | length) > 0
         - (tripleo_container_image_prepare_roles | length) > 0

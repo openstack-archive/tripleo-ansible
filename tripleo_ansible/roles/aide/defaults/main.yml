@@ -19,6 +19,7 @@
 
 # Packages installed on the local system. Allows user to define this list
 # otherwise it will inherit from the OS specific variable file(s).
+aide_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 aide_system_packages: "{{ _aide_system_packages | default([]) }}"
 
 # A hash of Aide rules

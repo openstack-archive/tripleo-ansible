@@ -23,7 +23,7 @@
 #   * `tripleo_transfer_src_dir` -- directory on the source host to transfer from
 #   * `tripleo_transfer_dest_host` -- the inventory name of the destination host
 #   * `tripleo_transfer_dest_dir` -- directory on the destination host to transfer to
-
+tripleo_transfer_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 tripleo_transfer_storage_root_dir: /var/lib/mistral/tripleo-transfer
 tripleo_transfer_storage_root_become: false
 tripleo_transfer_src_become: true

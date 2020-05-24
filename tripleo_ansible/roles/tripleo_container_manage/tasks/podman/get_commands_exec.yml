@@ -15,7 +15,7 @@
 # under the License.
 
 - name: "Create a list of podman exec commands that are run"
-  no_log: "{{ not tripleo_container_manage_debug }}"
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   set_fact:
     containers_commands: >-
       {{ (containers_commands | default([])) + ([lookup('dict', container_exec_data).value |

@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-tripleo_login_defs_debug: false
+tripleo_login_defs_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 
 # The maximum number of days a password may be used
 tripleo_login_defs_password_max_days: 60

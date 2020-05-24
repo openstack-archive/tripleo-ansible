@@ -17,7 +17,7 @@
 
 # All variables intended for modification should be placed in this file.
 
-tripleo_cellv2_debug: false
+tripleo_cellv2_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_cellv2_cell_name: ""
 # containercli can be tropped when we fully switched to podman
 tripleo_cellv2_containercli: "docker"

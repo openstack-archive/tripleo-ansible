@@ -16,6 +16,8 @@
 
 
 # All variables intended for modification should place placed in this file.
+tripleo_container_manage_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
+tripleo_container_manage_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
 tripleo_container_manage_check_puppet_config: false
@@ -25,7 +27,6 @@ tripleo_container_manage_config: "/var/lib/tripleo-config/"
 tripleo_container_manage_config_id: tripleo
 tripleo_container_manage_config_overrides: {}
 tripleo_container_manage_config_patterns: '*.json'
-tripleo_container_manage_debug: false
 # Some containers where Puppet is run, can take up to 10 minutes to finish
 # in slow environments.
 tripleo_container_manage_create_retries: 120

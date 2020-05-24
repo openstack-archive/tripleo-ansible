@@ -22,13 +22,14 @@
   any_errors_fatal: true
   vars:
     container: overcloud
+    hide_sensitive_logs: true
 
   tasks:
     - name: Rotate keys and update plan
       tripleo_fernet_keys_rotate:
         container: "{{ container }}"
       register: fernet_keys
-      no_log: true
+      no_log: "{{ hide_sensitive_logs | bool }}"
 
 - name: Rotate fernet keys on controller nodes
   import_playbook: rotate-keys.yaml fernet_keys="{{ hostvars['undercloud']['fernet_keys']['fernet_keys'] }}"

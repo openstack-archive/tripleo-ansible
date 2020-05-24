@@ -119,7 +119,7 @@
   shell: "{{ item }}"
   # We want the output chunked into bits to prevent
   # overflowing Zaqar message size
-  no_log: true
+  no_log: "{{ not (tripleo_ceph_run_ansible_debug | bool) }}"
   failed_when: false
   register: outputs
   tags: run_ceph_ansible
@@ -129,7 +129,7 @@
 - name: search output of ceph-ansible run(s) non-zero return codes
   set_fact:
     ceph_ansible_std_out_err: "{{ item.stdout_lines | default([]) | union(item.stderr_lines | default([])) }}"
-  no_log: true
+  no_log: "{{ tripleo_ceph_run_ansible_hide_sensitive_logs | bool }}"
   when:
     - item.rc is defined
     - item.rc != 0
