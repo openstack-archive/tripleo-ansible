@@ -33,11 +33,13 @@
     - always
 
 - name: Ensure mcelog is installed
+  become: true
   package:
     name: mcelog
     state: installed
 
 - name: Ensure mcelog is enabled and started
+  become: true
   systemd:
     state: started
     name: mcelog
