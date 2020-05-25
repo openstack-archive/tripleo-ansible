@@ -35,6 +35,7 @@
   loop_control:
     loop_var: container_data
   podman_container:
+    annotation: "{{ lookup('dict', container_data).value.annotation | default(omit) }}"
     cap_add: "{{ lookup('dict', container_data).value.cap_add | default(omit) }}"
     cap_drop: "{{ lookup('dict', container_data).value.cap_drop | default(omit) }}"
     command: "{{ lookup('dict', container_data).value.command | default(omit) }}"
@@ -42,6 +43,7 @@
     cpu_shares: "{{ lookup('dict', container_data).value.cpu_shares | default(omit) }}"
     debug: true
     detach: "{{ lookup('dict', container_data).value.detach | default(true) }}"
+    device: "{{ lookup('dict', container_data).value.device | default(omit) }}"
     entrypoint: "{{ lookup('dict', container_data).value.entrypoint | default(omit) }}"
     env: "{{ lookup('dict', container_data).value.environment | default(omit) }}"
     env_file: "{{ lookup('dict', container_data).value.env_file | default(omit) }}"
@@ -76,6 +78,7 @@
     state: present
     stop_signal: "{{ lookup('dict', container_data).value.stop_signal | default(omit) }}"
     stop_timeout: "{{ lookup('dict', container_data).value.stop_grace_period | default(omit) | int }}"
+    sysctl: "{{ lookup('dict', container_data).value.sysctl | default(omit) }}"
     tty: "{{ lookup('dict', container_data).value.tty | default(false) }}"
     ulimit: "{{ lookup('dict', container_data).value.ulimit | default(omit) }}"
     user: "{{ lookup('dict', container_data).value.user | default(omit) }}"
