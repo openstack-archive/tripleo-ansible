@@ -36,51 +36,40 @@
     path: "{{ test_deps_mirrors_file_path }}"
   register: mirrors_file
 
-- when: mirrors_file.stat.exists
-  block:
-
-    - name: Discover mirror for RDO if exists
-      shell: |
-        source {{ test_deps_mirrors_file_path }}
-        echo $NODEPOOL_RDO_PROXY
-      register: rdo_mirror_proxy
-      changed_when: false
-
-    - name: Set fact for the mirror with proxy
-      set_fact:
-        rdo_mirror: "{{ rdo_mirror_proxy.stdout|default('https://trunk.rdoproject.org', true) }}"
-
-- name: Set fact for the mirror without proxy
-  set_fact:
-    rdo_mirror: 'https://trunk.rdoproject.org'
-  when: not mirrors_file.stat.exists
-
-- name: Print used mirror
-  debug: var=rdo_mirror
-
-- name: Set test_deps_repo
-  set_fact:
-    test_deps_repo: "{{ test_deps_repo.replace('https://trunk.rdoproject.org', rdo_mirror) }}"
-
 - name: RHEL Block
   become: true
   when:
     - (ansible_os_family | lower) == 'redhat'
+    - mirrors_file.stat.exists | bool
   block:
-    - name: install deplorean repo
-      get_url:
-        url: "{{ rdo_mirror }}/{{ test_deps_repo_version }}/current-tripleo/delorean.repo"
+    - name: Fetch latest repo version
+      uri:
+        url: https://trunk.rdoproject.org/{{ (ansible_distribution | lower) }}{{ ansible_distribution_major_version }}/current/delorean.repo
+        return_content: true
+      register: tripleo_packages
+
+    - name: Create default repo file
+      copy:
+        content: "{{ tripleo_packages.content }}"
         dest: /etc/yum.repos.d/delorean.repo
 
-    - name: install deplorean-deps repo
-      get_url:
-        url: "{{ rdo_mirror }}/{{ test_deps_repo_version }}/delorean-deps.repo"
-        dest: /etc/yum.repos.d/delorean-deps.repo
+- name: Install tripleo-repos package
+  package:
+    name: "python*tripleo-repos"
+    state: present
 
-- include_tasks: tripleo-setup.yml
+- name: Tripleo setup block
   when:
     - (ansible_os_family | lower) == 'redhat'
     - test_deps_setup_tripleo | bool
+  block:
+    - name: Create tripleo repos
+      command: tripleo-repos -b master current-tripleo
+
+    - name: Install tripleo packages
+      package:
+        name: "{{ test_deps_tripleo_packages }}"
+        state: present
 
 - name: Package block
   become: true
