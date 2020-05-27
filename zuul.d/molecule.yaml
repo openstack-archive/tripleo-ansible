@@ -36,6 +36,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
       - tripleo-ansible-centos-8-molecule-tripleo_podman
+      - tripleo-ansible-centos-8-molecule-tripleo_provision_mcelog
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
       - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
@@ -83,6 +84,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
       - tripleo-ansible-centos-8-molecule-tripleo_podman
+      - tripleo-ansible-centos-8-molecule-tripleo_provision_mcelog
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
       - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
@@ -380,6 +382,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_podman
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_provision_mcelog/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_provision_mcelog
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_provision_mcelog
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_ptp/.*
