@@ -1,0 +1,279 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Set resource and role chain fact
+  set_fact:
+    resource_chains: "{{ tripleo_heat_resource_tree.resources | get_filtered_resources('OS::Heat::ResourceChain') }}"
+    role_chain: "{{ tripleo_heat_resource_tree.resources | get_filtered_resource_chains(tripleo_role_name) }}"
+
+- name: Set service chain fact
+  set_fact:
+    service_chain: "{{ resource_chains | get_filtered_service_chain(role_chain.resources) }}"
+
+- name: Set role service fact
+  set_fact:
+    role_services: "{{ service_chain.resources | get_filtered_role_resources(tripleo_heat_resource_tree.resources) }}"
+
+- name: Set features facts
+  set_fact:
+    dpdk: |-
+      {% set service_types = role_services.values() | sum(attribute='parameters', start=[]) %}
+      {% set neutron_datapath = ((service_types | map('regex_search', '.*NeutronDatapathType.*') | list | length) > 0) | bool %}
+      {% set heat_service_types = tripleo_heat_resource_tree.resources.values() | list | sum(attribute='parameters', start=[]) %}
+      {% set heat_neutron_datapath = ((heat_service_types | map('regex_search', '.*NeutronDatapathType.*') | list | length) > 0) | bool %}
+      {{ (neutron_datapath | bool) or (heat_neutron_datapath | bool) }}
+    sriov: |-
+      {% set service_types = role_services.values() | map(attribute='type') | list %}
+      {{ ((service_types | map('regex_search', '.*\:\:NeutronSriovAgent') | list | length) > 0) | bool }}
+    hci: |-
+      {% set service_types = role_services.values() | map(attribute='type') | list %}
+      {% set novacompute = ((service_types | map('regex_search', '.*\:\:NovaCompute') | list | length) > 0) | bool %}
+      {% set cephosd = ((service_types | map('regex_search', '.*\:\:CephOSD') | list | length) > 0) | bool %}
+      {{ (novacompute | bool) and (cephosd | bool) }}
+
+- name: Set feature fact
+  set_fact:
+    feature_dict:
+      DPDK: "{{ dpdk or odl_dpdk }}"
+      SRIOV: "{{ sriov }}"
+      HOST: "{{ dpdk or odl_dpdk or sriov }}"
+      HCI: "{{ hci }}"
+
+- name: Set role feature fact
+  set_fact:
+    role_features: |-
+      {% set enabled_services = [] %}
+      {% for key, value in feature_dict.items() %}
+      {%   if value | bool %}
+      {%   set _ = enabled_services.append(key) %}
+      {%   endif %}
+      {% endfor %}
+      {{ enabled_services }}
+    scheduler_hints: |-
+      {% set params = tripleo_heat_resource_tree.parameters.get((tripleo_role_name ~ 'SchedulerHints'), {}) %}
+      {{ params.get('default', {}) }}
+    flavor_name: |-
+      {% set param_name = 'Overcloud' ~ tripleo_role_name ~ 'Flavor' | replace('OvercloudControllerFlavor', 'OvercloudControlFlavor') %}
+      {% set params = tripleo_heat_resource_tree.parameters.get(param_name, {}) %}
+      {{ params.get('default', '') }}
+
+- name: Node block
+  when:
+    - tripleo_all_nodes is undefined
+  block:
+    - name: Return available ironic hosts
+      os_baremetal_node_info:
+        cloud: undercloud
+        filters:
+          provision_state: "available"
+          is_maintenance: false
+      register: known_available_nodes
+
+    - name: Return available ironic hosts
+      os_baremetal_node_info:
+        cloud: undercloud
+        filters:
+          provision_state: "active"
+          is_maintenance: false
+      register: known_active_nodes
+
+    - name: Set all nodes fact
+      set_fact:
+        tripleo_all_nodes: "{{ known_available_nodes.baremetal_nodes | union(known_active_nodes.baremetal_nodes) }}"
+
+- name: All node block
+  when:
+    - (tripleo_all_nodes | length) > 0
+  block:
+    - name: Scheduler hint block
+      when:
+        - (scheduler_hints | length) > 0
+        - role_node_uuid is undefined
+      block:
+        - name: Set hint regex fact
+          set_fact:
+            hint_regex: >-
+              {{ scheduler_hints.get('capabilities:node', {}) | replace('%index%', '(\d+)') }}
+
+        - name: Union all nodes
+          set_fact:
+            matching_nodes_with_hint: "{{
+              tripleo_all_nodes |
+              get_node_capabilities |
+              selectattr('hint', 'regex', hint_regex) |
+              map(attribute='uuid') |
+              list
+            }}"
+
+        - name: Set role node uuid fact
+          set_fact:
+            role_node_uuid: "{{ matching_nodes_with_hint | first }}"
+          when:
+            - (matching_nodes_with_hint | length) > 0
+
+    - name: Flavor hint block
+      when:
+        - (scheduler_hints | length) < 1
+        - role_node_uuid is undefined
+      block:
+        - name: Get flavor profile
+          tripleo_get_flavor_profile:
+            flavor_name: "{{ flavor_name }}"
+          register: flavor_profile
+
+        - name: Union all nodes
+          set_fact:
+            matching_nodes_with_profile: "{{
+              tripleo_all_nodes |
+              get_node_profile |
+              selectattr('profile', 'equalto', flavor_profile.profile) |
+              map(attribute='uuid') |
+              list
+            }}"
+
+        - name: Set role node uuid fact
+          set_fact:
+            role_node_uuid: "{{ matching_nodes_with_profile | first }}"
+          when:
+            - (matching_nodes_with_profile | length) > 0
+
+    - name: Get baremetal inspection data
+      tripleo_get_introspected_data:
+        node_id: "{{ role_node_uuid }}"
+      register: baremetal_data
+      when:
+        - role_node_uuid is defined
+        - baremetal_data is undefined
+
+    - name: Set hardware data fact
+      set_fact:
+        hw_data: "{{ baremetal_data.data }}"
+      when:
+        - baremetal_data is defined
+
+# TODO
+
+# handle_dpdk_feature:
+#   on-success:
+#     - get_dpdk_derive_params: <% $.role_features.contains('DPDK') %>
+#     - handle_sriov_feature: <% not $.role_features.contains('DPDK') %>
+
+# get_dpdk_derive_params:
+#   workflow: tripleo.derive_params_formulas.v1.dpdk_derive_params
+#   input:
+#     plan: <% $.plan %>
+#     tripleo_role_name: <% $.tripleo_role_name %>
+#     tripleo_heat_resource_tree: <% $.tripleo_heat_resource_tree %>
+#     hw_data: <% $.hw_data %>
+#     user_inputs: <% $.user_inputs %>
+#   publish:
+#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
+#   on-success: handle_sriov_feature
+#   on-error: set_status_failed_get_dpdk_derive_params
+
+# handle_sriov_feature:
+#   on-success:
+#     - get_sriov_derive_params: <% $.role_features.contains('SRIOV') %>
+#     - handle_host_feature: <% not $.role_features.contains('SRIOV') %>
+
+# get_sriov_derive_params:
+#   workflow: tripleo.derive_params_formulas.v1.sriov_derive_params
+#   input:
+#     tripleo_role_name: <% $.tripleo_role_name %>
+#     hw_data: <% $.hw_data %>
+#     derived_parameters: <% $.derived_parameters %>
+#   publish:
+#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
+#   on-success: handle_host_feature
+#   on-error: set_status_failed_get_sriov_derive_params
+
+# handle_host_feature:
+#   on-success:
+#     - get_host_derive_params: <% $.role_features.contains('HOST') %>
+#     - handle_hci_feature: <% not $.role_features.contains('HOST') %>
+
+# get_host_derive_params:
+#   workflow: tripleo.derive_params_formulas.v1.host_derive_params
+#   input:
+#     tripleo_role_name: <% $.tripleo_role_name %>
+#     hw_data: <% $.hw_data %>
+#     user_inputs: <% $.user_inputs %>
+#     derived_parameters: <% $.derived_parameters %>
+#   publish:
+#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
+#   on-success: handle_hci_feature
+#   on-error: set_status_failed_get_host_derive_params
+
+# handle_hci_feature:
+#   on-success:
+#     - get_hci_derive_params: <% $.role_features.contains('HCI') %>
+
+# get_hci_derive_params:
+#   workflow: tripleo.derive_params_formulas.v1.hci_derive_params
+#   input:
+#     tripleo_role_name: <% $.tripleo_role_name %>
+#     tripleo_heat_resource_tree: <% $.tripleo_heat_resource_tree %>
+#     introspection_data: <% $.hw_data %>
+#     user_inputs: <% $.user_inputs %>
+#     derived_parameters: <% $.derived_parameters %>
+#   publish:
+#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
+#   on-error: set_status_failed_get_hci_derive_params
+#   # Done (no more derived parameter features)
+
+- name: Derive parameters for HCI
+  when:
+    - hci
+  block:
+    - name: extract average guest cpu and memory
+      set_fact:
+        average_guest_cpu_utilization_percentage: "{{ item.value.average_guest_cpu_utilization_percentage }}"
+        average_guest_memory_size_in_mb: "{{ item.value.average_guest_memory_size_in_mb }}"
+      loop: "{{ lookup('dict', hci_profile_config) }}"
+      when: item.key == hci_profile
+
+    # Replace with a call to new a hci_derived_parameters module with these inputs
+    - name: set mock_hci_derived_parameters_inputs
+      set_fact:
+        mock_hci_derived_parameters_inputs:
+          tripleo_heat_resource_tree: "{{ tripleo_heat_resource_tree }}"
+          introspection_data: "{{ hw_data }}"
+          average_guest_cpu_utilization_percentage: "{{ average_guest_cpu_utilization_percentage }}"
+          average_guest_memory_size_in_mb: "{{ average_guest_memory_size_in_mb }}"
+          derived_parameters: {}
+
+    # hci_derived_parameters module will update derived_parameters_result instead
+    - name: set mock_derived_parameters_result
+      set_fact:
+        mock_derived_parameters_result:
+          NovaReservedHostMemory: 180224
+          NovaCPUAllocationRatio: 2
+
+- name: Update derived params block
+  when:
+    - derived_parameters_result is defined
+  block:
+    - name: Reset params
+      tripleo_reset_params:
+        container: "{{ plan }}"
+        parameter_key: derived_parameters
+
+    - name: Update derive_parameters in plan
+      tripleo_plan_parameters_update:
+        container: "{{ plan }}"
+        parameter_key: 'derived_parameters'
+        parameters: "{{ derived_parameters_result }}"
+        validate: true

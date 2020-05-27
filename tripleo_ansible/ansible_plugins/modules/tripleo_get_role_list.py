@@ -86,9 +86,13 @@ def main():
     _, conn = openstack_cloud_from_module(module)
     tripleo = tc.TripleOCommon(session=conn.session)
     object_client = tripleo.get_object_client()
+    heat = None
+    if module.params['valid']:
+        heat = tripleo.get_orchestration_client()
     try:
         result['roles'] = roles_utils.get_roles_from_plan(
-            object_client,
+            swift=object_client,
+            heat=heat,
             container=module.params['container'],
             role_file_name=module.params['role_file_name'],
             detail=module.params['detail'],

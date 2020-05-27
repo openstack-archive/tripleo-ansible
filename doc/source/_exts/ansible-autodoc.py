@@ -260,6 +260,9 @@ class AnsibleAutoPluginDirective(Directive):
                     test,
                     'molecule.yml'
                 )
+                if not os.path.exists(molecule_file):
+                    continue
+
                 with open(molecule_file) as f:
                     molecule_conf = DOCYAML.load(f.read())
 
