@@ -39,7 +39,7 @@
   command: >-
     /usr/sbin/aide --init --config {{ aide_conf_path }}
   changed_when: false
-  no_log: true
+  no_log: "{{ not (aide_debug | bool) }}"
   args:
     creates: "{{ aide_db_path }}"
 

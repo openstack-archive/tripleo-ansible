@@ -18,7 +18,7 @@
 # All variables intended for modification should place placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_nova_image_cache"
-tripleo_nova_image_cache_debug: false
+tripleo_nova_image_cache_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_nova_image_cache_images: []
 tripleo_nova_image_cache_use_proxy: false
 tripleo_nova_image_cache_proxy_hostname: "{{ ansible_play_batch[0] }}"
