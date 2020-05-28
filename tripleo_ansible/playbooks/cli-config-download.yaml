@@ -1,0 +1,56 @@
+---
+# Copyright 2019 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Download config
+  connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
+  hosts: "{{ tripleo_target_host | default('localhost') }}"
+  remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
+  any_errors_fatal: true
+  vars:
+    plan: overcloud
+    ssh_network: ctlplane
+    ansible_ssh_user: tripleo-admin
+    ansible_ssh_private_key_file: /home/stack/.ssh/id_rsa
+    python_interpreter: null
+
+  tasks:
+    - name: Set output_dir
+      set_fact:
+        output_dir: "{{ lookup('env', 'HOME')~'/config-download'}}"
+      when: output_dir is not defined
+
+    - name: Set work_dir and config_container
+      set_fact:
+        config_container: "{{ plan ~ '-config' }}"
+        work_dir: "{{ output_dir ~ '/' ~ plan }}"
+
+    - name: Download config
+      tripleo_config_download:
+        plan: "{{ plan }}"
+        work_dir: "{{ work_dir }}"
+        config_container: "{{ config_container }}"
+        download: true
+
+    - name: Generate ansible inventory
+      tripleo_generate_ansible_inventory:
+        plan: "{{ plan }}"
+        work_dir: "{{ work_dir }}"
+        ssh_network: "{{ ssh_network }}"
+        ansible_ssh_user: "{{ ansible_ssh_user }}"
+        ansible_python_interpreter: "{{ python_interpreter }}"
+        ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
+      when: inventory_path is not defined or inventory_path != None
