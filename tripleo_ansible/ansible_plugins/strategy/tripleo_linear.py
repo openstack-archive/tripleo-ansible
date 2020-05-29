@@ -16,21 +16,32 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import os
 import time
 
 from ansible import constants as C
 from ansible.errors import AnsibleAssertionError
-from ansible.errors import AnsibleError
 from ansible.executor.play_iterator import PlayIterator
-from ansible.module_utils._text import to_text
 from ansible.module_utils.six import iteritems
 from ansible.playbook.block import Block
-from ansible.playbook.included_file import IncludedFile
 from ansible.playbook.task import Task
-from ansible.plugins.loader import action_loader
-from ansible.plugins.strategy import StrategyBase
 from ansible.template import Templar
 from ansible.utils.display import Display
+
+try:
+    import importlib.util
+    BASESPEC = importlib.util.spec_from_file_location(
+        'tripleo_base',
+        os.path.join(os.path.dirname(__file__), 'tripleo_base.py')
+    )
+    BASE = importlib.util.module_from_spec(BASESPEC)
+    BASESPEC.loader.exec_module(BASE)
+except ImportError:
+    import imp
+    BASE = imp.load_source(
+        'tripleo_base',
+        os.path.join(os.path.dirname(__file__), 'tripleo_base.py')
+    )
 
 DOCUMENTATION = '''
     strategy: tripleo_linear
@@ -60,28 +71,10 @@ class TripleoLinearRunOnce(Exception):
     pass
 
 
-class StrategyModule(StrategyBase):
+class StrategyModule(BASE.TripleoBase):
 
     def __init__(self, *args, **kwargs):
         super(StrategyModule, self).__init__(*args, **kwargs)
-        self._any_errors_fatal = False
-        self._callback_sent = False
-        self._has_work = False
-        self._host_pinned = True
-        self._hosts_left = []
-        self._iterator = None
-        self._play_context = None
-        self._strat_results = []
-        self.noop_task = None
-        # these were defined in 2.9
-        self._has_hosts_cache = False
-        self._has_hosts_cache_all = False
-
-    def _print(self, msg, host=None, level=1):
-        display.verbose(msg, host=host, caplevel=level)
-
-    def _debug(self, msg, host=None):
-        self._print(msg, host, 3)
 
     def _create_noop_task(self):
         """Create noop task"""
@@ -206,35 +199,6 @@ class StrategyModule(StrategyBase):
         self.noop_task = self._create_noop_task()
         return self._create_noop_block_from(original_block, parent)
 
-    def _get_action(self, task):
-        """Get action from task"""
-        # TODO(mwhahaha): move to base task
-        self._debug('_get_action...')
-        try:
-            action = action_loader.get(task.action, class_only=True)
-        except KeyError:
-            action = None
-        return action
-
-    def _send_task_callback(self, task, templar):
-        """Send a task callback for task start"""
-        # TODO(mwhahaha): do we need the bool? can we move to base class?
-        self._debug('_send_task_callback...')
-        if self._callback_sent:
-            return
-        name = task.name
-        try:
-            task.name = to_text(templar.template(task.name,
-                                                 fail_on_undefined=False),
-                                nonstring='empty')
-        except Exception:
-            display.debug('templating failed')
-        self._tqm.send_callback('v2_playbook_on_task_start',
-                                task,
-                                is_conditional=False)
-        task.name = name
-        self._callback_sent = True
-
     def _process_host_tasks(self, host, task):
         """Process host task and execute"""
         self._debug('process_host_tasks...')
@@ -294,70 +258,6 @@ class StrategyModule(StrategyBase):
         results.extend(self._process_pending_results(
             self._iterator, max_passes=max_passes))
         return results
-
-    def process_includes(self, host_results, noop=False):
-        """Process our includes"""
-        # TODO(mwhahaha): move to a base class
-        self._debug('process_includes...')
-        include_files = IncludedFile.process_include_results(
-                host_results,
-                iterator=self._iterator,
-                loader=self._loader,
-                variable_manager=self._variable_manager
-        )
-        # TODO(mwhahaha): fix include_failure uage
-        include_success = True
-        if len(include_files) == 0:
-            self._debug('No include files')
-            return include_success
-
-        all_blocks = dict((host, []) for host in self._hosts_left)
-        for include in include_files:
-            self._debug('Adding include...{}'.format(include))
-            try:
-                if include._is_role:
-                    ir = self._copy_included_file(include)
-                    new_blocks, handler_blocks = ir.get_block_list(
-                        play=self._iterator._play,
-                        variable_manager=self._variable_manager,
-                        loader=self._loader)
-                else:
-                    new_blocks = self._load_included_file(
-                        include, iterator=self._iterator)
-                for block in new_blocks:
-                    vars_params = {'play': self._iterator._play,
-                                   'task': block._parent}
-                    # ansible <2.9 compatibility
-                    if self._has_hosts_cache:
-                        vars_params['_hosts'] = self._hosts_cache
-                    if self._has_hosts_cache_all:
-                        vars_params['_hosts_all'] = self._hosts_cache_all
-
-                    task_vars = self._variable_manager.get_vars(**vars_params)
-                    final_block = block.filter_tagged_tasks(task_vars)
-
-                    # TODO(mwhahaha): noop is used for linear not free
-                    if noop:
-                        noop_block = self._prepare_and_create_noop_block_from(
-                            final_block, block._parent)
-
-                    for host in self._hosts_left:
-                        if host in include._hosts:
-                            all_blocks[host].append(final_block)
-                        elif noop:
-                            all_blocks[host].append(noop_block)
-            except AnsibleError as e:
-                for host in include._hosts:
-                    self._tqm._failed_hosts[host.get_name()] = True
-                    self._iterator.mark_host_failed(host)
-                display.error(to_text(e), wrap_text=False)
-                include_success = False
-                continue
-
-        for host in self._hosts_left:
-            self._iterator.add_tasks(host, all_blocks[host])
-
-        return include_success
 
     def _process_failures(self):
         """Handle failures"""
