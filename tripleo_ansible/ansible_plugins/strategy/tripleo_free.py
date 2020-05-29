@@ -16,16 +16,29 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import os
 import time
 
 from ansible import constants as C
 from ansible.errors import AnsibleError
 from ansible.module_utils._text import to_text
-from ansible.playbook.included_file import IncludedFile
-from ansible.plugins.loader import action_loader
-from ansible.plugins.strategy import StrategyBase
 from ansible.template import Templar
 from ansible.utils.display import Display
+
+try:
+    import importlib.util
+    BASESPEC = importlib.util.spec_from_file_location(
+        'tripleo_base',
+        os.path.join(os.path.dirname(__file__), 'tripleo_base.py')
+    )
+    BASE = importlib.util.module_from_spec(BASESPEC)
+    BASESPEC.loader.exec_module(BASE)
+except ImportError:
+    import imp
+    BASE = imp.load_source(
+        'tripleo_base',
+        os.path.join(os.path.dirname(__file__), 'tripleo_base.py')
+    )
 
 DOCUMENTATION = '''
     strategy: tripleo_free
@@ -60,33 +73,16 @@ class TripleoFreeContinue(Exception):
     pass
 
 
-class StrategyModule(StrategyBase):
+class StrategyModule(BASE.TripleoBase):
 
     # this strategy handles throttling
     ALLOW_BASE_THROTTLING = False
 
     def __init__(self, *args, **kwargs):
         super(StrategyModule, self).__init__(*args, **kwargs)
-        self._any_errors_fatal = False
-        self._callback_sent = False
-        self._has_work = False
-        self._host_pinned = False
-        self._hosts_left = []
-        self._iterator = None
         self._last_host = 0
-        self._play_context = None
-        self._strat_results = []
         self._workers_free = 0
         self._run_once_tasks = set()
-        # these were defined in 2.9
-        self._has_hosts_cache = False
-        self._has_hosts_cache_all = False
-
-    def _print(self, msg, host=None, level=1):
-        display.verbose(msg, host=host, caplevel=level)
-
-    def _debug(self, msg, host=None):
-        self._print(msg, host, 3)
 
     def _filter_notified_hosts(self, notified_hosts):
         """Filter notified hosts"""
@@ -133,15 +129,6 @@ class StrategyModule(StrategyBase):
                         and self._iterator.is_failed(res._host)):
                     return True
         return False
-
-    def _get_action(self, task):
-        """Get action based on task"""
-        self._debug('_get_action...')
-        try:
-            action = action_loader.get(task.action, class_only=True)
-        except KeyError:
-            action = None
-        return action
 
     def _send_task_callback(self, task, templar):
         """Send task start callback"""
@@ -305,66 +292,6 @@ class StrategyModule(StrategyBase):
         self.update_active_connections(results)
 
         return result
-
-    def process_includes(self, host_results, noop=False):
-        """Handle includes
-
-        This function processes includes and adds them tasks to the hosts.
-        It will return False if there was a failure during the include
-        """
-        self._debug('process_includes...')
-        include_files = IncludedFile.process_include_results(
-                host_results,
-                iterator=self._iterator,
-                loader=self._loader,
-                variable_manager=self._variable_manager
-        )
-
-        include_success = True
-        if len(include_files) == 0:
-            self._debug('No include files')
-            return include_success
-
-        all_blocks = dict((host, []) for host in self._hosts_left)
-        for include in include_files:
-            self._debug('Adding include...{}'.format(include))
-            try:
-                if include._is_role:
-                    ir = self._copy_included_file(include)
-                    new_blocks, handler_blocks = ir.get_block_list(
-                        play=self._iterator._play,
-                        variable_manager=self._variable_manager,
-                        loader=self._loader)
-                else:
-                    new_blocks = self._load_included_file(
-                        include, iterator=self._iterator)
-                for block in new_blocks:
-                    vars_params = {'play': self._iterator._play,
-                                   'task': block._parent}
-                    # ansible <2.9 compatibility
-                    if self._has_hosts_cache:
-                        vars_params['_hosts'] = self._hosts_cache
-                    if self._has_hosts_cache_all:
-                        vars_params['_hosts_all'] = self._hosts_cache_all
-
-                    task_vars = self._variable_manager.get_vars(**vars_params)
-                    final_block = block.filter_tagged_tasks(task_vars)
-
-                    for host in self._hosts_left:
-                        if host in include._hosts:
-                            all_blocks[host].append(final_block)
-            except AnsibleError as e:
-                for host in include._hosts:
-                    self._tqm._failed_hosts[host.get_name()] = True
-                    self._iterator.mark_host_failed(host)
-                display.error(to_text(e), wrap_text=False)
-                include_success = False
-                continue
-
-        for host in self._hosts_left:
-            self._iterator.add_tasks(host, all_blocks[host])
-
-        return include_success
 
     def run(self, iterator, play_context):
         """Run out strategy"""
