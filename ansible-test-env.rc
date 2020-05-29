@@ -2,6 +2,7 @@ export TRIPLEO_ANSIBLE_WORKPATH="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
 export ANSIBLE_STDOUT_CALLBACK=debug
 export ANSIBLE_ACTION_PLUGINS="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/roles.galaxy/config_template/action:${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/action"
 export ANSIBLE_CALLBACK_PLUGINS="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/callback"
+export ANSIBLE_STRATEGY_PLUGINS="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/strategy"
 export ANSIBLE_FILTER_PLUGINS="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/filter"
 export ANSIBLE_LIBRARY="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/roles.galaxy/config_template/library:${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/modules"
 export ANSIBLE_MODULE_UTILS="${TRIPLEO_ANSIBLE_WORKPATH}/tripleo_ansible/ansible_plugins/module_utils"
