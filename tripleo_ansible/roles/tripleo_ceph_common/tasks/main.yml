@@ -37,7 +37,7 @@
     - (ceph_ansible_inherits_calling_ansible_environment | default(false)) | bool
   block:
     - name: get all ansible environment variables
-      shell: "env | grep ^ANSIBLE_"
+      shell: "env | grep ^ANSIBLE_ | grep -v CALLBACK"
       register: env_shell_output
       failed_when: false
       delegate_to: localhost
