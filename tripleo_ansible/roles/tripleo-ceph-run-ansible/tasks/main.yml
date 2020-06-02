@@ -36,6 +36,8 @@
       - ANSIBLE_REMOTE_TEMP=/tmp/ceph_ansible_tmp
       - ANSIBLE_FORKS=25
       - ANSIBLE_GATHER_TIMEOUT=60
+      - ANSIBLE_CALLBACK_WHITELIST=profile_tasks
+      - ANSIBLE_STDOUT_CALLBACK=default
       - "{{ calling_ansible_environment_variables|join(' ') }}"
       - "{{ ceph_ansible_environment_variables|join(' ') }}"
       - ansible-playbook
