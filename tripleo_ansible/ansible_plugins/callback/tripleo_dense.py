@@ -152,7 +152,7 @@ class CallbackModule(DefaultCallback):
         else:
             if self._run_is_verbose(result):
                 line.append('result=%s' % self._dump_results(result._result))
-            self._display.display(' | '.join(line), color=color)
+            self._output(line, color)
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
         self._clean_results(result._result, result._task.action)
