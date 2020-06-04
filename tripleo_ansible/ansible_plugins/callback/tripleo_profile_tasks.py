@@ -6,6 +6,7 @@ from ansible import constants as C
 from ansible.plugins.callback.profile_tasks import secondsToStr
 from ansible.plugins.callback.profile_tasks import timestamp
 from ansible.plugins.callback.profile_tasks import CallbackModule as PT
+from datetime import datetime
 
 DOCUMENTATION = '''
     callback: tripleo_profile_tasks
@@ -48,6 +49,14 @@ class CallbackModule(PT):
         self.start_time = time.time()
         super(CallbackModule, self).__init__()
 
+    def _output(self, msg, color):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        if isinstance(msg, list):
+            output = ' | '.join([timestamp] + msg)
+        else:
+            output = timestamp + ' | ' + msg
+        self._output(output, color=color)
+
     def _output_previous_timings(self, uuid):
         # no previous timing because uuid was null
         if not uuid:
@@ -59,7 +68,7 @@ class CallbackModule(PT):
             secondsToStr(time.time() - self.start_time),
             u'{0:.02f}s'.format(self.stats[uuid].get('time', '-1'))
         ]
-        self._display.display(' | '.join(line), color=C.COLOR_DEBUG)
+        self._output(line, C.COLOR_DEBUG)
 
     def _record_task(self, task):
         timestamp(self)
@@ -83,10 +92,10 @@ class CallbackModule(PT):
             )
         results = results[:self.task_output_limit]
 
-        self._display.display('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-                              ' Summary Information '
-                              '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        self._display.display(
+        self._output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+                     ' Summary Information '
+                     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        self._output(
             '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
             ' Elapsed Time: {} '
             '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'.format(
@@ -98,7 +107,7 @@ class CallbackModule(PT):
             '{}'.format('Task Name'),
             '{:>10}'.format('Run Time'),
         ]
-        self._display.display(' | '.join(header))
+        self._output(' | '.join(header))
 
         for uuid, result in results:
             line = [
@@ -107,4 +116,4 @@ class CallbackModule(PT):
                 result['name'],
                 u'{0:.02f}s'.format(result['time'])
             ]
-            self._display.display(' | '.join(line))
+            self._output(' | '.join(line))
