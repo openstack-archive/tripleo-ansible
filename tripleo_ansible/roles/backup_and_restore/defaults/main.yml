@@ -60,3 +60,6 @@ tripleo_backup_and_restore_rescue_config: {}
 
 tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
 tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
+
+# Ceph authentication backup file
+tripleo_backup_and_restore_ceph_auth_file: "ceph_auth_export.bak"
