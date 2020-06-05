@@ -1,0 +1,1 @@
+{{ hostvars[inventory_hostname]['ovn_chassis_mac_map'] | default({}) | to_nice_json }}
