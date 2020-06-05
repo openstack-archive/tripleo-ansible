@@ -45,3 +45,4 @@
           - service_configs
           - service_names
           - vip_data
+          - ovn_chassis_mac_map
