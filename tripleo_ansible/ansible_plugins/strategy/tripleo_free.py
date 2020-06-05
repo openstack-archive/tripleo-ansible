@@ -161,14 +161,17 @@ class StrategyModule(BASE.TripleoBase):
         task_vars = self._variable_manager.get_vars(**vars_params)
         templar = Templar(loader=self._loader, variables=task_vars)
 
-        try:
-            throttle = int(templar.template(task.throttle))
-        except Exception as e:
-            raise AnsibleError("Failed to throttle: {}".format(e),
-                               obj=task._df,
-                               orig_exc=e)
-        if self._check_throttle(throttle, task):
-            raise TripleoFreeBreak()
+        # if task has a throttle attribute, check throttle e.g. ansible > 2.9
+        throttle = getattr(task, 'throttle', None)
+        if throttle is not None:
+            try:
+                throttle = int(templar.template(throttle))
+            except Exception as e:
+                raise AnsibleError("Failed to throttle: {}".format(e),
+                                   obj=task._df,
+                                   orig_exc=e)
+            if self._check_throttle(throttle, task):
+                raise TripleoFreeBreak()
 
         # _blocked_hosts is used in the base strategy to keep track of hosts in
         # that have tasks in queue
