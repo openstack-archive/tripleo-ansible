@@ -50,13 +50,13 @@ class CallbackModule(PT):
         self.start_time = time.time()
         super(CallbackModule, self).__init__()
 
-    def _output(self, msg, color):
+    def _output(self, msg, color=None):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         if isinstance(msg, list):
             output = ' | '.join([timestamp] + msg)
         else:
             output = timestamp + ' | ' + msg
-        self._output(output, color=color)
+        self._display.display(output, color=color)
 
     def _output_previous_timings(self, uuid):
         # no previous timing because uuid was null
