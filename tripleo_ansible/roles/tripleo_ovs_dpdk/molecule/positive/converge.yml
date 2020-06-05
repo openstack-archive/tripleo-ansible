@@ -30,3 +30,4 @@
         tripleo_ovs_dpdk_revalidator_cores: 2
         tripleo_ovs_dpdk_handler_cores: 2
         tripleo_ovs_dpdk_emc_insertion_probablity: 0
+        tripleo_ovs_dpdk_enable_tso: true
