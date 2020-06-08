@@ -15,15 +15,36 @@
 # under the License.
 
 
+- name: Create temporary file for hosts
+  become: true
+  tempfile:
+    state: file
+    suffix: tmphosts
+  register: tripleo_hosts_entries_tmp_hosts
+  check_mode: false
+  tags:
+    - tripleo_hosts_entries
+
+- name: Prepare temporary /etc/hosts
+  become: true
+  copy:
+    remote_src: true
+    src: "{{ tripleo_hosts_entries_hosts_path }}"
+    dest: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
+    mode: preserve
+  tags:
+    - tripleo_hosts_entries
+
 - name: Remove old Heat hosts configuration (if present)
   become: true
   blockinfile:
     state: absent
-    path: "{{ tripleo_hosts_entries_hosts_path }}"
+    path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
     block: ""
     marker: "# {mark}"
     marker_begin: "HEAT_HOSTS_START - Do not edit manually within this section!"
     marker_end: "HEAT_HOSTS_END"
+  register: tripleo_hosts_entries_heat_marker
   tags:
     - tripleo_hosts_entries
 
@@ -50,11 +71,11 @@
   tags:
     - tripleo_hosts_entries
 
-- name: Update /etc/hosts
+- name: Prepare new /etc/hosts
   become: true
   blockinfile:
     create: true
-    path: "{{ tripleo_hosts_entries_hosts_path }}"
+    path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
     # BOF denotes the beginning of the file.
     insertbefore: BOF
     block: |
@@ -64,5 +85,22 @@
           tripleo_hosts_entries_extra_hosts_entries | default([]) %}
       {{ host }}
       {% endfor %}
+  register: tripleo_hosts_entries_new_entries
+  tags:
+    - tripleo_hosts_entries
+
+- name: Update /etc/hosts contents (if changed)
+  become: true
+  # cp preserves the inode of the existing file tripleo_hosts_entries_hosts_path
+  command: cp "{{ tripleo_hosts_entries_tmp_hosts.path }}" "{{ tripleo_hosts_entries_hosts_path }}"
+  when: tripleo_hosts_entries_heat_marker.changed or tripleo_hosts_entries_new_entries.changed
+  tags:
+    - tripleo_hosts_entries
+
+- name: Clean up temporary hosts file
+  file:
+    path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
+    state: absent
+  when: tripleo_hosts_entries_tmp_hosts.path is defined
   tags:
     - tripleo_hosts_entries
