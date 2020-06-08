@@ -45,6 +45,7 @@ class TripleoBase(StrategyBase):
         self._play_context = None
         self._strat_results = []
         self.noop_task = None
+        self._fail_cache = {}
         # these were defined in 2.9
         self._has_hosts_cache = False
         self._has_hosts_cache_all = False
@@ -81,6 +82,50 @@ class TripleoBase(StrategyBase):
                                 is_conditional=False)
         task.name = name
         self._callback_sent = True
+
+    def _get_fail_percent(self, host):
+        """Return maximum percentage failure per role"""
+        if host and host in self._fail_cache:
+            return self._fail_cache[host]
+
+        fail_vars = self._variable_manager.get_vars(play=self._iterator._play,
+                                                    host=host,
+                                                    task=None)
+        percent = fail_vars.get('max_fail_percentage', 0)
+        role = fail_vars.get('tripleo_role_name', 'default')
+        self._fail_cache[host] = (percent, role)
+        return (percent, role)
+
+    def _check_fail_percent(self, host, current_failures):
+        """Check if max fail pourcentage was reached
+
+       When a failure occurs for a host, check if we reached
+       the max percentage of failure for the group in which
+       the host is part from.
+       """
+        percent, role = self._get_fail_percent(host)
+        current_failed = current_failures.get(role, 1)
+
+        groups = self._inventory.get_groups_dict()
+        group_count = len(groups.get(role, []))
+        if group_count == 0:
+            return True
+        failed_percent = (current_failed / group_count) * 100
+        if failed_percent > percent:
+            return True
+        return False
+
+    def _get_current_failures(self):
+        """Return the number of failures per role"""
+        failures = {}
+        for host, _ in self._iterator.get_failed_hosts().items():
+            host_obj = self._inventory.get_host(host)
+            per, role = self._get_fail_percent(host_obj)
+            if role in failures:
+                failures[role] += 1
+            else:
+                failures[role] = 1
+        return failures
 
     def process_includes(self, host_results, noop=False):
         """Handle includes
