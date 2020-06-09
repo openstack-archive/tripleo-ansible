@@ -73,7 +73,7 @@ class CallbackModule(DefaultCallback):
             color = C.COLOR_CHANGED
         else:
             if not self.display_ok_hosts:
-                return
+                return (None, None)
             line.append(self._get_state('OK'))
             line.append(self._get_task_name(result))
             line.append(host_str)
@@ -147,6 +147,8 @@ class CallbackModule(DefaultCallback):
         if isinstance(result._task, TaskInclude):
             return
         (line, color) = self._get_item_line(result, item=True)
+        if not line:
+            return
         self._handle_warnings(result._result)
         if result._task.loop and 'results' in result._result:
             self._process_items(result)
@@ -202,6 +204,8 @@ class CallbackModule(DefaultCallback):
         if isinstance(result._task, TaskInclude):
             return
         (line, color) = self._get_item_line(result)
+        if not line:
+            return
         self._handle_warnings(result._result)
         if result._task.loop and 'results' in result._result:
             self._process_items(result)
