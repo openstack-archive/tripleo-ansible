@@ -17,3 +17,4 @@ lb_mgmt_subnet_pool_end: "172.24.255.254"
 lb_mgmt_sec_grp_name: "lb-mgmt-sec-grp"
 lb_health_mgr_sec_grp_name: "lb-health-mgr-sec-grp"
 mgmt_port_dev: "o-hm0"
+enable_log_offloading: false
