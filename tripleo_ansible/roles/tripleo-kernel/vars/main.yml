@@ -46,8 +46,6 @@ tripleo_kernel_sysctl_settings:
     value: 500000
   net.netfilter.nf_conntrack_max:
     value: 500000
-  net.ipv6.conf.lo.disable_ipv6:
-    value: 0
   net.ipv6.conf.all.accept_ra:
     value: 0
   net.ipv6.conf.default.accept_ra:
