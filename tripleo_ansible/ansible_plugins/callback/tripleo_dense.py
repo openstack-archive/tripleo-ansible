@@ -253,6 +253,19 @@ class CallbackModule(DefaultCallback):
                 line.append('item=%s' % item_result)
             self._output(line, color)
 
+    def v2_runner_on_unreachable(self, result):
+        line = [
+            self._get_uuid(result),
+            self._get_state('UNREACHABLE'),
+            self._get_task_name(result),
+            self._get_host(result=result)
+        ]
+        item_result = self._get_item_label(result._result)
+        # don't display if None
+        if item_result:
+            line.append('item=%s' % item_result)
+        self._output(line, C.COLOR_UNREACHABLE)
+
     def v2_playbook_on_include(self, included_file):
         color = C.COLOR_SKIP
         # included files don't have tasks so lets generate one for the file
