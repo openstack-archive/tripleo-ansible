@@ -16,6 +16,8 @@
 
 
 # All variables intended for modification should be placed in this file.
+tripleo_keystone_resources_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
+tripleo_keystone_resources_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 
 # All variables within this role should have a prefix of "tripleo_keystone_resources"
 tripleo_keystone_resources_cloud_name: openstack
