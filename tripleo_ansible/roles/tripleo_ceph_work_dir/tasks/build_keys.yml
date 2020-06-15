@@ -29,7 +29,7 @@
 
     - name: set openstack client caps
       set_fact:
-        osp_client_caps: {'mgr': 'allow *', 'mon': 'profile rbd, allow command "osd blacklist"', 'osd': "{{ profiles | regex_replace('\\, $', '') }}"}
+        osp_client_caps: {'mgr': 'allow *', 'mon': 'profile rbd', 'osd': "{{ profiles | regex_replace('\\, $', '') }}"}
 
     - name: set openstack client key
       set_fact:
