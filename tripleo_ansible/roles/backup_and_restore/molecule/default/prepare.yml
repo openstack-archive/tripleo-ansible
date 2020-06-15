@@ -46,7 +46,6 @@
         - syslinux
         - genisoimage
         - kbd
-        - hiera
 
   post_tasks:
     - name: Create hiera config file
