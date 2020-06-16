@@ -98,6 +98,7 @@
     - tripleo_hosts_entries
 
 - name: Clean up temporary hosts file
+  become: true
   file:
     path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
     state: absent
