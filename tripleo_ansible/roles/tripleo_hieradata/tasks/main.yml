@@ -15,12 +15,14 @@
 # under the License.
 
 - name: Create /etc/puppet/hieradata
+  become: true
   file:
     path: /etc/puppet/hieradata
     state: directory
     mode: 0700
 
 - name: Write hiera config
+  become: true
   when:
     - (hieradata_files | length) > 0
   copy:

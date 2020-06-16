@@ -1,5 +1,6 @@
 ---
 - name: Check for hieradata file
+  become: true
   stat:
     path:
       src: "{{ hieradata_ansible_file }}"
