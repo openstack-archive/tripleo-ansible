@@ -54,11 +54,13 @@
         dest: /etc/yum.repos.d/delorean.repo
 
 - name: Install tripleo-repos package
+  become: true
   package:
     name: "python*tripleo-repos"
     state: present
 
 - name: Tripleo setup block
+  become: true
   when:
     - (ansible_os_family | lower) == 'redhat'
     - test_deps_setup_tripleo | bool
