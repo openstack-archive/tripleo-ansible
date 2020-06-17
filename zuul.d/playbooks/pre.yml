@@ -18,10 +18,15 @@
         path: "{{ ansible_user_dir }}/zuul-output/logs"
         state: directory
 
+    - name: Ensure pip is available
+      include_role:
+        name: ensure-pip
+
     - name: Setup bindep
       pip:
         name: "bindep"
         virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
 
     - name: Run bindep
@@ -34,6 +39,7 @@
       pip:
         requirements: "{{ tripleo_ansible_project_path }}/molecule-requirements.txt"
         virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
     # NOTE(cloudnull): This is being done because docker is not supported on RHEL-8
     #                  and tests within this repo still require docker.
