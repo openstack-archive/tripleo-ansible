@@ -40,14 +40,6 @@
     group: root
   become: true
 
-- name: Create ansible-managed dropin file
-  copy:
-    dest: "{{ tripleo_container_manage_config | dirname }}/.ansible-managed"
-    content: |
-      Containers are managed by the tripleo_container_manage role in
-      tripleo-ansible project. This file is used by paunch to show a warning
-      if paunch is used against a deployment done with tripleo_container_manage.
-
 - name: Generate containers configs data
   no_log: "{{ not tripleo_container_manage_debug }}"
   block:
