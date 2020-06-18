@@ -264,7 +264,6 @@
               BAR: foo
               TEST: 1
               BOOL: false
-            group_add: "somegroup"
             label:
               somelabel: labelvalue
               otheralbe: othervalue
