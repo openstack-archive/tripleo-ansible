@@ -13,9 +13,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-- name: TripleO Undercloud backup.
+- name: TripleO Controller backup.
   connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
-  hosts: Undercloud
+  hosts: Controller
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
   become: true
   roles:

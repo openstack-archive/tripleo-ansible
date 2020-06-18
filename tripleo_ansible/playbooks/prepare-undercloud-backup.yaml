@@ -13,7 +13,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-- name: TripleO Undercloud backup.
+- name: TripleO Undercloud backup system check.
   connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
   hosts: Undercloud
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
@@ -21,4 +21,5 @@
   roles:
     - role: backup_and_restore
       tags:
-        - bar_create_recover_image
+        - bar_setup_rear
+        - bar_setup_nfs_server
