@@ -21,21 +21,22 @@
 tripleo_clients_install_pkg_state: present
 
 tripleo_clients_install_dict:
-  aodh: present
-  barbican: present
-  cinder: present
-  designate: present
-  glance: present
-  gnocchi: present
-  heat: present
-  ironic: present
-  keystone: present
-  manila: present
-  mistral: present
-  neutron: present
-  nova: present
-  openstack: present
-  panko: present
-  sahara: present
-  swift: present
-  zaqar: present
+  aodhclient: present
+  barbicanclient: present
+  cinderclient: present
+  designateclient: present
+  glanceclient: present
+  gnocchiclient: present
+  heatclient: present
+  ironicclient: present
+  keystoneclient: present
+  manilaclient: present
+  mistralclient: present
+  neutronclient: present
+  novaclient: present
+  openstackclient: present
+  osc-placement: present
+  pankoclient: present
+  saharaclient: present
+  swiftclient: present
+  zaqarclient: present
