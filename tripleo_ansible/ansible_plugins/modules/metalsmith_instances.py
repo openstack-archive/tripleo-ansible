@@ -233,6 +233,9 @@ def _release_nodes(provisioner, node_ids):
 
 
 def provision(provisioner, instances, timeout, concurrency, clean_up, wait):
+    if not instances:
+        return False, []
+
     # first, ensure all instances are reserved
     reserve(provisioner, [i for i in instances if not i.get('name')], clean_up)
 
