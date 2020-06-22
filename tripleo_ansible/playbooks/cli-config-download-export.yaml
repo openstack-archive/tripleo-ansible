@@ -28,24 +28,28 @@
   pre_tasks:
     - name: Set config_dir
       set_fact:
-        config_dir: "{{ lookup('env', 'HOME')~'/tripleo-config' }}"
+        config_dir: "{{ lookup('env', 'HOME') ~ '/tripleo-config' }}"
       when: config_dir is not defined
 
     - name: Set config_container
       set_fact:
         config_container: "{{ plan ~ '-config' }}"
 
+    - name: set work_dir
+      set_fact:
+        work_dir: "{{ config_dir ~ '/' ~ plan }}"
+
   tasks:
 
-    - name: Clean config_dir
+    - name: Clean work_dir
       file:
-        path: "{{ config_dir }}"
+        path: "{{ work_dir }}"
         state: absent
       when: not preserve_config | bool
 
     - name: Create config dir if does not exist
       file:
-        path: "{{ config_dir }}"
+        path: "{{ work_dir }}"
         state: directory
 
     - name: Get config
@@ -65,5 +69,5 @@
     - name: Extract config download
       unarchive:
         src: "{{ config_download_url.tempurl }}"
-        dest: "{{ config_dir }}"
+        dest: "{{ work_dir }}"
         remote_src: true
