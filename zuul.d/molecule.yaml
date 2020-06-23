@@ -248,6 +248,7 @@
     - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_config_data.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_puppet_config.py$
+    - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
     - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
     name: tripleo-ansible-centos-8-molecule-tripleo_container_manage
