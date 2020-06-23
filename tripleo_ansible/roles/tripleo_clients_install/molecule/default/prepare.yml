@@ -19,3 +19,5 @@
   hosts: all
   roles:
     - role: test_deps
+      vars:
+        test_deps_setup_tripleo: true
