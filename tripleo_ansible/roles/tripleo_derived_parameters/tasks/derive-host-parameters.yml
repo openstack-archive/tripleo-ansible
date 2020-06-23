@@ -1,0 +1,110 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Get cpus list
+  set_fact:
+    cpus: "{{ hw_data.numa_topology.cpus }}"
+
+- name: Get host dpdk combined cpus
+  set_fact:
+    host_dpdk_combined_cpus: "{% if pmd_cpus is defined %}{{ pmd_cpus }},{{ host_cpus }}{% else %}{{ host_cpus }}{% endif %}"
+
+- name: Convert host dpdk combined cpus number list
+  set_fact:
+    host_dpdk_combined_cpus_list: "{{ host_dpdk_combined_cpus| number_list }}"
+
+- name: Get cpu threads
+  set_fact:
+    cpu_threads: |-
+      {{ cpu_threads | default([]) }} + {{ item.thread_siblings | list}}
+  loop: "{{ cpus }}"
+
+- name: Get nova cpus list
+  set_fact:
+    nova_cpus_list: |-
+      {{ nova_cpus_list | default([]) }} + [{{ item }}]
+  when: "{{ item | string not in host_dpdk_combined_cpus_list.split(',') }}"
+  loop: "{{ cpu_threads }}"
+
+- name: Get nova cpus
+  set_fact:
+    nova_cpus: "{{ nova_cpus_list | join(',') }}"
+
+# concatinates OvsPmdCoreList range format and NovaVcpuPinSet in range format. it may not be in perfect range format.
+# example: concatinates '12-15,19' and 16-18' ranges '12-15,19,16-18'
+- name: Get isol cpus
+  set_fact:
+    isol_cpus: "{% if pmd_cpus is defined %}{{ pmd_cpus }},{{ nova_cpus }}{% else %}{{ nova_cpus }}{% endif %}"
+
+- name: Convert isol cpus number list
+  set_fact:
+    isol_cpus_list: "{{ isol_cpus | number_list }}"
+
+- name: Convert nova cpus in range format
+  set_fact:
+    nova_cpus_range_list: "{{ nova_cpus | range_list}}"
+
+- name: Convert isol cpus in range format
+  set_fact:
+    isol_cpus_range_list: "{{ isol_cpus | range_list }}"
+
+- name: extract reserved host memory and huge page allocation percentage default value
+  set_fact:
+    host_mem_default: "{{ host_mem_default | default(4096) }}"
+    huge_page_allocation_percentage: "{{ huge_page_allocation_percentage | default(50) }}"
+
+- name: Check huge page supported or not
+  set_fact:
+    default_hugepage_supported: "{{ 'pdpe1gb' in hw_data.get('inventory', {}).get('cpu', {}).get('flags', []) }}"
+
+- name: Get total memory
+  set_fact:
+    total_memory: "{{ hw_data.get('inventory', {}).get('memory', {}).get('physical_mb', 0) }}"
+
+- name: Get huge pages
+  set_fact:
+    hugepages: "{{ (((total_memory | int)/1024)-4)*((huge_page_allocation_percentage|float)/100) }}"
+
+- name: Get cpu modal
+  set_fact:
+    intel_cpu_modal: "{{ 'Intel' in hw_data.get('inventory', {}).get('cpu', {}).get('model_name', '') }}"
+
+- name: Get iommu info
+  set_fact:
+    iommu_info: "{% if intel_cpu_modal %}intel_iommu=on iommu=pt{% else %}{% endif %}"
+
+- name: Get kernel args
+  set_fact:
+    kernel_args: "default_hugepagesz=1GB hugepagesz=1G hugepages={{ hugepages }} {{ iommu_info }} isolcpus={{ isol_cpus_range_list }}"
+
+- name: Get host parameters in dictionary format
+  set_fact:
+    host_parameters: "{{ (host_parameters | default({})) | combine({item.key: item.value}) }}"
+  with_dict: {
+    'NovaComputeCpuDedicatedSet': '{{ nova_cpus_range_list }}',
+    'NovaComputeCpuSharedSet': '{{ host_cpus }}',
+    'NovaReservedHostMemory': '{{ host_mem_default }}',
+    'KernelArgs': '{{ kernel_args }}',
+    'IsolCpusList': '{{ isol_cpus_range_list }}'
+  }
+
+- name: Update host parameters in derived parameters dictionary
+  set_fact:
+    derived_parameters: "{{
+      (derived_parameters |
+      default({})) |
+      combine({(tripleo_role_name + 'Parameters'): ((dpdk_parameters | default({})) | combine(host_parameters))})
+      }}"
