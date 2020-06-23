@@ -25,6 +25,7 @@
     concurrency: 20
     max_retries: 1
     node_timeout: 1200
+    retry_timeout: 120
   pre_tasks:
     - name: Check for required inputs
       fail:
@@ -94,6 +95,7 @@
         concurrency: "{{ runtime_concurrency }}"
         max_retries: "{{ max_retries }}"
         node_timeout: "{{ node_timeout }}"
+        retry_timeout: "{{ retry_timeout }}"
       register: baremetal_introspection_result
       failed_when: false
 
