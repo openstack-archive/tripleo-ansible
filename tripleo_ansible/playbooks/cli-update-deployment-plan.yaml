@@ -26,6 +26,7 @@
     generate_passwords: true
     reset_passwords: false
     validate_stack: true
+    disable_image_params_prepare: false
     hide_sensitive_logs: true
 
   handlers:
@@ -73,6 +74,7 @@
       tripleo_image_params_prepare:
         container: "{{ container }}"
         with_roledata: false
+      when: not (disable_image_params_prepare | bool)
 
     - name: Get backup tempurl for GET
       tripleo_swift_tempurl:
