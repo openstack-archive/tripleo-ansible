@@ -23,6 +23,10 @@
         {{ ceph_ansible_playbooks_default|default(['/usr/share/ceph-ansible/site-container.yml.sample']) }}
       {%- endif -%}
 
+- import_tasks: create_ceph_ansible_remote_tmp.yml
+  vars:
+    ceph_ansible_remote_tmp: '/tmp/ceph_ansible_tmp'
+
 - name: set ceph-ansible command list
   set_fact:
     ceph_ansible_command_list:
@@ -33,7 +37,7 @@
       - ANSIBLE_LOG_PATH="{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log"
       - ANSIBLE_LIBRARY=/usr/share/ceph-ansible/library/
       - ANSIBLE_CONFIG=/usr/share/ceph-ansible/ansible.cfg
-      - ANSIBLE_REMOTE_TEMP=/tmp/ceph_ansible_tmp
+      - ANSIBLE_REMOTE_TEMP="{{ ceph_ansible_remote_tmp }}"
       - ANSIBLE_FORKS=25
       - ANSIBLE_GATHER_TIMEOUT=60
       - ANSIBLE_CALLBACK_WHITELIST=profile_tasks
