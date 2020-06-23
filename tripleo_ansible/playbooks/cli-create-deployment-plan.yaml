@@ -24,6 +24,7 @@
     container: overcloud
     source_url: null
     generate_passwords: true
+    disable_image_params_prepare: false
     plan_environment: plan-environment.yaml
     default_templates_dir: '/usr/share/openstack-tripleo-heat-templates/'
     use_default_templates: false
@@ -106,6 +107,7 @@
       tripleo_image_params_prepare:
         container: "{{ container }}"
         with_roledata: false
+      when: not (disable_image_params_prepare | bool)
 
     - name: Add root stack name
       tripleo_plan_parameters_update:
