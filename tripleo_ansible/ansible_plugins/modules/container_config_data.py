@@ -120,22 +120,22 @@ class ContainerConfigDataManager(object):
         if os.path.exists(config_path):
             matched_configs = glob.glob(os.path.join(config_path,
                                                      config_pattern))
+            config_dict = {}
+            for mc in matched_configs:
+                name = os.path.splitext(os.path.basename(mc))[0]
+                config = json.loads(self._slurp(mc))
+                if self.debug:
+                    self.module.debug('Config found for {}: {}'.format(name,
+                                                                       config))
+                config_dict.update({name: config})
+
+            # Merge the config dict with given overrides
+            self.results['configs'] = self._merge_with_overrides(
+                    config_dict, config_overrides)
         else:
-            self.module.fail_json(
-                msg='{} does not exists'.format(config_path))
-
-        config_dict = {}
-        for mc in matched_configs:
-            name = os.path.splitext(os.path.basename(mc))[0]
-            config = json.loads(self._slurp(mc))
-            if self.debug:
-                self.module.debug('Config found for {}: {}'.format(name,
-                                                                   config))
-            config_dict.update({name: config})
-
-        # Merge the config dict with given overrides
-        self.results['configs'] = self._merge_with_overrides(config_dict,
-                                                             config_overrides)
+            self.module.debug(
+                msg='{} does not exists, skipping step'.format(config_path))
+            self.results['configs'] = {}
 
         # Returns data
         self.module.exit_json(**self.results)
