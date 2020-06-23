@@ -117,3 +117,5 @@ class CallbackModule(PT):
                 u'{0:.02f}s'.format(result['time'])
             ]
             self._output(' | '.join(line))
+
+        self._output('~' * 89)
