@@ -70,6 +70,7 @@
 
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
   when:
+    - (all_containers_hash|length) > 0
     - tripleo_container_manage_cli == 'podman'
   become: true
   block:
