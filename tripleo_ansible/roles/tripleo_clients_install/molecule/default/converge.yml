@@ -19,7 +19,8 @@
   hosts: all
   vars:
     tripleo_clients_install_dict:
-      aodh: installed
-      barbican: installed
+      aodhclient: installed
+      barbicanclient: installed
+      osc-placement: installed
   roles:
     - role: "tripleo_clients_install"
