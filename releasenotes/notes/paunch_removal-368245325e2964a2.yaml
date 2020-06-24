@@ -1,0 +1,4 @@
+---
+deprecations:
+  - |
+    Paunch module was removed since Paunch has been retired in Victoria cycle.
