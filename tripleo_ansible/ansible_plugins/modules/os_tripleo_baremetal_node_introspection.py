@@ -59,6 +59,12 @@ options:
         - node_timeout
       type: int
       default: 1200
+    retry_timeout:
+      description:
+        - How much time to wait for node to be unlocked before introspection
+          retry
+      type: int
+      default: 120
     quiet:
       description:
         - Don't provide instrospection info in output of the module
@@ -136,12 +142,14 @@ class IntrospectionManagement(object):
                  module,
                  concurrency,
                  max_retries,
-                 node_timeout):
+                 node_timeout,
+                 retry_timeout):
         self.client = cloud.baremetal_introspection
         self.module = module
         self.concurrency = concurrency
         self.max_retries = max_retries
         self.node_timeout = node_timeout
+        self.retry_timeout = retry_timeout
 
     def log(self, msg):
         self.module.log("os_tripleo_baremetal_node_introspection: %s" % msg)
@@ -162,6 +170,7 @@ class IntrospectionManagement(object):
             self.client,
             self.node_timeout,
             self.max_retries,
+            self.retry_timeout,
             self.log) for uuid in node_uuids)
         pool = []
 
@@ -221,7 +230,9 @@ class IntrospectionManagement(object):
 class NodeIntrospection:
     started = False
 
-    def __init__(self, node_id, os_client, timeout, max_retries, log):
+    def __init__(
+            self,
+            node_id, os_client, timeout, max_retries, retry_timeout, log):
         self.node_id = node_id
         self.os_client = os_client
         self.timeout = timeout
@@ -229,6 +240,7 @@ class NodeIntrospection:
         self.log = log
         self.start = int(time.time())
         self.retries = 0
+        self.retry_timeout = retry_timeout
         self.last_status = None
 
     def restart_introspection(self):
@@ -245,9 +257,12 @@ class NodeIntrospection:
         try:
             self.os_client.wait_for_introspection(
                 self.node_id, timeout=self.timeout, ignore_error=True)
+            # Wait until node is unlocked
+            self.os_client.wait_for_node_reservation(
+                self.node_id, timeout=self.retry_timeout)
         except Exception as e:
             self.log("ERROR Node %s can't restart introspection because can't "
-                     "abort it: %s" % (self.node_id, str(e)))
+                     "abort and unlock it: %s" % (self.node_id, str(e)))
             return
         self.start = int(time.time())
         return self.start_introspection(restart=True)
@@ -332,7 +347,8 @@ def main():
         module,
         module.params["concurrency"],
         module.params["max_retries"],
-        module.params["node_timeout"]
+        module.params["node_timeout"],
+        module.params["retry_timeout"]
     )
     module_results = {"changed": True}
     result = introspector.introspect(module.params["node_uuids"])
