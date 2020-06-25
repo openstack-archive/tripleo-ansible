@@ -1,0 +1,10 @@
+[Unit]
+Description=tripleo_{{ lookup('dict', container_data).key }} healthcheck
+After=tripleo-container-shutdown.service tripleo_{{ lookup('dict', container_data).key }}.service
+Requisite=tripleo_{{ lookup('dict', container_data).key }}.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec --user root {{ lookup('dict', container_data).key }} {{ lookup('dict', container_data).value.healthcheck.test }}
+SyslogIdentifier=healthcheck_{{ lookup('dict', container_data).key }}
+[Install]
+WantedBy=multi-user.target

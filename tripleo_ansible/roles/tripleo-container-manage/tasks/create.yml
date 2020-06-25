@@ -21,10 +21,14 @@
   loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) | dict2items | list }}"
 
 - name: "Manage container systemd services and healthchecks for {{ tripleo_container_manage_config }}"
-  include_tasks: podman/systemd.yml
+  become: true
+  container_systemd:
+    container_config: "{{ container_config }}"
+    debug: "{{ tripleo_container_manage_debug | bool }}"
+    restart_containers: "{{ containers_changed | default([]) }}"
+    systemd_healthchecks: "{{ (not tripleo_container_manage_healthcheck_disabled | bool) }}"
   vars:
     container_config: "{{ all_containers_hash | dict_to_list | haskey(attribute='restart', value=['always','unless-stopped'], any=True) | default([]) }}"
-    container_config_healthcheck: "{{ all_containers_hash | dict_to_list | haskey(attribute='healthcheck') | intersect(container_config) | default([]) }}"
   when:
     - tripleo_container_manage_cli == 'podman'
     - (container_config|length) > 0
