@@ -100,6 +100,11 @@
               - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
             fail_msg: 'fedora container healthcheck is not healthy'
             success_msg: 'fedora container healthcheck is healthy'
+        - name: Verify that Fedora systemd healthcheck container was removed correctly
+          command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+          register: tripleo_fedora_healthcheck_active_result
+          failed_when:
+            - tripleo_fedora_healthcheck_active_result.rc == 0
     - name: Verify that Fedora bis container was created correctly
       block:
         - name: Check for fedora_bis container
