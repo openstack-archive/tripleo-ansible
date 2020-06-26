@@ -38,6 +38,7 @@ class FilterModule(object):
             'haskey': self.haskey,
             'list_of_keys': self.list_of_keys,
             'container_exec_cmd': self.container_exec_cmd,
+            'containers_not_running': self.containers_not_running,
             'get_key_from_dict': self.get_key_from_dict,
             'get_role_assignments': self.get_role_assignments,
             'get_domain_id': self.get_domain_id,
@@ -329,6 +330,44 @@ class FilterModule(object):
         self.list_or_dict_arg(data, cmd, 'environment', '--env')
         cmd.extend(data['command'])
         return cmd
+
+    def containers_not_running(self, container_info, execs=[]):
+        """Check if specified services aren't running
+
+        :params: container_info: containers list from podman_container_info
+                                 result
+        :params: execs: list of dicts for container actions
+        """
+        not_running = []
+        expected_containers = set()
+
+        # Get the container out of any execs by extracting the container
+        # out of the command to be executed
+        #
+        # NOTE this could be written as:
+        #  [v.get('command')[0]
+        #      for i in self.haskey(execs, attribute='action', value='exec')
+        #      for k, v in i.items()]
+        # But this won't handle missing command. I'm uncertain if we ever would
+        # pass in an exec without an action but the code below won't blow up
+        # if command is missing
+        for action in self.haskey(execs, attribute='action', value='exec'):
+            for k, v in action.items():
+                command = v.get('command')
+                if command and len(command) > 0:
+                    expected_containers.add(command[0])
+
+        # we don't have any containers we're checking so just stop
+        if len(expected_containers) == 0:
+            return []
+
+        # check running containers against exec containers
+        for container in container_info:
+            container_name = container.get('Name')
+            if (container_name in expected_containers
+                    and not container.get('State', {}).get('Running')):
+                not_running.append(container_name)
+        return not_running
 
     def get_role_assignments(self, data, default_role='admin',
                              default_project='service'):
