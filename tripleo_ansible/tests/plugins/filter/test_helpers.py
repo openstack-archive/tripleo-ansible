@@ -816,6 +816,74 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.container_exec_cmd(data=data)
         self.assertEqual(result, expected_cmd)
 
+    def test_containers_not_running(self):
+        results = [
+            {
+                "Name": "keystone",
+                "State": {"Running": False}
+            },
+            {
+                "Name": "neutron",
+                "State": {"Running": True}
+            }
+        ]
+        commands = [{
+            "keystone_bootstrap": {
+                "action": "exec",
+                "command": [
+                    "keystone",
+                    "/usr/bin/bootstrap_host_exec",
+                    "keystone",
+                    "keystone-manage",
+                    "bootstrap"
+                ]
+            },
+            "neutron_bootstrap": {
+                "action": "exec",
+                "command": [
+                    "neutron",
+                    "/usr/bin/bootstrap_host_exec",
+                    "neutron",
+                    "neutron-manage",
+                    "bootstrap"
+                ]
+            }
+        }]
+
+        expected = ['keystone']
+        actual = self.filters.containers_not_running(results, commands)
+        self.assertEqual(actual, expected)
+
+    def test_containers_not_running_missing_command(self):
+        results = [
+            {
+                "Name": "keystone",
+                "State": {"Running": True}
+            },
+            {
+                "Name": "neutron",
+                "State": {"Running": True}
+            }
+        ]
+        commands = [{
+            "keystone_bootstrap": {
+                "action": "exec",
+                "command": [
+                    "keystone",
+                    "/usr/bin/bootstrap_host_exec",
+                    "keystone",
+                    "keystone-manage",
+                    "bootstrap"
+                ]
+            },
+            "neutron_bootstrap": {
+                "action": "exec",
+            }
+        }]
+        expected = []
+        actual = self.filters.containers_not_running(results, commands)
+        self.assertEqual(actual, expected)
+
     def test_get_role_assignments(self):
         data = [{
            'nova': {
