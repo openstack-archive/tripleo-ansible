@@ -101,46 +101,21 @@
   when:
     - not ansible_check_mode|bool
 
+- name: Check containers status
+  container_status:
+    container_async_results: "{{ create_async_poll_results.results }}"
+    container_data: "{{ batched_container_data }}"
+    valid_exit_codes: "{{ tripleo_container_manage_valid_exit_code }}"
+    debug: "{{ tripleo_container_manage_debug | bool }}"
+  register: container_status_results
+
 - name: "Create fact for containers which changed"
   set_fact:
     # List of containers which have changed (created or updated)
-    containers_changed: "{{ create_async_poll_results.results | get_changed_containers | default([]) }}"
+    containers_changed: "{{ container_status_results.changed_containers | default([]) }}"
 
-- name: "Create fact for containers which failed"
+- name: "Append the list of all podman commands that are run for containers with changes"
   set_fact:
-    # List of containers which returned an error when creating or updating them
-    containers_failed: "{{ create_async_poll_results.results | get_failed_containers | default([]) }}"
-
-- name: "Create fact for containers which require rc check"
-  set_fact:
-    # List of containers which would terminate with a return code that needs to be valid.
-    # We assume that container configs that don't have a restart policy nor action
-    # (used for podman exec) will run something and then exit with a return code.
-    containers_to_check: >-
-      {{ batched_container_data | haskey(attribute='image', excluded_keys=['action', 'restart']) |
-      list_of_keys | default([]) | difference(containers_failed) }}
-
-- name: Print the containers that failed to start
-  fail:
-    msg: "{{ containers_failed }} failed to start, check logs in /var/log/containers/stdouts/"
-  when:
-    - containers_failed|length != 0
-
-- name: Block for container commands
-  include_tasks: podman/get_commands_create.yml
+    all_containers_commands: "{{ container_status_results.commands | default([]) + (all_containers_commands | default([]) | list) }}"
   when:
     - ansible_check_mode|bool
-
-- name: "Print the list of containers which changed"
-  debug:
-    var: containers_changed
-  when: tripleo_container_manage_debug | bool
-
-- name: "Block for container exit codes"
-  when:
-    - not ansible_check_mode|bool
-    - tripleo_container_manage_valid_exit_code|length != 0
-    - containers_to_check|length != 0
-  include_tasks: podman/check_exit_code.yml
-  vars:
-    containers_with_exit_code: "{{ containers_to_check }}"
