@@ -24,11 +24,12 @@ PyYAML            [platform:rpm !platform:rhel-8 !platform:centos-8]
 python3-pyyaml    [platform:rpm !platform:rhel-7 !platform:centos-7]
 python2-dnf       [platform:fedora]
 
-# For SELinux
-libselinux-python  [platform:rpm !platform:rhel-8 !platform:centos-8]
-libsemanage-python [platform:redhat !platform:rhel-8 !platform:centos-8]
-libselinux-python3  [platform:rpm !platform:rhel-7 !platform:centos-7]
-libsemanage-python3 [platform:redhat !platform:rhel-7 !platform:centos-7]
+# SELinux cent7
+libselinux-python3  [platform:rpm !platform:rhel-8 !platform:centos-8]
+libsemanage-python3 [platform:redhat !platform:rhel-8 !platform:centos-8]
+# SELinux cent8
+python3-libselinux  [platform:rpm !platform:rhel-7 !platform:centos-7]
+python3-libsemanage [platform:redhat !platform:rhel-7 !platform:centos-7]
 
 # Required for compressing collected log files in CI
 gzip
