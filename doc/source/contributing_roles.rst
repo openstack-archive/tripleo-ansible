@@ -88,7 +88,17 @@ To use this script execute the following command.
 
 .. code-block:: console
 
-    $ scripts/run-local-test ${NEWROLENAME}
+    $ ./scripts/run-local-test ${NEWROLENAME}
+
+When using the `run-local-test` script, the TRIPLEO_JOB_ANSIBLE_ARGS
+environment variable can be used to pass arbitrary Ansible arguments.
+For example, the following shows how to use `--skip-tags` when testing
+the `tripleo_ceph_run_ansible` role.
+
+.. code-block:: console
+
+    $ export TRIPLEO_JOB_ANSIBLE_ARGS="--skip-tags run_ceph_ansible,run_uuid_ansible"
+    $ ./scripts/run-local-test tripleo_ceph_run_ansible
 
 Role based testing with molecule can be executed directly from within
 the role directory.
