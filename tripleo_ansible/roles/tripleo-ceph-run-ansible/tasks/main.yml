@@ -35,6 +35,7 @@
       - ANSIBLE_FILTER_PLUGINS=/usr/share/ceph-ansible/plugins/filter/
       - ANSIBLE_ROLES_PATH=/usr/share/ceph-ansible/roles/
       - ANSIBLE_LOG_PATH="{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log"
+      - ANSIBLE_SSH_CONTROL_PATH_DIR="/tmp/ceph_ansible_control_path"
       - ANSIBLE_LIBRARY=/usr/share/ceph-ansible/library/
       - ANSIBLE_CONFIG=/usr/share/ceph-ansible/ansible.cfg
       - ANSIBLE_REMOTE_TEMP="{{ ceph_ansible_remote_tmp }}"

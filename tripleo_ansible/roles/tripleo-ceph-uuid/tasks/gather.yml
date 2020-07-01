@@ -18,7 +18,7 @@
   set_fact:
     nodes_uuid_list:
       - ANSIBLE_LOG_PATH="{{ playbook_dir }}/ceph-ansible/nodes_uuid_command.log"
-      - ANSIBLE_SSH_CONTROL_PATH_DIR="{{ playbook_dir }}/ceph-ansible/"
+      - ANSIBLE_SSH_CONTROL_PATH_DIR="/tmp/ceph_ansible_control_path"
       - ANSIBLE_CONFIG="{{ playbook_dir }}/ansible.cfg"
       - ANSIBLE_REMOTE_TEMP=/tmp/nodes_uuid_tmp
       - "{{ calling_ansible_environment_variables|join(' ') }}"
