@@ -43,7 +43,7 @@
   set_fact:
     create_ceph_ansible_remote_tmp_list:
       - ANSIBLE_LOG_PATH="{{ playbook_dir }}/ceph-ansible/create_ceph_ansible_remote_tmp.log"
-      - ANSIBLE_SSH_CONTROL_PATH_DIR="{{ playbook_dir }}/ceph-ansible/"
+      - ANSIBLE_SSH_CONTROL_PATH_DIR="/tmp/ceph_ansible_control_path"
       - ANSIBLE_CONFIG=/usr/share/ceph-ansible/ansible.cfg
       - ANSIBLE_REMOTE_TEMP=/tmp/create_ceph_ansible_remote_tmp
       - "{{ calling_ansible_environment_variables|join(' ') }}"
