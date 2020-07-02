@@ -15,11 +15,13 @@
 # under the License.
 
 - name: Copy overcloud.json to all_nodes.json
+  become: true
   copy:
     src: "{{ playbook_dir }}/group_vars/overcloud.json"
     dest: "{{ dest_path | default('/etc/puppet/hieradata/all_nodes.json') }}"
 
 - name: Render hieradata from template
+  become: true
   template:
     src: templates/{{ item }}.j2
     dest: "{{ dest_path | default('/etc/puppet/hieradata/' ~ item ~ '.json') }}"
