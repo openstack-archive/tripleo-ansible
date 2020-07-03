@@ -43,7 +43,6 @@
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
-          voting: false
       - tripleo-ci-centos-8-scenario001-standalone: &scenario001
           dependencies: *deps
           files:
@@ -81,6 +80,7 @@
       - openstack-tox-docs: *tripleo-docs
       - tripleo-ci-centos-8-containers-multinode: *containers_multinode
       - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
+      - tripleo-ci-centos-8-undercloud-containers: *undercloud_containers
       - tripleo-ci-centos-8-standalone: *basic_standalone
       - tripleo-ci-centos-8-scenario001-standalone: *scenario001
       - tripleo-ci-centos-8-scenario002-standalone: *scenario002
