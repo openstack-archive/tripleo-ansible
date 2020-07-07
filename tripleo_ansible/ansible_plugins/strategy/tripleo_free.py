@@ -123,10 +123,12 @@ class StrategyModule(BASE.TripleoBase):
         function returns True if there were failures and False if
         there are no failures.
         """
+        fail_lookup = self._get_current_failures()
         if self._any_errors_fatal:
             for res in results:
                 if ((res.is_failed() or res._task.action == 'meta')
-                        and self._iterator.is_failed(res._host)):
+                        and self._iterator.is_failed(res._host)
+                        and self._check_fail_percent(res._host, fail_lookup)):
                     return True
         return False
 

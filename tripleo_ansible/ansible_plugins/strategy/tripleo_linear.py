@@ -334,15 +334,20 @@ class StrategyModule(BASE.TripleoBase):
 
                 failed_hosts = []
                 unreachable_hosts = []
+                fail_lookup = self._get_current_failures()
                 for res in self._strat_results:
                     if ((res.is_failed() or res._task.action == 'meta')
                             and self._iterator.is_failed(res._host)):
-                        failed_hosts.append(res._host.name)
+                        failed_hosts.append(res._host)
                     elif res.is_unreachable():
-                        unreachable_hosts.append(res._host.name)
+                        unreachable_hosts.append(res._host)
 
-                # TODO(mwhahaha): handle max_fail_percentage by tripleo role
-                if (self._any_errors_fatal
+                errored = False
+                for host in set(failed_hosts + unreachable_hosts):
+                    errored = self._check_fail_percent(host, fail_lookup)
+                    if errored:
+                        break
+                if (errored and self._any_errors_fatal
                         and (len(failed_hosts) > 0
                              or len(unreachable_hosts) > 0)):
                     result = self._process_failures()
