@@ -36,6 +36,13 @@ DOCUMENTATION = '''
         - Will fail playbook if any hosts have a failure during the
           execution and any_errors_fatal is true (free does not do this).
         - Should be backwards compatible for Ansible 2.8
+        - Handles run_once to only invoke the task a single time for a
+          given run. It should be noted that run_once does not ensure the
+          task actually is successful but rather that it is only triggered
+          once time for the host groups. If the task fails, the playbook
+          will fail at the end of the play but there is no assurance that
+          the task will actually complete successfully for a given playbook
+          execution. Other tasks will continue on the other hosts.
     version_added: "2.9"
     author: Alex Schultz <aschultz@redhat.com>
 '''
@@ -70,6 +77,7 @@ class StrategyModule(StrategyBase):
         self._play_context = None
         self._strat_results = []
         self._workers_free = 0
+        self._run_once_tasks = set()
         # these were defined in 2.9
         self._has_hosts_cache = False
         self._has_hosts_cache_all = False
@@ -198,13 +206,23 @@ class StrategyModule(StrategyBase):
         run_once = (templar.template(task.run_once) or action
                     and getattr(action, 'BYPASS_HOST_LOOP', False))
 
-        # TODO(mwhahaha): make it work by caching it across all hosts
         if run_once:
+            display.warning('tripleo_free run_once does not ensure a task '
+                            'is successful for a given playbook but rather '
+                            'it is only attempted to execute once.')
             if action and getattr(action, 'BYPASS_HOST_LOOP', False):
                 raise AnsibleError('Cannot bypass host loop with strategy')
             else:
-                display.warning("Using run_once does not work with the"
-                                "tripleo_free strategy")
+                if task._uuid in self._run_once_tasks:
+                    # If the task was previously executed, just drop it
+                    # by clearing the blocked host and telling the parent
+                    # function to continue.
+                    self._debug("Skipping run_once task {} on {}".format(
+                        task._uuid, host))
+                    del self._blocked_hosts[host_name]
+                    raise TripleoFreeContinue()
+                else:
+                    self._run_once_tasks.add(task._uuid)
 
         # handle role deduplication logic
         if task._role and task._role.has_run(host):
