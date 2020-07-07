@@ -137,26 +137,33 @@ class ActionModule(ActionBase):
         :param data: Dictionary of container data.
         :returns: List of containers that need to be checked.
         """
-        containers = []
+        containers_exec = []
+        containers_run = []
         # loop through container data to get specific container
         for container in data:
             # get container name and data
             for name, values in container.items():
-                if 'action' in values or 'restart' in values:
+                if 'restart' in values:
                     continue
+                if 'action' in values:
+                    containers_exec.append(name)
                 if 'image' in values:
                     # We assume that container configs that don't have a
                     # restart policy nor action (used for podman exec) but have
                     # an image set, will run something and then exit with a
                     # return code.
-                    containers.append(name)
-        if self.debug and len(containers) > 0:
+                    containers_run.append(name)
+        if self.debug and len(containers_run) > 0:
             DISPLAY.display('These containers are supposed to terminate with '
                             'a valid exit code and will be checked: '
-                            '{}'.format(containers))
-        return containers
+                            '{}'.format(containers_run))
+        if self.debug and len(containers_exec) > 0:
+            DISPLAY.display('These containers exec are supposed to terminate '
+                            'with a valid exit code and will be checked: '
+                            '{}'.format(containers_exec))
+        return containers_run
 
-    def _get_create_commands(self, results):
+    def _get_commands(self, results):
         """Return a list of commands that were executed by container tool.
 
         :param results: Ansible task results.
@@ -164,8 +171,16 @@ class ActionModule(ActionBase):
         """
         commands = []
         for item in results:
-            if item['changed']:
-                commands.extend(item['podman_actions'])
+            try:
+                if item['changed']:
+                    commands.extend(item['podman_actions'])
+            except KeyError:
+                if 'cmd' in item:
+                    commands.append(' '.join(item['cmd']))
+                else:
+                    raise AnsibleActionFail('Wrong async result data, missing'
+                                            ' podman_actions or cmd:'
+                                            ' {}'.format(item))
         return commands
 
     def _is_container_running(self, container):
@@ -248,22 +263,29 @@ class ActionModule(ActionBase):
         :returns: Tuple of containers that changed or failed
         """
         changed = []
-        failed = []
+        create_failed = []
+        exec_failed = []
         for item in results:
             # if Ansible is run in check mode, the async_results items will
             # not contain failed or finished keys.
             if self._play_context.check_mode:
                 break
-            async_result_item = item['create_async_result_item']
-            if item['changed']:
-                for name, c in async_result_item['container_data'].items():
-                    changed.append(name)
-            if (item['failed'] or not item['finished']
-                    or ('stderr' in async_result_item
-                        and async_result_item['stderr'] != '')):
-                for name, c in async_result_item['container_data'].items():
-                    failed.append(name)
-        return (changed, failed)
+            if 'create_async_result_item' in item:
+                async_item = item['create_async_result_item']
+                if item['changed']:
+                    for name, c in async_item['container_data'].items():
+                        changed.append(name)
+                if (item['failed'] or not item['finished']
+                        or ('stderr' in async_item
+                            and async_item['stderr'] != '')):
+                    for name, c in async_item['container_data'].items():
+                        create_failed.append(name)
+            if 'exec_async_result_item' in item:
+                async_item = item['exec_async_result_item']
+                if item['rc'] != 0:
+                    for name, c in async_item['container_exec_data'].items():
+                        exec_failed.append(name)
+        return (changed, create_failed, exec_failed)
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
@@ -285,13 +307,13 @@ class ActionModule(ActionBase):
         valid_exit_codes = args['valid_exit_codes']
         self.debug = args['debug']
 
-        containers_to_check = self._get_containers_to_check(container_data)
+        containers_run_to_check = self._get_containers_to_check(container_data)
 
         # Check that the containers which are supposed to finish have
         # actually finished and also terminated with the right exit code.
-        if len(valid_exit_codes) > 0 and len(containers_to_check) > 0:
+        if len(valid_exit_codes) > 0 and len(containers_run_to_check) > 0:
             (running, failed) = self._check_container_state(
-                containers_to_check,
+                containers_run_to_check,
                 valid_exit_codes,
                 task_vars)
 
@@ -301,9 +323,12 @@ class ActionModule(ActionBase):
         # - reported a failed resource (podman_container failed to create
         #   the container and return it as self.failed_containers.
         # - didn't finish on time and return it as self.failed_containers.
-        (self.changed_containers, async_failed) = (
+        (self.changed_containers, async_failed, exec_failed) = (
             self._check_errors_in_ansible_async_results(async_results))
 
+        if len(exec_failed) > 0:
+            DISPLAY.error('Container(s) exec commands which failed to execute'
+                          ': {}'.format(failed))
         if len(failed) > 0:
             DISPLAY.error('Container(s) which finished with wrong return code'
                           ': {}'.format(failed))
@@ -313,13 +338,13 @@ class ActionModule(ActionBase):
         if len(running) > 0:
             DISPLAY.error('Container(s) which did not finish after {} '
                           'minutes: {}'.format(TIMEOUT, running))
-        total_errors = list(set(failed + async_failed + running))
+        total_errors = list(set(failed + exec_failed + async_failed + running))
         if len(total_errors) > 0:
             raise AnsibleActionFail('Failed container(s): {}, check logs in '
                                     '/var/log/containers/'
                                     'stdouts/'.format(total_errors))
 
-        container_commands = self._get_create_commands(async_results)
+        container_commands = self._get_commands(async_results)
         if len(container_commands) > 0 and \
                 (self._play_context.check_mode or self.debug):
             for cmd in container_commands:

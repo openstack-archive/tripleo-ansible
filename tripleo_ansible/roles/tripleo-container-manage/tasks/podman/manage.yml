@@ -16,6 +16,10 @@
 
 - name: Run containers execs asynchronously
   include_tasks: podman/exec.yml
+  when:
+    - ((batched_container_data | haskey(attribute='action', value='exec') | default([])) | length > 0)
 
 - name: Manage containers asynchronously
   include_tasks: podman/create.yml
+  when:
+    - ((batched_container_data | haskey(attribute='action', reverse=True) | default([])) | length > 0)
