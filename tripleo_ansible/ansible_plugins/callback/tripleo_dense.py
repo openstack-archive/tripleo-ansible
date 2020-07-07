@@ -6,15 +6,17 @@ import uuid
 from ansible import constants as C
 from ansible.playbook.task_include import TaskInclude
 from ansible.plugins.callback.default import CallbackModule as DefaultCallback
+from datetime import datetime
 
 
 class CallbackModule(DefaultCallback):
 
-    def _output(self, msg, color):
+    def _output(self, msg, color=None):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         if isinstance(msg, list):
-            output = ' | '.join(msg)
+            output = ' | '.join([timestamp] + msg)
         else:
-            output = msg
+            output = timestamp + ' | ' + msg
         self._display.display(output, color=color)
 
     def _get_host(self, result):
