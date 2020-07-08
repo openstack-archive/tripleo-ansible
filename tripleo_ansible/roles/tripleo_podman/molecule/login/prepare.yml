@@ -54,14 +54,14 @@
     - name: Create registry
       shell: |-
         podman tag ubuntu:16.04 localhost:5000/my-ubuntu
-        podman run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > {{ ansible_user_dir }}/auth/htpasswd
+        podman run --entrypoint htpasswd registry:2.7.0 -Bbn testuser testpassword > {{ ansible_user_dir }}/auth/htpasswd
       args:
         executable: /bin/bash
 
     - name: Create registry
       podman_container:
         name: registry
-        image: "registry:2"
+        image: "registry:2.7.0"
         restart_policy: always
         detach: true
         ports:
