@@ -47,18 +47,26 @@
       run_once: true
       set_fact:
         ssh_known_hosts_lines: |-
-          {%- for host in groups['allovercloud'] | intersect(play_hosts) %}
-          [{{ ctlplane_ip }}]*,[{{ host }}.{{ cloud_domain }}]*,[{{ host }}]*
-          {%- if (enabled_networks and enabled_networks | length > 0 and 'role_networks' in hostvars[host]
-                  and hostvars[host]['role_networks'] and hostvars[host]['role_networks'] | length > 0) %},
-          {%- for network in enabled_networks %}
-          {%- if network in hostvars[host]['role_networks'] %}
-          [{{ hostvars[host][networks[network]['name'] ~ '_ip'] }}]*,[{{ host }}.{{ network.lower() }}]*,{% if 1 %}{% endif %}
-          [{{ host }}.{{ network.lower() }}.{{ cloud_domain }}]*{% if not loop.last %},{% endif %}
-          {%- endif -%}
-          {%- endfor -%}
-          {%- endif -%}
-          {{ ' ssh-rsa ' ~ hostvars[host]['ansible_ssh_host_key_rsa_public'] }}
+          {% for host in groups['allovercloud'] | intersect(play_hosts) %}
+          {%   set hostdata = hostvars[host] %}
+          {%   if 'ansible_ssh_host_key_rsa_public' in hostdata %}
+          {%     set entries = [] %}
+          {%     set enabled_host_networks = hostdata['tripleo_role_networks']|default([]) %}
+          {%     for network in enabled_host_networks %}
+          {%       if (network ~ '_ip') in hostdata %}
+          {%         set _ = entries.append('[' ~ hostdata[network ~ '_ip'] ~ ']*') %}
+          {%       endif %}
+          {%       if (network ~ '_hostname') in hostdata %}
+          {%         set _ = entries.append('[' ~ hostdata[network ~ '_hostname'] ~ ']*') %}
+          {%       endif %}
+          {%     endfor %}
+          {%     if 'canonical_hostname' in hostdata %}
+          {%       set _ = entries.append('[' ~ hostdata['canonical_hostname'] ~ ']*') %}
+          {%     endif %}
+          {%     set _ = entries.append('[' ~ host ~ ']*') %}
+          {%     set line = entries|unique|join(',') ~ ' ssh-rsa ' ~ hostdata['ansible_ssh_host_key_rsa_public'] %}
+          {{ line }}
+          {%   endif %}
           {% endfor %}
 
     - name: Add host keys to temporary ssh_known_hosts
