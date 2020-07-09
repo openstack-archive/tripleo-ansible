@@ -145,6 +145,7 @@ class IntrospectionManagement(object):
                  node_timeout,
                  retry_timeout):
         self.client = cloud.baremetal_introspection
+        self.cloud = cloud
         self.module = module
         self.concurrency = concurrency
         self.max_retries = max_retries
@@ -168,6 +169,7 @@ class IntrospectionManagement(object):
         queue = (NodeIntrospection(
             uuid,
             self.client,
+            self.cloud,
             self.node_timeout,
             self.max_retries,
             self.retry_timeout,
@@ -232,9 +234,16 @@ class NodeIntrospection:
 
     def __init__(
             self,
-            node_id, os_client, timeout, max_retries, retry_timeout, log):
+            node_id,
+            os_client,
+            os_cloud,
+            timeout,
+            max_retries,
+            retry_timeout,
+            log):
         self.node_id = node_id
         self.os_client = os_client
+        self.os_cloud = os_cloud
         self.timeout = timeout
         self.max_retries = max_retries
         self.log = log
@@ -258,7 +267,7 @@ class NodeIntrospection:
             self.os_client.wait_for_introspection(
                 self.node_id, timeout=self.timeout, ignore_error=True)
             # Wait until node is unlocked
-            self.os_client.wait_for_node_reservation(
+            self.os_cloud.baremetal.wait_for_node_reservation(
                 self.node_id, timeout=self.retry_timeout)
         except Exception as e:
             self.log("ERROR Node %s can't restart introspection because can't "
