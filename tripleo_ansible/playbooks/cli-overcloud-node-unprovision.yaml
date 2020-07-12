@@ -79,7 +79,3 @@
         instances: "{{ baremetal_existing.instances }}"
         state: absent
       when: not prompt|bool
-      register: baremetal_unprovisioned
-      until: baremetal_unprovisioned is success
-      retries: 3
-      delay: 2
