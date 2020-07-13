@@ -101,9 +101,6 @@
         state: reserved
         clean_up: true
       register: baremetal_reserved
-      until: baremetal_reserved is success
-      retries: 3
-      delay: 2
 
     # NOTE(cloudnull): This limits the concurrency so that we're not adding
     #                  more threads than needed.
@@ -123,9 +120,6 @@
         timeout: "{{ node_timeout }}"
         concurrency: "{{ runtime_concurrency }}"
       register: baremetal_provisioned
-      until: baremetal_provisioned is success
-      retries: 3
-      delay: 2
 
     - name: Populate environment
       tripleo_baremetal_populate_environment:
