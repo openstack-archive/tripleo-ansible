@@ -16,6 +16,8 @@
 __metaclass__ = type
 
 from concurrent import futures
+import io
+import logging
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_cloud_from_module
@@ -182,7 +184,32 @@ options:
       - Maximum number of instances to provision at once. Set to 0 to have no
         concurrency limit
     type: int
+  log_level:
+    description:
+      - Set the logging level for the log which is available in the
+        returned 'logging' result.
+    default: info
+    choices:
+    - debug
+    - info
+    - warning
+    - error
 '''
+
+
+METALSMITH_LOG_MAP = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR
+}
+
+BASE_LOG_MAP = {
+    'debug': logging.INFO,
+    'info': logging.WARNING,
+    'warning': logging.WARNING,
+    'error': logging.ERROR
+}
 
 
 def _get_source(instance):
@@ -310,6 +337,22 @@ def unprovision(provisioner, instances):
     return True
 
 
+def _configure_logging(log_level):
+    log_fmt = ('%(asctime)s %(levelname)s %(name)s: %(message)s')
+    urllib_level = logging.CRITICAL
+
+    base_level = BASE_LOG_MAP[log_level]
+    metalsmith_level = METALSMITH_LOG_MAP[log_level]
+
+    logging.basicConfig(level=base_level, format=log_fmt)
+    logging.getLogger('urllib3.connectionpool').setLevel(urllib_level)
+    logger = logging.getLogger('metalsmith')
+    logger.setLevel(metalsmith_level)
+    log_stream = io.StringIO()
+    logger.addHandler(logging.StreamHandler(log_stream))
+    return log_stream
+
+
 def main():
     argument_spec = openstack_full_argument_spec(
         **yaml.safe_load(DOCUMENTATION)['options']
@@ -321,44 +364,55 @@ def main():
         **module_kwargs
     )
 
-    sdk, cloud = openstack_cloud_from_module(module)
-    provisioner = metalsmith.Provisioner(cloud_region=cloud.config)
-    instances = module.params['instances']
-    state = module.params['state']
-    concurrency = module.params['concurrency']
-    timeout = module.params['timeout']
-    wait = module.params['wait']
-    clean_up = module.params['clean_up']
+    log_stream = _configure_logging(module.params['log_level'])
 
-    if state == 'present':
-        changed, nodes = provision(provisioner, instances,
-                                   timeout, concurrency, clean_up,
-                                   wait)
-        instances = [{
-            'name': i.node.name or i.uuid,
-            'hostname': i.hostname,
-            'id': i.uuid,
-        } for i in nodes]
-        module.exit_json(
-            changed=changed,
-            msg="{} instances provisioned".format(len(nodes)),
-            instances=instances,
-        )
+    try:
+        sdk, cloud = openstack_cloud_from_module(module)
+        provisioner = metalsmith.Provisioner(cloud_region=cloud.config)
+        instances = module.params['instances']
+        state = module.params['state']
+        concurrency = module.params['concurrency']
+        timeout = module.params['timeout']
+        wait = module.params['wait']
+        clean_up = module.params['clean_up']
 
-    if state == 'reserved':
-        changed, nodes = reserve(provisioner, instances, clean_up)
-        module.exit_json(
-            changed=changed,
-            msg="{} instances reserved".format(len(nodes)),
-            ids=[node.id for node in nodes],
-            instances=instances
-        )
+        if state == 'present':
+            changed, nodes = provision(provisioner, instances,
+                                       timeout, concurrency, clean_up,
+                                       wait)
+            instances = [{
+                'name': i.node.name or i.uuid,
+                'hostname': i.hostname,
+                'id': i.uuid,
+            } for i in nodes]
+            module.exit_json(
+                changed=changed,
+                msg="{} instances provisioned".format(len(nodes)),
+                instances=instances,
+                logging=log_stream.getvalue()
+            )
 
-    if state == 'absent':
-        changed = unprovision(provisioner, instances)
-        module.exit_json(
-            changed=changed,
-            msg="{} nodes unprovisioned".format(len(instances))
+        if state == 'reserved':
+            changed, nodes = reserve(provisioner, instances, clean_up)
+            module.exit_json(
+                changed=changed,
+                msg="{} instances reserved".format(len(nodes)),
+                ids=[node.id for node in nodes],
+                instances=instances,
+                logging=log_stream.getvalue()
+            )
+
+        if state == 'absent':
+            changed = unprovision(provisioner, instances)
+            module.exit_json(
+                changed=changed,
+                msg="{} nodes unprovisioned".format(len(instances)),
+                logging=log_stream.getvalue()
+            )
+    except Exception as e:
+        module.fail_json(
+            msg=str(e),
+            logging=log_stream.getvalue()
         )
 
 
