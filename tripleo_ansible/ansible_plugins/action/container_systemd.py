@@ -338,8 +338,8 @@ class ActionModule(ActionBase):
             )
             if service_stat.get('stat', {}).get('exists', False):
                 if self.debug:
-                    DISPLAY.display('Systemd unit file found for {}, the '
-                                    'container will be restarted'.format(c))
+                    DISPLAY.display('This container will be '
+                                    'restarted: {}'.format(c))
                 extra_restarts.append(c)
 
         container_names = []
