@@ -132,8 +132,7 @@
     - ^tox.ini
     - ^molecule-requirements.txt
     name: tripleo-ansible-centos-7-role-addition
-    nodeset: centos-7
-    parent: tox-molecule
+    parent: tripleo-ansible-centos-7-base
     timeout: 1800
     vars:
       tox_envlist: role-addition
