@@ -16,6 +16,7 @@
 #    under the License.
 __metaclass__ = type
 
+import glob
 import json
 import os
 import shutil
@@ -122,9 +123,13 @@ class ContainerStartupManager:
         self.results['changed'] = True
 
     def _cleanup_old_configs(self):
-        """Cleanup old container configurations and directories.
+        """Cleanup old container configurations from previous releases.
         """
-        # TODO(emilien) remove old .json in /var/lib/tripleo-config/*.json
+        pattern = '*docker-container-startup-config*.json'
+        old_configs = glob.glob(os.path.join('/var/lib/tripleo-config',
+                                             pattern))
+        for config in old_configs:
+            os.remove(config)
 
 
 def main():
