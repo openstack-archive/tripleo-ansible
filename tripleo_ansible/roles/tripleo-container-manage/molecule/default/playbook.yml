@@ -290,7 +290,7 @@
           {
             "image": "fedora:rawhide",
             "net": "host",
-            "command": "sleep 3600"
+            "command": "sleep 10"
           }
         dest: '/tmp/container-configs/fedora_bis.json'
     - include_role:
