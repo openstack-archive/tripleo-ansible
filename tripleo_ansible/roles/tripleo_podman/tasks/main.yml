@@ -52,3 +52,10 @@
   when:
     - tripleo_container_registry_login | bool
     - tripleo_container_registry_logins
+
+- name: Buildah setup
+  import_tasks: tripleo_podman_buildah_login.yml
+  when:
+    - tripleo_podman_buildah_login | bool
+    - tripleo_container_registry_login | bool
+    - tripleo_container_registry_logins

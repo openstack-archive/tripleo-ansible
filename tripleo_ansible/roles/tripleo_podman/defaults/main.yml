@@ -19,6 +19,7 @@
 tripleo_podman_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
 tripleo_podman_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
 
+tripleo_podman_buildah_login: false
 tripleo_container_registry_insecure_registries: []
 tripleo_container_registry_login: false
 tripleo_container_registry_logins: {}
