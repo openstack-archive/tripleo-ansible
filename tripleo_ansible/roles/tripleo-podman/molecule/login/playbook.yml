@@ -18,6 +18,7 @@
 - name: Converge
   hosts: all
   vars:
+    tripleo_podman_buildah_login: true
     tripleo_podman_tls_verify: false
     tripleo_container_registry_logins:
       localhost:5000:
@@ -26,3 +27,6 @@
     - include_role:
         name: tripleo-podman
         tasks_from: tripleo_podman_login.yml
+    - include_role:
+        name: tripleo-podman
+        tasks_from: tripleo_podman_buildah_login.yml
