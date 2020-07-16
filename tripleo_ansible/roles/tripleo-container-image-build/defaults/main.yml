@@ -76,6 +76,3 @@ tcib_actions: []
 
 # List of Strings, optional, <item>, Collects file from the host and stores them in the build directory.
 tcib_gather_files: []
-
-# Boolean, enables the gathering of files.
-tcib_pre_build: false
