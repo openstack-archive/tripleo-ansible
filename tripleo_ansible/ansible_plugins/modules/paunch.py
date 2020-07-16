@@ -166,6 +166,9 @@ class PaunchManager:
                                                    log_file=self.log_file)
 
         if self.config:
+            # Do nothing if config path doesn't exist
+            if not os.path.exists(self.config):
+                self.module.exit_json(**self.results)
             if self.config.endswith('.json'):
                 self.module.warn('Only one config was given, cleanup disabled')
                 self.cleanup = False
