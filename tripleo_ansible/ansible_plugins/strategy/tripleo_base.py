@@ -129,6 +129,14 @@ class TripleoBase(StrategyBase):
                 failures[role] = 1
         return failures
 
+    def _get_task_errors_fatal(self, task, templar):
+        """Return parsed any_errors_fatal from a task"""
+        return task.get_validated_value('any_errors_fatal',
+                                        task._valid_attrs['any_errors_fatal'],
+                                        templar.template(
+                                            task.any_errors_fatal),
+                                        None)
+
     def process_includes(self, host_results, noop=False):
         """Handle includes
 
