@@ -216,6 +216,25 @@ class StrategyModule(BASE.TripleoBase):
                     and not task._role._metadata.allow_duplicates):
                 raise TripleoLinearNoHostTask()
 
+        # todo handle steps like in linear
+        # build get_vars call params
+        vars_params = {'play': self._iterator._play,
+                       'host': host,
+                       'task': task}
+        # if we have >= 2.9 we can use the hosts cache
+        if self._has_hosts_cache:
+            vars_params['_hosts'] = self._hosts_cache
+        if self._has_hosts_cache_all:
+            vars_params['_hosts_all'] = self._hosts_cache_all
+
+        task_vars = self._variable_manager.get_vars(**vars_params)
+
+        self.add_tqm_variables(task_vars, play=self._iterator._play)
+        templar = Templar(loader=self._loader, variables=task_vars)
+
+        run_once = (templar.template(task.run_once) or action
+                    and getattr(action, 'BYPASS_HOST_LOOP', False))
+
         if task.action == 'meta':
             results.extend(self._execute_meta(task,
                                               self._play_context,
@@ -225,27 +244,10 @@ class StrategyModule(BASE.TripleoBase):
                                                            'reset_connection',
                                                            'end_host')):
                 run_once = True
-            if (task.any_errors_fatal or run_once and not task.ignore_errors):
+            if (self._get_task_errors_fatal(task, templar)
+                    or run_once and not task.ignore_errors):
                 self._any_errors_fatal = True
         else:
-            # todo handle steps like in linear
-            # build get_vars call params
-            vars_params = {'play': self._iterator._play,
-                           'host': host,
-                           'task': task}
-            # if we have >= 2.9 we can use the hosts cache
-            if self._has_hosts_cache:
-                vars_params['_hosts'] = self._hosts_cache
-            if self._has_hosts_cache_all:
-                vars_params['_hosts_all'] = self._hosts_cache_all
-
-            task_vars = self._variable_manager.get_vars(**vars_params)
-
-            self.add_tqm_variables(task_vars, play=self._iterator._play)
-            templar = Templar(loader=self._loader, variables=task_vars)
-
-            run_once = (templar.template(task.run_once) or action
-                        and getattr(action, 'BYPASS_HOST_LOOP', False))
             self._send_task_callback(task, templar)
             self._blocked_hosts[host.get_name()] = True
             self._queue_task(host, task, task_vars, self._play_context)
