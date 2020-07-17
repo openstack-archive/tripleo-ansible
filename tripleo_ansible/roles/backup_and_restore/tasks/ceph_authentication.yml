@@ -35,7 +35,16 @@
 - name: Export ceph authentication
   shell: |
     set -o pipefail
-    {{ tripleo_container_cli }} exec ceph-mon-{{ ansible_hostname }} bash -c "ceph auth export" > {{ tripleo_backup_and_restore_ceph_auth_file }}
+    {{ tripleo_container_cli }} exec ceph-mon-{{ ansible_hostname }} bash -c "ceph auth export"
   become: true
+  register: bar_ceph_autentication_content
+  tags:
+    - bar_create_recover_image
+
+- name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
+  copy:
+    dest: "{{ tripleo_backup_and_restore_ceph_auth_file }}"
+    content: |
+        {{ bar_ceph_autentication_content.stdout }}
   tags:
     - bar_create_recover_image
