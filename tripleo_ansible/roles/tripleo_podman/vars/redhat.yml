@@ -17,7 +17,6 @@
 
 _tripleo_podman_packages:
   - podman
-  - buildah
 
 _tripleo_podman_purge_packages:
   - docker
