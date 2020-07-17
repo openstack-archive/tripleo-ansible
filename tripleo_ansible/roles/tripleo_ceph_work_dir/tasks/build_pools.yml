@@ -69,7 +69,7 @@
       with_items: "{{ ceph_pools.cinder_pool.cinder_extra_pools }}"
       when:
         - tripleo_pool_volumes
-        - item not in overrides
+        - item not in overrides | default([])
 
     - name: build resulting pool list
       set_fact:
