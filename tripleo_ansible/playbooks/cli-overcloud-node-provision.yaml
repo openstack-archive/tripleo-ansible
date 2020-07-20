@@ -100,7 +100,12 @@
         instances: "{{ baremetal_existing.not_found }}"
         state: reserved
         clean_up: true
+        log_level: info
       register: baremetal_reserved
+
+    - name: Metalsmith log for reserve instances
+      debug:
+        var: baremetal_reserved.logging
 
     # NOTE(cloudnull): This limits the concurrency so that we're not adding
     #                  more threads than needed.
@@ -119,7 +124,12 @@
         clean_up: false
         timeout: "{{ node_timeout }}"
         concurrency: "{{ runtime_concurrency }}"
+        log_level: info
       register: baremetal_provisioned
+
+    - name: Metalsmith log for provision instances
+      debug:
+        var: baremetal_provisioned.logging
 
     - name: Populate environment
       tripleo_baremetal_populate_environment:
