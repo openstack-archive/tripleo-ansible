@@ -168,37 +168,6 @@
       when:
         - not ansible_check_mode|bool
 
-- name: Test systemd state on fedora container after a manual stop
-  become: true
-  hosts: all
-  gather_facts: false
-  vars:
-    tripleo_container_manage_config: '/tmp/container-configs'
-    tripleo_container_manage_debug: true
-    tripleo_container_manage_config_patterns: '*.json'
-    tripleo_container_manage_systemd_order: true
-  tasks:
-    - name: Stop systemd service for tripleo_fedora in a manual stop
-      systemd:
-        name: tripleo_fedora.service
-        state: stopped
-        enabled: false
-        daemon_reload: true
-    - include_role:
-        name: tripleo_container_manage
-  post_tasks:
-    - name: Check if tripleo_fedora systemd service is active after a manual stop
-      command: systemctl is-active --quiet tripleo_fedora
-      register: tripleo_fedora_active_result
-    - name: Assert that tripleo_fedora systemd service is active after a manual stop
-      when:
-        - not ansible_check_mode|bool
-      assert:
-        that:
-          - tripleo_fedora_active_result.rc == 0
-        fail_msg: 'tripleo_fedora systemd service is not active after a manual stop'
-        success_msg: 'tripleo_fedora systemd service is active after a manual stop'
-
 - name: Manage only one container
   become: true
   hosts: all
