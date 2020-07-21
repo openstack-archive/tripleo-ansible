@@ -57,11 +57,6 @@ options:
     description:
       - Whether or not we cleanup the old healthchecks with SystemD.
     type: boolean
-  restart_containers:
-    description:
-      - List of container names to be restarted
-    default: []
-    type: list
   debug:
     default: false
     description:
@@ -324,23 +319,7 @@ class ActionModule(ActionBase):
 
         container_config = args['container_config']
         systemd_healthchecks = args['systemd_healthchecks']
-        restart_containers = args['restart_containers']
         self.debug = args['debug']
-
-        extra_restarts = []
-        for c in restart_containers:
-            s_path = os.path.join('/etc/systemd/system',
-                                  'tripleo_{}.service'.format(c))
-            service_stat = self._execute_module(
-                module_name='stat',
-                module_args=dict(path=s_path),
-                task_vars=task_vars
-            )
-            if service_stat.get('stat', {}).get('exists', False):
-                if self.debug:
-                    DISPLAY.display('This container will be '
-                                    'restarted: {}'.format(c))
-                extra_restarts.append(c)
 
         container_names = []
         for container in container_config:
@@ -355,8 +334,7 @@ class ActionModule(ActionBase):
         changed_services = self._create_units(container_config, task_vars)
         if len(changed_services) > 0:
             self._systemd_reload(task_vars)
-        service_names = set(changed_services + extra_restarts)
-        self._restart_services(service_names, task_vars)
+        self._restart_services(changed_services, task_vars)
 
         result['changed'] = self.changed
         result['restarted'] = self.restarted

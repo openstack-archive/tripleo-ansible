@@ -107,15 +107,3 @@
     container_data: "{{ batched_container_data }}"
     valid_exit_codes: "{{ tripleo_container_manage_valid_exit_code }}"
     debug: "{{ tripleo_container_manage_debug | bool }}"
-  register: container_status_results
-
-- name: "Create fact for containers which changed"
-  set_fact:
-    # List of containers which have changed (created or updated)
-    containers_changed: "{{ container_status_results.changed_containers | default([]) }}"
-
-- name: "Append the list of all podman commands that are run for containers with changes"
-  set_fact:
-    all_containers_commands: "{{ container_status_results.commands | default([]) + (all_containers_commands | default([]) | list) }}"
-  when:
-    - ansible_check_mode|bool

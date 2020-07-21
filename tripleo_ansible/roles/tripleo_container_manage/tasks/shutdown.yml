@@ -61,6 +61,7 @@
         - /usr/lib/systemd/system-preset/91-paunch-container-shutdown.preset
 
 - name: Create TripleO Container systemd service
+  become: true
   block:
     - name: "Deploy tripleo-container-shutdown and tripleo-start-podman-container"
       copy:
