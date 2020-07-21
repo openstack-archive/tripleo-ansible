@@ -64,7 +64,6 @@
     - bar_setup_rear
 
 - name: Calculate exclude paths
-  register: tripleo_backup_and_restore_exclude_paths
   set_fact:
     tripleo_backup_and_restore_exclude_paths:
       - "{{ tripleo_backup_and_restore_exclude_paths_common }}"
