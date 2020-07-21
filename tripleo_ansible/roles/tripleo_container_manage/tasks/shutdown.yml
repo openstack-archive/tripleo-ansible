@@ -26,6 +26,7 @@
     - podman_drop_in.stat.exists
 
 - name: Create TripleO Container systemd service
+  become: true
   block:
     - name: "Deploy tripleo-container-shutdown and tripleo-start-podman-container"
       copy:
