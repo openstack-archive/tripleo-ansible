@@ -227,7 +227,7 @@ class StrategyModule(BASE.TripleoBase):
             self._blocked_hosts[host_name] = False
         else:
             if not self._step or self._take_step(task, host_name):
-                if task.any_errors_fatal:
+                if self._get_task_errors_fatal(task, templar):
                     display.warning('any_errors_fatal only stops any future '
                                     'tasks running on the host that fails '
                                     'with the tripleo_free strategy.')
