@@ -22,45 +22,11 @@
   any_errors_fatal: true
   vars:
     container: overcloud
-    source_url: null
     generate_passwords: true
     reset_passwords: false
-    validate_stack: true
     hide_sensitive_logs: true
 
-  handlers:
-    - name: Cleanup temp directory
-      file:
-        path: "{{ temp_dir.path }}"
-        state: absent
-        when: temp_dir is defined
-
   tasks:
-    - name: Clone repo and upload templates
-      block:
-        - name: Create temp directory
-          tempfile:
-            state: directory
-            suffix: "{{ '_' + container + '_import' }}"
-          register: temp_dir
-          notify:
-            - "Cleanup temp directory"
-          when: source_url is not none
-
-        - name: Git clone remote url
-          git:
-            repo: "{{ source_url }}"
-            dest: "{{ temp_dir }}"
-          when: source_url is not none
-
-        - name: Upload templates
-          tripleo_templates_upload:
-            container: "{{ container }}"
-            templates_dir: "{{ temp_dir.path }}"
-          when: source_url is not none
-
-      when: source_url is not none
-
     - name: Generate passwords if does not exist and update plan
       tripleo_passwords_rotate:
         container: "{{ container }}"
