@@ -208,7 +208,7 @@ class ActionModule(ActionBase):
 
         :param container_config: List of dictionaries for container configs.
         :param task_vars: Dictionary of Ansible task variables.
-        :returns changed_healthchecks: List of healthchecks which changed.
+        :returns tupple: List of healthchecks and another list of the changes.
         """
         try:
             remote_user = self._get_remote_user()
@@ -217,11 +217,13 @@ class ActionModule(ActionBase):
             if not remote_user:
                 remote_user = self._play_context.remote_user
         tmp = self._make_tmp_path(remote_user)
+        all_healthchecks = []
         changed_healthchecks = []
         for container in container_config:
             for name, config in container.items():
                 if 'healthcheck' not in config:
                     continue
+                all_healthchecks.append(name)
                 for t in ['service', 'timer']:
                     template = self._get_template('systemd-healthcheck-'
                                                   '{}.j2'.format(t))
@@ -247,7 +249,7 @@ class ActionModule(ActionBase):
         if self.debug:
             DISPLAY.display('Systemd healthcheck was created or updated for:'
                             ' {}'.format(changed_healthchecks))
-        return changed_healthchecks
+        return (all_healthchecks, changed_healthchecks)
 
     def _systemd_reload(self, task_vars):
         """Reload systemd to load new units.
@@ -291,17 +293,18 @@ class ActionModule(ActionBase):
         stop=tenacity.stop_after_attempt(5),
         wait=tenacity.wait_fixed(5)
     )
-    def _restart_service(self, name, extension, task_vars):
-        """Restart a systemd service with retries and delay.
+    def _manage_service(self, name, state, extension, task_vars):
+        """Manage a systemd service with retries and delay.
 
-        :param name: String for service name to restart.
-        :param extension: String for service to restart.
+        :param name: String for service name to manage.
+        :param state: String for service state.
+        :param extension: String for service extension to restart.
         :param task_vars: Dictionary of Ansible task variables.
         """
         tvars = copy.deepcopy(task_vars)
         results = self._execute_module(
             module_name='systemd',
-            module_args=dict(state='restarted',
+            module_args=dict(state=state,
                              name='tripleo_{}.{}'.format(name, extension),
                              enabled=True,
                              daemon_reload=False),
@@ -320,14 +323,29 @@ class ActionModule(ActionBase):
         """Restart systemd services.
 
         :param service_names: List of services to restart.
-        :param extension: String for service to restart.
+        :param extension: String for service extension to restart.
         :param task_vars: Dictionary of Ansible task variables.
         """
         for name in service_names:
             if self.debug:
                 DISPLAY.display('Restarting systemd service for '
                                 '{}'.format(name))
-            self._restart_service(name, extension, task_vars)
+            self._manage_service(name=name, state='restarted',
+                                 extension=extension, task_vars=task_vars)
+
+    def _ensure_started(self, service_names, extension, task_vars):
+        """Ensure systemd services are started.
+
+        :param service_names: List of services to start.
+        :param extension: String for service extension to start.
+        :param task_vars: Dictionary of Ansible task variables.
+        """
+        for name in service_names:
+            if self.debug:
+                DISPLAY.display('Ensure that systemd service for '
+                                '{} is started'.format(name))
+            self._manage_service(name=name, state='started',
+                                 extension=extension, task_vars=task_vars)
 
     def _add_requires(self, services, task_vars):
         """Add systemd requires for healthchecks.
@@ -341,6 +359,7 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         self.changed = False
         self.restarted = []
+        already_created = []
 
         if task_vars is None:
             task_vars = dict()
@@ -365,11 +384,21 @@ class ActionModule(ActionBase):
         if len(changed_services) > 0:
             self._systemd_reload(task_vars)
         self._restart_services(changed_services, task_vars)
+        for c in container_names:
+            # For services that didn't restart, make sure they're started
+            if c not in changed_services:
+                already_created.append(c)
+        if len(already_created) > 0:
+            self._ensure_started(service_names=already_created,
+                                 extension='service',
+                                 task_vars=task_vars)
 
         if self.systemd_healthchecks:
             healthchecks_to_restart = []
-            changed_healthchecks = self._manage_healthchecks(container_config,
-                                                             task_vars)
+            h_already_created = []
+            all_healthchecks, changed_healthchecks = (
+                self._manage_healthchecks(container_config, task_vars)
+            )
             for h in changed_healthchecks:
                 healthchecks_to_restart.append(h + '_healthcheck')
             if len(healthchecks_to_restart) > 0:
@@ -377,7 +406,16 @@ class ActionModule(ActionBase):
             self._restart_services(healthchecks_to_restart,
                                    task_vars,
                                    extension='timer')
-            self._add_systemd_requires(changed_healthchecks, task_vars)
+            for c in all_healthchecks:
+                if c not in changed_healthchecks:
+                    name = c + '_healthcheck'
+                    h_already_created.append(name)
+            if len(h_already_created) > 0:
+                self._ensure_started(service_names=h_already_created,
+                                     extension='timer',
+                                     task_vars=task_vars)
+            requires_healthchecks = changed_healthchecks + h_already_created
+            self._add_systemd_requires(requires_healthchecks, task_vars)
 
         result['changed'] = self.changed
         result['restarted'] = self.restarted
