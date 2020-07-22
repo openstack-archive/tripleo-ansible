@@ -57,3 +57,10 @@
 - name: Set common fact
   set_fact:
     ceph_common_done: true
+
+- name: set ceph_ansible_limit to ansible_limit, only if ansible_limit defined
+  set_fact:
+    ceph_ansible_limit: "{{ ansible_limit }}"
+  when:
+    - (ceph_ansible_limit is not defined) or (ceph_ansible_limit|length == 0)
+    - (ansible_limit is defined) and (ansible_limit|length > 0)
