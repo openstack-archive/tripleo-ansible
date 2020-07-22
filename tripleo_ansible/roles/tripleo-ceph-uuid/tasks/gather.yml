@@ -29,6 +29,7 @@
       - '{{ playbook_dir }}/ceph-ansible/inventory.yml'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
       - '{{ playbook_dir }}/ceph-ansible/nodes_uuid_playbook.yml'
+      - '{% if ceph_ansible_limit is defined and ceph_ansible_limit|length > 0 %}--limit {{ ceph_ansible_limit }}{% endif %}'
 
 - name: run nodes-uuid command
   # needs become to be able to read the ssh private key

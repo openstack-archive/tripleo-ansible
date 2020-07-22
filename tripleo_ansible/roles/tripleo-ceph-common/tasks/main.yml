@@ -48,3 +48,10 @@
         - env_shell_output.rc == 0
         - env_shell_output.stdout_lines is defined
         - (env_shell_output.stdout_lines|length) > 0
+
+- name: set ceph_ansible_limit to ansible_limit, only if ansible_limit defined
+  set_fact:
+    ceph_ansible_limit: "{{ ansible_limit }}"
+  when:
+    - (ceph_ansible_limit is not defined) or (ceph_ansible_limit|length == 0)
+    - (ansible_limit is defined) and (ansible_limit|length > 0)
