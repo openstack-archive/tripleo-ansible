@@ -270,16 +270,17 @@ class ActionModule(ActionBase):
         stop=tenacity.stop_after_attempt(5),
         wait=tenacity.wait_fixed(5)
     )
-    def _restart_service(self, name, task_vars):
-        """Restart a systemd service with retries and delay.
+    def _manage_service(self, name, state, task_vars):
+        """Manage a systemd service with retries and delay.
 
-        :param name: String for service name to restart.
+        :param name: String for service name to manage.
+        :param state: String for service state.
         :param task_vars: Dictionary of Ansible task variables.
         """
         tvars = copy.deepcopy(task_vars)
         results = self._execute_module(
             module_name='systemd',
-            module_args=dict(state='restarted',
+            module_args=dict(state=state,
                              name='tripleo_{}.service'.format(name),
                              enabled=True,
                              daemon_reload=False),
@@ -303,11 +304,26 @@ class ActionModule(ActionBase):
             if self.debug:
                 DISPLAY.display('Restarting systemd service for '
                                 '{}'.format(name))
-            self._restart_service(name, task_vars)
+            self._manage_service(name=name, state='restarted',
+                                 task_vars=task_vars)
+
+    def _ensure_started(self, service_names, task_vars):
+        """Ensure systemd services are started.
+
+        :param service_names: List of services to start.
+        :param task_vars: Dictionary of Ansible task variables.
+        """
+        for name in service_names:
+            if self.debug:
+                DISPLAY.display('Ensure that systemd service for '
+                                '{} is started'.format(name))
+            self._manage_service(name=name, state='started',
+                                 task_vars=task_vars)
 
     def run(self, tmp=None, task_vars=None):
         self.changed = False
         self.restarted = []
+        already_created = []
 
         if task_vars is None:
             task_vars = dict()
@@ -335,6 +351,12 @@ class ActionModule(ActionBase):
         if len(changed_services) > 0:
             self._systemd_reload(task_vars)
         self._restart_services(changed_services, task_vars)
+        for c in container_names:
+            # For services that didn't restart, make sure they're started
+            if c not in changed_services:
+                already_created.append(c)
+        if len(already_created) > 0:
+            self._ensure_started(already_created, task_vars)
 
         result['changed'] = self.changed
         result['restarted'] = self.restarted
