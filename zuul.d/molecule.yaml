@@ -363,6 +363,7 @@
     - ^tripleo_ansible/roles/tripleo-container-manage/.*
     - ^tripleo_ansible/roles/tripleo-container-rm/.*
     - ^tripleo_ansible/ansible_plugins/action/container_status.py$
+    - ^tripleo_ansible/ansible_plugins/action/container_systemd.py$
     - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_config_data.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_puppet_config.py$

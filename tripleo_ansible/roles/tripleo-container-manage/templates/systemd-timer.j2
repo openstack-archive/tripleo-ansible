@@ -1,9 +1,0 @@
-[Unit]
-Description=tripleo_{{ lookup('dict', container_data_timer).key }} container healthcheck
-PartOf=tripleo_{{ lookup('dict', container_data_timer).key }}.service
-[Timer]
-OnActiveSec=120
-OnUnitActiveSec={{ lookup('dict', container_data_timer).value.check_interval | default(60) }}
-RandomizedDelaySec={{ 45 if lookup('dict', container_data_timer).value.check_interval is not defined else (lookup('dict', container_data_timer).value.check_interval * 3 / 4) | int | abs }}
-[Install]
-WantedBy=timers.target
