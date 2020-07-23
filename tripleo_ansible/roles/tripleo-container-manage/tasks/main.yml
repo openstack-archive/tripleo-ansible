@@ -63,18 +63,9 @@
         all_containers_hash: "{{ container_config_data.configs }}"
 
 - name: "Manage systemd shutdown files"
-  become: true
+  include_tasks: shutdown.yml
   when:
-    - tripleo_container_manage_systemd_order
-  block:
-    - name: Check if /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset exists
-      stat:
-        path: /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset
-      register: tripleo_container_shutdown
-    - name: Include tasks for systemd shutdown service
-      include_tasks: shutdown.yml
-      when:
-        - not tripleo_container_shutdown.stat.exists
+    - tripleo_container_manage_systemd_order|bool
 
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
   when:
@@ -90,8 +81,3 @@
       include_tasks: delete_orphan.yml
     - name: "Create containers from {{ tripleo_container_manage_config }}"
       include_tasks: create.yml
-    - name: "Show all container commands for {{ tripleo_container_manage_config }}"
-      debug:
-        msg: "{{ all_containers_commands | default('No container action') }}"
-      when:
-        - ansible_check_mode|bool
