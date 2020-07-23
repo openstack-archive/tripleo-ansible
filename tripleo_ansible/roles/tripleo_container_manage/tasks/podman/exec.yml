@@ -54,10 +54,3 @@
     container_async_results: "{{ exec_async_poll_results.results }}"
     container_data: "{{ batched_container_data | haskey(attribute='action', value='exec') }}"
     debug: "{{ tripleo_container_manage_debug | bool }}"
-  register: container_exec_status_results
-
-- name: "Append the list of all podman commands with the containers execs"
-  set_fact:
-    all_containers_commands: "{{ container_status_results.commands | default([]) + (all_containers_commands | default([]) | list) }}"
-  when:
-    - ansible_check_mode|bool
