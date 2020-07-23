@@ -107,6 +107,52 @@
             fail_msg: 'fedora_three container has wrong image'
             success_msg: 'fedora_three container has the right image'
 
+- name: Test systemd healthcheck dependency on service
+  become: true
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Stop systemd service for tripleo_fedora
+      systemd:
+        name: tripleo_fedora.service
+        state: stopped
+        enabled: true
+    - name: Check if tripleo_fedora_healthcheck timer is active
+      command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+      register: tripleo_fedora_healthcheck_active_result
+      failed_when: false
+      when:
+        - not ansible_check_mode|bool
+    - name: Assert that tripleo_fedora_healthcheck timer service is not active
+      assert:
+        that:
+          - tripleo_fedora_healthcheck_active_result.rc == 3
+        fail_msg: 'tripleo_fedora systemd service is active'
+        success_msg: 'tripleo_fedora systemd service is not active'
+      when:
+        - not ansible_check_mode|bool
+    - name: Start systemd service for tripleo_fedora
+      systemd:
+        name: tripleo_fedora.service
+        state: started
+        enabled: true
+    - name: Check if tripleo_fedora_healthcheck timer is active
+      command: systemctl is-active --quiet tripleo_fedora_healthcheck.timer
+      register: tripleo_fedora_healthcheck_active_result
+      until: tripleo_fedora_healthcheck_active_result.rc == 0
+      retries: 5
+      delay: 5
+      when:
+        - not ansible_check_mode|bool
+    - name: Assert that tripleo_fedora_healthcheck timer service is active
+      assert:
+        that:
+          - tripleo_fedora_healthcheck_active_result.rc == 0
+        fail_msg: 'tripleo_fedora systemd service is not active'
+        success_msg: 'tripleo_fedora systemd service is active'
+      when:
+        - not ansible_check_mode|bool
+
 - name: Test idempotency on fedora container
   become: true
   hosts: all

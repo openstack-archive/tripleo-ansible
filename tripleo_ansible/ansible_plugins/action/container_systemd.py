@@ -266,27 +266,25 @@ class ActionModule(ActionBase):
         if results.get('changed', False):
             self.changed = True
 
-    def _add_systemd_requires(self, services, task_vars):
+    def _add_systemd_requires(self, services):
         """Add systemd dependencies for healthchecks.
 
         :param services: List for service names.
-        :param task_vars: Dictionary of Ansible task variables.
         """
         for name in services:
             service = 'tripleo_{}'.format(name)
-            if self.debug:
-                DISPLAY.display('Adding systemd dependency for '
-                                '{}'.format(service))
-
             command = ('systemctl add-requires {}.service '.format(service)
                        + '{}_healthcheck.timer'.format(service))
-            results = self._execute_module(
-                module_name='command',
-                module_args=dict(cmd=command),
-                task_vars=task_vars
+            if self.debug:
+                DISPLAY.display('Adding systemd dependency for '
+                                '{} with command: '
+                                '{}'.format(service, command))
+            results = self._low_level_execute_command(
+                command,
+                executable='/bin/bash'
             )
-            if results.get('changed', False):
-                self.changed = True
+            if results.get('rc', 0) != 0:
+                raise AnsibleActionFail('Failed to run {}'.format(command))
 
     @tenacity.retry(
         reraise=True,
@@ -347,15 +345,6 @@ class ActionModule(ActionBase):
             self._manage_service(name=name, state='started',
                                  extension=extension, task_vars=task_vars)
 
-    def _add_requires(self, services, task_vars):
-        """Add systemd requires for healthchecks.
-
-        :param services: List of services to manage.
-        """
-        for s in services:
-            # TODO
-            pass
-
     def run(self, tmp=None, task_vars=None):
         self.changed = False
         self.restarted = []
@@ -414,8 +403,7 @@ class ActionModule(ActionBase):
                 self._ensure_started(service_names=h_already_created,
                                      extension='timer',
                                      task_vars=task_vars)
-            requires_healthchecks = changed_healthchecks + h_already_created
-            self._add_systemd_requires(requires_healthchecks, task_vars)
+            self._add_systemd_requires(all_healthchecks)
 
         result['changed'] = self.changed
         result['restarted'] = self.restarted
