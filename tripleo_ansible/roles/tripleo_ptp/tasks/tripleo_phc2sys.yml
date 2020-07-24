@@ -35,5 +35,13 @@
     dest: /etc/sysconfig/phc2sys
   when:
     - tripleo_phc_interface
-  notify:
-    - Enable and start the phc2sys service
+  register: _ptp_phc2sys_sysconfig_result
+
+- name: Enable and start the phc2sys service
+  become: true
+  systemd:
+    name: phc2sys
+    state: restarted
+    enabled: true
+  when:
+    - _ptp_phc2sys_sysconfig_result.changed
