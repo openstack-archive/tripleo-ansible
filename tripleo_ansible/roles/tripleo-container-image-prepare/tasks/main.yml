@@ -48,7 +48,7 @@
         content: "{{ tripleo_container_image_prepare_roles }}"
 
     - name: "Run tripleo-container-image-prepare logged to: {{ tripleo_container_image_prepare_log_file }}"
-      command: >-
+      shell: >-
         /usr/bin/tripleo-container-image-prepare
         --roles-file {{ role_data.path }}
         --environment-file {{ prepare_param.path }}
@@ -57,7 +57,8 @@
         {% if (tripleo_container_image_prepare_debug | bool) %}
         --debug
         {% endif %}
-      no_log: "{{ not (tripleo_container_image_prepare_debug | bool) }}"
+        >/dev/null
+      no_log: "{{ not tripleo_container_image_prepare_debug | bool }}"
       when:
         - (tripleo_container_image_prepare_content | dict2items | length) > 0
         - (tripleo_container_image_prepare_roles | length) > 0
