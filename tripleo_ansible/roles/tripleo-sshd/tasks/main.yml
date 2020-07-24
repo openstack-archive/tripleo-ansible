@@ -36,19 +36,18 @@
       package:
         name: "{{ tripleo_sshd_packages }}"
         state: "{{ tripleo_sshd_package_state }}"
-      notify:
-        - Restart sshd
+      register: _sshd_install_result
 
-    - name: Flush all handlers
-      meta: flush_handlers
-
-    - name: Adjust ssh server configuration
-      template:
-        dest: /etc/ssh/sshd_config
-        src: sshd_config_block.j2
-        validate: '/usr/sbin/sshd -T -f %s'
-      notify:
-        - Restart sshd
+    # NOTE(mwhahaha): we need this here because in order to validate our generated
+    # config, we need to ensure the host keys exists which happens on initial
+    # startup
+    - name: Start sshd
+      systemd:
+        name: sshd
+        state: restarted
+        enabled: true
+      when:
+        - _sshd_install_result.changed
 
     - name: PasswordAuthentication notice
       debug:
@@ -62,15 +61,25 @@
         - (tripleo_sshd_password_authentication != 'no') and
           not (PermitRootLogin in tripleo_sshd_server_options)
 
-    - name: Adjust ssh server auth configuration
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        state: present
-        regexp: '^#?PasswordAuthentication.*'
-        line: 'PasswordAuthentication {{ tripleo_sshd_password_authentication }}'
-        validate: '/usr/sbin/sshd -T -f %s'
-      notify:
-        - Restart sshd
+    - name: PasswordAuthentication duplication notice
+      debug:
+        msg: >-
+          WARNING - The PasswordAuthentication has been configured in
+          `tripleo_sshd_server_options` but the values are different.
+          The `tripleo_sshd_password_authentication` value will be used.
+      when:
+        - ('PasswordAuthentication' in tripleo_sshd_server_options and
+          tripleo_sshd_password_authentication != tripleo_sshd_server_options['PasswordAuthentication'])
+
+    - name: Motd duplication notice
+      debug:
+        msg: >-
+          WARNING - The Banner or PrintMotd has been configured in
+          `tripleo_sshd_server_options`. These options may be ignored and
+          configured using values from `tripleo_sshd_banner_enabled` and
+          `tripleo_sshd_motd_enabled`
+      when:
+        - ('Banner' in tripleo_sshd_server_options or 'PrintMotd' in tripleo_sshd_server_options)
 
     - name: Configure the banner text
       copy:
@@ -79,18 +88,6 @@
       when:
         - tripleo_sshd_banner_enabled | bool
 
-    - name: Adjust ssh server banner configuration
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        state: present
-        regexp: '^#?Banner.*'
-        line: 'Banner /etc/issue'
-        validate: '/usr/sbin/sshd -T -f %s'
-      when:
-        - tripleo_sshd_banner_enabled | bool
-      notify:
-        - Restart sshd
-
     - name: Configure the motd banner
       copy:
         content: "{{ tripleo_sshd_message_of_the_day }}"
@@ -98,17 +95,29 @@
       when:
         - tripleo_sshd_motd_enabled | bool
 
-    - name: Adjust ssh server motd configuration
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        state: present
-        regexp: '^#?PrintMotd.*'
-        line: 'PrintMotd yes'
-        validate: '/usr/sbin/sshd -T -f %s'
-      when:
-        - tripleo_sshd_motd_enabled | bool
-      notify:
-        - Restart sshd
+    - name: Update sshd configuration options from vars
+      set_fact:
+        tripleo_sshd_server_options: |-
+         {% set _ = tripleo_sshd_server_options.__setitem__('PasswordAuthentication', tripleo_sshd_password_authentication) %}
+         {% if tripleo_sshd_banner_enabled %}
+         {% set _ = tripleo_sshd_server_options.__setitem__('Banner', '/etc/issue') %}
+         {% endif %}
+         {% if tripleo_sshd_motd_enabled %}
+         {% set _ = tripleo_sshd_server_options.__setitem__('PrintMotd', 'yes') %}
+         {% endif %}
+         {{ tripleo_sshd_server_options }}
 
-- name: Flush all handlers
-  meta: flush_handlers
+    - name: Adjust ssh server configuration
+      template:
+        dest: /etc/ssh/sshd_config
+        src: sshd_config_block.j2
+        validate: '/usr/sbin/sshd -T -f %s'
+      register: _sshd_config_result
+
+    - name: Restart sshd
+      systemd:
+        name: sshd
+        state: restarted
+        enabled: true
+      when:
+        - _sshd_config_result.changed
