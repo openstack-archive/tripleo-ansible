@@ -19,8 +19,7 @@
   package:
     name: "{{ tripleo_ptp_packages }}"
     state: present
-  notify:
-    - Enable and start the ptp service
+  register: _ptp_install_result
 
 - name: Collect only facts returned by facter
   setup:
@@ -60,13 +59,20 @@
   template:
     src: "ptp4l.conf.j2"
     dest: /etc/ptp4l.conf
-  notify:
-    - Enable and start the ptp service
+  register: _ptp_config_result
 
 - name: Create ptp service config
   copy:
     content: |-
       OPTIONS="-f /etc/ptp4l.conf"
     dest: /etc/sysconfig/ptp4l
-  notify:
-    - Enable and start the ptp service
+  register: _ptp_sysconfig_result
+
+- name: Enable and start the ptp service
+  become: true
+  systemd:
+    name: ptp4l
+    state: restarted
+    enabled: true
+  when:
+    - _ptp_install_result.changed or _ptp_config_result.changed or _ptp_sysconfig_result.changed

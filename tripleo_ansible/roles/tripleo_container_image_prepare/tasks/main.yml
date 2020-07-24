@@ -25,8 +25,6 @@
         suffix: -prepare-param
       register: prepare_param
       check_mode: false
-      notify:
-        - Delete param file
 
     - name: Write ContainerImagePrepare parameter file
       copy:
@@ -39,8 +37,6 @@
         suffix: -role-data
       register: role_data
       check_mode: false
-      notify:
-        - Delete role file
 
     - name: Write role data file
       copy:
@@ -61,5 +57,19 @@
       when:
         - (tripleo_container_image_prepare_content | dict2items | length) > 0
         - (tripleo_container_image_prepare_roles | length) > 0
+  always:
+    - name: Delete param file
+      command: "rm -rf '{{ prepare_param.path }}'"
+      when:
+        - prepare_param is defined
+        - prepare_param.changed
+      check_mode: false
+
+    - name: Delete role file
+      command: "rm -rf '{{ role_data.path }}'"
+      when:
+        - role_data is defined
+        - role_data.changed
+      check_mode: false
   tags:
     - container_image_prepare
