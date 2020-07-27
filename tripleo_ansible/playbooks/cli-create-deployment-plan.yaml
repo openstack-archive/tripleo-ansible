@@ -27,7 +27,6 @@
     plan_environment: plan-environment.yaml
     default_templates_dir: '/usr/share/openstack-tripleo-heat-templates/'
     use_default_templates: false
-    validate_stack: true
     hide_sensitive_logs: true
 
   handlers:
