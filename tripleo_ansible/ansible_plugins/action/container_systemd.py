@@ -286,12 +286,19 @@ class ActionModule(ActionBase):
                              daemon_reload=False),
             task_vars=tvars
         )
-        if 'Result' in results['status']:
-            if results['status']['Result'] == 'success':
-                if results.get('changed', False):
-                    self.changed = True
-                    self.restarted.append('tripleo_{}.service'.format(name))
-                return
+        try:
+            if 'Result' in results['status']:
+                if results['status']['Result'] == 'success':
+                    if results.get('changed', False):
+                        self.changed = True
+                        self.restarted.append('tripleo_{}'
+                                              '.service'.format(name))
+                    return
+        except KeyError:
+            # if 'systemd' task failed to start the service, the 'status'
+            # key doesn't exist, so we'll use the final raise to report the
+            # issue if the service never start after the attempts.
+            pass
         raise AnsibleActionFail('Service {} has not started yet'.format(name))
 
     def _restart_services(self, service_names, task_vars):
