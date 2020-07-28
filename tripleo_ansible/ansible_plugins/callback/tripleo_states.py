@@ -57,7 +57,7 @@ class CallbackModule(CallbackBase):
                 ' Number of nodes which did not deploy successfully: {} '
                 '~~~~~~~~~~~~~~~~~'.format(len(nodes_to_redeploy)))
             nodes_to_redeploy_list = ", ".join(nodes_to_redeploy)
-            fail_msg = ' This or these node(s) failed to deploy: ' + \
+            fail_msg = ' The following node(s) had failures: ' + \
                 '{}'.format(nodes_to_redeploy_list)
             self._output(fail_msg, 'red')
             self._output('~' * 89)
