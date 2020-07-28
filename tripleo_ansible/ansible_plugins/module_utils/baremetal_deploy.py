@@ -187,7 +187,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
 
         # NOTE(dtantsur): our hostname format may differ from THT defaults,
         # so override it in the resulting environment
-        parameter_defaults['%sDeployedServerHostnameFormat' % name] = (
+        parameter_defaults['%sHostnameFormat' % name] = (
             hostname_format)
 
         # ensure each instance has a unique non-empty hostname
@@ -233,7 +233,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             if provisioned == expand_provisioned:
                 instances.append(inst)
 
-        parameter_defaults['%sDeployedServerCount' % name] = (
+        parameter_defaults['%sCount' % name] = (
             provisioned_count)
 
     validate_instances(instances)
