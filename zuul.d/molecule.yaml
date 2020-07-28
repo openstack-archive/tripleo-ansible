@@ -55,6 +55,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
+      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -108,6 +109,8 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
+      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
+
     name: tripleo-ansible-molecule-jobs
     periodic-weekly:
       jobs:
@@ -542,3 +545,11 @@
     timeout: 1800
     vars:
       tox_envlist: role-addition
+
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_update_trusted_cas/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tox_envlist: mol-tripleo_update_trusted_cas
