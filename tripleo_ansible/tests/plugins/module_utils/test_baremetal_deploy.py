@@ -80,12 +80,12 @@ class TestExpandRoles(base.TestCase):
             instances)
         self.assertEqual(
             {
-                'ComputeDeployedServerHostnameFormat':
+                'ComputeHostnameFormat':
                 '%stackname%-novacompute-%index%',
-                'ComputeDeployedServerCount': 1,
-                'ControllerDeployedServerHostnameFormat':
+                'ComputeCount': 1,
+                'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
-                'ControllerDeployedServerCount': 1,
+                'ControllerCount': 1,
                 'HostnameMap': {
                     'overcloud-novacompute-0': 'overcloud-novacompute-0',
                     'overcloud-controller-0': 'overcloud-controller-0'
@@ -172,12 +172,12 @@ class TestExpandRoles(base.TestCase):
             instances)
         self.assertEqual(
             {
-                'ComputeDeployedServerHostnameFormat':
+                'ComputeHostnameFormat':
                 'compute-%index%.example.com',
-                'ComputeDeployedServerCount': 2,
-                'ControllerDeployedServerHostnameFormat':
+                'ComputeCount': 2,
+                'ControllerHostnameFormat':
                 'controller-%index%.example.com',
-                'ControllerDeployedServerCount': 3,
+                'ControllerCount': 3,
                 'HostnameMap': {
                     'compute-0.example.com': 'compute-0.example.com',
                     'compute-1.example.com': 'compute-1.example.com',
@@ -232,12 +232,12 @@ class TestExpandRoles(base.TestCase):
             instances)
         self.assertEqual(
             {
-                'ComputeDeployedServerHostnameFormat':
+                'ComputeHostnameFormat':
                 'compute-%index%.example.com',
-                'ComputeDeployedServerCount': 2,
-                'ControllerDeployedServerHostnameFormat':
+                'ComputeCount': 2,
+                'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
-                'ControllerDeployedServerCount': 2,
+                'ControllerCount': 2,
                 'HostnameMap': {
                     'compute-0.example.com': 'compute-0.example.com',
                     'compute-1.example.com': 'compute-1.example.com',
@@ -300,11 +300,11 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({
-            'ComputeDeployedServerCount': 2,
-            'ComputeDeployedServerHostnameFormat':
+            'ComputeCount': 2,
+            'ComputeHostnameFormat':
                 'compute-%index%.example.com',
-            'ControllerDeployedServerCount': 3,
-            'ControllerDeployedServerHostnameFormat':
+            'ControllerCount': 3,
+            'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
             'HostnameMap': {
                 'compute-0.example.com': 'compute-0.example.com',
@@ -345,11 +345,11 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({
-            'ControllerDeployedServerCount': 2,
+            'ControllerCount': 2,
             'ControllerRemovalPolicies': [
                 {'resource_list': [1, 2]}
             ],
-            'ControllerDeployedServerHostnameFormat':
+            'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
             'HostnameMap': {
                 'overcloud-controller-0': 'overcloud-controller-0',
@@ -413,11 +413,11 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({
-            'ControllerDeployedServerCount': 4,
+            'ControllerCount': 4,
             'ControllerRemovalPolicies': [
                 {'resource_list': [1, 2]}
             ],
-            'ControllerDeployedServerHostnameFormat':
+            'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
             'HostnameMap': {
                 'overcloud-controller-0': 'overcloud-controller-0',
@@ -486,11 +486,11 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({
-            'ControllerDeployedServerCount': 2,
+            'ControllerCount': 2,
             'ControllerRemovalPolicies': [
                 {'resource_list': [1, 2]}
             ],
-            'ControllerDeployedServerHostnameFormat':
+            'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
             'HostnameMap': {
                 'overcloud-controller-0': 'controller-0',
@@ -555,11 +555,11 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({
-            'ControllerDeployedServerCount': 2,
+            'ControllerCount': 2,
             'ControllerRemovalPolicies': [
                 {'resource_list': [1, 2]}
             ],
-            'ControllerDeployedServerHostnameFormat':
+            'ControllerHostnameFormat':
                 '%stackname%-controller-%index%',
             'HostnameMap': {
                 'overcloud-controller-0': 'node-0',
