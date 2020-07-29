@@ -35,7 +35,10 @@
 - name: Generating certificate authority private key
   become: true
   shell: |
-    openssl genrsa -passout pass:{{ ca_passphrase }} -aes256 -out {{ openssl_temp_dir }}/private/cakey.pem 2048
+    openssl genrsa -passout env:CA_PASSPHRASE -aes256 \
+        -out {{ openssl_temp_dir }}/private/cakey.pem 2048
+  environment:
+    CA_PASSPHRASE: "{{ ca_passphrase }}"
   when:
     - not (force_certs_update | default(false) | bool)
 
@@ -61,10 +64,12 @@
     - name: Update CA private key
       shell: |
         openssl rsa -aes256 \
-            -passin pass:{{ ca_passphrase }} \
-            -passout pass:{{ ca_passphrase }} \
+            -passin env:CA_PASSPHRASE \
+            -passout env:CA_PASSPHRASE \
             -in {{ openssl_temp_dir }}/private/cakey.old.pem \
             -out {{ openssl_temp_dir }}/private/cakey.pem
+      environment:
+        CA_PASSPHRASE: "{{ ca_passphrase }}"
   when:
     - force_certs_update | default(false) | bool
     - force_private_key_update | default(false) | bool
@@ -81,10 +86,13 @@
 - name: Generating certificate authority certificate
   become: true
   shell: |
-    openssl req -x509 -passin pass:{{ ca_passphrase }} -new -nodes -key {{ openssl_temp_dir }}/private/cakey.pem \
+    openssl req -x509 -passin env:CA_PASSPHRASE -new -nodes \
+                -key {{ openssl_temp_dir }}/private/cakey.pem \
                 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
                 -days 18250 -config {{ openssl_temp_dir }}/openssl.cnf \
                 -out {{ openssl_temp_dir }}/ca_01.pem
+  environment:
+    CA_PASSPHRASE: "{{ ca_passphrase }}"
 
 - name: Reading CA certificate
   become: true
@@ -105,8 +113,11 @@
 - name: Signing service certificate request
   become: true
   shell: |
-    openssl ca -config {{ openssl_temp_dir }}/openssl.cnf -passin pass:{{ ca_passphrase }} -in {{ openssl_temp_dir }}/client.csr \
+    openssl ca -config {{ openssl_temp_dir }}/openssl.cnf \
+                -passin env:CA_PASSPHRASE -in {{ openssl_temp_dir }}/client.csr \
                 -days 3650 -out {{ openssl_temp_dir }}/client-.pem -batch
+  environment:
+    CA_PASSPHRASE: "{{ ca_passphrase }}"
 
 - name: Read service private key and public certifcate
   become: true
