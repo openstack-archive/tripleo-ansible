@@ -6,7 +6,6 @@ pytest
 pytest-cov
 pytest-html
 pytest-xdist
-mock
 sh>=1.12.14,<1.13
 molecule==3.0a5
 netaddr
