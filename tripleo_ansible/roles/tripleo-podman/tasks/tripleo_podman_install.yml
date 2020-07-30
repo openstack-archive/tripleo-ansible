@@ -43,7 +43,7 @@
     - name: Remove default cni config for cni0 if exists
       copy:
         dest: /etc/cni/net.d/87-podman-bridge.conflist
-        content: ''
+        content: '{}'
         force: true
       when:
         - podman_bridge_config.stat.exists | bool
