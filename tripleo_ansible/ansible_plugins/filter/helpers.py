@@ -518,7 +518,8 @@ class FilterModule(object):
                         return resource
 
     @staticmethod
-    def get_filtered_role_resources(service_chain_resources, tripleo_resources):
+    def get_filtered_role_resources(service_chain_resources,
+                                    tripleo_resources):
         """Returned filtered role resources.
 
         :param service_chain_resources: List of service resources
@@ -587,7 +588,8 @@ class FilterModule(object):
             nodes_data['uuid'] = node['id']
             properties = node['properties']
             caps = properties.get('capabilities', '')
-            capabilities_dict = dict([key.strip().split(':', 1) for key in caps.split(',')])
+            capabilities_dict = dict(
+                [key.strip().split(':', 1) for key in caps.split(',')])
             nodes_data['hint'] = capabilities_dict.get('node')
             nodes_datas.append(nodes_data)
         else:
@@ -609,7 +611,8 @@ class FilterModule(object):
             nodes_data['uuid'] = node['id']
             properties = node['properties']
             caps = properties.get('capabilities', '')
-            capabilities_dict = dict([key.strip().split(':', 1) for key in caps.split(',')])
+            capabilities_dict = dict(
+                [key.strip().split(':', 1) for key in caps.split(',')])
             nodes_data['profile'] = capabilities_dict.get('profile')
             nodes_datas.append(nodes_data)
         else:
