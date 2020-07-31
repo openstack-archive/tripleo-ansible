@@ -43,6 +43,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo-keystone-resources
       - tripleo-ansible-centos-8-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-8-molecule-tripleo-network-config
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
     gate:
@@ -88,6 +89,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo-keystone-resources
       - tripleo-ansible-centos-8-molecule-tripleo-systemd-wrapper
+      - tripleo-ansible-centos-8-molecule-tripleo-network-config
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
     name: tripleo-ansible-molecule-jobs
@@ -265,6 +267,15 @@
     parent: tripleo-ansible-centos-7-base
     vars:
       tripleo_role_name: tripleo-upgrade-hiera
+
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo-network-config/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo-network-config
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo-network-config
+
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-kernel/.*
