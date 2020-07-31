@@ -31,6 +31,7 @@
     jid: "{{ tripleo_keystone_resources_role_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_role_results.results }}"
   loop_control:
+    label: "{{ tripleo_keystone_resources_role_async_result_item.tripleo_keystone_resources_role }}"
     loop_var: "tripleo_keystone_resources_role_async_result_item"
   register: tripleo_keystone_resources_role_async_poll_results
   until: tripleo_keystone_resources_role_async_poll_results.finished
