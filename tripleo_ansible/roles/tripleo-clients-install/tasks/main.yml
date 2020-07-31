@@ -50,10 +50,13 @@
       {% endfor %}
       {{ package_sets }}
 
-- name: "Run package install"
+- name: "Manage package"
   package:
-    name: "{{ item.value }}"
-    state: "{{ item.key }}"
+    name: "{{ pkg.value }}"
+    state: "{{ pkg.key }}"
   when:
-    - (item.value | length) > 0
+    - (pkg.value | length) > 0
   loop: "{{ client_package_facts | dict2items }}"
+  loop_control:
+    label: "{{ pkg.value }}: {{ pkg.key }}"
+    loop_var: pkg

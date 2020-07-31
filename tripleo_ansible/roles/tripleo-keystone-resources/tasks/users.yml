@@ -15,6 +15,7 @@
 # under the License.
 
 - name: "Async creation of Keystone user"
+  # needed because it'll throw a warning if you have update_password without it
   no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   os_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
@@ -29,14 +30,15 @@
   register: tripleo_keystone_resources_user_results
   loop: "{{ batched_tripleo_keystone_resources_data }}"
   loop_control:
+    label: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
     loop_var: tripleo_keystone_resources_data
 
 - name: "Check Keystone user status"
-  no_log: "{{ not (tripleo_keystone_resources_debug | bool) }}"
   async_status:
     jid: "{{ tripleo_keystone_resources_user_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_user_results.results }}"
   loop_control:
+    label: "{{ lookup('dict', tripleo_keystone_resources_user_async_result_item.tripleo_keystone_resources_data).key }}"
     loop_var: "tripleo_keystone_resources_user_async_result_item"
   register: tripleo_keystone_resources_user_async_poll_results
   until: tripleo_keystone_resources_user_async_poll_results.finished
