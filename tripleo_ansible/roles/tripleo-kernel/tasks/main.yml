@@ -25,7 +25,7 @@
         name: "{{ item.key }}"
         state: "{{ item.opt.state | default('present') }}"
       loop: "{{ tripleo_kernel_extra_packages | dict2items(key_name='key', value_name='opt') }}"
-      notify: Modules reload
+      register: _install_packages_result
 
     - name: Remove dracut-config-generic
       package:
@@ -49,10 +49,14 @@
         owner: root
         group: root
         setype: etc_t
-      notify: Modules reload
+      register: _modprobe_result
 
-    - name: Run handlers to load new modules
-      meta: flush_handlers
+    - name: Modules reload
+      systemd:
+        name: systemd-modules-load.service
+        state: restarted
+      when:
+        - _install_packages_result.changed or _modprobe_result.changed
 
     - name: Set default sysctl options
       template:
@@ -62,8 +66,7 @@
         owner: root
         group: root
         setype: etc_t
-      notify:
-        - Sysctl reload
+      register: _default_sysctl_result
 
     - name: Set extra sysctl options
       sysctl:
@@ -74,5 +77,11 @@
         sysctl_file: "/etc/sysctl.d/99-tripleo.conf"
         reload: false
       loop: "{{ tripleo_kernel_sysctl_extra_settings | dict2items(key_name='key', value_name='opt') }}"
-      notify:
-        - Sysctl reload
+      register: _extra_sysctl_result
+
+    - name: Sysctl reload
+      systemd:
+        name: systemd-sysctl.service
+        state: restarted
+      when:
+        - _extra_sysctl_result.changed or _default_sysctl_result.changed

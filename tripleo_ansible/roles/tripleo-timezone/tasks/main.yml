@@ -20,8 +20,16 @@
 - name: Set timezone
   timezone:
     name: "{{ tripleo_timezone }}"
-  notify:
-    - Restart time services
+  register: _timezone_result
 
-- name: Force all notified handlers to run at this point
-  meta: flush_handlers
+- name: Restart time services
+  systemd:
+    name: "{{ time_svc }}"
+    state: restarted
+  loop_control:
+    loop_var: time_svc
+  loop:
+    - rsyslog
+    - crond
+  when:
+    - _timezone_result.changed
