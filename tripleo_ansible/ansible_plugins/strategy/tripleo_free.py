@@ -179,10 +179,8 @@ class StrategyModule(BASE.TripleoBase):
         # that have tasks in queue
         self._blocked_hosts[host_name] = True
 
-        # we already have the task and state from our peek call so we don't
-        # need these again. This call just pops it of the task list for the
-        # host.
-        (_, _) = self._iterator.get_next_task_for_host(host)
+        # Refetch the task without peek
+        (_, task) = self._iterator.get_next_task_for_host(host)
         action = self._get_action(task)
 
         try:
