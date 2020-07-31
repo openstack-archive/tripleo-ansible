@@ -34,8 +34,8 @@
             become: true
             file:
               path: "{{ ceph_ansible_remote_tmp }}"
-              owner: "{{ ansible_user | default('tripleo-admin', true) }}"
-              group: "{{ ansible_user | default('tripleo-admin', true) }}"
+              owner: "{{ lookup('env','ANSIBLE_REMOTE_USER') | default(ansible_user, true) }}"
+              group: "{{ lookup('env','ANSIBLE_REMOTE_USER') | default(ansible_user, true) }}"
               mode: "700"
               state: directory
 
