@@ -423,6 +423,18 @@
             name: testidem-pod
             state: absent
 
+        - name: Run three containers at once
+          podman_containers:
+            containers:
+              - name: alpine
+                image: alpine
+                command: sleep 1d
+              - name: web
+                image: nginx
+              - name: test
+                image: python:3-alpine
+                command: python -V
+
       always:
         - name: Delete all container leftovers from tests
           podman_container:
@@ -432,6 +444,9 @@
             - "alpine:3.7"
             - "container"
             - "container2"
+            - "alpine"
+            - "web"
+            - "test"
 
         - name: Remove pod
           shell: podman pod rm -f testidempod
