@@ -16,7 +16,7 @@
 
 
 _tripleo_podman_packages:
-  - podman
+  - podman-1.6.4
 
 _tripleo_podman_purge_packages:
   - docker
