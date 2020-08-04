@@ -17,5 +17,10 @@
 
 - name: Prepare
   hosts: all
-  roles:
-    - role: test_deps
+  tasks:
+    - include_role:
+        name: test_deps
+      vars:
+        test_deps_setup_tripleo: true
+        test_deps_extra_packages:
+          - jq
