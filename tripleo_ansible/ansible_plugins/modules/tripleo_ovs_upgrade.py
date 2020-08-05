@@ -19,6 +19,7 @@ __metaclass__ = type
 import glob
 import re
 
+from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
@@ -154,6 +155,19 @@ def upgrade_pkg(module, pkg):
     return output
 
 
+def set_openflow_version_on_bridges(module, bridges=None):
+    if bridges is None:
+        bridges = ['br-int']
+    for bridge in bridges:
+        cmd = ['ovs-vsctl', 'set', 'bridge', bridge,
+               'protocols=OpenFlow13,OpenFlow15']
+        rc, out, err = module.run_command(cmd)
+        if rc != 0:
+            module.warn('Cannot set OpenFlow13 and OpenFlow15 '
+                        'protocol on a bridge: %s: %s.' %
+                        (bridge, to_native(err)))
+
+
 def layer_product_upgrade(module, result, ovs_pkg, lp_ovs_current_version):
     lp_ovs_coming_versions = get_version(module, 'rhosp-openvswitch')
     ovs_current_version = get_version(module, ovs_pkg, new=False)
@@ -166,6 +180,9 @@ def layer_product_upgrade(module, result, ovs_pkg, lp_ovs_current_version):
 
     if flatten_version(lp_ovs_coming_versions) \
        != flatten_version(ovs_current_version):
+        # NOTE(mjozefcz): Workaround for bz1863024.
+        if '2.11' == flatten_version(ovs_current_version, join_str='.'):
+            set_openflow_version_on_bridges(module)
         ovs_pkgs = get_current_ovs_pkg_names(module, pkg_base_name)
         remove_package_noaction(module, ovs_pkgs,
                                 excludes=['selinux'])
