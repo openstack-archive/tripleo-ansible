@@ -18,6 +18,9 @@
 _tripleo_podman_packages:
   - podman-1.6.4
 
+_tripleo_buildah_packages:
+  - buildah-1.11.6
+
 _tripleo_podman_purge_packages:
   - docker
   - docker-ce
