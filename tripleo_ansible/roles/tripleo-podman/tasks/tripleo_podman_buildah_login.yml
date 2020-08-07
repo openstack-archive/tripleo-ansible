@@ -14,12 +14,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather variables for each operating system for installing buildah
+  include_vars: "{{ item }}"
+  with_first_found:
+    - skip: true
+      files:
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+        - "{{ ansible_os_family | lower }}.yml"
 
 - name: ensure buildah is installed
   become: true
   package:
-    name: "buildah"
-    state: latest
+    name: "{{ tripleo_buildah_packages }}"
+    state: present
 
 - name: Perform container registry login(s) with buildah
   become: true
