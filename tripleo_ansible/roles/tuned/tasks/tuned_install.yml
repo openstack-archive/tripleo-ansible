@@ -16,10 +16,17 @@
 
 
 - name: Install tuned
+  become: true
   package:
     name: "{{ tuned_system_packages }}"
     state: present
-  notify: Restart tuned
+  register: _tuned_install_result
 
-- name: Flush handlers
-  meta: flush_handlers
+- name: Restart tuned
+  become: true
+  systemd:
+    name: tuned
+    state: restarted
+    enabled: true
+  when:
+    - _tuned_install_result.changed
