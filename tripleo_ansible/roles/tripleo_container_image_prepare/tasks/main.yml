@@ -14,63 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-# "tripleo_container_image_prepare" will search for and load any operating system variable file
 - name: Container image prepare
   become: true
-  block:
-    - name: Create temp file for prepare parameter
-      tempfile:
-        state: file
-        suffix: -prepare-param
-      register: prepare_param
-      check_mode: false
-
-    - name: Write ContainerImagePrepare parameter file
-      copy:
-        dest: "{{ prepare_param.path }}"
-        content: "{{ tripleo_container_image_prepare_content }}"
-
-    - name: Create temp file for role data
-      tempfile:
-        state: file
-        suffix: -role-data
-      register: role_data
-      check_mode: false
-
-    - name: Write role data file
-      copy:
-        dest: "{{ role_data.path }}"
-        content: "{{ tripleo_container_image_prepare_roles }}"
-
-    - name: "Run tripleo_container_image_prepare logged to: {{ tripleo_container_image_prepare_log_file }}"
-      shell: >-
-        /usr/bin/tripleo-container-image-prepare
-        --roles-file {{ role_data.path }}
-        --environment-file {{ prepare_param.path }}
-        --cleanup partial
-        --log-file {{ tripleo_container_image_prepare_log_file }}
-        {% if (tripleo_container_image_prepare_debug | bool) %}
-        --debug
-        {% endif %}
-        >/dev/null
-      no_log: "{{ not tripleo_container_image_prepare_debug | bool }}"
-      when:
-        - (tripleo_container_image_prepare_content | dict2items | length) > 0
-        - (tripleo_container_image_prepare_roles | length) > 0
-  always:
-    - name: Delete param file
-      command: "rm -rf '{{ prepare_param.path }}'"
-      when:
-        - prepare_param is defined
-        - prepare_param.changed
-      check_mode: false
-
-    - name: Delete role file
-      command: "rm -rf '{{ role_data.path }}'"
-      when:
-        - role_data is defined
-        - role_data.changed
-      check_mode: false
+  tripleo_container_image_prepare:
+      roles_data: "{{ tripleo_container_image_prepare_roles }}"
+      environment: "{{ tripleo_container_image_prepare_content }}"
+      cleanup: partial
+      log_file: "{{ tripleo_container_image_prepare_log_file }}"
+      debug: "{{ tripleo_container_image_prepare_debug | bool }}"
+  when:
+      - (tripleo_container_image_prepare_content | dict2items | length) > 0
+      - (tripleo_container_image_prepare_roles | length) > 0
   tags:
-    - container_image_prepare
+      - container_image_prepare
