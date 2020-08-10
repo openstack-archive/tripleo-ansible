@@ -15,7 +15,7 @@
 # under the License.
 
 - name: "Async creation of Keystone user"
-  no_log: true
+  no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   os_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: "{{ lookup('dict', tripleo_keystone_resources_data).key }}"
@@ -32,7 +32,7 @@
     loop_var: tripleo_keystone_resources_data
 
 - name: "Check Keystone user status"
-  no_log: true
+  no_log: "{{ not (tripleo_keystone_resources_debug | bool) }}"
   async_status:
     jid: "{{ tripleo_keystone_resources_user_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_user_results.results }}"
