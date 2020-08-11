@@ -19,6 +19,7 @@
   package:
     name: httpd
     state: present
+  register: tripleo_image_serve_pkg_result
 
 - name: create image data directory
   file:
@@ -43,12 +44,21 @@
     path: /etc/httpd/conf/httpd.conf
     regexp: '^\s*Listen(.*)$'
     line: '# Listen \1'
+  register: tripleo_image_serve_httpd_config_result
 
 - name: manage /etc/httpd/conf.d/image-serve.conf
   template:
     src: image-serve.conf.j2
     dest: /etc/httpd/conf.d/image-serve.conf
-  notify: Image-Serve | reload httpd
+  register: tripleo_image_serve_config_result
 
-- name: force systemd to reread configs
-  meta: flush_handlers
+- name: Image-Serve | restart httpd
+  systemd:
+    name: httpd
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  when:
+    - (tripleo_image_serve_pkg_result.changed or
+       tripleo_image_serve_httpd_config_result.changed or
+       tripleo_image_serve_config_result.changed)
