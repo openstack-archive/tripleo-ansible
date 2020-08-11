@@ -26,7 +26,6 @@
   changed_when: false
   failed_when: false
   register: openvswitch_service_state
-  listen: start openvswitch
 
 - name: Ensure openvswitch is running
   systemd:
@@ -37,4 +36,3 @@
     - (openvswitch_service_state.status is defined) and
       (((openvswitch_service_state.status['LoadState'] | lower) != 'not-found') and
       ((openvswitch_service_state.status['SubState'] | lower) != 'running'))
-  listen: start openvswitch

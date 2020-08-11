@@ -38,4 +38,10 @@
     name: '*'
     state: latest
     exclude: ansible
-  notify: start openvswitch
+  register: tripleo_package_update_result
+
+- name: Handle openvswitch service
+  include_tasks: openvswitch.yml
+  when:
+    - step|int == 3
+    - tripleo_package_update_result.changed

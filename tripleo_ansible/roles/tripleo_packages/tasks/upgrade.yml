@@ -215,7 +215,7 @@
       package:
         name: rhosp-openvswitch
         state: latest
-      notify: start openvswitch
+      register: tripleo_package_openvswitch_result
 
     - name: set flag to skip other upgrade steps since OpenvSwitch is already upgraded!
       set_fact:
@@ -280,7 +280,14 @@
       args:
         chdir: /root/OVS_UPGRADE
       loop: "{{ ovs_list_of_rpms.stdout_lines }}"
-      notify: "start openvswitch"
+      register: tripleo_package_openvswitch_result
+
+- name: Start openvswitch
+  include_tasks: openvswitch.yml
+  when:
+    - (step|int) == 2
+    - tripleo_package_openvswitch_result is defined
+    - tripleo_package_openvswitch_result.changed
 
 - name: Install libibverbs (https://bugs.launchpad.net/tripleo/+bug/1817743)
   when:
