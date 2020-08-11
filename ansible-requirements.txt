@@ -1,3 +1,3 @@
-ansible>=2.8
+ansible>=2.8,!=2.8.9,!=2.9.12
 metalsmith>=0.13.0 # Apache-2.0
 jsonschema  # MIT
