@@ -30,6 +30,7 @@
   register: tripleo_keystone_resources_user_role_results
   loop: "{{ tripleo_keystone_resources_data_users }}"
   loop_control:
+    label: "{{ lookup('dict', tripleo_keystone_resources_data_user).key }}"
     loop_var: tripleo_keystone_resources_data_user
 
 - name: "Check Keystone user assignment to roles status"
@@ -37,6 +38,7 @@
     jid: "{{ tripleo_keystone_resources_user_role_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_user_role_results.results }}"
   loop_control:
+    label: "{{ lookup('dict', tripleo_keystone_resources_user_role_async_result_item.tripleo_keystone_resources_data_user).key }}"
     loop_var: "tripleo_keystone_resources_user_role_async_result_item"
   register: tripleo_keystone_resources_user_role_async_poll_results
   until: tripleo_keystone_resources_user_role_async_poll_results.finished

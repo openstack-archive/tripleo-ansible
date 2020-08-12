@@ -15,7 +15,6 @@
 # under the License.
 
 - name: Async creation of Keystone service
-  no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   os_keystone_service:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: "{{ tripleo_keystone_resources_data.key }}"
@@ -27,14 +26,15 @@
   register: tripleo_keystone_resources_service_results
   loop: "{{ batched_tripleo_keystone_resources_data }}"
   loop_control:
+    label: "{{ tripleo_keystone_resources_data.key }}"
     loop_var: tripleo_keystone_resources_data
 
 - name: Check Keystone service status
-  no_log: "{{ not (tripleo_keystone_resources_debug | bool) }}"
   async_status:
     jid: "{{ tripleo_keystone_resources_service_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_service_results.results }}"
   loop_control:
+    label: "{{ tripleo_keystone_resources_service_async_result_item.tripleo_keystone_resources_data.key }}"
     loop_var: "tripleo_keystone_resources_service_async_result_item"
   register: tripleo_keystone_resources_service_async_poll_results
   until: tripleo_keystone_resources_service_async_poll_results.finished

@@ -70,13 +70,16 @@
 
     - name: Set extra sysctl options
       sysctl:
-        name: "{{ item.key }}"
-        value: "{{ item.opt.value }}"
-        sysctl_set: "{{ item.opt.set | default(true) }}"
-        state: "{{ item.opt.state | default('present') }}"
+        name: "{{ setting.key }}"
+        value: "{{ setting.opt.value }}"
+        sysctl_set: "{{ setting.opt.set | default(true) }}"
+        state: "{{ setting.opt.state | default('present') }}"
         sysctl_file: "/etc/sysctl.d/99-tripleo.conf"
         reload: false
       loop: "{{ tripleo_kernel_sysctl_extra_settings | dict2items(key_name='key', value_name='opt') }}"
+      loop_control:
+        label: "{{ setting.key }}"
+        loop_var: setting
       register: _extra_sysctl_result
 
     - name: Sysctl reload
