@@ -369,10 +369,21 @@ def get_info_nodes(nodes_wait, msg, result, client):
     return result, msg
 
 
+def wait_for_unlocked(client, node, timeout):
+    timeout_msg = 'Timeout waiting for node %s to be unlocked' % node
+    for count in iterate_timeout(timeout, timeout_msg):
+        node_info = client.get_node(
+            node,
+            fields=['reservation']
+        ).to_dict()
+        if node_info['reservation'] is None:
+            return
+
+
 def wait_for_bridge_mapping(conn, node):
     client = conn.network
-    timeout_msg = ('Timeout waiting for node %(node) to have bridge_mappings '
-                   'set in the ironic-neutron-agent entry')
+    timeout_msg = ('Timeout waiting for node %s to have bridge_mappings '
+                   'set in the ironic-neutron-agent entry' % node)
     # default agent polling period is 30s, so wait 60s
     timeout = 60
     for count in iterate_timeout(timeout, timeout_msg):
@@ -390,6 +401,7 @@ def parallel_nodes_providing(conn, module):
     result = {}
     nodes_wait = nodes[:]
     for node in nodes:
+        wait_for_unlocked(client, node, node_timeout)
         if wait_for_bridge_mappings:
             wait_for_bridge_mapping(conn, node)
         try:
