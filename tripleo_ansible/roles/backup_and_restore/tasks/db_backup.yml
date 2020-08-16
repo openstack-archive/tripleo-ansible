@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-# Create a backup for each database into seperate files.
+# Create a backup for each database into separate files.
 - name: Get database root password
   command: |
     hiera -c '{{ tripleo_backup_and_restore_hiera_config_file }}' 'mysql::server::root_password'
