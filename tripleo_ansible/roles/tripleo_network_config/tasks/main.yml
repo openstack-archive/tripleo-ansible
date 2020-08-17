@@ -1,0 +1,110 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Ensure /var/lib/tripleo-config directory exists
+  become: true
+  file:
+    path: /var/lib/tripleo-config
+    state: directory
+    setype: container_file_t
+    selevel: s0
+
+- name: Check for previous run of NetworkConfig
+  become: true
+  stat:
+    path: /var/lib/tripleo-config/os-net-config.returncode
+  register: os_net_config_returncode_stat
+
+- name: Check result of previous run of NetworkConfig
+  become: true
+  slurp:
+    path: /var/lib/tripleo-config/os-net-config.returncode
+  when: os_net_config_returncode_stat.stat.exists
+  register: os_net_config_returncode_slurp
+
+- name: NetworkConfig
+  become: true
+  block:
+    - name: Create /var/lib/tripleo-config/scripts directory
+      file:
+        path: /var/lib/tripleo-config/scripts
+        state: directory
+        setype: container_file_t
+        selevel: s0
+        recurse: true
+
+    - name: Render NetworkConfig script
+      template:
+        dest: /var/lib/tripleo-config/scripts/run_os_net_config.sh
+        src: "{{ tripleo_network_config_script_path }}"
+        mode: 0755
+      when: not ansible_check_mode|bool
+
+    - name: Run NetworkConfig script
+      shell: /var/lib/tripleo-config/scripts/run_os_net_config.sh
+      async: "{{ tripleo_network_config_async_timeout }}"
+      poll: "{{ tripleo_network_config_async_poll }}"
+      environment:
+        bridge_name: "{{ tripleo_network_config_bridge_name }}"
+        interface_name: "{{ tripleo_network_config_interface_name }}"
+      register: NetworkConfig_result
+      when:
+        - not ansible_check_mode|bool
+      failed_when: NetworkConfig_result.rc is not defined
+
+    - name: Write rc of NetworkConfig script
+      copy:
+        content: "{{ NetworkConfig_result.rc }}"
+        dest: /var/lib/tripleo-config/os-net-config.returncode
+      when:
+        - NetworkConfig_result.rc is defined
+
+    - name: NetworkConfig stdout
+      debug:
+        var: NetworkConfig_result.stderr_lines
+      failed_when: NetworkConfig_result.rc != 0
+      when:
+        - NetworkConfig_result.rc is defined
+
+    # os-net-config currently relies on the legacy network
+    # so we need to ensure it's enabled on boot. This should
+    # be removed when we switch to NetworkManager or replaced
+    # with something that ensures NetworkManager is enabled.
+    - name: Ensure network service is enabled
+      systemd:
+        name: network
+        enabled: true
+        state: started
+      when:
+        - tripleo_network_config_manage_service
+        - not ansible_check_mode|bool
+
+  # The conditions here are when we want to apply the
+  # NetworkConfig. They are:
+  # - If the stack_action is CREATE
+  # - Or UPDATE is in the network_deployment_actions
+  # - Or the previous run of NetworkConfig failed.
+  # - Or it has never run
+  # This will match the prior behavior of when a Heat
+  # SoftwareDeployment was used.
+  # It also ensures the script does exist as a sine qua non
+  # condition
+  when:
+    - (tripleo_network_config_action == "CREATE") or
+      ("UPDATE" in tripleo_network_config_network_deployment_actions) or
+      (os_net_config_returncode_stat.stat.exists and
+      ((os_net_config_returncode_slurp.content | b64decode) != 0)) or
+       (not os_net_config_returncode_stat.stat.exists)
