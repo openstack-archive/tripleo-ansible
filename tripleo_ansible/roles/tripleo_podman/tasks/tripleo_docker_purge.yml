@@ -14,6 +14,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Load vars if needed
+  when: tripleo_podman_purge_packages is undefined or tripleo_podman_purge_packages|length == 0
+  import_tasks: load_vars.yaml
+
 - name: Check if docker has some data
   stat:
     path: /var/lib/docker
