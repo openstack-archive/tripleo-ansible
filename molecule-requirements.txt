@@ -5,7 +5,7 @@ docker
 pytest
 pytest-cov
 pytest-html
-pytest-xdist
+pytest-xdist<2.0.0
 sh>=1.12.14,<1.13
 molecule==3.0a5
 netaddr
