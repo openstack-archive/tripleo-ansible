@@ -17,6 +17,6 @@
 
 # All variables intended for modification should be placed in this file.
 
-# All variables within this role should have a prefix of "tripleo_{{ role_name | replace('tripleo-', '') | replace('-', '_') }}"
-tripleo_{{ role_name | replace('tripleo-', '') | replace('-', '_') }}_debug: {% raw %}"{{ (ansible_verbosity | int) >= 2 | bool }}"{% endraw %}
-tripleo_{{ role_name | replace('tripleo-', '') | replace('-', '_') }}_hide_sensitive_logs: true
+# All variables within this role should have a prefix of "tripleo_{{ role_name | replace('tripleo_', '') }}"
+tripleo_{{ role_name | replace('tripleo_', '') }}_debug: {% raw %}"{{ (ansible_verbosity | int) >= 2 | bool }}"{% endraw %}
+tripleo_{{ role_name | replace('tripleo_', '') }}_hide_sensitive_logs: true
