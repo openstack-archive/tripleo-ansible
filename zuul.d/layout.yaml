@@ -23,7 +23,7 @@
           - ^tripleo_ansible/roles/test_deps/.*
       - tripleo-ci-centos-8-scenario001-standalone: &scenario001
           files:
-          - ^tripleo_ansible/roles/tripleo-ceph-*/.*
+          - ^tripleo_ansible/roles/tripleo-ceph-.*/.*
           - ^tripleo_ansible/roles/tripleo-hieradata/.*
           - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
           - ^setup.*
@@ -41,7 +41,7 @@
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario004-standalone: &scenario004
           files:
-          - ^tripleo_ansible/roles/tripleo-ceph-*/.*
+          - ^tripleo_ansible/roles/tripleo-ceph-.*/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario010-standalone: &scenario010
           files:
