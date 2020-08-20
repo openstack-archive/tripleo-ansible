@@ -54,6 +54,7 @@
       - '{{ playbook_dir }}/ceph-ansible/inventory.yml'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
       - "{{ playbook_dir }}/ceph-ansible/create_ceph_ansible_remote_tmp.yml"
+      - '{% if ceph_ansible_limit is defined and ceph_ansible_limit|length > 0 %}--limit {{ ceph_ansible_limit }}{% endif %}'
     ceph_ansible_remote_tmp: '/tmp/ceph_ansible_tmp'
 
 - name: run create_ceph_ansible_remote_tmp command
