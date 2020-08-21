@@ -32,6 +32,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
+      - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
@@ -82,6 +83,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
+      - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
@@ -132,6 +134,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
+      - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
@@ -361,6 +364,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_network_config
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_nodes_validation/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_nodes_validation
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_nova_image_cache/.*
