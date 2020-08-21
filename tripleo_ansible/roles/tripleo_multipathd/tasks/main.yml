@@ -1,0 +1,53 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Note the previous multipath configuration
+  stat:
+    path: /etc/multipath.conf
+  register: stat_before
+  check_mode: false
+
+- name: Configure multipath
+  include_tasks: configure.yml
+
+- name: Check the new multipath configuration
+  stat:
+    path: /etc/multipath.conf
+  register: stat_after
+  check_mode: false
+
+- name: Update containers when the multipath configuration changes
+  when:
+    - not stat_before.stat.exists or stat_after.stat.checksum != stat_before.stat.checksum
+  become: true
+  block:
+    - name: Identify containers using /etc/multipath.conf
+      command: "{{ tripleo_container_cli }} ps --filter volume=/etc/multipath.conf --format {{ '{{' }}.Names{{ '}}' }}"
+      register: multipath_conf_containers
+      changed_when: false
+
+    # Services that use os-brick (e.g. cinder-volume, nova-compute) only access
+    # /etc/multipath.conf sporadically, so it's sufficient to refresh the
+    # container's copy of the file. The services do not need to be restarted.
+    - name: Refresh their /etc/multipath.conf
+      command: "{{ tripleo_container_cli }} cp /etc/multipath.conf {{ item }}:/etc/"
+      loop: "{{ multipath_conf_containers.stdout_lines | default([]) }}"
+
+    # The multipathd service does need to be restarted.
+    - name: Restart multipathd
+      command: "{{ tripleo_container_cli }} restart multipathd"
+      when:
+        - "'multipathd' in multipath_conf_containers.stdout | default('')"
