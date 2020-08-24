@@ -22,8 +22,8 @@
         - name: Check results
           assert:
             that:
-              - "'containers' not in nonexist"
-              - nonexist is failed
+              - nonexist.containers == []
+              - nonexist is not failed
 
         - name: Make sure container exists
           command: podman container run -d --name {{ container_name }} alpine sleep 15m
