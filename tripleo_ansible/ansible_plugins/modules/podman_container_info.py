@@ -12,23 +12,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
-DOCUMENTATION = """
+DOCUMENTATION = r'''
 module: podman_container_info
 author:
     - Sagi Shnaidman (@sshnaidm)
     - Emilien Macchi (@EmilienM)
-version_added: '2.10'
 short_description: Gather facts about containers using podman
 notes:
     - Podman may require elevated privileges in order to run properly.
@@ -49,8 +41,9 @@ options:
         machine running C(podman)
     default: 'podman'
     type: str
-"""
-EXAMPLES = """
+'''
+
+EXAMPLES = r"""
 - name: Gather facts for all containers
   podman_container_info:
 
@@ -64,11 +57,13 @@ EXAMPLES = """
       - redis
       - web1
 """
-RETURN = """
+
+RETURN = r"""
 containers:
     description: Facts from all or specificed containers
     returned: always
     type: list
+    elements: dict
     sample: [
                 {
                 "Id": "c5c39f9b80a6ea2ad665aa9946435934e478a0c5322da835f3883872f",
@@ -329,25 +324,68 @@ containers:
         ]
 """
 
-import json
-from ansible.module_utils.basic import AnsibleModule
+import json  # noqa: F402
+from ansible.module_utils.basic import AnsibleModule  # noqa: F402
 
 
 def get_containers_facts(module, executable, name):
+    """Collect containers facts for all containers or for specified in 'name'.
+
+    Arguments:
+        module {AnsibleModule} -- instance of AnsibleModule
+        executable {string} -- binary to execute when inspecting containers
+        name {list} -- list of names or None in case of all containers
+
+    Returns:
+        list of containers info, stdout, stderr
+    """
     if not name:
         all_names = [executable, 'container', 'ls', '-q', '-a']
         rc, out, err = module.run_command(all_names)
+        if rc != 0:
+            module.fail_json(msg="Unable to get list of containers: %s" % err)
         name = out.split()
         if not name:
             return [], out, err
     command = [executable, 'container', 'inspect']
     command.extend(name)
     rc, out, err = module.run_command(command)
-    if rc != 0:
-        module.fail_json(msg="Unable to gather info for %s: %s" % (name or 'all containers', err))
-    if not out or json.loads(out) is None:
-        return [], out, err
-    return json.loads(out), out, err
+    if rc == 0:
+        json_out = json.loads(out) if out else None
+        if json_out is None:
+            return [], out, err
+        return json_out, out, err
+    if rc != 0 and 'no such ' in err:
+        if len(name) < 2:
+            return [], out, err
+        return cycle_over(module, executable, name)
+    module.fail_json(msg="Unable to gather info for %s: %s" % (",".join(name), err))
+
+
+def cycle_over(module, executable, name):
+    """Inspect each container in a cycle in case some of them don't exist.
+
+    Arguments:
+        module {AnsibleModule} -- instance of AnsibleModule
+        executable {string} -- binary to execute when inspecting containers
+        name {list} -- list of containers names to inspect
+
+    Returns:
+        list of containers info, stdout as empty, stderr
+    """
+    inspection = []
+    stderrs = []
+    for container in name:
+        command = [executable, 'container', 'inspect', container]
+        rc, out, err = module.run_command(command)
+        if rc != 0 and 'no such ' not in err:
+            module.fail_json(msg="Unable to gather info for %s: %s" % (container, err))
+        if rc == 0 and out:
+            json_out = json.loads(out)
+            if json_out:
+                inspection += json_out
+        stderrs.append(err)
+    return inspection, "", "\n".join(stderrs)
 
 
 def main():
@@ -361,7 +399,7 @@ def main():
 
     name = module.params['name']
     executable = module.get_bin_path(module.params['executable'], required=True)
-
+    # pylint: disable=unused-variable
     inspect_results, out, err = get_containers_facts(module, executable, name)
 
     results = {
