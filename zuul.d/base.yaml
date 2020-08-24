@@ -3,6 +3,12 @@
     description: Base tripleo-ansible job
     name: tripleo-ansible-centos-7-base
     nodeset: centos-7
+    parent: tripleo-ansible-centos-8-base
+
+- job:
+    description: Base tripleo-ansible job on CentOS 8
+    name: tripleo-ansible-centos-8-base
+    nodeset: centos-8
     parent: base
     success-url: "reports.html"
     failure-url: "reports.html"
