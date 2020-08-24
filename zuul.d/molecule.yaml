@@ -5,14 +5,14 @@
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
+      - tripleo-ansible-centos-8-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
       - tripleo-ansible-centos-8-molecule-tripleo-create-admin
-      - tripleo-ansible-centos-7-molecule-tripleo-module-load
+      - tripleo-ansible-centos-8-molecule-tripleo-module-load
       - tripleo-ansible-centos-8-molecule-tripleo-ssh-known-hosts
-      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
-      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-8-molecule-tripleo-container-tag
+      - tripleo-ansible-centos-8-molecule-tripleo-container-rm
       - tripleo-ansible-centos-8-molecule-tripleo-image-serve
       - tripleo-ansible-centos-8-molecule-tripleo-transfer
       - tripleo-ansible-centos-7-molecule-tripleo-podman
@@ -51,14 +51,14 @@
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-7-molecule-tripleo-bootstrap
+      - tripleo-ansible-centos-8-molecule-tripleo-bootstrap
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
       - tripleo-ansible-centos-8-molecule-tripleo-create-admin
-      - tripleo-ansible-centos-7-molecule-tripleo-module-load
+      - tripleo-ansible-centos-8-molecule-tripleo-module-load
       - tripleo-ansible-centos-8-molecule-tripleo-ssh-known-hosts
-      - tripleo-ansible-centos-7-molecule-tripleo-container-tag
-      - tripleo-ansible-centos-7-molecule-tripleo-container-rm
+      - tripleo-ansible-centos-8-molecule-tripleo-container-tag
+      - tripleo-ansible-centos-8-molecule-tripleo-container-rm
       - tripleo-ansible-centos-8-molecule-tripleo-image-serve
       - tripleo-ansible-centos-8-molecule-tripleo-transfer
       - tripleo-ansible-centos-7-molecule-tripleo-podman
@@ -118,8 +118,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-bootstrap/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-bootstrap
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-bootstrap
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-bootstrap
 - job:
@@ -150,8 +150,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-module-load/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-module-load
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-module-load
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-module-load
 - job:
@@ -164,15 +164,15 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-tag/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-tag
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-container-tag
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-container-tag
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-rm/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-rm
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-container-rm
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-container-rm
 - job:

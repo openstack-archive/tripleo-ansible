@@ -61,6 +61,7 @@
     state: latest
 
 - name: Tripleo setup block
+  become: true
   when:
     - (ansible_os_family | lower) == 'redhat'
     - test_deps_setup_tripleo | bool
