@@ -9,6 +9,7 @@ repos:
       - id: check-byte-order-marker
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
+      - id: check-symlinks
       - id: debug-statements
       - id: check-yaml
         files: .*\.(yaml|yml)$
@@ -32,18 +33,12 @@ repos:
     rev: v4.3.1
     hooks:
       - id: ansible-lint
-        files: \.(yaml|yml)$
-        entry: >-
-          ansible-lint --force-color -v -x "ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016"
-          --exclude=tripleo_ansible/roles.galaxy
-        # TODO(cloudnull): These codes were added to pass the lint check.
-        #                  Things found within roles.galaxy are external
-        #                  and not something maintained here.
   - repo: https://github.com/openstack-dev/bashate.git
     rev: 2.0.0
     hooks:
       - id: bashate
-        entry: bashate --error . --verbose --ignore=E006,E040
+        entry: bashate --error . --ignore=E006,E040
+        verbose: false
         # Run bashate check for all bash scripts
         # Ignores the following rules:
         # E006: Line longer than 79 columns (as many scripts use jinja
