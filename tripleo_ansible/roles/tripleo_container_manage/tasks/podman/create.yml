@@ -72,6 +72,7 @@
     name: "{{ lookup('dict', container_data).key }}"
     net: "{{ lookup('dict', container_data).value.net | default('none') }}"
     pid: "{{ lookup('dict', container_data).value.pid | default(omit) }}"
+    pids_limit: "{{ lookup('dict', container_data).value.pids_limit | default(omit) }}"
     privileged: "{{ lookup('dict', container_data).value.privileged | default(false) }}"
     rm: "{{ lookup('dict', container_data).value.remove | default(false) }}"
     security_opt: "{{ lookup('dict', container_data).value.security_opt | default(omit) }}"
