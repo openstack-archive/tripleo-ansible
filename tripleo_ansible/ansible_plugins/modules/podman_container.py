@@ -493,7 +493,7 @@ options:
     type: str
   pids_limit:
     description:
-      - Tune the container's PIDs limit. Set -1 to have unlimited PIDs for the
+      - Tune the container's PIDs limit. Set 0 to have unlimited PIDs for the
         container.
     type: str
   pod:
