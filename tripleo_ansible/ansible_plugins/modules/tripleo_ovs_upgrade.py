@@ -160,11 +160,11 @@ def set_openflow_version_on_bridges(module, bridges=None):
         bridges = ['br-int']
     for bridge in bridges:
         cmd = ['ovs-vsctl', 'set', 'bridge', bridge,
-               'protocols=OpenFlow13,OpenFlow15']
+               'protocols=OpenFlow10,OpenFlow13,OpenFlow15']
         rc, out, err = module.run_command(cmd)
         if rc != 0:
-            module.warn('Cannot set OpenFlow13 and OpenFlow15 '
-                        'protocol on a bridge: %s: %s.' %
+            module.warn('Cannot set new OpenFlow protocols on a bridge: '
+                        '%s: %s.' %
                         (bridge, to_native(err)))
 
 
