@@ -24,7 +24,7 @@
     tripleo_containers_to_rm: >-
       {{ podman_containers.containers | needs_delete(config=batched_container_data|
       haskey(attribute='action', reverse=True)|singledict,
-      config_id=tripleo_container_manage_config_id, clean_orphans=False) }}
+      config_id=tripleo_container_manage_config_id) }}
 
 - name: "Async container create/run"
   async: "{{ (not ansible_check_mode | bool) | ternary('600', omit) }}"

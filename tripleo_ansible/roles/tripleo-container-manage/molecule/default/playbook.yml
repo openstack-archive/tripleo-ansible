@@ -243,6 +243,7 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora.json'
+    tripleo_container_manage_clean_orphans: false
     tripleo_container_manage_config_overrides:
       fedora:
         image: fedora:rawhide
@@ -297,6 +298,7 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'feduraaa.json'
+    tripleo_container_manage_clean_orphans: false
   tasks:
     - include_role:
         name: tripleo-container-manage
