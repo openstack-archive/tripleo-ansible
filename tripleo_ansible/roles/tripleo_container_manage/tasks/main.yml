@@ -71,5 +71,7 @@
         - tripleo_container_manage_check_puppet_config|bool
     - name: "Delete orphan containers from {{ tripleo_container_manage_config }}"
       include_tasks: delete_orphan.yml
+      when:
+        - tripleo_container_manage_clean_orphans|bool
     - name: "Create containers from {{ tripleo_container_manage_config }}"
       include_tasks: create.yml

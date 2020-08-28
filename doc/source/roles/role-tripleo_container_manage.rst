@@ -111,6 +111,8 @@ Roles variables
 | tripleo_container_manage_config_overrides      | {}                          | Allows to override any     |
 |                                                |                             | container configuration    |
 +------------------------------------------------+-----------------------------+----------------------------+
+| tripleo_container_manage_clean_orphans         | true                        | Option to clean orphans    |
++------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_valid_exit_code       | []                          | Allow to check if a        |
 |                                                |                             | container returned the     |
 |                                                |                             | exit code in parameter.    |
@@ -188,6 +190,7 @@ overrides the image setting in one-off.
                 tripleo_container_manage_config_patterns: 'haproxy.json'
                 tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
                 tripleo_container_manage_config_id: "tripleo_step1"
+                tripleo_container_manage_clean_orphans: false
                 tripleo_container_manage_config_overrides:
                   haproxy:
                     image: docker.io/tripleomaster/centos-binary-haproxy:hotfix
@@ -208,6 +211,11 @@ containers by Ansible.
 .. code-block:: bash
 
     $ ansible-playbook haproxy.yaml --check --diff
+
+The ``tripleo_container_manage_clean_orphans`` parameter is optional
+and can be set to `false` to not clean orphaned containers for a
+config_id. It can be used to manage a single container without
+impacting other running containers with same config_id.
 
 The ``tripleo_container_manage_config_overrides`` parameter is optional
 and can be used to override a specific container attribute like the image

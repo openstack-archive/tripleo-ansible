@@ -33,6 +33,8 @@ provisioner:
         hosts:
           instance:
             ansible_host: localhost
+            ansible_connection: local
+            ansible_distribution: centos8
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
