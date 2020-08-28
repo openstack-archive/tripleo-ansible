@@ -360,6 +360,7 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_network_config/.*
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
     name: tripleo-ansible-centos-8-molecule-tripleo_network_config
     parent: tripleo-ansible-centos-8-base
     vars:

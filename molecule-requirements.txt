@@ -25,3 +25,4 @@ jsonschema  # MIT
 
 # Upstream requirements from constraints.txt
 tripleo-common
+os-net-config  # Apache-2.0
