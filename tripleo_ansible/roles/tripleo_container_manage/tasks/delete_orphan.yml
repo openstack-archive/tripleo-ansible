@@ -30,4 +30,5 @@
     tripleo_container_cli: "{{ tripleo_container_manage_cli }}"
     tripleo_containers_to_rm: >-
       {{ podman_containers.containers | needs_delete(config=all_containers_hash,
-      config_id=tripleo_container_manage_config_id, check_config=False) }}
+      config_id=tripleo_container_manage_config_id, check_config=False,
+      clean_orphans=True) }}
