@@ -47,9 +47,9 @@
 - name: Set feature fact
   set_fact:
     feature_dict:
-      DPDK: "{{ dpdk or odl_dpdk }}"
+      DPDK: "{{ dpdk }}"
       SRIOV: "{{ sriov }}"
-      HOST: "{{ dpdk or odl_dpdk or sriov }}"
+      HOST: "{{ dpdk or sriov }}"
       HCI: "{{ hci }}"
 
 - name: Set role feature fact

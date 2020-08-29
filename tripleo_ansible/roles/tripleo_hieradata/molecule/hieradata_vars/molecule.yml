@@ -232,7 +232,6 @@ provisioner:
             nova_vnc_proxy_network: ctlplane
             novajoin_network: ctlplane
             octavia_api_network: ctlplane
-            opendaylight_api_network: ctlplane
             openshift_infra_network: ctlplane
             openshift_master_network: ctlplane
             oslo_messaging_notify_network: ctlplane

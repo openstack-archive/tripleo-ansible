@@ -743,7 +743,6 @@ stack_data:
           NovaVncProxyNetwork: internal_api
           NovajoinNetwork: internal_api
           OctaviaApiNetwork: internal_api
-          OpendaylightApiNetwork: internal_api
           OsloMessagingNotifyNetwork: internal_api
           OsloMessagingRpcNetwork: internal_api
           OvnDbsNetwork: internal_api
