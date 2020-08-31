@@ -78,7 +78,7 @@
     security_opt: "{{ lookup('dict', container_data).value.security_opt | default(omit) }}"
     state: present
     stop_signal: "{{ lookup('dict', container_data).value.stop_signal | default(omit) }}"
-    stop_timeout: "{{ lookup('dict', container_data).value.stop_grace_period | default(omit) | int }}"
+    stop_timeout: "{{ lookup('dict', container_data).value.stop_grace_period | default(omit) }}"
     sysctl: "{{ lookup('dict', container_data).value.sysctl | default(omit) }}"
     tty: "{{ lookup('dict', container_data).value.tty | default(false) }}"
     ulimit: "{{ lookup('dict', container_data).value.ulimit | default(omit) }}"
