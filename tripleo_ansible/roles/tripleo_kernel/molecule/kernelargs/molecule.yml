@@ -42,7 +42,7 @@ scenario:
   test_sequence:
     - prepare
     - converge
-    - check
+    - verify
 
 verifier:
   name: ansible
