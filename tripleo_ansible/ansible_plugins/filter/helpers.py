@@ -19,10 +19,6 @@ import json
 import re
 import six
 
-from collections import OrderedDict
-from operator import itemgetter
-
-
 # cmp() doesn't exist on python3
 if six.PY3:
     def cmp(a, b):
@@ -98,7 +94,7 @@ class FilterModule(object):
         return return_dict
 
     def needs_delete(self, container_infos, config, config_id,
-                     clean_orphans=True, check_config=True):
+                     clean_orphans=False, check_config=True):
         """Returns a list of containers which need to be removed.
 
         This filter will check which containers need to be removed for these
@@ -115,15 +111,6 @@ class FilterModule(object):
         to_delete = []
         to_skip = []
         installed_containers = []
-
-        # If config has no item, it's probably due to a user error where
-        # the given pattern match no container.
-        # If config has one item, it's because we want to manage only one
-        # container.
-        # In both cases, we don't want to remove the others in the same
-        # config_id.
-        if len(config) <= 1:
-            clean_orphans = False
 
         for c in container_infos:
             c_name = c['Name']

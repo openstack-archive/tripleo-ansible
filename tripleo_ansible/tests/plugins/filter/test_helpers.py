@@ -488,7 +488,8 @@ class TestHelperFilters(tests_base.TestCase):
         expected_list = ['rabbitmq', 'haproxy', 'heat', 'test1', 'old_tripleo']
         result = self.filters.needs_delete(container_infos=data,
                                            config=config,
-                                           config_id='tripleo_step1')
+                                           config_id='tripleo_step1',
+                                           clean_orphans=True)
         self.assertEqual(result, expected_list)
 
     def test_needs_delete_no_config_check(self):
@@ -610,7 +611,8 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.needs_delete(container_infos=data,
                                            config=config,
                                            config_id='tripleo_step1',
-                                           check_config=False)
+                                           check_config=False,
+                                           clean_orphans=True)
         self.assertEqual(result, expected_list)
 
     def test_needs_delete_single_config(self):
