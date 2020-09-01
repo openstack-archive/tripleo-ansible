@@ -16,6 +16,7 @@
 
 
 # All variables intended for modification should place placed in this file.
+tripleo_container_manage_clean_orphans: true
 
 # All variables within this role should have a prefix of "tripleo_container_manage"
 tripleo_container_manage_check_puppet_config: false
