@@ -116,6 +116,7 @@ def run_module():
         success=False,
         changed=False,
         error="",
+        params={}
     )
 
     argument_spec = openstack_full_argument_spec(
@@ -153,6 +154,7 @@ def run_module():
 
         result['success'] = True
         result['changed'] = True
+        result['params'] = {"parameter_defaults": params}
     except Exception as err:
         result['error'] = str(err)
         result['msg'] = ("Error running container image prepare: %s" % (err))
