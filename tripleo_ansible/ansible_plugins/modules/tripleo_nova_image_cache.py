@@ -45,16 +45,6 @@ options:
       description:
          - ID of the image to cache
       required: true
-    ttl:
-      description:
-         - Ensure the image remains cached for at least ttl days
-      default: 7
-    state:
-      description:
-        - Whether the image be present in cache or expired
-          (nova should delete it later if it is no longer used)
-      choices: [present, expired]
-      default: present
     scp_source:
       description:
         - Attempt to scp the image from this nova-compute host
@@ -67,41 +57,23 @@ requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''
-- name: Cache image for at least 2 weeks
+- name: Cache image
   tripleo_nova_image_cache:
     id: ec151bd1-aab4-413c-b577-ced089e7d3f8
-    ttl: 14
-
-- name: Allow nova to cleanup this image from cache
-  tripleo_nova_image_cache:
-    id: ec151bd1-aab4-413c-b577-ced089e7d3f8
-    state: expired
 
 - name: Cache image, try to copy from existing host
   tripleo_nova_image_cache:
     id: ec151bd1-aab4-413c-b577-ced089e7d3f8
-    ttl: 14
     scp_source: nova-compute-0
     scp_continue_on_error: true
 
 '''
 
 
-def ttl_to_ts(ttl_days):
-    """Return a timestamp at midnight UTC ttl_days in the future"""
-    epoch = datetime.datetime.utcfromtimestamp(0)
-    midnight_today = datetime.datetime.utcnow().replace(
-        hour=0, minute=0, second=0, microsecond=0)
-    expiry = midnight_today + datetime.timedelta(days=ttl_days+1)
-    return (expiry - epoch).total_seconds()
-
-
 def main():
 
     argument_spec = openstack_full_argument_spec(
         id=dict(required=True),
-        ttl=dict(default=7, type='int', min=1),
-        state=dict(default='present', choices=['expired', 'present']),
         _cache_dir=dict(required=True),
         _cache_file=dict(required=True),
         _chunk_size=dict(default=64 * 1024, type='int'),
@@ -117,8 +89,6 @@ def main():
     chunk_size = module.params['_chunk_size']
     prefetched_path = module.params['_prefetched_path']
     scp_continue = module.params['scp_continue_on_error']
-
-    ttl_days = module.params['ttl']
 
     result = dict(
         changed=False,
@@ -142,134 +112,104 @@ def main():
         if exists_in_glance:
             result['image'] = image.to_dict()
 
-        if module.params['state'] == 'present':
-            if not exists_in_cache:
+        if not exists_in_cache:
 
-                if not exists_in_glance:
-                    module.fail_json(
-                        msg="Image not found in glance: %s" % image_id)
+            if not exists_in_glance:
+                module.fail_json(
+                    msg="Image not found in glance: %s" % image_id)
 
-                md5 = hashlib.md5()
-                if prefetched_path:
+            md5 = hashlib.md5()
+            if prefetched_path:
+                result['actions'].append({
+                    'name': 'Verify pre-fetched image checksum'
+                })
+                with open(prefetched_path, 'rb') as prefetched_image_file:
+                    while True:
+                        chunk = prefetched_image_file.read(chunk_size)
+                        if not chunk:
+                            break
+                        md5.update(chunk)
+                prefetched_checksum = md5.hexdigest()
+                if prefetched_checksum == image.checksum:
                     result['actions'].append({
-                        'name': 'Verify pre-fetched image checksum'
+                        'name': 'Verify pre-fetched image',
+                        'result': True,
+                        'expected_md5': image.checksum,
+                        'actual_md5': prefetched_checksum
                     })
-                    with open(prefetched_path, 'rb') as prefetched_image_file:
-                        while True:
-                            chunk = prefetched_image_file.read(chunk_size)
-                            if not chunk:
-                                break
-                            md5.update(chunk)
-                    prefetched_checksum = md5.hexdigest()
-                    if prefetched_checksum == image.checksum:
-                        result['actions'].append({
-                            'name': 'Verify pre-fetched image',
-                            'result': True,
-                            'expected_md5': image.checksum,
-                            'actual_md5': prefetched_checksum
-                        })
-                        # FIXME: chown to the container nova uid (42436)
-                        # until we can run within the container
-                        os.chown(prefetched_path, 42436, 42436)
-                        os.rename(prefetched_path, cache_file)
-                    else:
-                        result['actions'].append({
-                            'name': 'Verify pre-fetched image',
-                            'result': False,
-                            'expected_md5': image.checksum,
-                            'actual_md5': prefetched_checksum
-                        })
-                        if not scp_continue:
-                            module.fail_json(
-                                msg="Pre-fetched image checksum failed")
-                        # Ignore it and download direct from glance.
-                        # As we did not create it we should not remove it.
-                        prefetched_path = ''
+                    # FIXME: chown to the container nova uid (42436)
+                    # until we can run within the container
+                    os.chown(prefetched_path, 42436, 42436)
+                    os.rename(prefetched_path, cache_file)
+                    result['changed'] = True
+                else:
+                    result['actions'].append({
+                        'name': 'Verify pre-fetched image',
+                        'result': False,
+                        'expected_md5': image.checksum,
+                        'actual_md5': prefetched_checksum
+                    })
+                    if not scp_continue:
+                        module.fail_json(
+                            msg="Pre-fetched image checksum failed")
+                    # Ignore it and download direct from glance.
+                    # As we did not create it we should not remove it.
+                    prefetched_path = ''
 
-                if not prefetched_path:
-                    with tempfile.NamedTemporaryFile(
-                            'wb',
-                            dir=cache_dir,
-                            delete=False) as temp_cache_file:
+            if not prefetched_path:
+                with tempfile.NamedTemporaryFile(
+                        'wb',
+                        dir=cache_dir,
+                        delete=False) as temp_cache_file:
+                    try:
+                        md5 = hashlib.md5()
+                        image_stream = cloud.image.download_image(
+                            image,
+                            stream=True
+                        )
                         try:
-                            md5 = hashlib.md5()
-                            image_stream = cloud.image.download_image(
-                                image,
-                                stream=True
-                            )
-                            try:
-                                for chunk in image_stream.iter_content(
-                                        chunk_size=chunk_size):
-                                    md5.update(chunk)
-                                    temp_cache_file.write(chunk)
-                            finally:
-                                image_stream.close()
-                                temp_cache_file.close()
+                            for chunk in image_stream.iter_content(
+                                    chunk_size=chunk_size):
+                                md5.update(chunk)
+                                temp_cache_file.write(chunk)
+                        finally:
+                            image_stream.close()
+                            temp_cache_file.close()
 
-                            download_checksum = md5.hexdigest()
-                            if download_checksum != image.checksum:
-                                result['actions'].append({
-                                    'name': 'Verify downloaded image',
-                                    'result': False,
-                                    'expected_md5': image.checksum,
-                                    'actual_md5': download_checksum
-                                })
-                                module.fail_json(
-                                    msg="Image data does not match checksum")
+                        download_checksum = md5.hexdigest()
+                        if download_checksum != image.checksum:
                             result['actions'].append({
                                 'name': 'Verify downloaded image',
-                                'result': True,
+                                'result': False,
                                 'expected_md5': image.checksum,
                                 'actual_md5': download_checksum
                             })
+                            module.fail_json(
+                                msg="Image data does not match checksum")
+                        result['actions'].append({
+                            'name': 'Verify downloaded image',
+                            'result': True,
+                            'expected_md5': image.checksum,
+                            'actual_md5': download_checksum
+                        })
 
-                            # FIXME: chown to the container nova uid (42436)
-                            #        until we can run within the container
-                            os.chown(temp_cache_file.name, 42436, 42436)
-                            os.rename(temp_cache_file.name, cache_file)
-                            result['changed'] = True
-                        finally:
-                            try:
-                                os.unlink(temp_cache_file.name)
-                            except Exception:
-                                pass
+                        # FIXME: chown to the container nova uid (42436)
+                        #        until we can run within the container
+                        os.chown(temp_cache_file.name, 42436, 42436)
+                        os.rename(temp_cache_file.name, cache_file)
+                        result['changed'] = True
+                    finally:
+                        try:
+                            os.unlink(temp_cache_file.name)
+                        except Exception:
+                            pass
 
-            # Set the mtime in the future to prevent nova cleanup
-            cache_file_stat = os.stat(cache_file)
-            expiry_ts = ttl_to_ts(ttl_days)
-            now = time.time()
-            if cache_file_stat.st_mtime != expiry_ts:
-                os.utime(cache_file, (now, expiry_ts))
-                result['actions'].append({
-                    'name': 'Update mtime',
-                    'from': cache_file_stat.st_mtime,
-                    'to': expiry_ts
-                })
-                result['changed'] = True
-
-        else:  # expired
-            if not exists_in_cache:
-                result['changed'] = False
-            else:
-                # Set the mtime to epoch to enable nova cleanup
-                now = time.time()
-                ts = 0
-                cache_file_stat = os.stat(cache_file)
-                if cache_file_stat.st_mtime > ts:
-                    os.utime(cache_file, (now, ts))
-                    result['actions'].append({
-                        'name': 'Update mtime',
-                        'from': cache_file_stat.st_mtime,
-                        'to': ts
-                    })
-                    result['changed'] = True
-
-                cache_file_stat = os.stat(cache_file)
-                result['mtime'] = cache_file_stat.st_mtime
-                result['expires'] = time.strftime(
-                    "%a, %d %b %Y %H:%M:%S %z",
-                    time.localtime(cache_file_stat.st_mtime)
-                )
+        # Always set the mtime to now but don't report this as a change
+        # as this is constantly refreshed by nova (every 40mins by default)
+        # while an instance on the host is using the image
+        now = time.time()
+        os.utime(cache_file, (now, now))
+        result['mtime'] = now
 
         module.exit_json(**result)
 
