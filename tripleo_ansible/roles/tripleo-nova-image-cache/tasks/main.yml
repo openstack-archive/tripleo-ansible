@@ -46,12 +46,5 @@
     image: "{{ item }}"
   loop: "{{ [
       tripleo_nova_image_cache_images|selectattr('state', 'undefined')|list,
-      tripleo_nova_image_cache_images|selectattr('state', 'defined')|rejectattr('state', 'equalto', 'expired')|list
+      tripleo_nova_image_cache_images|selectattr('state', 'defined')|selectattr('state', 'equalto', 'present')|list
     ]|flatten }}"
-
-
-- name: Uncache images
-  include_tasks: uncache.yml
-  vars:
-    image: "{{ item }}"
-  loop: "{{ tripleo_nova_image_cache_images|rejectattr('state', 'undefined')|selectattr('state', 'equalto', 'expired')|list }}"
