@@ -90,12 +90,18 @@
 
       when: use_default_templates or source_url is not none
 
-    - name: Create plan environment if does not exit
+      # If plan_environment is an absolute path, then
+      # don't prepend the templates dir. Else prepend it.
+    - name: Create plan environment if does not exist
       os_object:
         container: "{{ container }}"
         name: plan-environment.yaml
-        filename: "{{ default_templates_dir + plan_environment }}"
         state: present
+        filename: >-
+          {{ plan_environment.startswith('/')
+               | ternary(plan_environment,
+                         default_templates_dir.rstrip('/')
+                           + '/' + plan_environment) }}
 
     - name: Generate passwords and update plan
       tripleo_passwords_rotate:
