@@ -16,6 +16,8 @@
 
 
 test_deps_repo: https://trunk.rdoproject.org/centos7/current
+test_deps_yaml_packages:
+  - PyYAML
 test_deps_selinux_packages:
   - libselinux-python
 test_deps_tripleo_packages:
