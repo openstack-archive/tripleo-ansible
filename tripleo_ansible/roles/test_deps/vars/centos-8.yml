@@ -16,6 +16,8 @@
 
 
 test_deps_repo: https://trunk.rdoproject.org/centos8-master/current
+test_deps_yaml_packages:
+  - python3-pyyaml
 test_deps_selinux_packages:
   - python3-libselinux
 test_deps_tripleo_packages:

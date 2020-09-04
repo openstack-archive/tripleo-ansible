@@ -83,6 +83,13 @@
       when:
         - (ansible_os_family | lower) == 'redhat'
 
+    - name: Install python yaml libs
+      package:
+        name: "{{ test_deps_yaml_packages }}"
+        state: present
+      when:
+        - (ansible_os_family | lower) == 'redhat'
+
     - name: Install extra packages
       package:
         name: "{{ test_deps_extra_packages }}"
