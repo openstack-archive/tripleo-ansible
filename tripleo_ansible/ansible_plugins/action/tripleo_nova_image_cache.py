@@ -79,7 +79,11 @@ class ActionModule(ActionBase):
                 'creates': cache_dir
 
             }
-            command_task_vars = {'become': True}
+            command_task_vars = {
+                'become': True,
+                'ansible_facts': task_vars.get('ansible_facts', {}),
+                'ansible_delegated_vars': task_vars.get('ansible_delegated_vars', {})
+            }
             command_result = self._execute_module(
                 'command',
                 module_args=command_args,
@@ -115,7 +119,11 @@ class ActionModule(ActionBase):
                             "\"mkdir -p '{}'; chmod 755 '{}'\""
                         ).format(container_cli, cache_tmp, cache_tmp),
                 }
-                command_task_vars = {'become': True}
+                command_task_vars = {
+                    'become': True,
+                    'ansible_facts': task_vars.get('ansible_facts', {}),
+                    'ansible_delegated_vars': task_vars.get('ansible_delegated_vars', {})
+                }
                 command_result = self._execute_module(
                     'command',
                     module_args=command_args,
@@ -133,7 +141,12 @@ class ActionModule(ActionBase):
                             cache_tmp
                         )
                 }
-                command_task_vars = {'become': True, 'ignore_errors': True}
+                command_task_vars = {
+                    'become': True,
+                    'ignore_errors': True,
+                    'ansible_facts': task_vars.get('ansible_facts', {}),
+                    'ansible_delegated_vars': task_vars.get('ansible_delegated_vars', {})
+                }
                 command_result = self._execute_module(
                     'command',
                     module_args=command_args,
