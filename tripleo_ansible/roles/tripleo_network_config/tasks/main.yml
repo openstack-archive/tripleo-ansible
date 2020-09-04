@@ -53,6 +53,26 @@
         mode: 0755
       when: not ansible_check_mode|bool
 
+    - name: Create /etc/os-net-config directory
+      become: true
+      file:
+        path: /etc/os-net-config
+        state: directory
+        recurse: true
+
+    - name: Create os-net-config mappings from lookup data
+      tripleo_os_net_config_mappings:
+        net_config_data_lookup:
+          "{{ tripleo_network_config_os_net_config_mappings }}"
+      when: not ansible_check_mode|bool
+      register: os_net_config_mappings_result
+
+    - name: Write os-net-config mappings file /etc/os-net-config/mapping.yaml
+      copy:
+        content: "{{ os_net_config_mappings_result.mapping | to_nice_yaml }}"
+        dest: /etc/os-net-config/mapping.yaml
+      when: os_net_config_mappings_result.changed|bool
+
     - name: Run NetworkConfig script
       shell: /var/lib/tripleo-config/scripts/run_os_net_config.sh
       async: "{{ tripleo_network_config_async_timeout }}"

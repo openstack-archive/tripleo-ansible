@@ -27,3 +27,4 @@ tripleo_network_config_hide_sensitive_logs: true
 tripleo_network_config_interface_name: nic1
 tripleo_network_config_manage_service: true
 tripleo_network_config_network_deployment_actions: []
+tripleo_network_config_os_net_config_mappings: {}
