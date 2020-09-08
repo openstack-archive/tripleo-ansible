@@ -153,3 +153,11 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
             self.assertEqual(vcpu_ratio, ratio_map[flavor])
             self.assertIsNotNone(vcpu_msg)
             self.assertFalse(vcpu_warn)
+
+    def test_derive_without_workload(self):
+        """Test the derive method without passing the expected average
+        guest cpu and mem utilization and confirm expected result
+        """
+        der = derive_params.derive(mem_gb=256, vcpus=56, osds=16)
+        self.assertFalse(der['failed'])
+        self.assertEqual(der['nova_reserved_mem_mb'], 81920)
