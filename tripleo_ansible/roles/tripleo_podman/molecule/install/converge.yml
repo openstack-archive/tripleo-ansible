@@ -23,3 +23,7 @@
         name: tripleo_podman
         tasks_from: tripleo_podman_install.yml
         vars_from: "redhat.yml"
+    # https://bugs.launchpad.net/bugs/1889510
+    - name: Test podman network ls
+      become: true
+      command: podman network ls
