@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    A new variable named `tripleo_podman_default_network_config` has been added
+    to be able to configure the default network used by podman.
+    The network configue needs to be a json (or yaml) representation of a
+    cni network configuration.
+    NOTE: The network is not applied if it's already running which is
+    indicated by the existance of a cni-podman0 interface.
