@@ -19,53 +19,14 @@
   hosts: all
   become: true
   gather_facts: true
-  pre_tasks:
-    - name: Check for docker cli
-      command: "command -v docker"
-      register: docker_cli
-      failed_when: false
-      changed_when: false
-
-    - name: Check for docker connection
-      command: "docker ps"
-      register: docker_ps
-      failed_when: false
-      changed_when: false
-
-    - name: set basic user fact
-      set_fact:
-        ansible_user: "{{ lookup('env', 'USER') }}"
-      when:
-        - ansible_user is undefined
-
-    - name: set basic home fact
-      set_fact:
-        ansible_user_dir: "{{ lookup('env', 'HOME') }}"
-      when:
-        - ansible_user_dir is undefined
+  vars:
+    required_packages:
+      - podman
   roles:
     - role: test_deps
-    - role: ensure-docker
-      when:
-        - (docker_cli.rc != 0) or
-          (docker_ps.rc != 0)
   post_tasks:
-    - name: Install docker-sdk
-      pip:
-        name: docker
-        virtualenv: "{{ ansible_user_dir }}/test-python"
-        virtualenv_site_packages: true
-
-    - name: pull an image
-      docker_image:
-        name: centos:8
-        source: pull
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
-
-    - name: Create a data container
-      docker_container:
-        name: test-container
-        image: centos:8
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+    - name: Install podman
+      become: true
+      package:
+        name: "{{ required_packages }}"
+        state: latest

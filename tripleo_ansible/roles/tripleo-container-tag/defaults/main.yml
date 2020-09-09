@@ -28,7 +28,7 @@
 #                  is no longer in use.
 #
 # Set the container command line entry-point
-tripleo_container_cli: "{{ container_cli | default('docker') }}"
+tripleo_container_cli: "{{ container_cli | default('podman') }}"
 
 # Enable or disable pulling images.
 tripleo_container_pull_image: "{{ pull_image | default(true) }}"
