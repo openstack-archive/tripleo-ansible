@@ -48,12 +48,14 @@ options:
         type: map
     average_guest_cpu_utilization_percentage:
         description: Percentage of CPU utilization expected for average guest, e.g. 99 means 99% and 10 means 10%
-        required: True
+        required: False
         type: int
+        default: 0
     average_guest_memory_size_in_mb:
         description: Amount of memory in MB required by the average guest
-        required: True
+        required: False
         type: int
+        default: 0
     derived_parameters:
         description: any previously derived parameters which should be included in the final result
         required: False
@@ -113,11 +115,13 @@ derived_parameters:
 MB_PER_GB = 1024
 
 
-def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb,
-           average_guest_cpu_utilization_percentage,
+def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb=0,
+           average_guest_cpu_utilization_percentage=0,
            mem_gb_per_osd=5, vcpus_per_osd=1.0, total_memory_threshold=0.8):
     """
-    Determines the recommended Nova scheduler values based on Ceph needs.
+    Determines the recommended Nova scheduler values based on Ceph needs
+    and described average Nova guest workload in CPU and Memory utilization.
+    If expected guest utilization is not provided result is less accurate.
     Returns dictionary containing the keys: cpu_allocation_ratio (float),
     nova_reserved_mem_mb (int), message (string), failed (boolean).
     """
@@ -127,6 +131,12 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb,
     derived = {}
     derived['message'] = ""
     derived['failed'] = False
+
+    if average_guest_memory_size_in_mb == 0 and \
+       average_guest_cpu_utilization_percentage == 0:
+        workload = False
+    else:
+        workload = True
 
     # catch possible errors in parameters
     if mem_gb < 1:
@@ -147,13 +157,13 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb,
         derived['message'] += msg + "\n"
         derived['failed'] = True
 
-    if average_guest_memory_size_in_mb < 0:
-        msg = "The average_guest_memory_size_in_mb must be a positive integer."
+    if average_guest_memory_size_in_mb < 0 and workload:
+        msg = "If average_guest_memory_size_in_mb is used it must be greater than 0"
         derived['message'] += msg + "\n"
         derived['failed'] = True
 
-    if average_guest_cpu_utilization_percentage < 0:
-        msg = "The average_guest_cpu_utilization_percentage must be a positive integer."
+    if average_guest_cpu_utilization_percentage < 0 and workload:
+        msg = "If average_guest_cpu_utilization_percentage is used it must be greater than 0"
         derived['message'] += msg + "\n"
         derived['failed'] = True
 
@@ -169,19 +179,23 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb,
         return derived
 
     # perform the calculation
-    average_guest_size = average_guest_memory_size_in_mb / float(MB_PER_GB)
-    average_guest_util = average_guest_cpu_utilization_percentage * 0.01
-    number_of_guests = int(left_over_mem
-                           / (average_guest_size + gb_overhead_per_guest))
-    nova_reserved_mem_mb = MB_PER_GB * ((mem_gb_per_osd * osds)
-                                        + (number_of_guests * gb_overhead_per_guest))
-    nonceph_vcpus = vcpus - (vcpus_per_osd * osds)
-    guest_vcpus = nonceph_vcpus / average_guest_util
-    cpu_allocation_ratio = guest_vcpus / vcpus
+    if workload:
+        average_guest_size = average_guest_memory_size_in_mb / float(MB_PER_GB)
+        average_guest_util = average_guest_cpu_utilization_percentage * 0.01
+        number_of_guests = int(left_over_mem
+                               / (average_guest_size + gb_overhead_per_guest))
+        nova_reserved_mem_mb = MB_PER_GB * ((mem_gb_per_osd * osds)
+                                            + (number_of_guests * gb_overhead_per_guest))
+        nonceph_vcpus = vcpus - (vcpus_per_osd * osds)
+        guest_vcpus = nonceph_vcpus / average_guest_util
+        cpu_allocation_ratio = guest_vcpus / vcpus
+    else:
+        nova_reserved_mem_mb = MB_PER_GB * (mem_gb_per_osd * osds)
 
     # save calculation results
-    derived['cpu_allocation_ratio'] = cpu_allocation_ratio
     derived['nova_reserved_mem_mb'] = int(nova_reserved_mem_mb)
+    if workload:
+        derived['cpu_allocation_ratio'] = cpu_allocation_ratio
 
     # capture derivation details in message
     msg = "Derived Parameters results"
@@ -189,29 +203,41 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb,
     msg += "\n - Total host RAM in GB: %d" % mem_gb
     msg += "\n - Total host vCPUs: %d" % vcpus
     msg += "\n - Ceph OSDs per host: %d" % osds
-    msg += "\n - Average guest memory size in GB: %d" % average_guest_size
-    msg += "\n - Average guest CPU utilization: %.0f%%" % \
-           average_guest_cpu_utilization_percentage
+    if workload:
+        msg += "\n - Average guest memory size in GB: %d" % average_guest_size
+        msg += "\n - Average guest CPU utilization: %.0f%%" % \
+               average_guest_cpu_utilization_percentage
     msg += "\n "
     msg += "\n Outputs:"
-    msg += "\n - number of guests allowed based on memory = %d" % number_of_guests
-    msg += "\n - number of guest vCPUs allowed = %d" % int(guest_vcpus)
+    if workload:
+        msg += "\n - number of guests allowed based on memory = %d" % number_of_guests
+        msg += "\n - number of guest vCPUs allowed = %d" % int(guest_vcpus)
+        msg += "\n - nova.conf cpu_allocation_ratio = %2.2f" % cpu_allocation_ratio
     msg += "\n - nova.conf reserved_host_memory = %d MB" % nova_reserved_mem_mb
-    msg += "\n - nova.conf cpu_allocation_ratio = %2.2f" % cpu_allocation_ratio
     msg += "\n "
-    msg += "\nCompare \"guest vCPUs allowed\" to \"guests allowed based on memory\""
-    msg += "\nfor actual guest count."
-    msg += "\n "
+    if workload:
+        msg += "\nCompare \"guest vCPUs allowed\" to \"guests allowed based on memory\""
+        msg += "\nfor actual guest count."
+        msg += "\n "
 
     warning_msg = ""
     if nova_reserved_mem_mb > (MB_PER_GB * mem_gb * total_memory_threshold):
         warning_msg += "ERROR: %d GB is not enough memory to run hyperconverged\n" % mem_gb
         derived['failed'] = True
-    if cpu_allocation_ratio < 0.5:
-        warning_msg += "ERROR: %d is not enough vCPU to run hyperconverged\n" % vcpus
-        derived['failed'] = True
-    if cpu_allocation_ratio > 16.0:
-        warning_msg += "WARNING: do not increase vCPU overcommit ratio beyond 16:1\n"
+    if workload:
+        if cpu_allocation_ratio < 0.5:
+            warning_msg += "ERROR: %d is not enough vCPU to run hyperconverged\n" % vcpus
+            derived['failed'] = True
+        if cpu_allocation_ratio > 16.0:
+            warning_msg += "WARNING: do not increase vCPU overcommit ratio beyond 16:1\n"
+    else:
+        warning_msg += "WARNING: the average guest workload was not provided. \n"
+        warning_msg += "Both average_guest_cpu_utilization_percentage and \n"
+        warning_msg += "average_guest_memory_size_in_mb are defaulted to 0. \n"
+        warning_msg += "The HCI derived parameter calculation cannot set the \n"
+        warning_msg += "Nova cpu_allocation_ratio. The Nova reserved_host_memory_mb \n"
+        warning_msg += "will be set based on the number of OSDs but the Nova \n"
+        warning_msg += "guest memory overhead will not be taken into account. \n"
     derived['message'] = warning_msg + msg
 
     return derived
@@ -422,8 +448,8 @@ def main():
         tripleo_environment_parameters=dict(type=dict, required=True),
         tripleo_role_name=dict(type=str, required=True),
         introspection_data=dict(type=dict, required=True),
-        average_guest_cpu_utilization_percentage=dict(type=int, required=True),
-        average_guest_memory_size_in_mb=dict(type=int, required=True),
+        average_guest_cpu_utilization_percentage=dict(type=int, required=False, default=0),
+        average_guest_memory_size_in_mb=dict(type=int, required=False, default=0),
         derived_parameters=dict(type=dict, required=False),
         new_heat_environment_path=dict(type=str, required=False),
         report_path=dict(type=str, required=False),
@@ -465,7 +491,8 @@ def main():
     if not derivation['failed']:
         role_derivation = {}
         role_derivation['NovaReservedHostMemory'] = derivation['nova_reserved_mem_mb']
-        role_derivation['NovaCPUAllocationRatio'] = derivation['cpu_allocation_ratio']
+        if 'cpu_allocation_ratio' in derivation:
+            role_derivation['NovaCPUAllocationRatio'] = derivation['cpu_allocation_ratio']
         role_name_parameters = module.params['tripleo_role_name'] + 'Parameters'
         existing_params[role_name_parameters] = role_derivation
         # write out to file if requested
