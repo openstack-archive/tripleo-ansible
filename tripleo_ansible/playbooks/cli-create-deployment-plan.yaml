@@ -88,7 +88,7 @@
             templates_dir: "{{ default_templates_dir }}"
           when: use_default_templates|bool
 
-      when: use_default_templates or source_url is not none
+      when: use_default_templates|bool or source_url is not none
 
       # If plan_environment is an absolute path, then
       # don't prepend the templates dir. Else prepend it.
