@@ -18,6 +18,14 @@
   command: cat /proc/cmdline
   register: cmdline
 
+- name: Check if the kernelargs entry is already present in the file
+  replace:
+    regexp: TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
+    dest: /etc/default/grub
+    replace: ''
+  check_mode: true
+  register: grub_file_entry_check
+
 # Kernel Args Configuration
 - block:
     - name: Ensure the kernel args ( {{ tripleo_kernel_args }} ) is present as TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
@@ -69,8 +77,18 @@
       - name: vfio_iommu_type1
   when: tripleo_kernel_args is search("iommu")
 
-- name: Reboot and workaround block
-  include_tasks: reboot.yaml
+- name: Reboot block
   when:
     - reboot_required is defined and reboot_required
     - not tripleo_kernel_defer_reboot|bool
+  block:
+    - name: Reboot tasks
+      include_tasks: reboot.yaml
+      when:
+        - grub_file_entry_check is not changed
+
+    - name: Skipping reboot for deployed node
+      debug:
+        msg: "Reboot is skipped for kernel arg change, user has to plan the reboot with migration and downtime"
+      when:
+        - grub_file_entry_check is changed
