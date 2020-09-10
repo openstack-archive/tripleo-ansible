@@ -30,7 +30,8 @@
       include_role:
         name: tripleo_derived_parameters
       vars:
-        tripleo_plan_name: "overcloud"
+        tripleo_plan_name: ""  #  empty string so molecule doesn't try to update plan
+        tripleo_all_nodes: []  #  empty list so molecule doesn't try to talk to ironic
         tripleo_role_name: "{{ outer_item }}"
         tripleo_environment_parameters: "{{ tripleo_get_flatten_params.stack_data.environment_parameters }}"
         tripleo_heat_resource_tree: "{{ tripleo_get_flatten_params.stack_data.heat_resource_tree }}"

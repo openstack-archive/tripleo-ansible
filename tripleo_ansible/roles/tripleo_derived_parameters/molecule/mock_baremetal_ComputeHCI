@@ -178,8 +178,8 @@
           hctl: "0:0:0:0"
           by_path: "/dev/disk/by-path/pci-0000:00:01.1-ata-1"
       memory:
-        total: 5951889408
-        physical_mb: 5860
+        total: 274877766206
+        physical_mb: 256000
       bmc_address: "0.0.0.0"
       bmc_v6address: "::/0"
       system_vendor:
@@ -251,7 +251,7 @@
     local_gb: 99
     cpus: 2
     cpu_arch: "x86_64"
-    memory_mb: 5860
+    memory_mb: 256000
     extra:
       disk:
         logical:

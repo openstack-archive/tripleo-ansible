@@ -23,9 +23,17 @@
   set_fact:
     service_chain: "{{ resource_chains | get_filtered_service_chain(role_chain.resources) }}"
 
-- name: Set role service fact
+- name: Set role services fact
   set_fact:
     role_services: "{{ service_chain.resources | get_filtered_role_resources(tripleo_heat_resource_tree.resources) }}"
+
+- name: Set role service key fact
+  set_fact:
+    role_service_key: "{{ tripleo_role_name }}Services"
+
+- name: Set role_services_from_key fact
+  set_fact:
+    role_services_from_key: "{{ tripleo_heat_resource_tree['parameters'][role_service_key]['default'] }}"
 
 - name: Set features facts
   set_fact:
@@ -39,9 +47,8 @@
       {% set service_types = role_services.values() | map(attribute='type') | list %}
       {{ ((service_types | map('regex_search', '.*\:\:NeutronSriovAgent') | list | length) > 0) | bool }}
     hci: |-
-      {% set service_types = role_services.values() | map(attribute='type') | list %}
-      {% set novacompute = ((service_types | map('regex_search', '.*\:\:NovaCompute') | list | length) > 0) | bool %}
-      {% set cephosd = ((service_types | map('regex_search', '.*\:\:CephOSD') | list | length) > 0) | bool %}
+      {% set novacompute = ((role_services_from_key | map('regex_search', '.*\:\:NovaCompute') | select('string') | list | length) > 0) | bool %}
+      {% set cephosd = ((role_services_from_key | map('regex_search', '.*\:\:CephOSD') | select('string') | list | length) > 0) | bool %}
       {{ (novacompute | bool) and (cephosd | bool) }}
 
 - name: Set feature fact
@@ -156,13 +163,13 @@
       register: baremetal_data
       when:
         - role_node_uuid is defined
-        - baremetal_data is undefined
 
     - name: Set hardware data fact
       set_fact:
         hw_data: "{{ baremetal_data.data }}"
       when:
         - baremetal_data is defined
+        - baremetal_data['data'] is defined
 
 # TODO
 
@@ -217,23 +224,6 @@
 #   on-success: handle_hci_feature
 #   on-error: set_status_failed_get_host_derive_params
 
-# handle_hci_feature:
-#   on-success:
-#     - get_hci_derive_params: <% $.role_features.contains('HCI') %>
-
-# get_hci_derive_params:
-#   workflow: tripleo.derive_params_formulas.v1.hci_derive_params
-#   input:
-#     tripleo_role_name: <% $.tripleo_role_name %>
-#     tripleo_heat_resource_tree: <% $.tripleo_heat_resource_tree %>
-#     introspection_data: <% $.hw_data %>
-#     user_inputs: <% $.user_inputs %>
-#     derived_parameters: <% $.derived_parameters %>
-#   publish:
-#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
-#   on-error: set_status_failed_get_hci_derive_params
-#   # Done (no more derived parameter features)
-
 - name: Derive parameters for HCI
   when:
     - hci
@@ -245,35 +235,45 @@
       loop: "{{ lookup('dict', hci_profile_config) }}"
       when: item.key == hci_profile
 
-    # Replace with a call to new a hci_derived_parameters module with these inputs
-    - name: set mock_hci_derived_parameters_inputs
+    - name: Default derive parameters for HCI
       set_fact:
-        mock_hci_derived_parameters_inputs:
-          tripleo_heat_resource_tree: "{{ tripleo_heat_resource_tree }}"
-          introspection_data: "{{ hw_data }}"
-          average_guest_cpu_utilization_percentage: "{{ average_guest_cpu_utilization_percentage }}"
-          average_guest_memory_size_in_mb: "{{ average_guest_memory_size_in_mb }}"
-          derived_parameters: {}
+        derived_parameters: {}
+      when:
+        - derived_parameters is not defined
 
-    # hci_derived_parameters module will update derived_parameters_result instead
-    - name: set mock_derived_parameters_result
-      set_fact:
-        mock_derived_parameters_result:
-          NovaReservedHostMemory: 180224
-          NovaCPUAllocationRatio: 2
+    - name: Derive parameters for HCI (collocated ceph-osd/nova-compute nodes)
+      tripleo_derive_hci_parameters:
+        tripleo_environment_parameters: "{{ tripleo_environment_parameters }}"
+        tripleo_role_name: "{{ tripleo_role_name }}"
+        introspection_data: "{{ baremetal_data }}"
+        average_guest_cpu_utilization_percentage: "{{ average_guest_cpu_utilization_percentage }}"
+        average_guest_memory_size_in_mb: "{{ average_guest_memory_size_in_mb }}"
+        derived_parameters: "{{ derived_parameters }}"
+      register: derived_parameters_result
+
+    - name: Show HCI derived paramters results
+      debug:
+        msg: "{{ derived_parameters_result }}"
+      when:
+        - derived_parameters_result is defined
+        - derived_parameters_result|length >0
 
 - name: Update derived params block
   when:
     - derived_parameters_result is defined
+    - derived_parameters_result|length >0
+    - tripleo_plan_name is defined
+    - tripleo_plan_name|length >0
+    - derived_parameters_result['derived_parameters'] is defined
   block:
     - name: Reset params
       tripleo_reset_params:
-        container: "{{ plan }}"
+        container: "{{ tripleo_plan_name }}"
         parameter_key: derived_parameters
 
     - name: Update derive_parameters in plan
       tripleo_plan_parameters_update:
-        container: "{{ plan }}"
+        container: "{{ tripleo_plan_name }}"
         parameter_key: 'derived_parameters'
-        parameters: "{{ derived_parameters_result }}"
+        parameters: "{{ derived_parameters_result['derived_parameters'] }}"
         validate: true
