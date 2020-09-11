@@ -32,6 +32,16 @@
   tags:
     - always
 
+# Currently only supported on RHEL as tripleo does not have a version package
+- name: Deploy release version package
+  become: true
+  package:
+    name: "{{ tripleo_bootstrap_release_version_package }}"
+    state: present
+  when:
+    - (ansible_distribution | lower) == 'redhat'
+    - (tripleo_bootstrao_release_version_package |list | length) > 0
+
 - name: Deploy required packages to bootstrap TripleO
   become: true
   package:
