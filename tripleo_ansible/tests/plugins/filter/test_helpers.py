@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from ansible import errors
+
 from tripleo_ansible.ansible_plugins.filter import helpers
 from tripleo_ansible.tests import base as tests_base
 
@@ -373,6 +375,24 @@ class TestHelperFilters(tests_base.TestCase):
                                      reverse=True,
                                      any=True)
         self.assertEqual(result, expected_list)
+
+    def test_abspath(self):
+        file_path = '/etc/hosts'
+        result = self.filters.tht_abspath(file_path)
+        self.assertEqual(result, '/etc/hosts')
+
+        file_path = ['/etc', 'tmp']
+        result = self.filters.tht_abspath(
+            file_path, ignore_error=True)
+        self.assertEqual(result, file_path)
+
+    def test_abspath_not_found(self):
+        file_path = 'plan-environment.yaml'
+        ex = self.assertRaises(
+            errors.AnsibleFilterError,
+            self.filters.tht_abspath, file_path)
+        msg = ("Can't find path plan-environment.yaml")
+        self.assertEqual(msg, str(ex))
 
     def test_needs_delete(self):
         data = [

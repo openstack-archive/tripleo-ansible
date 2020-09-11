@@ -16,8 +16,11 @@
 
 import ast
 import json
+import os
 import re
 import six
+
+from ansible import errors
 
 # cmp() doesn't exist on python3
 if six.PY3:
@@ -48,7 +51,8 @@ class FilterModule(object):
             'get_filtered_service_chain': self.get_filtered_service_chain,
             'get_filtered_role_resources': self.get_filtered_role_resources,
             'get_node_capabilities': self.get_node_capabilities,
-            'get_node_profile': self.get_node_profile
+            'get_node_profile': self.get_node_profile,
+            'tht_abspath': self.tht_abspath
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -184,6 +188,37 @@ class FilterModule(object):
                 to_delete += [c]
 
         return to_delete
+
+    def tht_abspath(self, file_paths, ignore_error=False,
+                    root_dir='/usr/share/openstack-tripleo-heat-templates'):
+        '''Find a file/dir absolute path or relative to the home/t-h-t dir'''
+
+        def get_path(file_path):
+            path = os.path.abspath(file_path)
+            if not os.path.exists(path):
+                path = os.path.abspath(os.path.join(os.path.expanduser('~'),
+                                       file_path))
+            if not os.path.exists(path):
+                path = os.path.abspath(os.path.join(root_dir, file_path))
+            if not os.path.exists(path):
+                if not ignore_error:
+                    raise errors.AnsibleFilterError(
+                        "Can't find path %s" % (file_path,))
+                return file_path
+            return path
+
+        if not file_paths:
+            return None
+        elif isinstance(file_paths, str):
+            return get_path(file_paths)
+        elif isinstance(file_paths, list):
+            paths = []
+            for f_path in file_paths:
+                paths.append(get_path(f_path))
+            return paths
+        else:
+            raise errors.AnsibleFilterError(
+                "Either lists or string for paths only supported.")
 
     def haskey(self, data, attribute, value=None, reverse=False, any=False,
                excluded_keys=[]):
