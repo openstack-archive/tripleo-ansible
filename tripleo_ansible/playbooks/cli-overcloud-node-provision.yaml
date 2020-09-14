@@ -41,9 +41,9 @@
   tasks:
     - name: Detect default overcloud-full image
       block:
-        - name: stat overcloud-full.qcow2
+        - name: stat overcloud-full.raw
           stat:
-            path: /var/lib/ironic/images/overcloud-full.qcow2
+            path: /var/lib/ironic/images/overcloud-full.raw
             get_checksum: true
             checksum_algorithm: md5
           register: overcloud_full_stat
@@ -57,7 +57,7 @@
         - name: Set file based default image
           set_fact:
             default_image:
-              href: file:///var/lib/ironic/images/overcloud-full.qcow2
+              href: file:///var/lib/ironic/images/overcloud-full.raw
               checksum: "{{ overcloud_full_stat.stat.checksum }}"
               kernel: file:///var/lib/ironic/images/overcloud-full.vmlinuz
               ramdisk: file:///var/lib/ironic/images/overcloud-full.initrd
@@ -68,7 +68,7 @@
         - name: Set whole-disk file based default image
           set_fact:
             default_image:
-              href: file:///var/lib/ironic/images/overcloud-full.qcow2
+              href: file:///var/lib/ironic/images/overcloud-full.raw
               checksum: "{{ overcloud_full_stat.stat.checksum }}"
           when:
             - overcloud_full_stat.stat.exists|bool
