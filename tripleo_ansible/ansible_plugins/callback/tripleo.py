@@ -18,9 +18,25 @@ __metaclass__ = type
 
 from ansible import constants as C
 from ansible.plugins.callback.default import CallbackModule as BASE
+from ansible.plugins.callback.default import COMPAT_OPTIONS
 
 
 class CallbackModule(BASE):
+    def set_options(self, task_keys=None, var_options=None, direct=None):
+        super(CallbackModule, self).set_options(task_keys=task_keys,
+                                                var_options=var_options,
+                                                direct=direct)
+        # NOTE(mwhahaha): work around for bug in ansible's default callback
+        # where it sets the attr on the object but not in the plugin options
+        # for the compatibility options. Need to submit this upstream.
+        for option, constant in COMPAT_OPTIONS:
+            try:
+                value = self.get_option(option)
+            except (AttributeError, KeyError):
+                value = constant
+            if option not in self._plugin_options:
+                self._plugin_options[option] = value
+
     def v2_runner_retry(self, result):
         task_name = result.task_name or result._task
         retry_count = result._result['retries'] - result._result['attempts']
