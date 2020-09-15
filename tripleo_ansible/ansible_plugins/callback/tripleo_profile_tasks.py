@@ -1,13 +1,13 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import collections
 import time
 
 from ansible import constants as C
-from ansible.plugins.callback.profile_tasks import secondsToStr
-from ansible.plugins.callback.profile_tasks import timestamp
-from ansible.plugins.callback.profile_tasks import CallbackModule as PT
+from ansible.plugins.callback import CallbackBase
 from datetime import datetime
+from datetime import timedelta
 
 DOCUMENTATION = '''
     callback: tripleo_profile_tasks
@@ -39,7 +39,7 @@ DOCUMENTATION = '''
 '''
 
 
-class CallbackModule(PT):
+class CallbackModule(CallbackBase):
 
     CALLBACK_VERSION = 2.0
     CALLBACK_TYPE = 'aggregate'
@@ -47,8 +47,40 @@ class CallbackModule(PT):
     CALLBACK_NEEDS_WHITELIST = True
 
     def __init__(self):
+        self.stats = collections.OrderedDict()
+        self.current = None
+        self.sort_order = None
+        self.task_output_limit = None
         self.start_time = time.time()
         super(CallbackModule, self).__init__()
+
+    def set_options(self, task_keys=None, var_options=None, direct=None):
+        super(CallbackModule, self).set_options(task_keys=task_keys,
+                                                var_options=var_options,
+                                                direct=direct)
+
+        self.sort_order = self.get_option('sort_order')
+        if self.sort_order is not None:
+            if self.sort_order == 'ascending':
+                self.sort_order = False
+            elif self.sort_order == 'descending':
+                self.sort_order = True
+            elif self.sort_order == 'none':
+                self.sort_order = None
+
+        self.task_output_limit = self.get_option('output_limit')
+        if self.task_output_limit is not None:
+            if self.task_output_limit == 'all':
+                self.task_output_limit = None
+            else:
+                self.task_output_limit = int(self.task_output_limit)
+
+    def _timestamp(self):
+        if self.current is None:
+            return
+        self.stats[self.current]['time'] = (
+            time.time() - self.stats[self.current]['time']
+        )
 
     def _output(self, msg, color=None):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -66,13 +98,13 @@ class CallbackModule(PT):
             uuid,
             u'{:>10}'.format('TIMING'),
             self.stats[uuid].get('name', 'NONAME'),
-            secondsToStr(time.time() - self.start_time),
+            str(timedelta(seconds=(time.time() - self.start_time))),
             u'{0:.02f}s'.format(self.stats[uuid].get('time', '-1'))
         ]
         self._output(line, C.COLOR_DEBUG)
 
     def _record_task(self, task):
-        timestamp(self)
+        self._timestamp()
         self._output_previous_timings(self.current)
         self.current = task._uuid
         self.stats[self.current] = {'time': time.time(),
@@ -80,8 +112,14 @@ class CallbackModule(PT):
         if self._display.verbosity >= 2:
             self.stats[self.current]['path'] = task.get_path()
 
+    def v2_playbook_on_task_start(self, task, is_conditional):
+        self._record_task(task)
+
+    def v2_playbook_on_handler_task_start(self, task):
+        self._record_task(task)
+
     def playbook_on_stats(self, stats):
-        timestamp(self)
+        self._timestamp()
         self.current = None
         results = self.stats.items()
         # Sort the tasks by the specified sort
@@ -100,7 +138,7 @@ class CallbackModule(PT):
             '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
             ' Elapsed Time: {} '
             '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'.format(
-                secondsToStr(time.time() - self.start_time)))
+                str(timedelta(seconds=(time.time() - self.start_time)))))
 
         header = [
             '{:>36}'.format('UUID'),
