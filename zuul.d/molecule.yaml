@@ -33,18 +33,12 @@
       - tripleo-ansible-centos-8-molecule-tripleo-securetty
       - tripleo-ansible-centos-8-molecule-tripleo-cellv2
       - tripleo-ansible-centos-8-molecule-tripleo-clients-install
-      - tripleo-ansible-centos-8-molecule-tripleo-validations-package
-      - tripleo-ansible-centos-8-molecule-tripleo-ovs-dpdk
-      - tripleo-ansible-centos-8-molecule-tripleo-sshd
-      - tripleo-ansible-centos-8-molecule-backup-and-restore
-      - tripleo-ansible-centos-8-molecule-tripleo-packages
       - tripleo-ansible-centos-8-molecule-tripleo-hosts-entries
       - tripleo-ansible-centos-8-molecule-tripleo-container-manage
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo-keystone-resources
       - tripleo-ansible-centos-8-molecule-tripleo-systemd-wrapper
       - tripleo-ansible-centos-8-molecule-tripleo-network-config
-      - tripleo-ansible-centos-8-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
@@ -82,18 +76,12 @@
       - tripleo-ansible-centos-8-molecule-tripleo-securetty
       - tripleo-ansible-centos-8-molecule-tripleo-cellv2
       - tripleo-ansible-centos-8-molecule-tripleo-clients-install
-      - tripleo-ansible-centos-8-molecule-tripleo-validations-package
-      - tripleo-ansible-centos-8-molecule-tripleo-ovs-dpdk
-      - tripleo-ansible-centos-8-molecule-tripleo-sshd
-      - tripleo-ansible-centos-8-molecule-backup-and-restore
-      - tripleo-ansible-centos-8-molecule-tripleo-packages
       - tripleo-ansible-centos-8-molecule-tripleo-hosts-entries
       - tripleo-ansible-centos-8-molecule-tripleo-container-manage
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo-keystone-resources
       - tripleo-ansible-centos-8-molecule-tripleo-systemd-wrapper
       - tripleo-ansible-centos-8-molecule-tripleo-network-config
-      - tripleo-ansible-centos-8-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
@@ -287,7 +275,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-network-config
-
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-kernel/.*
@@ -334,13 +321,6 @@
       tripleo_role_name: tripleo-clients-install
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo-validations-package/.*
-    name: tripleo-ansible-centos-8-molecule-tripleo-validations-package
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_role_name: tripleo-validations-package
-- job:
-    files:
     - ^tripleo_ansible/roles/tripleo-redhat-enforce/.*
     name: tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
     parent: tripleo-ansible-centos-8-base
@@ -348,32 +328,11 @@
       tox_envlist: tripleo-redhat-enforce
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo-ovs-dpdk/.*
-    name: tripleo-ansible-centos-8-molecule-tripleo-ovs-dpdk
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_role_name: tripleo-ovs-dpdk
-- job:
-    files:
     - ^tripleo_ansible/roles/tripleo-sshd/.*
     name: tripleo-ansible-centos-8-molecule-tripleo-sshd
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-sshd
-- job:
-    files:
-    - ^tripleo_ansible/roles/backup-and-restore/.*
-    name: tripleo-ansible-centos-8-molecule-backup-and-restore
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_role_name: backup-and-restore
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-packages/.*
-    name: tripleo-ansible-centos-8-molecule-tripleo-packages
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_role_name: tripleo-packages
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-hosts-entries/.*
@@ -399,7 +358,6 @@
     vars:
       tripleo_role_name: tripleo-container-manage
       install_docker_c8: false
-
 - job:
     files:
     - ^tripleo_ansible/ansible_plugins/.*$
@@ -409,7 +367,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       install_docker_c8: false
-
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-keystone-resources/.*
@@ -417,7 +374,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-keystone-resources
-
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-systemd-wrapper/.*
@@ -425,15 +381,6 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-systemd-wrapper
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo-nova-image-cache/.*
-    - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
-    name: tripleo-ansible-centos-8-molecule-tripleo-nova-image-cache
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_role_name: tripleo-nova-image-cache
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_nvdimm/.*

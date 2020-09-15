@@ -23,7 +23,11 @@
   roles:
     - role: test_deps
   post_tasks:
-    - name: Install ovs
+    - name: Create tripleo repos
+      command: tripleo-repos current-tripleo
+      become: true
+    - name: Install required packages
+      become: true
       package:
         name:
           - openvswitch

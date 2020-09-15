@@ -21,6 +21,6 @@
   roles:
     - role: tripleo-container-rm
       tripleo_containers_to_rm:
-        - podman-container1
-        - podman-container2
-      tripleo_container_cli: podman
+        - docker-container1
+        - docker-container2
+      tripleo_container_cli: docker

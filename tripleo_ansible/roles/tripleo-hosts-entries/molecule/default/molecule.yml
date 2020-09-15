@@ -5,13 +5,18 @@ driver:
 log: true
 
 platforms:
-  - name: centos8
-    hostname: centos8
-    image: centos:8
+  - name: ubi8
+    hostname: ubi8
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
     dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
+    pkg_extras: python*setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
+    privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
@@ -19,13 +24,16 @@ platforms:
       - host
 
 provisioner:
-  name: ansible
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+  name: ansible
   inventory:
     hosts:
       all:
+        hosts:
+          ubi8:
+            ansible_python_interpreter: /usr/bin/python3
         vars:
           # use a tmp hosts path since /etc/hosts isn't writeable in the
           # molecule test containers
@@ -49,7 +57,7 @@ provisioner:
         children:
           allovercloud:
             hosts:
-              centos8:
+              ubi8:
                 hostname_resolve_network: ctlplane
                 ctlplane_ip: 192.168.24.1
                 internal_api_ip: 172.17.0.1

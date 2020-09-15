@@ -22,7 +22,7 @@
   vars:
     tripleo_systemd_wrapper_cmd: "/usr/sbin/dnsmasq -k"
     tripleo_systemd_wrapper_config_bind_mount: "/var/lib/config-data/puppet-generated/neutron/etc/neutron:/etc/neutron:ro"
-    tripleo_systemd_wrapper_container_cli: podman
+    tripleo_systemd_wrapper_container_cli: docker
     tripleo_systemd_wrapper_image_name: "docker.io/tripleomaster/centos-binary-neutron-dhcp-agent:current-tripleo"
     tripleo_systemd_wrapper_service_dir: /var/lib/neutron
     tripleo_systemd_wrapper_service_kill_script: dnsmasq-kill

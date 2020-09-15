@@ -83,13 +83,13 @@
       podman_image:
         name: "{{ item }}"
       with_items:
-        - centos:8
+        - ubi:8
         - mysql
 
     - name: Create a data container
       podman_container:
         name: "{{ item }}"
-        image: centos:8
+        image: ubi:8
         state: started
         command: sleep 1d
       with_items:

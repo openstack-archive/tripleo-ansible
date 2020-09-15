@@ -47,6 +47,7 @@
     - not tuned_conf_stat_result.stat.exists
 
 - name: "Configure isolated cores for profile {{ tuned_profile }}"
+  become: true
   lineinfile:
     dest: "/etc/tuned/{{ tuned_profile }}-variables.conf"
     regexp: '^isolated_cores=.*'
@@ -56,6 +57,7 @@
     - tuned_conf_stat_result.stat.exists
 
 - name: Enable tuned profile
+  become: true
   command: >-
     tuned-adm profile {{ tuned_profile }}
   environment:
