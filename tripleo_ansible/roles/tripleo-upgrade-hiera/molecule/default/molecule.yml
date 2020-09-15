@@ -1,23 +1,10 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
   - name: centos8
     hostname: centos8
     image: centos:8
@@ -26,7 +13,9 @@ platforms:
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     environment:
-      <<: *env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+
 
 provisioner:
   name: ansible
@@ -43,10 +32,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8

@@ -1,6 +1,6 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
@@ -17,6 +17,8 @@ platforms:
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
 
   - name: centos8
     hostname: centos8
@@ -26,13 +28,17 @@ platforms:
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     environment:
-      <<: *env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits:
+      - host
 
 provisioner:
   name: ansible
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_LIBRARY: "${ANSIBLE_LIBRARY:-/usr/share/ansible/plugins/modules}"
 
 scenario:
   test_sequence:
@@ -44,10 +50,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8

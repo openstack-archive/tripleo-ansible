@@ -19,4 +19,4 @@
     path: "{{ tripleo_persist_storage_root_dir }}"
     state: absent
   delegate_to: localhost
-  become: "{{ tripleo_persist_storage_root_become | bool }}"
+  become: true
