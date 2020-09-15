@@ -19,3 +19,6 @@
   hosts: all
   roles:
     - role: test_deps
+      test_deps_extra_packages:
+        - cronie
+        - rsyslog
