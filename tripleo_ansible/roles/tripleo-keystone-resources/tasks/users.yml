@@ -34,6 +34,8 @@
     loop_var: tripleo_keystone_resources_data
 
 - name: "Check Keystone user status"
+  # needed because the results may have the full information when verbosity is turned up
+  no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   async_status:
     jid: "{{ tripleo_keystone_resources_user_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_user_results.results }}"
