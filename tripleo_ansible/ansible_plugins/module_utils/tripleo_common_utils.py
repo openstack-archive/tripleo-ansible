@@ -32,6 +32,10 @@ from tripleo_common.utils import parameters
 import ironic_inspector_client
 
 
+class DeriveParamsError(Exception):
+    """Error while performing a derive parameters operation"""
+
+
 class TripleOCommon(object):
     def __init__(self, session):
         self.sess = session

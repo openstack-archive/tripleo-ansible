@@ -38,14 +38,9 @@
 - name: Set features facts
   set_fact:
     dpdk: |-
-      {% set service_types = role_services.values() | sum(attribute='parameters', start=[]) %}
-      {% set neutron_datapath = ((service_types | map('regex_search', '.*NeutronDatapathType.*') | list | length) > 0) | bool %}
-      {% set heat_service_types = tripleo_heat_resource_tree.resources.values() | list | sum(attribute='parameters', start=[]) %}
-      {% set heat_neutron_datapath = ((heat_service_types | map('regex_search', '.*NeutronDatapathType.*') | list | length) > 0) | bool %}
-      {{ (neutron_datapath | bool) or (heat_neutron_datapath | bool) }}
+      {{ (role_services_from_key|map('regex_search', '.*\:\:ComputeNeutronOvsDpdk')|list|select('string')|list|length)>0  }}
     sriov: |-
-      {% set service_types = role_services.values() | map(attribute='type') | list %}
-      {{ ((service_types | map('regex_search', '.*\:\:NeutronSriovAgent') | list | length) > 0) | bool }}
+      {{ (role_services_from_key|map('regex_search', '.*\:\:NeutronSriovAgent')|list|select('string')|list|length)>0  }}
     hci: |-
       {% set novacompute = ((role_services_from_key | map('regex_search', '.*\:\:NovaCompute') | select('string') | list | length) > 0) | bool %}
       {% set cephosd = ((role_services_from_key | map('regex_search', '.*\:\:CephOSD') | select('string') | list | length) > 0) | bool %}
@@ -171,58 +166,20 @@
         - baremetal_data is defined
         - baremetal_data['data'] is defined
 
-# TODO
+- name: Derive parameters for OvS Dpdk
+  when:
+    - dpdk
+  include_tasks: derive-ovs-dpdk-parameters.yml
 
-# handle_dpdk_feature:
-#   on-success:
-#     - get_dpdk_derive_params: <% $.role_features.contains('DPDK') %>
-#     - handle_sriov_feature: <% not $.role_features.contains('DPDK') %>
+- name: Derive parameters for SRIOV
+  when:
+    - sriov
+  include_tasks: derive-sriov-parameters.yml
 
-# get_dpdk_derive_params:
-#   workflow: tripleo.derive_params_formulas.v1.dpdk_derive_params
-#   input:
-#     plan: <% $.plan %>
-#     tripleo_role_name: <% $.tripleo_role_name %>
-#     tripleo_heat_resource_tree: <% $.tripleo_heat_resource_tree %>
-#     hw_data: <% $.hw_data %>
-#     user_inputs: <% $.user_inputs %>
-#   publish:
-#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
-#   on-success: handle_sriov_feature
-#   on-error: set_status_failed_get_dpdk_derive_params
-
-# handle_sriov_feature:
-#   on-success:
-#     - get_sriov_derive_params: <% $.role_features.contains('SRIOV') %>
-#     - handle_host_feature: <% not $.role_features.contains('SRIOV') %>
-
-# get_sriov_derive_params:
-#   workflow: tripleo.derive_params_formulas.v1.sriov_derive_params
-#   input:
-#     tripleo_role_name: <% $.tripleo_role_name %>
-#     hw_data: <% $.hw_data %>
-#     derived_parameters: <% $.derived_parameters %>
-#   publish:
-#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
-#   on-success: handle_host_feature
-#   on-error: set_status_failed_get_sriov_derive_params
-
-# handle_host_feature:
-#   on-success:
-#     - get_host_derive_params: <% $.role_features.contains('HOST') %>
-#     - handle_hci_feature: <% not $.role_features.contains('HOST') %>
-
-# get_host_derive_params:
-#   workflow: tripleo.derive_params_formulas.v1.host_derive_params
-#   input:
-#     tripleo_role_name: <% $.tripleo_role_name %>
-#     hw_data: <% $.hw_data %>
-#     user_inputs: <% $.user_inputs %>
-#     derived_parameters: <% $.derived_parameters %>
-#   publish:
-#     derived_parameters: <% task().result.get('derived_parameters', {}) %>
-#   on-success: handle_hci_feature
-#   on-error: set_status_failed_get_host_derive_params
+- name: Host derive parameters
+  when:
+    - dpdk or sriov
+  include_tasks: derive-host-parameters.yml
 
 - name: Derive parameters for HCI
   when:
