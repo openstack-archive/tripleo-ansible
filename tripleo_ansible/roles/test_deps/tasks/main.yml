@@ -74,6 +74,16 @@
         name: "{{ test_deps_tripleo_packages }}"
         state: present
 
+- name: List configured repos
+  become: true
+  command: dnf repolist
+  register: repo_list
+  ignore_errors: true
+
+- name: Print configured repos
+  debug:
+    msg: "{{ repo_list }}"
+
 - name: Package block
   become: true
   block:

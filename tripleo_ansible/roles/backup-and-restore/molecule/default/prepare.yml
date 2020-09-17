@@ -20,18 +20,6 @@
   become: true
   gather_facts: true
   pre_tasks:
-    - name: Check for docker cli
-      command: "command -v docker"
-      register: docker_cli
-      failed_when: false
-      changed_when: false
-
-    - name: Check for docker connection
-      command: "docker ps"
-      register: docker_ps
-      failed_when: false
-      changed_when: false
-
     - name: set basic user fact
       set_fact:
         ansible_user: "{{ lookup('env', 'USER') }}"
@@ -43,6 +31,11 @@
         ansible_user_dir: "{{ lookup('env', 'HOME') }}"
       when:
         - ansible_user_dir is undefined
+
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
   roles:
     - role: test_deps
       test_deps_setup_tripleo: true
@@ -56,26 +49,6 @@
         - hiera
 
   post_tasks:
-    - name: Install docker-sdk
-      pip:
-        name: docker
-        virtualenv: "{{ ansible_user_dir }}/test-python"
-        virtualenv_site_packages: true
-
-    - name: Install deps for ReaR
-      package:
-        name: "{{ rear_packages }}"
-        state: present
-      vars:
-        rear_packages:
-          - rear
-          - syslinux
-          - genisoimage
-          - kbd
-          - puppet
-          - hiera
-          - python2-docker
-
     - name: Create hiera config file
       file:
         path: "{{ ansible_user_dir }}/hiera.yaml"
@@ -108,31 +81,26 @@
             }
 
     - name: pull some images
-      docker_image:
+      podman_image:
         name: "{{ item }}"
-        source: pull
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
       with_items:
         - centos:8
         - mysql
 
     - name: Create a data container
-      docker_container:
+      podman_container:
         name: "{{ item }}"
         image: centos:8
-        detach: true
+        state: started
         command: sleep 1d
       with_items:
-        - docker-container1
-        - docker-container2
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+        - test-container1
+        - test-container2
 
     - name: Start myql container
-      docker_container:
+      podman_container:
         name: mysql
         image: mysql
-        detach: true
+        state: started
         env:
           MYSQL_ROOT_PASSWORD: password

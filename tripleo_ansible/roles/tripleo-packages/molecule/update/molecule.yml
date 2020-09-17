@@ -1,18 +1,17 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
+
+  - name: centos8
+    hostname: centos8
+    image: centos:8
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
+    pkg_extras: python*-setuptools
+    environment:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: >-
@@ -20,40 +19,16 @@ platforms:
       /bin/mkdir -p /var/run/dbus &&
       /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
       /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-
-# TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
-#
-#  - name: centos8
-#    hostname: centos8
-#    image: centos:8
-#    dockerfile: Dockerfile
-#    pkg_extras: python*-setuptools
-#    environment:
-#      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-#      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-#    command: >-
-#      /sbin/init &&
-#      /bin/mkdir -p /var/run/dbus &&
-#      /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
-#      /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-#    privileged: true
-#    tmpfs:
-#      - /run
-#      - /tmp
-#    capabilities:
-#      - ALL
-#    volumes:
-#      - /dev:/dev
-#      - /lib/modules:/lib/modules
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+    capabilities:
+      - ALL
+    privileged: true
+    ulimits:
+      - host
 
 provisioner:
   name: ansible
@@ -74,10 +49,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8

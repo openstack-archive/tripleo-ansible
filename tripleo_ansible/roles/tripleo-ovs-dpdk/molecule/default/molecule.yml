@@ -1,32 +1,10 @@
 ---
 driver:
-  name: docker
+  name: podman
 
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    privileged: true
-    tmpfs:
-      - /run
-      - /tmp
-    capabilities:
-      - ALL  # CENT7 requires all due to the age of the software
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-
   - name: centos8
     hostname: centos8
     image: centos:8
@@ -35,16 +13,16 @@ platforms:
     environment:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits:
+      - host
     command: /sbin/init
     privileged: true
-    tmpfs:
-      - /run
-      - /tmp
     capabilities:
-      - SYS_ADMIN
+      - ALL
     volumes:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
 
 provisioner:
@@ -65,10 +43,5 @@ scenario:
     - verify
     - destroy
 
-lint:
-  enabled: false
-
 verifier:
   name: testinfra
-  lint:
-    name: flake8
