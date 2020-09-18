@@ -14,7 +14,7 @@
 #    under the License.
 
 import metalsmith
-import mock
+from unittest import mock
 from openstack import exceptions as sdk_exc
 
 from tripleo_ansible.tests import base

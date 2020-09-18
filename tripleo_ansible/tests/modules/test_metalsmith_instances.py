@@ -13,8 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
-
+from unittest import mock
 from tripleo_ansible.ansible_plugins.modules import metalsmith_instances as mi
 from tripleo_ansible.tests import base as tests_base
 
