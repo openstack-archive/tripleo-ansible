@@ -20,6 +20,8 @@
 # List of packages that are requred to bootstrap TripleO.
 tripleo_bootstrap_packages_bootstrap: "{{ _tripleo_bootstrap_packages_bootstrap | default([]) }}"
 
+tripleo_bootstrap_release_version_package: "{{ _tripleo_bootstrap_release_version_package | default([]) }}"
+
 # List of packages that are required for legacy networking to function.
 # NOTE: We are using 'network' service provided by 'network-scripts' (initscripts)
 #       which deprecated in recent releases but os-net-config doesn't support yet
