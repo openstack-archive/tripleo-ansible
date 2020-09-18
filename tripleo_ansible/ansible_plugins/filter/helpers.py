@@ -18,14 +18,13 @@ import ast
 import json
 import os
 import re
-import six
 
 from ansible import errors
 
+
 # cmp() doesn't exist on python3
-if six.PY3:
-    def cmp(a, b):
-        return 0 if a == b else 1
+def cmp(a, b):
+    return 0 if a == b else 1
 
 
 class FilterModule(object):
