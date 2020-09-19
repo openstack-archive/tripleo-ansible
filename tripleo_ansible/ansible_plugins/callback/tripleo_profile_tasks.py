@@ -47,6 +47,7 @@ class CallbackModule(CallbackBase):
 
     def __init__(self):
         self.stats = collections.OrderedDict()
+        self.tasks = {}
         self.current = None
         self.sort_order = None
         self.task_output_limit = None
@@ -74,12 +75,31 @@ class CallbackModule(CallbackBase):
             else:
                 self.task_output_limit = int(self.task_output_limit)
 
-    def _timestamp(self):
-        if self.current is None:
-            return
-        self.stats[self.current]['time'] = (
-            time.time() - self.stats[self.current]['time']
-        )
+    def _get_uuid(self, item=None):
+        uuid = ''
+
+        if item and getattr(item, '_uuid', False):
+            # item is a task
+            uuid = item._uuid
+        elif item and getattr(item, '_task', False):
+            # item is a result (may not have a _task tho)
+            if getattr(item._task, '_uuid', False):
+                uuid = item._task._uuid
+        return '{:36}'.format(uuid)
+
+    def _get_host(self, result):
+        delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        if (getattr(result, '_host', False)
+                and getattr(result._host, 'get_name', False)):
+            msg = '%s' % result._host.get_name()
+        elif (getattr(result, '_host', False)
+                and getattr(result._host, 'name', False)):
+            msg = '%s' % result._host.name
+        else:
+            msg = 'UNKNOWN'
+        if delegated_vars:
+            msg += ' -> %s' % delegated_vars['ansible_host']
+        return msg
 
     def _output(self, msg, color=None):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -89,43 +109,70 @@ class CallbackModule(CallbackBase):
             output = timestamp + ' | ' + msg
         self._display.display(output, color=color)
 
-    def _output_previous_timings(self, uuid):
-        # no previous timing because uuid was null
-        if not uuid:
+    def _start_task(self, task, host=None):
+        hostname = None
+        if host:
+            hostname = host.name
+        k = (hostname, task._uuid)
+        self.stats[k] = {'start': time.time(),
+                         'total_time': 0.0}
+        self.tasks[task._uuid] = task.get_name()
+
+    def _end_task(self, result):
+        uuid = self._get_uuid(result)
+        host = self._get_host(result)
+        k = (host, uuid)
+        # the task never started, insert shrug emoji here.
+        if k not in self.stats:
+            self._display.warning('{} missing from stats'.format(k))
             return
+        total_time = time.time() - self.stats[k]['start']
+        self.stats[k]['total_time'] = total_time
+
         line = [
             uuid,
             u'{:>10}'.format('TIMING'),
-            self.stats[uuid].get('name', 'NONAME'),
-            str(timedelta(seconds=(time.time() - self.start_time))),
-            u'{0:.02f}s'.format(self.stats[uuid].get('time', '-1'))
+            self.tasks.get(uuid, ''),
+            host,
+            str(timedelta(seconds=time.time() - self.start_time)),
+            u'{0:.02f}s'.format(total_time)
         ]
         self._output(line, C.COLOR_DEBUG)
 
-    def _record_task(self, task):
-        self._timestamp()
-        self._output_previous_timings(self.current)
-        self.current = task._uuid
-        self.stats[self.current] = {'time': time.time(),
-                                    'name': task.get_name()}
-        if self._display.verbosity >= 2:
-            self.stats[self.current]['path'] = task.get_path()
+    def v2_runner_on_start(self, host, task):
+        self._start_task(task, host)
 
-    def v2_playbook_on_task_start(self, task, is_conditional):
-        self._record_task(task)
+    # task ends
+    def v2_playbook_on_failed(self, result, ignore_errors=False):
+        self._end_task(result)
 
-    def v2_playbook_on_handler_task_start(self, task):
-        self._record_task(task)
+    def v2_runner_on_ok(self, result):
+        self._end_task(result)
 
+    def v2_runner_item_on_ok(self, result):
+        self._end_task(result)
+
+    def v2_runner_on_failed(self, result, ignore_errors=False):
+        self._end_task(result)
+
+    def v2_runner_item_on_failed(self, result):
+        self._end_task(result)
+
+    def v2_runner_on_skipped(self, result):
+        self._end_task(result)
+
+    def v2_runner_on_unreachable(self, result):
+        self._end_task(result)
+
+    # playbook finished
     def playbook_on_stats(self, stats):
-        self._timestamp()
         self.current = None
         results = self.stats.items()
         # Sort the tasks by the specified sort
         if self.sort_order is not None:
             results = sorted(
                 self.stats.items(),
-                key=lambda x: x[1]['time'],
+                key=lambda x: x[1]['total_time'],
                 reverse=self.sort_order,
             )
         results = results[:self.task_output_limit]
@@ -134,26 +181,35 @@ class CallbackModule(CallbackBase):
                      ' Summary Information '
                      '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         self._output(
-            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+            ' Total Tasks: {:<10} '
+            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'.format(len(self.tasks)))
+
+        self._output(
+            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
             ' Elapsed Time: {} '
-            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'.format(
+            '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'.format(
                 str(timedelta(seconds=(time.time() - self.start_time)))))
 
         header = [
             '{:>36}'.format('UUID'),
             '{:>10}'.format('Info'),
-            '{}'.format('Task Name'),
+            '{:>10}'.format('Host'),
+            '{:>11}'.format('Task Name'),
             '{:>10}'.format('Run Time'),
         ]
         self._output(' | '.join(header))
 
-        for uuid, result in results:
+        for (host, uuid), result in results:
             line = [
                 uuid,
                 u'{:>10}'.format('SUMMARY'),
-                result['name'],
-                u'{0:.02f}s'.format(result['time'])
+                u'{:>10}'.format(host),
+                self.tasks.get(uuid, ''),
+                u'{0:.02f}s'.format(result['total_time'])
             ]
             self._output(' | '.join(line))
 
-        self._output('~' * 89)
+        self._output('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+                     ' End Summary Information '
+                     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
