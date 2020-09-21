@@ -1,9 +1,5 @@
 #!/usr/bin/python
 
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from ansible.parsing.yaml.objects import AnsibleUnicode
 
 
@@ -37,7 +33,7 @@ class FilterModule(object):
     def range_list(self, num_list):
         if not num_list:
             msg = "Input param 'num_list' is blank."
-            raise tc.DeriveParamsError(msg)
+            raise Exception(msg)
         try:
             # splitting a string (comma delimited list) into
             # list of numbers
@@ -47,7 +43,7 @@ class FilterModule(object):
         except ValueError as exc:
             msg = ("Invalid number in input param "
                    "'num_list': %s" % exc)
-            raise tc.DeriveParamsError(msg)
+            raise Exception(msg)
 
         range_list = self._convert_number_to_range_list(num_list)
 

@@ -13,10 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from tripleo_ansible.ansible_plugins.filter import number_list
 from tripleo_ansible.tests import base as tests_base
 
@@ -53,13 +49,13 @@ class TestNumberListFilters(tests_base.TestCase):
 
     def test_run_with_empty_input(self):
         range_list = ""
-        self.assertRaises(tc.DeriveParamsError,
+        self.assertRaises(Exception,
                           self.filters.number_list,
                           range_list)
 
     def test_run_with_invalid_input(self):
         range_list = ",d"
-        self.assertRaises(tc.DeriveParamsError,
+        self.assertRaises(Exception,
                           self.filters.number_list,
                           range_list)
 
