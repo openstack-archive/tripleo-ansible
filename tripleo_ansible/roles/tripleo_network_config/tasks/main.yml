@@ -38,21 +38,6 @@
 - name: NetworkConfig
   become: true
   block:
-    - name: Create /var/lib/tripleo-config/scripts directory
-      file:
-        path: /var/lib/tripleo-config/scripts
-        state: directory
-        setype: container_file_t
-        selevel: s0
-        recurse: true
-
-    - name: Render NetworkConfig script
-      template:
-        dest: /var/lib/tripleo-config/scripts/run_os_net_config.sh
-        src: "{{ tripleo_network_config_script_path }}"
-        mode: 0755
-      when: not ansible_check_mode|bool
-
     - name: Create /etc/os-net-config directory
       become: true
       file:
@@ -73,17 +58,48 @@
         dest: /etc/os-net-config/mapping.yaml
       when: os_net_config_mappings_result.changed|bool
 
-    - name: Run NetworkConfig script
-      shell: /var/lib/tripleo-config/scripts/run_os_net_config.sh
-      async: "{{ tripleo_network_config_async_timeout }}"
-      poll: "{{ tripleo_network_config_async_poll }}"
-      environment:
-        bridge_name: "{{ tripleo_network_config_bridge_name }}"
-        interface_name: "{{ tripleo_network_config_interface_name }}"
-      register: NetworkConfig_result
+    - name: Manage NetworkConfig with legacy run_os_net_config.sh
+      block:
+        - name: Create /var/lib/tripleo-config/scripts directory
+          file:
+            path: /var/lib/tripleo-config/scripts
+            state: directory
+            setype: container_file_t
+            selevel: s0
+            recurse: true
+
+        - name: Render NetworkConfig script
+          template:
+            dest: /var/lib/tripleo-config/scripts/run_os_net_config.sh
+            src: "{{ tripleo_network_config_script_path }}"
+            mode: 0755
+          when: not ansible_check_mode|bool
+
+        - name: Run NetworkConfig script
+          shell: /var/lib/tripleo-config/scripts/run_os_net_config.sh
+          async: "{{ tripleo_network_config_async_timeout }}"
+          poll: "{{ tripleo_network_config_async_poll }}"
+          environment:
+            bridge_name: "{{ tripleo_network_config_bridge_name }}"
+            interface_name: "{{ tripleo_network_config_interface_name }}"
+          register: NetworkConfig_result
+          when:
+            - not ansible_check_mode|bool
+          failed_when: NetworkConfig_result.rc is not defined
       when:
-        - not ansible_check_mode|bool
-      failed_when: NetworkConfig_result.rc is not defined
+        - tripleo_network_config_legacy_script|bool
+
+    - name: Manage NetworkConfig with tripleo_os_net_config module
+      block:
+        - name: Remove /var/lib/tripleo-config/scripts directory
+          file:
+            path: /var/lib/tripleo-config/scripts
+            state: absent
+
+        - name: Run NetworkConfig with tripleo_os_net_config
+          include_tasks: os_net_config.yml
+      when:
+        - not tripleo_network_config_legacy_script|bool
 
     - name: Write rc of NetworkConfig script
       copy:
@@ -92,11 +108,15 @@
       when:
         - NetworkConfig_result.rc is defined
 
+    # This task can be removed once we stop supporting the legacy script.
+    # tripleo_os_net_config module already prints out stdout/stderr and fails
+    # when there is a failure, we don't need an extra task for it.
     - name: NetworkConfig stdout
       debug:
         var: NetworkConfig_result.stderr_lines
       failed_when: NetworkConfig_result.rc != 0
       when:
+        - tripleo_network_config_legacy_script|bool
         - NetworkConfig_result.rc is defined
 
     # os-net-config currently relies on the legacy network
