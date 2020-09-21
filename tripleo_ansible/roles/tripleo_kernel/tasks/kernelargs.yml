@@ -28,17 +28,26 @@
 
 # Kernel Args Configuration
 - block:
-    - name: Ensure the kernel args ( {{ tripleo_kernel_args }} ) is present as TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
+    # Leapp does not recognise grun entries starting other than GRUB
+    # It results wrong formatting of entries in file /etc/default/grub
+    # In order to fix it for FFU (queens to train), TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS has been renamed
+    # Ensure the fresh deployment is also alinged with the same name
+    - name: Delete older name TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS entries if present
       lineinfile:
         dest: /etc/default/grub
-        regexp: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
+        regexp: 'TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS'
+        state: absent
+    - name: Ensure the kernel args ( {{ tripleo_kernel_args }} ) is present as GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
+      lineinfile:
+        dest: /etc/default/grub
+        regexp: '^GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
         insertafter: '^GRUB_CMDLINE_LINUX.*'
-        line: 'TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" {{ tripleo_kernel_args }} "'
-    - name: Add TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS to the GRUB_CMDLINE_LINUX parameter
+        line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" {{ tripleo_kernel_args }} "'
+    - name: Add GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS to the GRUB_CMDLINE_LINUX parameter
       lineinfile:
         dest: /etc/default/grub
-        line: 'GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX:+$GRUB_CMDLINE_LINUX }${TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS}"'
-        insertafter: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
+        line: 'GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX:+$GRUB_CMDLINE_LINUX }${GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS}"'
+        insertafter: '^GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
     - name: Check grub config paths
       stat:
         path: "{{ item }}"

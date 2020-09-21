@@ -22,9 +22,25 @@
   tasks:
     - name: Check if the kernel args is applied to the grub file
       lineinfile:
-        name: /etc/default/grub
+        path: /etc/default/grub
         line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" test=1 "'
         state: present
+      check_mode: true
+      register: grub
+      failed_when: (grub is changed) or (grub is failed)
+    - name: Check if the older name entries are removed
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
+        state: absent
+      check_mode: true
+      register: grub
+      failed_when: (grub is changed) or (grub is failed)
+    - name: Check if the older name entries are removed for append
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '.*{TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS}.*'
+        state: absent
       check_mode: true
       register: grub
       failed_when: (grub is changed) or (grub is failed)
