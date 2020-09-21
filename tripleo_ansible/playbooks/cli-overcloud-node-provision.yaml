@@ -44,8 +44,7 @@
         - name: stat overcloud-full.raw
           stat:
             path: /var/lib/ironic/images/overcloud-full.raw
-            get_checksum: true
-            checksum_algorithm: md5
+            get_checksum: false
           register: overcloud_full_stat
 
         - name: stat overcloud-full.initrd
@@ -58,7 +57,6 @@
           set_fact:
             default_image:
               href: file:///var/lib/ironic/images/overcloud-full.raw
-              checksum: "{{ overcloud_full_stat.stat.checksum }}"
               kernel: file:///var/lib/ironic/images/overcloud-full.vmlinuz
               ramdisk: file:///var/lib/ironic/images/overcloud-full.initrd
           when:
@@ -69,7 +67,6 @@
           set_fact:
             default_image:
               href: file:///var/lib/ironic/images/overcloud-full.raw
-              checksum: "{{ overcloud_full_stat.stat.checksum }}"
           when:
             - overcloud_full_stat.stat.exists|bool
             - not overcloud_full_initrd_stat.stat.exists|bool
