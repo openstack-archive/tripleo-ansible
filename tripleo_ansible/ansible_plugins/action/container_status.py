@@ -206,7 +206,7 @@ class ActionModule(ActionBase):
             module_args=dict(name=containers),
             task_vars=tvars
         )
-        return [c for c in result["containers"]]
+        return [c for c in result["containers"] if "containers" in result]
 
     @tenacity.retry(
         reraise=True,
