@@ -85,14 +85,17 @@
   tags:
     - bar_setup_nfs_server
 
-- name: Generate NFS exports table in the server
-  become: true
-  template:
-    src: exports.j2
-    dest: /etc/exports
-    owner: root
-    group: root
-    mode: '0644'
+- name: Get the lines
+  set_fact:
+    bar_exportfs_lines: "{% for net in tripleo_backup_and_restore_nfs_clients_nets %}\
+      {{ tripleo_backup_and_restore_nfs_storage_folder }} {{ net }}(rw,sync,no_root_squash,no_subtree_check)\n{% endfor %}"
+  tags:
+    - bar_setup_nfs_server
+
+- name: NFS
+  blockinfile:
+    path: /etc/exports
+    block: "{{ bar_exportfs_lines }}"
     backup: true
   tags:
     - bar_setup_nfs_server
