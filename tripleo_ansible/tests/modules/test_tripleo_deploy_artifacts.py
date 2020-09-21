@@ -16,7 +16,7 @@
 from tripleo_ansible.ansible_plugins.modules import tripleo_deploy_artifacts
 from tripleo_ansible.tests import base as tests_base
 
-import mock
+from unittest import mock
 
 
 class TestTripleoDeployArtifacts(tests_base.TestCase):

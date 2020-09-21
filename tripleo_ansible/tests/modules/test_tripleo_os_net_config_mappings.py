@@ -16,8 +16,7 @@
 from tripleo_ansible.ansible_plugins.modules import (
     tripleo_os_net_config_mappings)
 from tripleo_ansible.tests import base as tests_base
-
-import mock
+from unittest import mock
 
 
 @mock.patch('tripleo_ansible.ansible_plugins.modules.'

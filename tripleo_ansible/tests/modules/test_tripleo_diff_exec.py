@@ -15,8 +15,7 @@
 
 from tripleo_ansible.ansible_plugins.modules import tripleo_diff_exec
 from tripleo_ansible.tests import base as tests_base
-
-import mock
+from unittest import mock
 
 
 class TestTripleoDiffExec(tests_base.TestCase):
