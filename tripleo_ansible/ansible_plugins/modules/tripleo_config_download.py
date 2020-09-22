@@ -107,19 +107,15 @@ def run_module():
         _, conn = openstack_cloud_from_module(module)
         tripleo = tc.TripleOCommon(session=conn.session)
 
-        swift = tripleo.get_object_client()
         heat = tripleo.get_orchestration_client()
         ooo_config.get_overcloud_config(
-            swift,
-            heat,
-            plan,
-            config_container,
-            config_type)
-        if download:
-            ooo_config.download_overcloud_config(
-                swift,
-                config_container,
-                work_dir)
+            swift=False,
+            heat=heat,
+            container=plan,
+            container_config=config_container,
+            config_dir=work_dir,
+            config_type=config_type,
+            preserve_config=download)
         result['success'] = True
         result['changed'] = True
     except Exception as err:
