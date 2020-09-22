@@ -1568,7 +1568,13 @@ class PodmanContainerDiff:
             after = after.replace(":latest", "")
             before = before.split("/")[-1]
             after = after.split("/")[-1]
-        return self._diff_update_and_compare('image', before, after)
+        # the image in the config has changed (e.g. new tag)
+        if self._diff_update_and_compare('image', before, after):
+            return True
+        # compare image id on disk to container to see if the image has been updated
+        before = self.info['image']
+        after = self.image_info['id']
+        return self._diff_update_and_compare('image_id', before, after)
 
     def diffparam_ipc(self):
         before = self.info['hostconfig']['ipcmode']
