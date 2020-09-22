@@ -20,16 +20,28 @@
 - name: Apply os-net-config configuration
   become: true
   block:
+    - name: Set nic_config_file fact
+      set_fact:
+        nic_config_file: "{{ (tripleo_network_config_with_ansible|bool) | ternary('/etc/os-net-config/config.yaml', '/etc/os-net-config/config.json') }}"
     - name: Render network_config
       no_log: "{{ tripleo_network_config_hide_sensitive_logs | bool }}"
       template:
         src: "{{ tripleo_network_config_script_path }}"
-        dest: /etc/os-net-config/config.json
+        dest: "{{ nic_config_file }}"
         mode: 0600
         backup: true
+      when: not tripleo_network_config_with_ansible|bool
+    - name: Render network_config from template
+      no_log: "{{ tripleo_network_config_hide_sensitive_logs | bool }}"
+      template:
+        src: "{{ tripleo_network_config_template }}"
+        dest: "{{ nic_config_file }}"
+        mode: 0600
+        backup: true
+      when: tripleo_network_config_with_ansible|bool
     - name: Run tripleo_os_net_config_module with network_config
       tripleo_os_net_config:
-        config_file: /etc/os-net-config/config.json
+        config_file: "{{ nic_config_file }}"
         debug: "{{ tripleo_network_config_debug|bool }}"
         detailed_exit_codes: true
         safe_defaults: "{{ tripleo_network_config_safe_defaults | bool }}"
