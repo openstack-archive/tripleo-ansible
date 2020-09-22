@@ -15,16 +15,7 @@
 # under the License.
 
 
-- name: Verify
+- name: Prepare
   hosts: all
-  become: true
-  gather_facts: false
-  tasks:
-    - name: Check if the kernel args is applied to the grub file
-      lineinfile:
-        name: /etc/default/grub
-        line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" test=1 "'
-        state: present
-      check_mode: true
-      register: grub
-      failed_when: (grub is changed) or (grub is failed)
+  roles:
+    - role: test_deps
