@@ -17,43 +17,42 @@
 
 - name: Converge
   hosts: all
-  tasks:
-    - name: Success network script
-      block:
-        - name: Temp network script file
-          set_fact:
-            dummy_network_script: /var/tmp/dummy_network_script.sh
-
-        - name: Write out empty dummy network script
-          delegate_to: localhost
-          copy:
-            dest: "{{ dummy_network_script }}"
-            content: |
-              #/bin/bash
-              echo "stderr" >&2
-              exit 0
-            mode: '0755'
-
-        - import_role:
-            name: "tripleo_network_config"
-          vars:
-            tripleo_network_config_script_path: "{{ dummy_network_script }}"
-            # skip service management in a container
-            tripleo_network_config_manage_service: false
-        - name: Check returncode file
-          slurp:
-            path: /var/lib/tripleo-config/os-net-config.returncode
-          register: rc_file
-        - name: returncode file value is
-          debug:
-            msg: "{{ rc_file.content | b64decode }}"
-        - assert:
-            that:
-              - rc_file.content | b64decode | int == 0
-      always:
-        - name: Remove dummy script
-          become: true
-          file:
-            path: "{{ dummy_network_script }}"
-            state: absent
-          ignore_errors: true
+  vars:
+    tripleo_network_config_with_ansible: true
+    tripleo_network_config_template: templates/standalone.j2
+    tripleo_network_config_manage_service: false
+    tripleo_network_config_hide_sensitive_logs: false
+    local_mtu: 1500
+    ctlplane_ip: 192.168.24.1
+    ctlplane_subnet_cidr: 24
+    ctlplane_host_routes: []
+    ctlplane_dns_nameservers: []
+    dns_search_domains: []
+    neutron_public_interface_name: tap0
+    deployed_server_port_map:
+      control_virtual_ip:
+        fixed_ips:
+          - ip_address: 192.168.24.3
+        network:
+          tags:
+            - 192.168.24.0/24
+        subnets:
+          - cidr: 192.168.24.0/24
+      public_virtual_ip:
+        fixed_ips:
+          - ip_address: 192.168.24.1
+        network:
+          tags:
+            - 192.168.24.0/24
+        subnets:
+          - cidr: 192.168.24.0/24
+      standalone-ctlplane:
+        fixed_ips:
+          - ip_address: 192.168.24.1
+        network:
+          tags:
+            - 192.168.24.0/24
+        subnets:
+          - cidr: 192.168.24.0/24
+  roles:
+    - role: "tripleo_network_config"
