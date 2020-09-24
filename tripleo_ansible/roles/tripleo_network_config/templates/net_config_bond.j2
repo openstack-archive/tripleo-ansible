@@ -1,0 +1,17 @@
+---
+network_config:
+- type: ovs_bridge
+  name: {{ neutron_physical_bridge_name }}
+  use_dhcp: true
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+  members:
+  - type: ovs_bond
+    name: bond1
+    use_dhcp: true
+    ovs_options: {{ bond_interface_ovs_options }}
+    members:
+    - type: interface
+      name: nic1
+    - type: interface
+      name: nic2

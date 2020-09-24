@@ -1,0 +1,17 @@
+---
+network_config:
+- type: ovs_bridge
+  name: {{ neutron_physical_bridge_name }}
+  use_dhcp: false
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+  routes:
+  - default: true
+    next_hop: {{ ctlplane_gateway_ip }}
+  members:
+  - type: interface
+    name: {{ neutron_public_interface_name }}
+    # force the MAC address of the bridge to this interface
+    primary: true

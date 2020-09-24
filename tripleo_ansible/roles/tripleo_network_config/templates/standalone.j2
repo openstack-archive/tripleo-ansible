@@ -22,11 +22,11 @@ network_config:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
   - ip_netmask: {{ control_virtual_ip}}/{{ control_virtual_cidr }}
   - ip_netmask: {{ public_virtual_ip}}/{{ public_virtual_cidr }}
-  routes: {{ ctlplane_static_routes }}
-  dns_servers: {{ dns_nameservers }}
+  routes: {{ ctlplane_host_routes }}
+  dns_servers: {{ ctlplane_dns_nameservers }}
   domain: {{ dns_search_domains }}
   members:
     - type: interface
-      name: {{ neutron_public_interface }}
+      name: {{ neutron_public_interface_name }}
       primary: true
       mtu: {{ local_mtu }}
