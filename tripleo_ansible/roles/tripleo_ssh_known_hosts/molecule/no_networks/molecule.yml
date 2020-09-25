@@ -5,44 +5,37 @@ driver:
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
+  - name: ubi8
+    hostname: ubi8
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools
+    pkg_extras: python*setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    easy_install:
-      - pip
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
+    privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     ulimits: &ulimit
       - host
 
-  - name: centos8
-    hostname: centos8
-    image: centos:8
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    environment:
-      <<: *env
-    ulimits: *ulimit
-
 provisioner:
   name: ansible
   inventory:
     hosts:
       all:
+        hosts:
+          ubi8:
+            ansible_python_interpreter: /usr/bin/python3
         children:
           allovercloud:
             hosts:
-              centos8:
+              ubi8:
                 ansible_ssh_host_key_rsa_public: AAAATEST
-              centos7:
-                ansible_ssh_host_key_rsa_public: BBBBTEST
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

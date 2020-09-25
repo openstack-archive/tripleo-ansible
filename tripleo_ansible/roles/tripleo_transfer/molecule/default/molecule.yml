@@ -7,42 +7,53 @@ log: true
 platforms:
   - name: overcloud-controller-0
     hostname: overcloud-controller-0
-    image: centos:7
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    pkg_extras: python*setuptools
     command: /sbin/init
     capabilities:
       - ALL
     volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
     privileged: true
-    ulimits: &ulimit
+    environment:
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits:
       - host
 
   - name: overcloud-controller-1
     hostname: overcloud-controller-1
-    image: centos:7
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment:
-      <<: *env
+    pkg_extras: python*setuptools
     command: /sbin/init
     capabilities:
       - ALL
     volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
     privileged: true
-    ulimits: *ulimit
+    environment:
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits:
+      - host
 
 provisioner:
   name: ansible
+  inventory:
+    vars:
+      ansible_python_interpreter: /usr/bin/python3
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

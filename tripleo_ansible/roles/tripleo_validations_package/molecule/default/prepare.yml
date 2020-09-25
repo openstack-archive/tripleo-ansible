@@ -19,3 +19,7 @@
   hosts: all
   roles:
     - role: test_deps
+  post_tasks:
+    - name: Create tripleo repos
+      command: tripleo-repos current-tripleo
+      become: true
