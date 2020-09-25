@@ -1,0 +1,12 @@
+---
+network_config:
+- type: interface
+  name: {{ neutron_public_interface_name }}
+  use_dhcp: false
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+  routes:
+  - default: true
+    next_hop: {{ ctlplane_gateway_ip }}
