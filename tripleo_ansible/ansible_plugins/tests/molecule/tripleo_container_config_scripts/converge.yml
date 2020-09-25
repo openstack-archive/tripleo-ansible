@@ -14,6 +14,8 @@
             content: "#!/bin/bash\npuppet apply"
             mode: "0700"
         config_dir: "{{ container_config_scripts_tmp_dir.path }}"
+      when:
+        - not ansible_check_mode|bool
     - name: Check that container_puppet_apply.sh file was created with right permissions
       stat:
         path: "{{ container_config_scripts_tmp_dir.path }}/container_puppet_apply.sh"
@@ -21,9 +23,13 @@
       failed_when:
         - not st_config.stat.exists
         - not (st_config.stat.mode == '0700')
+      when:
+        - not ansible_check_mode|bool
     - name: Check that container_puppet_apply.sh script is correct
       slurp:
         src: "{{ container_config_scripts_tmp_dir.path }}/container_puppet_apply.sh"
       register: slurp_config
       failed_when:
         - ('puppet apply' not in slurp_config['content']|b64decode)
+      when:
+        - not ansible_check_mode|bool
