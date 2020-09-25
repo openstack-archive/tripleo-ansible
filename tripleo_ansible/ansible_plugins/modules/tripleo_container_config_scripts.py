@@ -72,14 +72,15 @@ def main():
     config_data = args['config_data']
     config_dir = args['config_dir']
 
-    for path, config in config_data.items():
-        # this is specific to how the files are written in config-download
-        mode = config.get('mode', '0600')
-        config_path = os.path.join(config_dir, path)
-        with open(config_path, "w") as config_file:
-            config_file.write(config['content'])
-        os.chmod(config_path, int(mode, 8))
-        results['changed'] = True
+    if not module.check_mode:
+        for path, config in config_data.items():
+            # this is specific to how the files are written in config-download
+            mode = config.get('mode', '0600')
+            config_path = os.path.join(config_dir, path)
+            with open(config_path, "w") as config_file:
+                config_file.write(config['content'])
+            os.chmod(config_path, int(mode, 8))
+            results['changed'] = True
 
     module.exit_json(**results)
 
