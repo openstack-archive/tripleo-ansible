@@ -25,9 +25,13 @@
       register: st_config
       failed_when:
         - not st_config.stat.exists
+      when:
+        - not ansible_check_mode|bool
     - name: Check that container_config1.json configuration is correct
       slurp:
         src: "/tmp/container_config1.json"
       register: slurp_config
       failed_when:
         - ('ceilometer-polling' not in slurp_config['content']|b64decode)
+      when:
+        - not ansible_check_mode|bool
