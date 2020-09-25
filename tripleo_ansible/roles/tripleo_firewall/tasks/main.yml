@@ -109,5 +109,6 @@
         state: absent
         regexp: '^((?!.*comment)(?=.*(ironic-inspector|neutron-)))'
       when:
+        - not ansible_check_mode|bool
         - item.find('v=' ~ '^/') == -1
       loop: "{{ neutron_rules.stdout_lines }}"
