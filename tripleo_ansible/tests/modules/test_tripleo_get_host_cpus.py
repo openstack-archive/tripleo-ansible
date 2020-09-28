@@ -15,10 +15,6 @@
 
 import yaml
 
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from tripleo_ansible.ansible_plugins.modules import tripleo_get_host_cpus as derive_params
 from tripleo_ansible.tests import base as tests_base
 
@@ -39,14 +35,14 @@ class TestTripleoGetHostCpus(tests_base.TestCase):
                           "thread_siblings": [15, 59]}]
                 }
             }
-        expected_result = "15,59,25,69"
+        expected_result = [15, 59, 25, 69]
 
         result = derive_params._get_host_cpus_list(inspect_data)
         self.assertEqual(result, expected_result)
 
     def test_run_invalid_inspect_data(self):
         inspect_data = {"numa_topology": {"cpus": []}}
+        expected_result = "Introspection data does not have numa_topology.cpus"
 
-        self.assertRaises(tc.DeriveParamsError,
-                          derive_params._get_host_cpus_list,
-                          inspect_data)
+        result = derive_params._get_host_cpus_list(inspect_data)
+        self.assertEqual(result, expected_result)

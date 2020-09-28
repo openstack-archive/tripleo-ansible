@@ -14,13 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Get host cpus list
-  tripleo_get_host_cpus:
-    inspect_data: "{{ hw_data }}"
-  register: host_cpus_list
 
-- name: Convert host cpus in range list
-  when:
-    - host_cpus_list.host_cpus_list is defined
-  set_fact:
-    host_cpus: "{{ host_cpus_list.host_cpus_list | range_list }}"
+- name: Prepare
+  hosts: all
+  roles:
+    - role: test_deps

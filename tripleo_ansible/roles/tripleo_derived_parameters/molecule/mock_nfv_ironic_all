@@ -1,0 +1,455 @@
+- allocation_id: null
+  owner: null
+  chassis_id: null
+  clean_step: {}
+  conductor: undercloud.localdomain
+  conductor_group: ''
+  created_at: '2020-09-25T06:46:13+00:00'
+  deploy_step: {}
+  driver: ipmi
+  driver_info:
+    deploy_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    rescue_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    deploy_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    rescue_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    ipmi_address: 10.37.146.181
+    ipmi_password: '******'
+    ipmi_username: root
+  driver_internal_info: {}
+  extra:
+    hardware_swift_object: extra_hardware-9a6c7e0b-f88d-414f-9d3f-89d76a645a60
+  fault: null
+  id: 9a6c7e0b-f88d-414f-9d3f-89d76a645a60
+  instance_info: {}
+  instance_id: null
+  is_automated_clean_enabled: null
+  is_console_enabled: false
+  is_maintenance: false
+  is_protected: false
+  is_retired: false
+  last_error: null
+  links:
+    - href: https://192.168.50.2:13385/v1/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60
+      rel: bookmark
+  maintenance_reason: null
+  name: computeovsdpdk-0
+  ports:
+    - href: https://192.168.50.2:13385/v1/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/ports
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/ports
+      rel: bookmark
+  port_groups:
+    - href: https://192.168.50.2:13385/v1/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/portgroups
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/portgroups
+      rel: bookmark
+  power_state: power off
+  properties:
+    cpus: '24'
+    memory_mb: '65536'
+    local_gb: '222'
+    cpu_arch: x86_64
+    capabilities: profile:computeovsdpdk,boot_option:local,node:computeovsdpdk-0
+  protected_reason: null
+  provision_state: available
+  retired_reason: null
+  raid_config: {}
+  reservation: null
+  resource_class: computeovsdpdk
+  states:
+    - href: https://192.168.50.2:13385/v1/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/states
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/9a6c7e0b-f88d-414f-9d3f-89d76a645a60/states
+      rel: bookmark
+  target_provision_state: null
+  target_power_state: null
+  target_raid_config: {}
+  traits: []
+  updated_at: '2020-09-25T07:06:17+00:00'
+  bios_interface: no-bios
+  boot_interface: ipxe
+  console_interface: ipmitool-socat
+  deploy_interface: iscsi
+  inspect_interface: inspector
+  management_interface: ipmitool
+  network_interface: flat
+  power_interface: ipmitool
+  raid_interface: no-raid
+  rescue_interface: agent
+  storage_interface: noop
+  vendor_interface: ipmitool
+  location:
+    cloud: undercloud
+    region_name: regionOne
+    zone: null
+    project:
+      id: d315499323fe4ae689b1ac19092f3a53
+      name: admin
+      domain_id: null
+      domain_name: Default
+- allocation_id: null
+  owner: null
+  chassis_id: null
+  clean_step: {}
+  conductor: undercloud.localdomain
+  conductor_group: ''
+  created_at: '2020-09-25T06:46:15+00:00'
+  deploy_step: {}
+  driver: ipmi
+  driver_info:
+    deploy_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    rescue_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    deploy_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    rescue_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    ipmi_address: 10.37.146.177
+    ipmi_password: '******'
+    ipmi_username: root
+  driver_internal_info: {}
+  extra:
+    hardware_swift_object: extra_hardware-263ef351-b4e2-4319-8a10-927bf15b7f39
+  fault: null
+  id: 263ef351-b4e2-4319-8a10-927bf15b7f39
+  instance_info: {}
+  instance_id: null
+  is_automated_clean_enabled: null
+  is_console_enabled: false
+  is_maintenance: false
+  is_protected: false
+  is_retired: false
+  last_error: null
+  links:
+    - href: https://192.168.50.2:13385/v1/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39
+      rel: bookmark
+  maintenance_reason: null
+  name: computesriov-0
+  ports:
+    - href: https://192.168.50.2:13385/v1/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/ports
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/ports
+      rel: bookmark
+  port_groups:
+    - href: https://192.168.50.2:13385/v1/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/portgroups
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/portgroups
+      rel: bookmark
+  power_state: power off
+  properties:
+    cpus: '24'
+    memory_mb: '65536'
+    local_gb: '222'
+    cpu_arch: x86_64
+    capabilities: profile:computesriov,boot_option:local,node:computesriov-0
+  protected_reason: null
+  provision_state: available
+  retired_reason: null
+  raid_config: {}
+  reservation: null
+  resource_class: computesriov
+  states:
+    - href: https://192.168.50.2:13385/v1/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/states
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/263ef351-b4e2-4319-8a10-927bf15b7f39/states
+      rel: bookmark
+  target_provision_state: null
+  target_power_state: null
+  target_raid_config: {}
+  traits: []
+  updated_at: '2020-09-25T07:06:45+00:00'
+  bios_interface: no-bios
+  boot_interface: ipxe
+  console_interface: ipmitool-socat
+  deploy_interface: iscsi
+  inspect_interface: inspector
+  management_interface: ipmitool
+  network_interface: flat
+  power_interface: ipmitool
+  raid_interface: no-raid
+  rescue_interface: agent
+  storage_interface: noop
+  vendor_interface: ipmitool
+  location:
+    cloud: undercloud
+    region_name: regionOne
+    zone: null
+    project:
+      id: d315499323fe4ae689b1ac19092f3a53
+      name: admin
+      domain_id: null
+      domain_name: Default
+- allocation_id: null
+  owner: null
+  chassis_id: null
+  clean_step: {}
+  conductor: undercloud.localdomain
+  conductor_group: ''
+  created_at: '2020-09-25T06:46:16+00:00'
+  deploy_step: {}
+  driver: ipmi
+  driver_info:
+    deploy_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    rescue_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    deploy_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    rescue_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    ipmi_address: 172.80.0.1
+    ipmi_username: admin
+    ipmi_password: '******'
+    ipmi_port: '6230'
+  driver_internal_info: {}
+  extra: {}
+  fault: null
+  id: 7c0322ed-24e1-469c-b989-1b9be92c13e8
+  instance_info: {}
+  instance_id: null
+  is_automated_clean_enabled: null
+  is_console_enabled: false
+  is_maintenance: false
+  is_protected: false
+  is_retired: false
+  last_error: null
+  links:
+    - href: https://192.168.50.2:13385/v1/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8
+      rel: bookmark
+  maintenance_reason: null
+  name: controller-0
+  ports:
+    - href: https://192.168.50.2:13385/v1/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/ports
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/ports
+      rel: bookmark
+  port_groups:
+    - href: https://192.168.50.2:13385/v1/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/portgroups
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/portgroups
+      rel: bookmark
+  power_state: power off
+  properties:
+    cpus: '4'
+    memory_mb: '8192'
+    local_gb: '40'
+    cpu_arch: x86_64
+    capabilities: profile:controller,boot_option:local,node:controller-0
+  protected_reason: null
+  provision_state: available
+  retired_reason: null
+  raid_config: {}
+  reservation: null
+  resource_class: controller
+  states:
+    - href: https://192.168.50.2:13385/v1/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/states
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/7c0322ed-24e1-469c-b989-1b9be92c13e8/states
+      rel: bookmark
+  target_provision_state: null
+  target_power_state: null
+  target_raid_config: {}
+  traits: []
+  updated_at: '2020-09-25T07:07:11+00:00'
+  bios_interface: no-bios
+  boot_interface: ipxe
+  console_interface: ipmitool-socat
+  deploy_interface: iscsi
+  inspect_interface: inspector
+  management_interface: ipmitool
+  network_interface: flat
+  power_interface: ipmitool
+  raid_interface: no-raid
+  rescue_interface: agent
+  storage_interface: noop
+  vendor_interface: ipmitool
+  location:
+    cloud: undercloud
+    region_name: regionOne
+    zone: null
+    project:
+      id: d315499323fe4ae689b1ac19092f3a53
+      name: admin
+      domain_id: null
+      domain_name: Default
+- allocation_id: null
+  owner: null
+  chassis_id: null
+  clean_step: {}
+  conductor: undercloud.localdomain
+  conductor_group: ''
+  created_at: '2020-09-25T06:46:17+00:00'
+  deploy_step: {}
+  driver: ipmi
+  driver_info:
+    deploy_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    rescue_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    deploy_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    rescue_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    ipmi_address: 172.80.0.1
+    ipmi_username: admin
+    ipmi_password: '******'
+    ipmi_port: '6231'
+  driver_internal_info: {}
+  extra: {}
+  fault: null
+  id: 1ceb8141-681c-4ebc-a12b-1737cf88c1ca
+  instance_info: {}
+  instance_id: null
+  is_automated_clean_enabled: null
+  is_console_enabled: false
+  is_maintenance: false
+  is_protected: false
+  is_retired: false
+  last_error: null
+  links:
+    - href: https://192.168.50.2:13385/v1/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca
+      rel: bookmark
+  maintenance_reason: null
+  name: controller-1
+  ports:
+    - href: https://192.168.50.2:13385/v1/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/ports
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/ports
+      rel: bookmark
+  port_groups:
+    - href: https://192.168.50.2:13385/v1/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/portgroups
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/portgroups
+      rel: bookmark
+  power_state: power off
+  properties:
+    cpus: '4'
+    memory_mb: '8192'
+    local_gb: '40'
+    cpu_arch: x86_64
+    capabilities: profile:controller,boot_option:local,node:controller-1
+  protected_reason: null
+  provision_state: available
+  retired_reason: null
+  raid_config: {}
+  reservation: null
+  resource_class: controller
+  states:
+    - href: https://192.168.50.2:13385/v1/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/states
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/1ceb8141-681c-4ebc-a12b-1737cf88c1ca/states
+      rel: bookmark
+  target_provision_state: null
+  target_power_state: null
+  target_raid_config: {}
+  traits: []
+  updated_at: '2020-09-25T07:07:40+00:00'
+  bios_interface: no-bios
+  boot_interface: ipxe
+  console_interface: ipmitool-socat
+  deploy_interface: iscsi
+  inspect_interface: inspector
+  management_interface: ipmitool
+  network_interface: flat
+  power_interface: ipmitool
+  raid_interface: no-raid
+  rescue_interface: agent
+  storage_interface: noop
+  vendor_interface: ipmitool
+  location:
+    cloud: undercloud
+    region_name: regionOne
+    zone: null
+    project:
+      id: d315499323fe4ae689b1ac19092f3a53
+      name: admin
+      domain_id: null
+      domain_name: Default
+- allocation_id: null
+  owner: null
+  chassis_id: null
+  clean_step: {}
+  conductor: undercloud.localdomain
+  conductor_group: ''
+  created_at: '2020-09-25T06:46:18+00:00'
+  deploy_step: {}
+  driver: ipmi
+  driver_info:
+    deploy_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    rescue_kernel: file:///var/lib/ironic/httpboot/agent.kernel
+    deploy_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    rescue_ramdisk: file:///var/lib/ironic/httpboot/agent.ramdisk
+    ipmi_address: 172.80.0.1
+    ipmi_username: admin
+    ipmi_password: '******'
+    ipmi_port: '6232'
+  driver_internal_info: {}
+  extra: {}
+  fault: null
+  id: cbbfc712-1700-413d-a19b-5c84db4f4ec3
+  instance_info: {}
+  instance_id: null
+  is_automated_clean_enabled: null
+  is_console_enabled: false
+  is_maintenance: false
+  is_protected: false
+  is_retired: false
+  last_error: null
+  links:
+    - href: https://192.168.50.2:13385/v1/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3
+      rel: bookmark
+  maintenance_reason: null
+  name: controller-2
+  ports:
+    - href: https://192.168.50.2:13385/v1/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/ports
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/ports
+      rel: bookmark
+  port_groups:
+    - href: https://192.168.50.2:13385/v1/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/portgroups
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/portgroups
+      rel: bookmark
+  power_state: power off
+  properties:
+    cpus: '4'
+    memory_mb: '8192'
+    local_gb: '40'
+    cpu_arch: x86_64
+    capabilities: profile:controller,boot_option:local,node:controller-2
+  protected_reason: null
+  provision_state: available
+  retired_reason: null
+  raid_config: {}
+  reservation: null
+  resource_class: controller
+  states:
+    - href: https://192.168.50.2:13385/v1/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/states
+      rel: self
+    - href: https://192.168.50.2:13385/nodes/cbbfc712-1700-413d-a19b-5c84db4f4ec3/states
+      rel: bookmark
+  target_provision_state: null
+  target_power_state: null
+  target_raid_config: {}
+  traits: []
+  updated_at: '2020-09-25T07:08:08+00:00'
+  bios_interface: no-bios
+  boot_interface: ipxe
+  console_interface: ipmitool-socat
+  deploy_interface: iscsi
+  inspect_interface: inspector
+  management_interface: ipmitool
+  network_interface: flat
+  power_interface: ipmitool
+  raid_interface: no-raid
+  rescue_interface: agent
+  storage_interface: noop
+  vendor_interface: ipmitool
+  location:
+    cloud: undercloud
+    region_name: regionOne
+    zone: null
+    project:
+      id: d315499323fe4ae689b1ac19092f3a53
+      name: admin
+      domain_id: null
+      domain_name: Default

@@ -15,10 +15,6 @@
 
 import yaml
 
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from tripleo_ansible.ansible_plugins.modules import tripleo_get_dpdk_core_list as derive_params
 from tripleo_ansible.tests import base as tests_base
 
@@ -46,7 +42,7 @@ class TestTripleoGetDpdkCoreList(tests_base.TestCase):
 
         numa_nodes_cores_count = [2, 1]
 
-        expected_result = "20,64,15,59,38,82"
+        expected_result = [20, 64, 15, 59, 38, 82]
 
         result = derive_params._get_dpdk_core_list(inspect_data,
                                                    numa_nodes_cores_count)
@@ -57,10 +53,11 @@ class TestTripleoGetDpdkCoreList(tests_base.TestCase):
 
         numa_nodes_cores_count = [2, 1]
 
-        #msg = 'Introspection data does not have numa_topology.cpus'
-        self.assertRaises(tc.DeriveParamsError,
-                          derive_params._get_dpdk_core_list,
-                          inspect_data, numa_nodes_cores_count)
+        expected_result = 'Introspection data does not have numa_topology.cpus'
+
+        result = derive_params._get_dpdk_core_list(inspect_data,
+                                                   numa_nodes_cores_count)
+        self.assertEqual(result, expected_result)
 
     def test_run_invalid_numa_nodes_cores_count(self):
         inspect_data = {"numa_topology": {
@@ -69,7 +66,9 @@ class TestTripleoGetDpdkCoreList(tests_base.TestCase):
             }}
 
         numa_nodes_cores_count = []
+        expected_result = ('CPU physical cores count for each NUMA nodes '
+                           'is not available')
 
-        self.assertRaises(tc.DeriveParamsError,
-                          derive_params._get_dpdk_core_list,
-                          inspect_data, numa_nodes_cores_count)
+        result = derive_params._get_dpdk_core_list(inspect_data,
+                                                   numa_nodes_cores_count)
+        self.assertEqual(result, expected_result)

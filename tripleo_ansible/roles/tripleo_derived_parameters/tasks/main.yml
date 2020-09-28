@@ -158,6 +158,7 @@
       register: baremetal_data
       when:
         - role_node_uuid is defined
+        - baremetal_data is undefined
 
     - name: Set hardware data fact
       set_fact:

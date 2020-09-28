@@ -17,10 +17,6 @@
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
@@ -87,7 +83,7 @@ def _get_host_cpus_list(inspect_data):
     # in introspection data.
     if not numa_cpus_info:
         msg = 'Introspection data does not have numa_topology.cpus'
-        raise tc.DeriveParamsError(msg)
+        return msg
 
     numa_nodes_threads = {}
     # Creates a list for all available threads in each NUMA nodes
@@ -108,7 +104,7 @@ def _get_host_cpus_list(inspect_data):
                     host_cpus_list.extend(cpu['thread_siblings'])
                     break
 
-    return ','.join([str(thread) for thread in host_cpus_list])
+    return host_cpus_list
 
 
 def main():
@@ -126,15 +122,16 @@ def main():
     )
 
     try:
-        result['host_cpus_list'] = _get_host_cpus_list(
+        host_cpus_list = _get_host_cpus_list(
             module.params["inspect_data"]
         )
-    except tc.DeriveParamsError as dexp:
-        result['error'] = str(dexp)
-        result['msg'] = 'Error unable to determine Host CPUS : {}'.format(
-            dexp
-        )
-        module.fail_json(**result)
+        if isinstance(host_cpus_list, str):
+            result['error'] = host_cpus_list
+            result['msg'] = 'Error unable to determine HOST CPUS : {}'.format(
+                host_cpus_list)
+            module.fail_json(**result)
+        if isinstance(host_cpus_list, list):
+            result['host_cpus_list'] = host_cpus_list
     except Exception as exp:
         result['error'] = str(exp)
         result['msg'] = 'Error unable to determine Host CPUS : {}'.format(
@@ -142,6 +139,8 @@ def main():
         )
         module.fail_json(**result)
     else:
+        result['host_cpus_list'] = ','.join([str(thread)
+                                             for thread in host_cpus_list])
         result['success'] = True
         module.exit_json(**result)
 
