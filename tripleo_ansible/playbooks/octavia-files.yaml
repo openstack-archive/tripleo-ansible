@@ -37,7 +37,7 @@
     stack_action: "{{ stack_action }}"
   tasks:
     - include_role:
-        name: octavia-controller-check
+        name: octavia_controller_check
       when:
         - generate_certs | bool
         - stack_action == 'UPDATE'
