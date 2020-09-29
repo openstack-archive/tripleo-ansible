@@ -43,6 +43,26 @@
   set_fact:
     tripleo_enabled_services: "{{ enabled_services | default([]) }}"
 
+- name: set dashboard_vip variable if dashboard is enabled
+  block:
+    - name: get the frontend_dashboard_vip from the overcloud vars
+      command: "hiera -c /etc/puppet/hiera.yaml ceph_dashboard_vip"
+      register: frontend_vip
+      become: true
+      delegate_to: "{{ groups['mgrs'][0] }}"
+    - name: set dashboard_frontend variable
+      set_fact:
+        ceph_ansible_group_vars_all: "{{ ceph_ansible_group_vars_all | combine({ 'dashboard_frontend_vip': dashboard_vip | default() }) }}"
+      vars:
+        dashboard_vip: |-
+         {% set dashboard_vip = control_virtual_ip %}
+         {% if frontend_vip.stdout != "nil" %}
+         {%   set dashboard_vip = frontend_vip.stdout %}
+         {% endif %}
+         {{ dashboard_vip }}
+  when:
+    - tripleo_enabled_services | intersect(['ceph_grafana'])
+
 - name: build the openstack pool list
   import_tasks: build_pools.yml
   vars:
