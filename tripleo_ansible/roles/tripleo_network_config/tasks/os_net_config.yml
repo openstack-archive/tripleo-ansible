@@ -48,3 +48,4 @@
       async: "{{ tripleo_network_config_async_timeout }}"
       poll: "{{ tripleo_network_config_async_poll }}"
       register: NetworkConfig_result
+      when: not ansible_check_mode
