@@ -5,61 +5,41 @@ driver:
 log: true
 
 platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
+  - name: ubi8
+    hostname: ubi8
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
     dockerfile: Dockerfile
-    pkg_extras: python-setuptools
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    pkg_extras: python*setuptools
     command: >-
       /sbin/init &&
       /bin/mkdir -p /var/run/dbus &&
       /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
       /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-
     capabilities:
       - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
     privileged: true
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
     ulimits: &ulimit
       - host
 
-# TODO(cloudnull): when RDO has centos8 repos this test node should be re-enabled.
-#
-#  - name: centos8
-#    hostname: centos8
-#    image: centos:8
-#    dockerfile: Dockerfile
-#    pkg_extras: python*-setuptools
-#    environment:
-#      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-#      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-#    command: >-
-#      /sbin/init &&
-#      /bin/mkdir -p /var/run/dbus &&
-#      /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
-#      /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-#
-#    tmpfs:
-#      - /run
-#      - /tmp
-#    capabilities:
-#      - ALL
-#    volumes:
-#      - /dev:/dev
-#      - /lib/modules:/lib/modules
-#    privileged: true
-#    ulimits: *ulimit
-
 provisioner:
   name: ansible
+  inventory:
+    hosts:
+      all:
+        hosts:
+          ubi8:
+            ansible_python_interpreter: /usr/bin/python3
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
