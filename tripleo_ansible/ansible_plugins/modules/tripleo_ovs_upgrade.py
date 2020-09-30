@@ -195,12 +195,17 @@ Upgraded:'{}'""".format(ovs_pkgs, upgraded)
         result['msg'] += " No need to upgrade ovs."
 
 
-def pkg_has_restart(module):
-    cmd = """rpm -q --scripts openvswitch | \\
-             awk '/postuninstall/,/*/' | \\
-             grep -q 'systemctl.*try-restart'"""
-    rc, _, _ = module.run_command(cmd, check_rc=False,
-                                  use_unsafe_shell=True)
+def pkg_has_disruption(module):
+    """Check if the current ovs pkg include a disruptive action."""
+    awk_cmds = ["awk '/postuninstall/,/*/' | grep -q 'systemctl.*try-restart'",
+                "awk '/preuninstall/,/*/' | grep -q 'systemctl.*disable'"]
+    rc = 1
+    for awk in awk_cmds:
+        cmd = "rpm -q --scripts openvswitch | {}".format(awk)
+        rc, _, _ = module.run_command(cmd, check_rc=False,
+                                      use_unsafe_shell=True)
+        if rc == 0:
+            break
 
     return rc == 0
 
@@ -228,7 +233,7 @@ def upgrade_non_layered_ovs(module, result):
 
 
 def non_layered_ovs_upgrade(module, result):
-    if not pkg_has_restart(module):
+    if not pkg_has_disruption(module):
         result['msg'] += 'Nothing to be done for non layered ovs upgrade, ' \
             "post-script doesn't have restart."
     else:
