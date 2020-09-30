@@ -17,6 +17,7 @@
 __metaclass__ = type
 
 import glob
+import os
 import re
 
 from ansible.module_utils._text import to_native
@@ -79,15 +80,14 @@ def pkg_manager(module, downloader=False):
         return ['yumdownloader']
 
 
-# Get current OpenvSwitch package name
-# return stuff like openvswitch2.11 in original yaml.
 def get_current_ovs_pkg_name(module):
+    """ Get currently installed ovs pkg name, layered or not."""
     cmd = ['rpm', '-qa']
     _, output, _ = module.run_command(cmd, check_rc=True)
     ovs_re = re.compile(r"""
     ^(openvswitch[0-9]+\.[0-9]+-[0-9]+\.[0-9]+\.[0-9]+ # layered
     |                                                  # or
-    openvswitch-2)                                     # non-layered
+    openvswitch(?!-[a-z]+))                            # non-layered
     """, re.X)
     for pkg in output.split("\n"):
         ovs = re.search(ovs_re, pkg)
@@ -169,14 +169,35 @@ def set_openflow_version_on_bridges(module, bridges=None):
 
 
 def layer_product_upgrade(module, result, ovs_pkg, lp_ovs_current_version):
-    lp_ovs_coming_versions = get_version(module, 'rhosp-openvswitch')
+    """Actually do the layered ovs upgrade with workaround.
+
+    So we have a layered package (rhosp|rdo)-openvswitch. To prevent
+    any cut in networking during update/upgrade, we update ovs without
+    triggering the scripts in the package that stop the service.
+
+    So first it determines if the package has a upgrade coming and
+    then erases it making sure no package script is triggered and
+    finally it re-install the new package.
+
+    It also prevents incomptible issues between ovs database schema
+    during a rolling update.
+
+    No cut in service at the cost of a needed reboot to get the new
+    binaries in place.
+
+    """
+    layered_product_name = get_layered_product_name()
+    lp_ovs_coming_versions = get_version(module, layered_product_name)
     ovs_current_version = get_version(module, ovs_pkg, new=False)
 
     pkg_suffix = ''
     if int(ovs_current_version[0]) >= 3 or int(ovs_current_version[1]) >= 10:
         pkg_suffix = '.'.join(ovs_current_version)
 
-    pkg_base_name = 'openvswitch{}*'.format(pkg_suffix)
+    if ovs_pkg == 'openvswitch':
+        pkg_base_name = 'openvswitch*'
+    else:
+        pkg_base_name = 'openvswitch{}*'.format(pkg_suffix)
 
     if flatten_version(lp_ovs_coming_versions) \
        != flatten_version(ovs_current_version):
@@ -186,7 +207,7 @@ def layer_product_upgrade(module, result, ovs_pkg, lp_ovs_current_version):
         ovs_pkgs = get_current_ovs_pkg_names(module, pkg_base_name)
         remove_package_noaction(module, ovs_pkgs,
                                 excludes=['selinux'])
-        upgraded = upgrade_pkg(module, 'rhosp-openvswitch')
+        upgraded = upgrade_pkg(module, layered_product_name)
         result['msg'] += \
             """ Layer product update workaround applied for {} \
 Upgraded:'{}'""".format(ovs_pkgs, upgraded)
@@ -236,6 +257,32 @@ def non_layered_ovs_upgrade(module, result):
         upgrade_non_layered_ovs(module, result)
 
 
+def get_distro():
+    """Get the distro as defined in /etc/os-release[ID]."""
+    distro = None
+    os_release_file = '/etc/os-release'
+    if os.path.isfile(os_release_file):
+        with open(os_release_file) as release_file:
+            for line in release_file.readlines():
+                match = re.match('^ *ID *="?([^"]+)"?$', line)
+                if match:
+                    distro = match.group(1)
+                    break
+    return distro
+
+
+def get_layered_product_name():
+    """Get the layer product name version depending on os.
+
+    It's rhosp-openvswitch on redhat, and rdo-openvswitch on centos.
+
+    """
+    distro = get_distro()
+    if distro is not None and distro == 'centos':
+        return 'rdo-openvswitch'
+    return 'rhosp-openvswitch'
+
+
 def main():
     module = AnsibleModule(argument_spec={}, supports_check_mode=False)
 
@@ -244,14 +291,16 @@ def main():
         msg=''
     )
 
+    layered_product_name = get_layered_product_name()
     ovs_current_pkg = get_current_ovs_pkg_name(module)
     if ovs_current_pkg:
         # We found a ovs package, let's dive in.
         ovs_current_version = get_version(module,
-                                          'rhosp-openvswitch',
+                                          layered_product_name,
                                           new=False)
         if ovs_current_version:
-            result['msg'] += "Found a layered product ovs. "
+            result['msg'] += "Found a layered product ovs - {} - " \
+                .format(layered_product_name)
             layer_product_upgrade(module, result,
                                   ovs_current_pkg, ovs_current_version)
         else:
