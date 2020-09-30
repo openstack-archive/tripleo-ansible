@@ -79,11 +79,12 @@ def main():
     # Set parameters
     config_data = args['config_data']
 
-    for path, config in config_data.items():
-        with open(path, "wb") as config_file:
-            config_file.write(json.dumps(config, indent=2).encode('utf-8'))
-        os.chmod(path, 0o600)
-        results['changed'] = True
+    if not module.check_mode:
+        for path, config in config_data.items():
+            with open(path, "wb") as config_file:
+                config_file.write(json.dumps(config, indent=2).encode('utf-8'))
+            os.chmod(path, 0o600)
+            results['changed'] = True
 
     module.exit_json(**results)
 

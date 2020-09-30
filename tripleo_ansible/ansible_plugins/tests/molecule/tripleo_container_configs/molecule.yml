@@ -45,6 +45,7 @@ scenario:
   test_sequence:
     - prepare
     - converge
+    - check
 
 verifier:
   name: testinfra
