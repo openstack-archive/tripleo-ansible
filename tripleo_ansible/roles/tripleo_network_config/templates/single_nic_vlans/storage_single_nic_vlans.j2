@@ -1,0 +1,40 @@
+---
+{% set mtu_list = [] %}
+{% for network in role_networks %}
+{{ mtu_list.append(lookup('vars', role_networks_lower[network] ~ '_mtu')) }}
+{%- endfor %}
+{% set min_viable_mtu = mtu_list | max %}
+network_config:
+- type: ovs_bridge
+  name: br-storage
+  mtu: {{ min_viable_mtu }}
+  use_dhcp: false
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+{% if default_route_networks and 'ControlPlane' in default_route_networks %}
+  routes: {{ ctlplane_host_routes + [{'default': true, 'next_hop': ctlplane_gateway_ip}] }}
+{% else %}
+  routes: {{ ctlplane_host_routes }}
+{% endif %}
+  members:
+  - type: interface
+    name: nic1
+    mtu: {{ min_viable_mtu }}
+    # force the MAC address of the bridge to this interface
+    primary: true
+{% for network in role_networks %}
+  - type: vlan
+    mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+    vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}
+    addresses:
+    - ip_netmask:
+        {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
+{% if default_route_networks and network in default_route_networks %}
+    routes:
+      {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') + [{'default': true, 'next_hop': lookup('vars', role_networks_lower[network] ~ '_gateway_ip')}] }}
+{% else %}
+    routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+{% endif %}
+{% endfor %}

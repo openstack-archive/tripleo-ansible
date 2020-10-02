@@ -1,0 +1,57 @@
+---
+network_config:
+- type: interface
+  name: nic1
+  mtu: {{ ctlplane_mtu }}
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+{% if default_route_networks and 'ControlPlane' in default_route_networks %}
+  routes: {{ ctlplane_host_routes + [{'default': true, 'next_hop': ctlplane_gateway_ip}] }}
+{% else %}
+  routes: {{ ctlplane_host_routes }}
+{% endif %}
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+{% for network in role_networks %}
+{% if network not in ["External", "Tenant"] %}
+- type: interface
+  name: nic{{ loop.index +1 }}
+  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+  use_dhcp: false
+  addresses:
+  - ip_netmask:
+      {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
+{% if default_route_networks and 'ControlPlane' in default_route_networks %}
+  routes:
+    {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') + [{'default': true, 'next_hop': lookup('vars', role_networks_lower[network] ~ '_gateway_ip')}] }}
+{% else %}
+  routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+{% endif %}
+{% elif 'external_bridge' in role_tags %}
+- type: ovs_bridge
+{% if network == 'External' %}
+  name: {{ neutron_physical_bridge_name }}
+{% else %}
+  name: {{ 'br-' ~ role_networks_lower[network] }}
+{% endif %}
+  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  use_dhcp: false
+  addresses:
+  - ip_netmask:
+      {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
+{% if default_route_networks and network in default_route_networks %}
+  routes:
+    {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') + [{'default': true, 'next_hop': lookup('vars', role_networks_lower[network] ~ '_gateway_ip')}] }}
+{% else %}
+  routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+{% endif %}
+  members:
+  - type: interface
+    name: nic{{loop.index + 1}}
+    mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+    use_dhcp: false
+    primary: true
+{% endif %}
+{% endfor %}
