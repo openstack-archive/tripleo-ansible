@@ -33,19 +33,19 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: baremetal_nodes_validate
+module: baremetal_register_or_update_nodes
 
-short_description: Baremetal nodes
+short_description: Register, update or remove baremetal nodes
 
 version_added: "2.8"
 
 description:
-    - "Baremetal nodes functions."
+    - "It registers, updates or removes baremetal nodes of Ironic"
 
 options:
     nodes_json:
         description:
-            - List of the nodes to be validated
+            - Description of the nodes to be added, removed, changed
         type: list
         required: true
     remove:
