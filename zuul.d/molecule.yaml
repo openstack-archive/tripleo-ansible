@@ -15,19 +15,19 @@
       - tripleo-ansible-centos-8-molecule-tripleo-container-rm
       - tripleo-ansible-centos-8-molecule-tripleo-image-serve
       - tripleo-ansible-centos-8-molecule-tripleo-transfer
-      - tripleo-ansible-centos-7-molecule-tripleo-podman
-      - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-8-molecule-tripleo-podman
+      - tripleo-ansible-centos-8-molecule-tripleo-persist
       - tripleo-ansible-centos-8-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-8-molecule-login-defs
       - tripleo-ansible-centos-8-molecule-tripleo-ptp
       - tripleo-ansible-centos-8-molecule-tripleo-timezone
       - tripleo-ansible-centos-8-molecule-tripleo-config
       - tripleo-ansible-centos-8-molecule-tripleo-container-image-build
-      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
+      - tripleo-ansible-centos-8-molecule-tripleo-container-stop
       - tripleo-ansible-centos-8-molecule-tripleo-hieradata
-      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
+      - tripleo-ansible-centos-8-molecule-tripleo-upgrade-hiera
       - tripleo-ansible-centos-8-molecule-tripleo-kernel
-      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-8-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-8-molecule-tripleo-firewall
       - tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
       - tripleo-ansible-centos-8-molecule-tripleo-securetty
@@ -62,19 +62,19 @@
       - tripleo-ansible-centos-8-molecule-tripleo-container-rm
       - tripleo-ansible-centos-8-molecule-tripleo-image-serve
       - tripleo-ansible-centos-8-molecule-tripleo-transfer
-      - tripleo-ansible-centos-7-molecule-tripleo-podman
-      - tripleo-ansible-centos-7-molecule-tripleo-persist
+      - tripleo-ansible-centos-8-molecule-tripleo-podman
+      - tripleo-ansible-centos-8-molecule-tripleo-persist
       - tripleo-ansible-centos-8-molecule-tripleo-ceph-run-ansible
       - tripleo-ansible-centos-8-molecule-login-defs
       - tripleo-ansible-centos-8-molecule-tripleo-ptp
       - tripleo-ansible-centos-8-molecule-tripleo-timezone
       - tripleo-ansible-centos-8-molecule-tripleo-config
       - tripleo-ansible-centos-8-molecule-tripleo-container-image-build
-      - tripleo-ansible-centos-7-molecule-tripleo-container-stop
+      - tripleo-ansible-centos-8-molecule-tripleo-container-stop
       - tripleo-ansible-centos-8-molecule-tripleo-hieradata
-      - tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
+      - tripleo-ansible-centos-8-molecule-tripleo-upgrade-hiera
       - tripleo-ansible-centos-8-molecule-tripleo-kernel
-      - tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
+      - tripleo-ansible-centos-8-molecule-tripleo-container-image-prepare
       - tripleo-ansible-centos-8-molecule-tripleo-firewall
       - tripleo-ansible-centos-8-molecule-tripleo-redhat-enforce
       - tripleo-ansible-centos-8-molecule-tripleo-securetty
@@ -194,15 +194,15 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-podman/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-podman
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-podman
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-podman
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-persist/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-persist
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-persist
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-persist
 - job:
@@ -251,8 +251,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-stop/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-stop
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-container-stop
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-container-stop
 - job:
@@ -265,8 +265,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-upgrade-hiera
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-upgrade-hiera
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-upgrade-hiera
 
@@ -288,8 +288,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-container-image-prepare/.*
-    name: tripleo-ansible-centos-7-molecule-tripleo-container-image-prepare
-    parent: tripleo-ansible-centos-7-base
+    name: tripleo-ansible-centos-8-molecule-tripleo-container-image-prepare
+    parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_docker_enable_vfs: true
       tripleo_docker_temp_file: '{{ zuul.executor.work_root }}/.tmp/docker-daemon-{{ inventory_hostname }}.json'

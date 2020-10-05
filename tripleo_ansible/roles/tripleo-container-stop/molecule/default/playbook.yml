@@ -21,7 +21,5 @@
   roles:
     - role: tripleo-container-stop
       tripleo_containers_to_stop:
-        - docker-container1
-        - docker-container2
-  vars:
-    ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+        - podman-container1
+        - podman-container2

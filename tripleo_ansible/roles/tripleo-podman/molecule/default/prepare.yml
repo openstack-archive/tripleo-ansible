@@ -20,18 +20,6 @@
   become: true
   gather_facts: true
   pre_tasks:
-    - name: Check for docker cli
-      command: "command -v docker"
-      register: docker_cli
-      failed_when: false
-      changed_when: false
-
-    - name: Check for docker connection
-      command: "docker ps"
-      register: docker_ps
-      failed_when: false
-      changed_when: false
-
     - name: set basic user fact
       set_fact:
         ansible_user: "{{ lookup('env', 'USER') }}"
@@ -45,32 +33,17 @@
         - ansible_user_dir is undefined
   roles:
     - role: test_deps
-    - role: ensure-docker
-      when:
-        - (docker_cli.rc != 0) or
-          (docker_ps.rc != 0)
   post_tasks:
-    - name: Install docker-sdk
-      pip:
-        name: docker
-        virtualenv: "{{ ansible_user_dir }}/test-python"
-        virtualenv_site_packages: true
-
     - name: pull an image
-      docker_image:
+      podman_image:
         name: centos:8
-        source: pull
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
 
     - name: Create a data container
-      docker_container:
+      podman_container:
         name: "{{ item }}"
         image: centos:8
         detach: true
         command: sleep 1d
       with_items:
-        - docker-container1
-        - docker-container2
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
+        - test-container1
+        - test-container2
