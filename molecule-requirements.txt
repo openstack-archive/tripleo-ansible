@@ -12,6 +12,7 @@ netaddr
 jinja2>=2.8.0,<3
 
 # this is required for the docs build jobs
+ansible>=2.8,!=2.8.9,!=2.9.12,<2.10.0
 sphinx
 openstackdocstheme>=1.29.2 # Apache-2.0
 reno>=2.11.3 # Apache-2.0
