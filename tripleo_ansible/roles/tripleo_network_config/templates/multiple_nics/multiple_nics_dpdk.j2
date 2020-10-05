@@ -13,6 +13,7 @@ network_config:
   use_dhcp: false
   addresses:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+{% set nics_used = [1] %}
 {% for network in role_networks and network not in networks_skip_config|default([]) %}
 {% if network not in ["External", "Tenant"] %}
 - type: interface
@@ -54,4 +55,22 @@ network_config:
     use_dhcp: false
     primary: true
 {% endif %}
+{% set _ = nics_used.append(loop.index) %}
 {% endfor %}
+- type: ovs_user_bridge
+  name: br-dpdk0
+  members:
+  - type: ovs_dpdk_bond
+    name: dpdkbond0
+    rx_queue: {{ num_dpdk_interface_rx_queues }}
+    members:
+    - type: ovs_dpdk_port
+      name: dpdk0
+      members:
+      - type: interface
+        name: nic{{nics_used[-1] + 1}}
+    - type: ovs_dpdk_port
+      name: dpdk1
+      members:
+      - type: interface
+        name: nic{{nics_used[-1] + 2}}
