@@ -12,6 +12,7 @@ ExecStart=/usr/bin/podman start {{ lookup('dict', container_data).key }}
 ExecReload=/usr/bin/podman kill --signal HUP {{ lookup('dict', container_data).key }}
 ExecStop=/usr/bin/podman stop -t {{ lookup('dict', container_data).value.stop_grace_period | default(10) | int }} {{ lookup('dict', container_data).key }}
 ExecStopPost=/usr/bin/podman stop -t {{ lookup('dict', container_data).value.stop_grace_period | default(10) | int }} {{ lookup('dict', container_data).key }}
+SuccessExitStatus=137 143
 KillMode=none
 Type=forking
 PIDFile=/var/run/{{ lookup('dict', container_data).key }}.pid
