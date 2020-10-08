@@ -32,6 +32,7 @@ export UPPER_CONSTRAINTS_FILE=${UPPER_CONSTRAINTS_FILE:-"https://opendev.org/ope
 function run_pip {
     "${HOME}/test-python/bin/pip" install \
                                   -c "${UPPER_CONSTRAINTS_FILE}" \
+                                  -c "${PROJECT_DIR}/ansible-requirements.txt" \
                                   -r "${PROJECT_DIR}/requirements.txt" \
                                   -r "${PROJECT_DIR}/test-requirements.txt" \
                                   -r "${PROJECT_DIR}/molecule-requirements.txt" ${@:-}
