@@ -54,6 +54,8 @@
     - name: Refresh hardware facts
       setup:
         gather_subset:
+          - '!all'
+          - '!min'
           - hardware
 
     - name: Un-mount docker directories
