@@ -6,7 +6,7 @@
 {% set min_viable_mtu = mtu_list | max %}
 network_config:
 - type: ovs_bridge
-  name: {{ neutron_physical_bridge_name }}
+  name: br-storage
   mtu: {{ min_viable_mtu }}
   use_dhcp: false
   dns_servers: {{ ctlplane_dns_nameservers }}
