@@ -13,11 +13,7 @@ network_config:
   domain: {{ dns_search_domains }}
   addresses:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
-{% if not default_route_networks or 'ControlPlane' in default_route_networks %}
-  routes: {{ ctlplane_host_routes + [{'default': true, 'next_hop': ctlplane_gateway_ip}] }}
-{% else %}
   routes: {{ ctlplane_host_routes }}
-{% endif %}
   members:
   - type: interface
     name: {{ neutron_public_interface_name }}
@@ -32,10 +28,5 @@ network_config:
     addresses:
     - ip_netmask:
         {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
-{% if default_route_networks and network in default_route_networks %}
-    routes:
-      {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') + [{'default': true, 'next_hop': lookup('vars', role_networks_lower[network] ~ '_gateway_ip')}] }}
-{% else %}
     routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
-{% endif %}
 {% endfor %}
