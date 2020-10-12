@@ -14,6 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- import_playbook: cli-undercloud-local-artifacts.yaml
+  vars:
+    stack: "{{ container | default('overcloud') }}"
+
+
 - name: Create Deployment Plan
   connection: "{{ (tripleo_target_host is defined) | ternary('ssh', 'local') }}"
   hosts: "{{ tripleo_target_host | default('localhost') }}"
@@ -96,6 +101,19 @@
         name: plan-environment.yaml
         state: present
         filename: "{{ plan_environment | tht_abspath }}"
+
+    - name: Check Plan file
+      stat:
+        path: "/var/lib/tripleo/stacks/{{ container }}/plan-environment.yaml"
+      register: plan_file
+
+    - name: Write local plan copy
+      copy:
+        src: "{{ plan_environment | tht_abspath }}"
+        dest: "/var/lib/tripleo/stacks/{{ container }}/plan-environment.yaml"
+        remote_src: true
+      when:
+        - not (plan_file.stat.exists | bool)
 
     - name: Generate passwords and update plan
       tripleo_passwords_rotate:
