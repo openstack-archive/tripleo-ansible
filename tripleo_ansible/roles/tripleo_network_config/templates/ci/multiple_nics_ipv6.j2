@@ -15,7 +15,7 @@ network_config:
   routes:
   - default: true
     ip_netmask: ::/0
-    next_hop: {{ external_gateway_ip }}
+    next_hop: {{ external_gateway_ip | default('fe80::1') }}
   members:
   - type: interface
     name: nic2
