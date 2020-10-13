@@ -14,9 +14,26 @@
           - ^molecule-requirements.txt
           - ^README.rst
           - ^requirements.txt
+      - tripleo-ci-centos-8-content-provider
       - tripleo-ci-centos-8-containers-multinode: &containers_multinode
+          vars: &multinode_vars
+            consumer_job: true
+            build_container_images: false
+            tags:
+              - undercloud-setup
+              - undercloud-scripts
+              - undercloud-install
+              - undercloud-post-install
+              - tripleo-validations
+              - overcloud-scripts
+              - overcloud-prep-config
+              - overcloud-prep-containers
+              - overcloud-deploy
+              - overcloud-post-deploy
+              - overcloud-validate
           dependencies: &deps
             - openstack-tox-linters
+            - tripleo-ci-centos-8-content-provider
           files: &containers_files
           - ^tripleo_ansible/.*
           irrelevant-files: &irrelevant_scenario_files
@@ -32,18 +49,32 @@
           - ^tripleo_ansible/roles/test_deps/.*
           - ^zuul.d/.*
       - tripleo-ci-centos-8-standalone: &basic_standalone
+          vars: &standalone_vars
+            consumer_job: true
+            build_container_images: false
+          tags:
+            - standalone
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
+          vars: &undercloud_vars
+            consumer_job: true
+            tags:
+              - undercloud-setup
+              - undercloud-scripts
+              - undercloud-install
+              - undercloud-validate
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-undercloud-containers: &undercloud_containers
+          vars: *undercloud_vars
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario001-standalone: &scenario001
+          vars: *standalone_vars
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_ceph_.*/.*
@@ -52,12 +83,14 @@
           - ^setup.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario002-standalone: &scenario002
+          vars: *standalone_vars
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_hieradata/.*
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario003-standalone: &scenario003
+          vars: *standalone_vars
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_create_admin/.*
@@ -65,11 +98,13 @@
           - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario004-standalone: &scenario004
+          vars: *standalone_vars
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/tripleo_ceph_.*/.*
           irrelevant-files: *irrelevant_scenario_files
       - tripleo-ci-centos-8-scenario010-standalone: &scenario010
+          vars: *standalone_vars
           dependencies: *deps
           files:
           - ^tripleo_ansible/roles/octavia_.*/.*
@@ -78,6 +113,7 @@
       jobs:
       - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
+      - tripleo-ci-centos-8-content-provider
       - tripleo-ci-centos-8-containers-multinode: *containers_multinode
       - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
       - tripleo-ci-centos-8-undercloud-containers: *undercloud_containers
