@@ -40,4 +40,5 @@
 - name: build ceph config overrides
   set_fact:
     ceph_overrides: "{'ceph_conf_overrides': {{ ceph_default_overrides|default({}) |combine(config_overrides|default({}), recursive=True)
-                      |combine(ceph_rgw_config_overrides|default({}), recursive=True)|combine(ceph_orphan|default({}), recursive=True)}} }"
+                      |combine(ceph_rgw_config_overrides|default({}), recursive=True)|combine(ceph_orphan|default({}), recursive=True)
+                      |combine(ceph_client_config_overrides|default({}),recursive=True)}} }"
