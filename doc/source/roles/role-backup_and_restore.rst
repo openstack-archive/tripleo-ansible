@@ -1,5 +1,5 @@
 =========================
-Role - backup-and-restore
+Role - backup_and_restore
 =========================
 
 .. ansibleautoplugin::
@@ -51,7 +51,7 @@ Undercloud node.
     hosts: undercloud
     name: Setup NFS server for ReaR
     roles:
-    - role: backup-and-restore
+    - role: backup_and_restore
   EOF
 
 Then, we will create another playbook to determine the location
@@ -67,7 +67,7 @@ in which we will like to install ReaR.
     hosts: Controller
     name: Install ReaR
     roles:
-    - role: backup-and-restore
+    - role: backup_and_restore
   EOF
 
 Now we create the playbook to create the actual backup.
@@ -92,7 +92,7 @@ Now we create the playbook to create the actual backup.
     hosts: Controller
     name: Create the recovery images for the control plane
     roles:
-    - role: backup-and-restore
+    - role: backup_and_restore
   EOF
 
 The last step is to run the previously create playbooks
