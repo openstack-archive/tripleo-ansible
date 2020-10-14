@@ -12,6 +12,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
@@ -66,6 +67,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
@@ -122,6 +124,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
+      - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
@@ -219,6 +222,14 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_cellv2
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_ceph_client/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_ceph_client
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_job_ansible_args: --skip-tags=ceph_client_rsync,clean_fetch_dir
+      tripleo_role_name: tripleo_ceph_client
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_ceph_.*

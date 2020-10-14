@@ -1,0 +1,82 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Converge
+  hosts: all
+  roles:
+    - role: "tripleo_ceph_client"
+      tripleo_ceph_client_config_home: "/etc/ceph"
+      tripleo_ceph_client_fsid: "1dee28aa-2eba-11eb-b30b-244200b898e6"
+      tripleo_ceph_client_mon_ips:
+        - 172.16.3.10
+        - 172.16.3.11
+        - 172.16.3.12
+      tripleo_ceph_client_keys:
+        - caps:
+            mgr: allow *
+            mon: profile rbd
+            osd: profile rbd pool=vms, profile rbd pool=volumes, profile rbd pool=metrics,
+                profile rbd pool=backups, profile rbd pool=pool2, profile rbd pool=pool3,
+                profile rbd pool=altrbd
+          key: AQC+vYNXgDAgAhAAc8UoYt+OTz5uhV7ItLdwUw==
+          mode: '0600'
+          name: client.glance
+        - caps:
+            mgr: allow *
+            mon: profile rbd
+            osd: profile rbd pool=images
+          key: AQBRgQ9eAAAAABAAv84zEilJYZPNuJ0Iwn9Ndg==
+          mode: '0600'
+          name: client.manila
+      tripleo_ceph_client_config_overrides:
+        global:
+          osd_pool_default_pg_num: 16
+          osd_pool_default_pgp_num: 16
+          osd_pool_default_size: 1
+        topkey: 'topvalue'
+        client:
+          rbd_cache: true
+          rbd_cache_writethrough_until_flush: true
+          rbd_concurrent_management_ops: 20
+        osdkey: 'osdvalue'
+
+  tasks:
+    - name: Check the tripleo_ceph_client_fetch_dir content
+      block:
+        - name: Check current file
+          stat:
+            path: "{{ tripleo_ceph_client_fetch_dir }}/{{ item }}"
+          register: st
+          loop: "{{ expected_files }}"
+        - fail:
+            msg: "The file {{ item }} doesn't exist"
+          when: not item.stat.exists
+          loop: "{{ st.results }}"
+        - name: Show the content of the generated Ceph config file
+          shell: "cat {{ tripleo_ceph_client_fetch_dir +'/'+ tripleo_ceph_client_cluster + '.conf' }}"
+          register: cat_ceph_conf
+          when: verbosity
+        - debug:
+            msg: "{{ cat_ceph_conf.stdout }}"
+          when: verbosity
+      vars:
+        tripleo_ceph_client_cluster: "ceph"
+        verbosity: false
+        expected_files:
+          - '{{ tripleo_ceph_client_cluster }}.client.glance.keyring'
+          - '{{ tripleo_ceph_client_cluster }}.client.manila.keyring'
+          - '{{ tripleo_ceph_client_cluster }}.conf'
