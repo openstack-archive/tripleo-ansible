@@ -62,6 +62,11 @@ RETURN = '''
 
 EXAMPLES = '''
 - name: Create composable networks
+  default_network:
+    description:
+      - Default control plane network
+    type: string
+    default: ctlplane
   tripleo_composable_network:
     net_data:
       name: Storage
@@ -93,12 +98,21 @@ EXAMPLES = '''
           vlan: 21
 '''
 
+DEFAULT_NETWORK = 'ctlplane'
 DEFAULT_ADMIN_STATE = False
 DEFAULT_SHARED = False
 DEFAULT_DOMAIN = 'localdomain.'
 DEFAULT_NETWORK_TYPE = 'flat'
 DEFAULT_MTU = 1500
 DEFAULT_VLAN_ID = 1
+
+
+def get_overcloud_domain_name(conn, default_network):
+    network = conn.network.find_network(default_network)
+    if network is not None and network.dns_domain:
+        return network.dns_domain.partition('.')[-1]
+    else:
+        return DEFAULT_DOMAIN
 
 
 def build_network_tag_field(net_data):
@@ -123,12 +137,13 @@ def build_subnet_tag_field(subnet_data):
     return tags
 
 
-def create_net_spec(net_data):
+def create_net_spec(net_data, overcloud_domain_name):
     name_lower = net_data.get('name_lower', net_data['name'].lower())
     net_spec = {
         'admin_state_up': net_data.get('admin_state_up', DEFAULT_ADMIN_STATE),
         'dns_domain': net_data.get(
-            'dns_domain', '.'.join([net_data['name'].lower(), DEFAULT_DOMAIN])
+            'dns_domain', '.'.join([net_data['name'].lower(),
+                                    overcloud_domain_name])
         ),
         'mtu': net_data.get('mtu', DEFAULT_MTU),
         'name': net_data['name'],
@@ -401,6 +416,7 @@ def run_module():
         **openstack_module_kwargs()
     )
 
+    default_network = module.params.get('default_network', DEFAULT_NETWORK)
     net_data = module.params['net_data']
     error_messages = network_data_v2.validate_json_schema(net_data)
     if error_messages:
@@ -410,7 +426,8 @@ def run_module():
         _, conn = openstack_cloud_from_module(module)
 
         # Create or update the network
-        net_spec = create_net_spec(net_data)
+        net_spec = create_net_spec(
+            net_data, get_overcloud_domain_name(conn, default_network))
         changed, network = create_or_update_network(conn, module, net_spec)
         result['changed'] = changed if changed else result['changed']
 
