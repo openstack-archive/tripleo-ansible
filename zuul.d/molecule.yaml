@@ -30,6 +30,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
@@ -81,6 +82,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
@@ -132,6 +134,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
@@ -350,6 +353,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_keystone_resources
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_lvmfilter/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_lvmfilter
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_module_load/.*
