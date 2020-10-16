@@ -40,7 +40,7 @@
     state: present
   when:
     - (ansible_distribution | lower) == 'redhat'
-    - (tripleo_bootstrao_release_version_package |list | length) > 0
+    - (tripleo_bootstrap_release_version_package |list | length) > 0
 
 - name: Deploy required packages to bootstrap TripleO
   become: true
