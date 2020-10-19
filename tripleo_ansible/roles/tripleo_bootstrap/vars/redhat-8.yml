@@ -23,6 +23,7 @@ _tripleo_bootstrap_packages_bootstrap:
   - openstack-selinux
   - os-net-config
   - python3-libselinux
+  - python3-pyyaml
   - puppet-tripleo
   - rsync
   - tmpwatch
