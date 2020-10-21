@@ -1,0 +1,12 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Ensure we deactivated GSSAPI
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "GSSAPIAuthentication no"
+        state: present
+      register: gssapi
+      failed_when:
+        - gssapi is changed
