@@ -83,7 +83,7 @@ Now we create the playbook to create the actual backup.
     tasks:
       - name: Backup ceph authentication role
         include_role:
-          name: backup_and_restore
+          name: backup-and-restore
           tasks_from: ceph_authentication
         tags:
         -  bar_create_recover_image

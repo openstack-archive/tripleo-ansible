@@ -1,5 +1,4 @@
 # this is required for the molecule jobs
-ansible
 ansi2html
 docker
 pytest
