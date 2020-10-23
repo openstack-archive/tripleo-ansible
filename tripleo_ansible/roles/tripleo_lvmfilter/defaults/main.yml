@@ -19,5 +19,6 @@
 
 # All variables within this role should have a prefix of "tripleo_tripleo_lvmfilter"
 tripleo_tripleo_lvmfilter_enabled: false
+tripleo_tripleo_lvmfilter_dry_run: false
 tripleo_tripleo_lvmfilter_devices_allowlist: []
 tripleo_tripleo_lvmfilter_devices_denylist: []
