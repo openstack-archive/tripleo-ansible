@@ -47,6 +47,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
+      - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -94,6 +95,7 @@
       - tripleo-ansible-centos-7-molecule-tripleo-nova-image-cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
+      - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -269,7 +271,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-upgrade-hiera
-
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_lvmfilter/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_lvmfilter
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-network-config/.*
