@@ -19,18 +19,8 @@
           vars: &multinode_vars
             consumer_job: true
             build_container_images: false
-            tags:
-              - undercloud-setup
-              - undercloud-scripts
-              - undercloud-install
-              - undercloud-post-install
-              - tripleo-validations
-              - overcloud-scripts
-              - overcloud-prep-config
-              - overcloud-prep-containers
-              - overcloud-deploy
-              - overcloud-post-deploy
-              - overcloud-validate
+            remove_tags:
+              - build
           dependencies: &deps
             - openstack-tox-linters
             - tripleo-ci-centos-8-content-provider
@@ -60,11 +50,8 @@
       - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
           vars: &undercloud_vars
             consumer_job: true
-            tags:
-              - undercloud-setup
-              - undercloud-scripts
-              - undercloud-install
-              - undercloud-validate
+            remove_tags:
+              - build
           dependencies: *deps
           files: *containers_files
           irrelevant-files: *irrelevant_scenario_files
