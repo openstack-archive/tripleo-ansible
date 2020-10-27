@@ -19,7 +19,9 @@
   package_facts:
     manager: auto
 - name: gather allowed block devices list
-  when: "'lvm2' in ansible_facts.packages"
+  when:
+    - "'lvm2' in ansible_facts.packages"
+    - tripleo_tripleo_lvmfilter_enabled or tripleo_tripleo_lvmfilter_dry_run
   block:
     - name: collect in-use lvm2 devices list
       become: true
