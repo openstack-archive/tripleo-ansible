@@ -19,6 +19,8 @@
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
   gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
   any_errors_fatal: true
+  vars:
+    BlacklistedIpAddresses: []
   handlers:
     - name: Remove mistral tmp file
       file:
@@ -32,20 +34,28 @@
       when:
         - ssh_servers is undefined
 
-    - name: No cloud name is defined
-      fail:
-        msg: >-
-          The tripleo_cloud_name option was undefined.
+    - name: Cloud name block
       when:
-        - tripleo_cloud_name is undefined
+        - tripleo_cloud_name is defined
+      block:
+        - name: Run blacklist IP check
+          command: >-
+            openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
+          register: blacklist_cmd
+          changed_when: false
+          async: 1000
+          poll: 0
 
-    - name: Run blacklist IP check
-      command: >-
-        openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
-      register: blacklist_cmd
-      changed_when: false
-      async: 1000
-      poll: 0
+        - name: Block on async blacklist check
+          async_status:
+            jid: "{{ blacklist_cmd.ansible_job_id }}"
+          register: blacklist_cmd_job_result
+          until: blacklist_cmd_job_result.finished
+          retries: 30
+
+        - name: Set BlacklistedIpAddresses fact
+          set_fact:
+            BlacklistedIpAddresses: "{{ (blacklist_cmd_job_result.stdout | from_yaml)['output_value'] }}"
 
     - name: Retrieve compute managed network ports
       os_port_facts:
@@ -161,17 +171,6 @@
         user: "{{ ansible_user }}"
         key: "{{ user_public_key }}"
       become: true
-
-    - name: Block on async blacklist check
-      async_status:
-        jid: "{{ blacklist_cmd.ansible_job_id }}"
-      register: blacklist_cmd_job_result
-      until: blacklist_cmd_job_result.finished
-      retries: 30
-
-    - name: Set BlacklistedIpAddresses fact
-      set_fact:
-        BlacklistedIpAddresses: "{{ (blacklist_cmd_job_result.stdout | from_yaml)['output_value'] }}"
 
     - name: Block on async port check
       async_status:
