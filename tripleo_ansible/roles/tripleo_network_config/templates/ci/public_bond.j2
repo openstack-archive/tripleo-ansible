@@ -21,7 +21,7 @@ network_config:
   members:
   - type: ovs_bond
     name: bond1
-    ovs_options: {{ bound_interface_ovs_options }}
+    ovs_options: {{ bond_interface_ovs_options }}
     members:
     - type: interface
       name: nic2

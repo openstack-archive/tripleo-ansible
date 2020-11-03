@@ -15,7 +15,7 @@ network_config:
 - type: linux_bond
   name: bond_api
   mtu: {{ min_viable_mtu }}
-  bonding_options: {{ bound_interface_ovs_options }}
+  bonding_options: {{ bond_interface_ovs_options }}
   use_dhcp: false
   dns_servers: {{ ctlplane_dns_nameservers }}
   members:

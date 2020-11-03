@@ -21,7 +21,7 @@ network_config:
   name: bond_api
   mtu: {{ min_viable_mtu }}
   use_dhcp: false
-  bonding_options: {{ bound_interface_ovs_options }}
+  bonding_options: {{ bond_interface_ovs_options }}
   dns_servers: {{ ctlplane_dns_nameservers }}
   domain: {{ dns_search_domains }}
   members:
