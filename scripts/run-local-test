@@ -80,6 +80,9 @@ fi
 # Display list of installed packages with versions (debugging failures)
 "${HOME}/test-python/bin/pip" freeze
 
+# Ensure we don't keep any dangling sudo session in the shell
+sudo -k
+
 # Run local test
 PS1="[\u@\h \W]\$" source "${HOME}/test-python/bin/activate"
 source "${PROJECT_DIR}/ansible-test-env.rc"
