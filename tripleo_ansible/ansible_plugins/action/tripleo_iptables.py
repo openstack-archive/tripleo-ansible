@@ -50,7 +50,10 @@ EXAMPLES = """
 
 
 from ansible.plugins.action import ActionBase
-from ansible.plugins.filter import ipaddr
+try:
+    from ansible_collections.ansible.netcommon.plugins.filter import ipaddr
+except ImportError:
+    from ansible.plugins.filter import ipaddr
 from ansible.utils.display import Display
 
 
