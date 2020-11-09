@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from copy import deepcopy as dcopy
 import jsonschema
 
 import metalsmith
@@ -44,6 +44,18 @@ _NIC_SCHEMA = {
     'additionalProperties': False
 }
 
+_NETWORK_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'network': {'type': 'string'},
+        'port': {'type': 'string'},
+        'fixed_ip': {'type': 'string'},
+        'subnet': {'type': 'string'},
+        'vif': {'type': 'boolean'}
+    },
+    'additionalProperties': False
+}
+
 _INSTANCE_SCHEMA = {
     'type': 'object',
     'properties': {
@@ -57,10 +69,10 @@ _INSTANCE_SCHEMA = {
         'image': _IMAGE_SCHEMA,
         'name': {'type': 'string'},
         'netboot': {'type': 'boolean'},
-        'nics': {
-            'type': 'array',
-            'items': _NIC_SCHEMA
-        },
+        'nics': {'type': 'array',
+                 'items': _NIC_SCHEMA},
+        'networks': {'type': 'array',
+                     'items': _NETWORK_SCHEMA},
         'passwordless_sudo': {'type': 'boolean'},
         'profile': {'type': 'string'},
         'provisioned': {'type': 'boolean'},
@@ -84,6 +96,21 @@ _INSTANCES_SCHEMA = {
 }
 """JSON schema of the instances list."""
 
+_no_nics = dcopy(_INSTANCE_SCHEMA)
+_no_networks = dcopy(_INSTANCE_SCHEMA)
+del _no_nics['properties']['nics']
+del _no_networks['properties']['networks']
+
+_ROLE_DEFAULTS_SCHEMA = {
+    'anyOf': [_no_nics, _no_networks]
+}
+"""JSON schema of the role defaults."""
+
+_INSTANCES_INPUT_SCHEMA = {
+    'type': 'array',
+    'items': {'anyOf': [_no_nics, _no_networks]},
+}
+"""JSON schema of the instances input."""
 
 _ROLES_INPUT_SCHEMA = {
     'type': 'array',
@@ -93,8 +120,8 @@ _ROLES_INPUT_SCHEMA = {
             'name': {'type': 'string'},
             'hostname_format': {'type': 'string'},
             'count': {'type': 'integer', 'minimum': 0},
-            'defaults': _INSTANCE_SCHEMA,
-            'instances': _INSTANCES_SCHEMA,
+            'defaults': _ROLE_DEFAULTS_SCHEMA,
+            'instances': _INSTANCES_INPUT_SCHEMA,
         },
         'additionalProperties': False,
         'required': ['name'],
@@ -110,19 +137,27 @@ class BaremetalDeployException(Exception):
 def expand(roles, stack_name, expand_provisioned=True, default_image=None,
            default_network=None, user_name=None, ssh_public_keys=None):
 
+    def _remove_vif_key(nets):
+        for net in nets:
+            net.pop('vif', None)
+
     for role in roles:
-        role.setdefault('defaults', {})
+        defaults = role.setdefault('defaults', {})
         if default_image:
-            role['defaults'].setdefault('image', default_image)
-        if default_network:
-            role['defaults'].setdefault('nics', default_network)
+            defaults.setdefault('image', default_image)
         if ssh_public_keys:
-            role['defaults'].setdefault('ssh_public_keys', ssh_public_keys)
+            defaults.setdefault('ssh_public_keys', ssh_public_keys)
         if user_name:
-            role['defaults'].setdefault('user_name', user_name)
+            defaults.setdefault('user_name', user_name)
+        if default_network:
+            default_networks = defaults.setdefault('networks', [])
+            default_networks.extend([x for x in default_network
+                                     if x not in default_networks])
 
         for inst in role.get('instances', []):
-            for k, v in role['defaults'].items():
+            merge_networks_defaults(defaults, inst)
+
+            for k, v in defaults.items():
                 inst.setdefault(k, v)
 
             # Set the default hostname now for duplicate hostname
@@ -177,8 +212,8 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             hostname_format)
 
         # ensure each instance has a unique non-empty hostname
-        # and a hostname map entry. Also build a list of indexes
-        # for unprovisioned instances
+        # and a hostname map entry and add nics entry for vif networks.
+        # Also build a list of indexes for unprovisioned instances
         index = 0
         for inst in role_instances:
             provisioned = inst.get('provisioned', True)
@@ -203,6 +238,12 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
                     unprovisioned_indexes.append(
                         potential_gen_names[hostname])
 
+            vif_networks = [x for x in dcopy(inst.get('networks', []))
+                            if x.get('vif')]
+            if vif_networks:
+                _remove_vif_key(vif_networks)
+                inst.setdefault('nics', vif_networks)
+
         if unprovisioned_indexes:
             parameter_defaults['%sRemovalPolicies' % name] = [{
                 'resource_list': unprovisioned_indexes
@@ -222,7 +263,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
         parameter_defaults['%sCount' % name] = (
             provisioned_count)
 
-    validate_instances(instances)
+    validate_instances(instances, _INSTANCES_SCHEMA)
     if expand_provisioned:
         env = {'parameter_defaults': parameter_defaults}
     else:
@@ -230,8 +271,27 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
     return instances, env
 
 
+def merge_networks_defaults(defaults, instance):
+    d_networks = defaults.get('networks', [])
+    i_networks = instance.get('networks', [])
+    if not d_networks:
+        return
+
+    i_dict = {x['network']: x for x in i_networks}
+    d_dict = {x['network']: x for x in d_networks}
+
+    # only merge networks not already defined on the instance
+    for key in d_dict:
+        if key not in i_dict:
+            i_networks.append(d_dict[key])
+
+    # only set non-empty networks value on the instance
+    if i_networks:
+        instance['networks'] = i_networks
+
+
 def check_existing(instances, provisioner, baremetal):
-    validate_instances(instances)
+    validate_instances(instances, _INSTANCES_SCHEMA)
 
     # Due to the name shadowing we should import other way
     import importlib
@@ -319,8 +379,8 @@ def build_hostname(hostname_format, index, stack):
     return gen_name
 
 
-def validate_instances(instances):
-    jsonschema.validate(instances, _INSTANCES_SCHEMA)
+def validate_instances(instances, schema):
+    jsonschema.validate(instances, schema)
     hostnames = set()
     names = set()
     for inst in instances:
@@ -366,7 +426,7 @@ def validate_roles(roles):
             raise ValueError("%s: cannot specify provisioned in defaults"
                              % name)
         if 'instances' in item:
-            validate_instances(item['instances'])
+            validate_instances(item['instances'], _INSTANCES_INPUT_SCHEMA)
 
 
 def get_source(instance):

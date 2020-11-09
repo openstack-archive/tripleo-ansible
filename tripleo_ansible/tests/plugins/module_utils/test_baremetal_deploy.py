@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import jsonschema
 import metalsmith
 from unittest import mock
 from openstack import exceptions as sdk_exc
@@ -56,10 +57,45 @@ class TestBaremetalDeployUtils(base.TestCase):
             )
         )
 
+    def test_merge_networks_defaults(self):
+        # Network defined only in role defaults is appended
+        defaults = {'networks': [{'network': 'role_net'}]}
+        instance = {'networks': [{'network': 'instance_net'}]}
+        bd.merge_networks_defaults(defaults, instance)
+        self.assertEqual({'networks': [{'network': 'instance_net'},
+                                       {'network': 'role_net'}]}, instance)
+
+        # Network defined in both role defaults and instance is not appended
+        instance = {'networks': [{'network': 'instance_net'},
+                                 {'network': 'role_net'}]}
+        bd.merge_networks_defaults(defaults, instance)
+        self.assertEqual({'networks': [{'network': 'instance_net'},
+                                       {'network': 'role_net'}]}, instance)
+
+        # Network defined in role defaults and in instance with richer data
+        # is not appended.
+        instance = {'networks': [{'network': 'instance_net'},
+                                 {'network': 'role_net', 'port': 'port_uuid'}]}
+        bd.merge_networks_defaults(defaults, instance)
+        self.assertEqual({'networks': [{'network': 'instance_net'},
+                                       {'network': 'role_net',
+                                        'port': 'port_uuid'}]}, instance)
+
+        # Network defined in role defaults with richer data compared to the
+        # instance is not appended.
+        defaults = {'networks': [{'network': 'role_net',
+                                  'subnet': 'subnet_name'}]}
+        instance = {'networks': [{'network': 'instance_net'},
+                                 {'network': 'role_net'}]}
+        bd.merge_networks_defaults(defaults, instance)
+        self.assertEqual({'networks': [{'network': 'instance_net'},
+                                       {'network': 'role_net'}]}, instance)
+
 
 class TestExpandRoles(base.TestCase):
 
     default_image = {'href': 'overcloud-full'}
+    default_network = [{'network': 'ctlplane', 'vif': True}]
 
     def test_simple(self):
         roles = [
@@ -92,6 +128,149 @@ class TestExpandRoles(base.TestCase):
                 }
             },
             environment['parameter_defaults'])
+
+    def test_default_network(self):
+        roles = [
+            {'name': 'Compute'},
+            {'name': 'Controller'},
+        ]
+        instances, environment = bd.expand(
+            roles, 'overcloud', True, self.default_image, self.default_network
+        )
+        self.assertEqual(
+            [
+                {'hostname': 'overcloud-novacompute-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'ctlplane', 'vif': True}],
+                 'nics': [{'network': 'ctlplane'}]},
+                {'hostname': 'overcloud-controller-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'ctlplane', 'vif': True}],
+                 'nics': [{'network': 'ctlplane'}]},
+            ],
+            instances)
+
+    def test_networks_set_no_default_network(self):
+        roles = [
+            {'name': 'Compute',
+             'defaults': {
+                 'networks': [
+                     {'network': 'some_net', 'vif': True},
+                 ]}
+             },
+            {'name': 'Controller',
+             'defaults': {
+                 'networks': [
+                     {'network': 'some_net', 'vif': True},
+                 ]}
+             },
+        ]
+        instances, environment = bd.expand(
+            roles, 'overcloud', True, self.default_image, None
+        )
+        self.assertEqual(
+            [
+                {'hostname': 'overcloud-novacompute-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'some_net', 'vif': True}],
+                 'nics': [{'network': 'some_net'}]},
+                {'hostname': 'overcloud-controller-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'some_net', 'vif': True}],
+                 'nics': [{'network': 'some_net'}]},
+            ],
+            instances)
+
+    def test_networks_set_default_appended(self):
+        roles = [
+            {'name': 'Compute',
+             'defaults': {
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet'},
+                 ]}
+             },
+            {'name': 'Controller',
+             'defaults': {
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet'},
+                 ]}
+             },
+        ]
+        instances, environment = bd.expand(
+            roles, 'overcloud', True, self.default_image, self.default_network
+        )
+        self.assertEqual(
+            [
+                {'hostname': 'overcloud-novacompute-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'foo', 'subnet': 'foo_subnet'},
+                              {'network': 'ctlplane', 'vif': True}],
+                 'nics': [{'network': 'ctlplane'}]},
+                {'hostname': 'overcloud-controller-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [{'network': 'foo', 'subnet': 'foo_subnet'},
+                              {'network': 'ctlplane', 'vif': True}],
+                 'nics': [{'network': 'ctlplane'}]},
+            ],
+            instances)
+
+    def test_networks_vif_set_default_appended(self):
+        roles = [
+            {'name': 'Compute',
+             'defaults': {
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet', 'vif': True},
+                 ]}
+             },
+            {'name': 'Controller',
+             'defaults': {
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet', 'vif': True},
+                 ]}
+             },
+        ]
+        instances, environment = bd.expand(
+            roles, 'overcloud', True, self.default_image, self.default_network
+        )
+        self.assertEqual(
+            [
+                {'hostname': 'overcloud-novacompute-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet', 'vif': True},
+                     {'network': 'ctlplane', 'vif': True}
+                 ],
+                 'nics': [{'network': 'foo', 'subnet': 'foo_subnet'},
+                          {'network': 'ctlplane'}],
+                 },
+                {'hostname': 'overcloud-controller-0',
+                 'image': {'href': 'overcloud-full'},
+                 'networks': [
+                     {'network': 'foo', 'subnet': 'foo_subnet', 'vif': True},
+                     {'network': 'ctlplane', 'vif': True}
+                 ],
+                 'nics': [
+                     {'network': 'foo', 'subnet': 'foo_subnet'},
+                     {'network': 'ctlplane'}
+                 ]},
+            ],
+            instances)
+
+    def test_networks_nics_are_mutually_exclusive(self):
+        # Neither 'nics' nor 'networks' - OK
+        roles = [{'name': 'Compute', 'defaults': {}}]
+        bd.expand(roles, 'overcloud', True, self.default_image)
+        # 'networks' but not 'nics' - OK
+        roles = [{'name': 'Compute', 'defaults': {'networks': []}}]
+        bd.expand(roles, 'overcloud', True, self.default_image)
+        # 'nics' but not 'networks' - OK
+        roles = [{'name': 'Compute', 'defaults': {'nics': []}}]
+        bd.expand(roles, 'overcloud', True, self.default_image)
+        # 'networks' and 'nics' - mutually exclusive, Raises ValidationError
+        roles = [{'name': 'Compute', 'defaults': {'networks': [], 'nics': []}}]
+        self.assertRaises(
+            jsonschema.exceptions.ValidationError,
+            bd.expand, roles, 'overcloud', True, self.default_image)
 
     def test_image_in_defaults(self):
         roles = [{
@@ -200,15 +379,22 @@ class TestExpandRoles(base.TestCase):
             'name': 'Controller',
             'count': 2,
             'defaults': {
-                'profile': 'control'
+                'profile': 'control',
+                'networks': [
+                    {'network': 'foo', 'subnet': 'foo_subnet'},
+                ]
             },
             'instances': [{
                 'hostname': 'controller-X.example.com',
-                'profile': 'control-X'
+                'profile': 'control-X',
+                'networks': [
+                    {'network': 'inst_net', 'fixed_ip': '10.1.1.1'}
+                ]
             }, {
                 'name': 'node-0',
                 'traits': ['CUSTOM_FOO'],
-                'nics': [{'subnet': 'leaf-2'}]},
+                'networks': [{'network': 'some_net', 'subnet': 'leaf-2',
+                              'vif': True}]},
             ]},
         ]
         instances, environment = bd.expand(
@@ -222,12 +408,20 @@ class TestExpandRoles(base.TestCase):
                  'image': {'href': 'overcloud-full'}},
                 {'hostname': 'controller-X.example.com',
                  'image': {'href': 'overcloud-full'},
-                 'profile': 'control-X'},
+                 'profile': 'control-X',
+                 'networks': [{'fixed_ip': '10.1.1.1', 'network': 'inst_net'},
+                              {'network': 'foo', 'subnet': 'foo_subnet'}],
+                 },
                 # Name provides the default for hostname later on.
                 {'name': 'node-0', 'profile': 'control',
                  'hostname': 'node-0',
+                 'networks': [
+                     {'network': 'some_net', 'subnet': 'leaf-2', 'vif': True},
+                     {'network': 'foo', 'subnet': 'foo_subnet'},
+                 ],
                  'image': {'href': 'overcloud-full'},
-                 'traits': ['CUSTOM_FOO'], 'nics': [{'subnet': 'leaf-2'}]},
+                 'traits': ['CUSTOM_FOO'],
+                 'nics': [{'network': 'some_net', 'subnet': 'leaf-2'}]},
             ],
             instances)
         self.assertEqual(
