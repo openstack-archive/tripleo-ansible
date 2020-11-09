@@ -134,6 +134,7 @@
         concurrency: "{{ runtime_concurrency }}"
         instances: "{{ baremetal_instances.instances }}"
         provisioned_instances: "{{ baremetal_provisioned.instances + baremetal_existing.instances }}"
+        hostname_role_map: "{{ baremetal_instances.hostname_role_map }}"
         state: present
       register: instance_network_ports
       when: manage_network_ports|default(false)

@@ -957,7 +957,8 @@ class TestCheckExistingInstances(base.TestCase):
             metalsmith.exceptions.Error(""),
             existing,
         ]
-        found, not_found = bd.check_existing(instances, pr, baremetal)
+        found, not_found, unmanaged = bd.check_existing(instances, pr,
+                                                        baremetal)
 
         self.assertEqual([existing], found)
         self.assertEqual([{
@@ -986,7 +987,8 @@ class TestCheckExistingInstances(base.TestCase):
         existing.uuid = 'aaaa'
         pr.show_instance.return_value = existing
 
-        found, not_found = bd.check_existing(instances, pr, baremetal)
+        found, not_found, unmanaged = bd.check_existing(instances, pr,
+                                                        baremetal)
         baremetal.create_allocation.assert_called_once_with(
             name='host2', node='server2', resource_class='compute')
 
