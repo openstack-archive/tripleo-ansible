@@ -517,7 +517,7 @@
     - ^zuul.d/molecule.yaml
     name: tripleo-ansible-centos-8-role-addition
     nodeset: centos-8
-    parent: tox-molecule
+    parent: tox
     timeout: 1800
     vars:
       tox_envlist: role-addition
