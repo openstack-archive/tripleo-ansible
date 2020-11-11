@@ -103,20 +103,6 @@ _ROLES_INPUT_SCHEMA = {
 """JSON schema of the roles list."""
 
 
-NETWORK_KEYS = (
-    'mtu',
-    'tags',
-)
-
-
-SUBNET_KEYS = (
-    'cidr',
-    'gateway_ip',
-    'host_routes',
-    'dns_nameservers',
-)
-
-
 class BaremetalDeployException(Exception):
     pass
 
@@ -313,19 +299,8 @@ def populate_environment(instance_uuids, provisioner, environment,
         ctlplane_net = nets.get(ctlplane_network)
         if not ctlplane_net:
             continue
-        fixed_ips = ctlplane_net.get('fixed_ips', [])
-        network_all = ctlplane_net.get('network', {})
-        network = {k: v for k, v in network_all.items()
-                   if k in NETWORK_KEYS}
-        subnets = []
-        for subnet in ctlplane_net.get('subnets', []):
-            subnets.append({k: v for k, v in subnet.items()
-                            if k in SUBNET_KEYS})
-        ctlplane = {
-            'fixed_ips': fixed_ips,
-            'network': network,
-            'subnets': subnets
-        }
+        ctlplane = {}
+        ctlplane['fixed_ips'] = ctlplane_net.get('fixed_ips', [])
 
         port_map['%s-%s' % (instance.hostname, ctlplane_network)] = ctlplane
     return environment
