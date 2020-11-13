@@ -143,6 +143,10 @@ class TestNetworkPopulateEnvironment(tests_base.TestCase):
         plugin.set_composable_network_attrs(
             module, mock_conn, net_data['name'].lower(), net_data,
             attrs=attrs, cidr_map=cidr_map, ip_version_map=ip_version_map)
+        mock_conn.network.find_network.assert_called_with(
+            net_data['name'].lower())
+        mock_conn.network.get_subnet.assert_has_calls(
+            [mock.call('subnet01_id'), mock.call('subnet02_id')])
         self.assertEqual(
             {'network': {'dns_domain': 'netname.localdomain.', 'mtu': 1500,
                          'name': 'netname', 'tags': ['tripleo_vlan_id=100']},
