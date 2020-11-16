@@ -106,6 +106,11 @@ options:
       - Whether or not we cleanup containers not in config. Useful only for apply action.
     type: bool
     default: True
+  container_name:
+    description:
+      - If given just run paunch for the specified container.
+    default: ""
+
 """
 
 EXAMPLES = """
@@ -149,6 +154,14 @@ class PaunchManager:
         self.container_cli = self.module.params['container_cli']
         self.cleanup = self.module.params['cleanup']
         self.config_overrides = self.module.params['config_overrides']
+        self.container_name = None
+        if self.module.params['container_name']:
+            self.container_name = self.module.params['container_name']
+            # we simplify the user interface here, as if he/she wants
+            # override and give a name then it must be for that container.
+            self.config_overrides = {
+                self.container_name: self.module.params['config_overrides']
+            }
         self.container_log_stdout_path = \
             self.module.params['container_log_stdout_path']
         self.managed_by = self.module.params['managed_by']
@@ -172,8 +185,12 @@ class PaunchManager:
             if self.config.endswith('.json'):
                 self.module.warn('Only one config was given, cleanup disabled')
                 self.cleanup = False
+            container_name = None
+            if self.module.params['container_name']:
+                container_name = self.module.params['container_name']
             self.config_yaml = putils_common.load_config(
                 self.config,
+                name=container_name,
                 overrides=self.config_overrides)
 
         if self.action == 'apply':
