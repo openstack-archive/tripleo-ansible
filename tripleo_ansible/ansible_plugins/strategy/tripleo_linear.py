@@ -75,6 +75,19 @@ class StrategyModule(BASE.TripleoBase):
 
     def __init__(self, *args, **kwargs):
         super(StrategyModule, self).__init__(*args, **kwargs)
+        self._any_errors_fatal = False
+        self._callback_sent = False
+        self._has_work = False
+        self._host_pinned = False
+        self._hosts_left = []
+        self._iterator = None
+        self._play_context = None
+        self._strat_results = []
+        self.noop_task = None
+        self._fail_cache = {}
+        # these were defined in 2.9
+        self._has_hosts_cache = False
+        self._has_hosts_cache_all = False
 
     def _create_noop_task(self):
         """Create noop task"""
