@@ -51,6 +51,9 @@ class TripleoBase(StrategyBase):
         self._has_hosts_cache_all = False
 
     def _print(self, msg, host=None, level=1):
+        # host needs to be a string or bad things happen. LP#1904917
+        if host and not isinstance(host, str):
+            host = None
         display.verbose(msg, host=host, caplevel=level)
 
     def _debug(self, msg, host=None):
