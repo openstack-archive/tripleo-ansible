@@ -14,39 +14,39 @@ network_config:
 {% if network not in ["External", "Tenant"] %}
 - type: interface
   name: nic{{ loop.index + 1 }}
-  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+  mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
   use_dhcp: false
 - type: vlan
   device: nic{{ loop.index + 1 }}
-  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
-  vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}
+  mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
+  vlan_id: {{ lookup('vars', networks_lower[network] ~ '_vlan_id') }}
   addresses:
   - ip_netmask:
-      {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
-  routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+      {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
+  routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
 {% elif 'external_bridge' in role_tags %}
 - type: ovs_bridge
 {% if network == 'External' %}
   name: {{ neutron_physical_bridge_name }}
 {% else %}
-  name: {{ 'br-' ~ role_networks_lower[network] }}
+  name: {{ 'br-' ~ networks_lower[network] }}
 {% endif %}
-  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+  mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
   dns_servers: {{ ctlplane_dns_nameservers }}
   use_dhcp: false
   members:
   - type: interface
     name: nic{{ loop.index + 1 }}
-    mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
+    mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
     use_dhcp: false
     primary: true
   - type: vlan
-    mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
-    vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}
+    mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
+    vlan_id: {{ lookup('vars', networks_lower[network] ~ '_vlan_id') }}
     addresses:
     - ip_netmask:
-        {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
-    routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+        {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
+    routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
 {% endif %}
 {% set _ = nics_used.append(loop.index) %}
 {% endfor %}
