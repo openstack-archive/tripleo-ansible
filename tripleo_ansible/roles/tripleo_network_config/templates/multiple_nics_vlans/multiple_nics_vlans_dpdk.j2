@@ -10,8 +10,8 @@ network_config:
   addresses:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
 {% set nics_used = [1] %}
-{% for network in role_networks if network not in networks_skip_config %}
-{% if network not in ["External", "Tenant"] %}
+{% for network in networks_all if network not in networks_skip_config %}
+{% if network not in ["External", "Tenant"] and network in role_networks %}
 - type: interface
   name: nic{{ loop.index + 1 }}
   mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
@@ -24,7 +24,7 @@ network_config:
   - ip_netmask:
       {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
   routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
-{% elif 'external_bridge' in role_tags %}
+{% elif network in role_networks or 'external_bridge' in role_tags %}
 - type: ovs_bridge
 {% if network == 'External' %}
   name: {{ neutron_physical_bridge_name }}
