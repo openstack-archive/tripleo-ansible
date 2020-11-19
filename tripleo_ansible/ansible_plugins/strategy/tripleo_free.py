@@ -147,7 +147,7 @@ class StrategyModule(BASE.TripleoBase):
 
     def _advance_host(self, host, task):
         """Advance the host's task as necessary"""
-        self._debug('_advance_host {}'.format(host), host)
+        self._debug('_advance_host {}'.format(host))
         host_name = host.get_name()
 
         # build get_vars call params
