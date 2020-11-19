@@ -20,7 +20,7 @@ network_config:
     mtu: {{ min_viable_mtu }}
     # force the MAC address of the bridge to this interface
     primary: true
-{% for network in role_networks and network not in networks_skip_config|default([]) %}
+{% for network in role_networks if network not in networks_skip_config) %}
   - type: vlan
     mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
     vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}

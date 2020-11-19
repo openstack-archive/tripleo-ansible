@@ -7,7 +7,7 @@ log: true
 platforms:
   - name: ubi8
     hostname: ubi8
-    image: ubi8/ubi-init
+    image: ubi8/ubi:8.2
     registry:
       url: registry.access.redhat.com
     dockerfile: Dockerfile

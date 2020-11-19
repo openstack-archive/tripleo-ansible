@@ -10,7 +10,7 @@ network_config:
   addresses:
   - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
 {% set nics_used = [1] %}
-{% for network in role_networks and network not in networks_skip_config|default([]) %}
+{% for network in role_networks if network not in networks_skip_config %}
 {% if network not in ["External", "Tenant"] %}
 - type: interface
   name: nic{{ loop.index + 1 }}
