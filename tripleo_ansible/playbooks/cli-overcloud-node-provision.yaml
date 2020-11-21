@@ -128,13 +128,38 @@
       debug:
         var: baremetal_provisioned.logging
 
+    - name: Provision instance network ports
+      tripleo_overcloud_network_ports:
+        stack_name: "{{ stack_name }}"
+        concurrency: "{{ runtime_concurrency }}"
+        instances: "{{ baremetal_instances.instances }}"
+        provisioned_instances: "{{ baremetal_provisioned.instances + baremetal_existing.instances }}"
+        state: present
+      register: instance_network_ports
+      when: manage_network_ports|default(false)
+
     - name: Populate environment
       tripleo_baremetal_populate_environment:
         environment: "{{ baremetal_instances.environment }}"
         instances: "{{ baremetal_provisioned.instances + baremetal_existing.instances }}"
       register: baremetal_environment
 
+    - name: Populate environment with network port data
+      tripleo_network_ports_populate_environment:
+        environment: "{{ baremetal_instances.environment }}"
+        role_net_map: "{{ baremetal_instances.role_net_map }}"
+        node_port_map: "{{ instance_network_ports.node_port_map }}"
+      register: network_ports_environment
+      when: manage_network_ports|default(false)
+
     - name: Write environment to {{ baremetal_deployed_path }}
       copy:
         dest: "{{ baremetal_deployed_path }}"
         content: "{{ baremetal_environment.environment | default({}) | to_nice_yaml(indent=2) }}"
+      when: not manage_network_ports|default(false)
+
+    - name: Write environment to {{ baremetal_deployed_path }}
+      copy:
+        dest: "{{ baremetal_deployed_path }}"
+        content: "{{ network_ports_environment.environment | default({}) | to_nice_yaml(indent=2) }}"
+      when: manage_network_ports|default(false)
