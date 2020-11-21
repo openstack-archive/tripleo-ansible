@@ -145,9 +145,17 @@
         instances: "{{ baremetal_provisioned.instances + baremetal_existing.instances }}"
       register: baremetal_environment
 
+    - name: Populate environment with unmanaged nodes
+      tripleo_unmanaged_populate_environment:
+        environment: "{{ baremetal_environment.environment }}"
+        instances: "{{ baremetal_existing.pre_provisioned }}"
+        node_port_map: "{{ instance_network_ports.node_port_map }}"
+      register: unmanaged_environment
+      when: manage_network_ports|default(false)
+
     - name: Populate environment with network port data
       tripleo_network_ports_populate_environment:
-        environment: "{{ baremetal_instances.environment }}"
+        environment: "{{ unmanaged_environment.environment }}"
         role_net_map: "{{ baremetal_instances.role_net_map }}"
         node_port_map: "{{ instance_network_ports.node_port_map }}"
       register: network_ports_environment
