@@ -28,13 +28,14 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         net_data = {'name': 'foo',
                     'service_net_map_replace': 'replacement',
                     'vip': True}
-        expected = ['tripleo_service_net_map_replace=replacement',
+        expected = ['tripleo_network_name=foo',
+                    'tripleo_service_net_map_replace=replacement',
                     'tripleo_vip=true']
         result = plugin.build_network_tag_field(net_data)
         self.assertEqual(expected, result)
 
         net_data = {'name': 'foo'}
-        expected = []
+        expected = ['tripleo_network_name=foo']
         result = plugin.build_network_tag_field(net_data)
         self.assertEqual(expected, result)
 
@@ -61,7 +62,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'shared': plugin.DEFAULT_SHARED,
             'provider:physical_network': 'netname',
             'provider:network_type': plugin.DEFAULT_NETWORK_TYPE,
-            'tags': [],
+            'tags': ['tripleo_network_name=NetName'],
         }
 
         result = plugin.create_net_spec(net_data, overcloud_domain_name)

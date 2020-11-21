@@ -116,7 +116,7 @@ def get_overcloud_domain_name(conn, default_network):
 
 
 def build_network_tag_field(net_data):
-    tags = []
+    tags = ['='.join(['tripleo_network_name', net_data['name']])]
     service_net_map_replace = net_data.get('service_net_map_replace')
     vip = net_data.get('vip')
     if service_net_map_replace:
