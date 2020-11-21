@@ -167,8 +167,8 @@ def validate_network_update(module, network, net_spec):
     # NOTE(hjensas): When a network have multiple segments,
     # attributes provider:network_type, provider:physical_network is None
     # for the network.
-    if (network.provider_physical_network != net_spec.pop(
-            'provider:physical_network')
+    if (net_spec.pop('provider:physical_network')
+            not in [network.provider_physical_network, net_spec['name']]
             and network.provider_physical_network is not None):
         module.fail_json(
             msg='Cannot update provider:physical_network in existing network')
