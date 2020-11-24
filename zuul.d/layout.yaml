@@ -45,7 +45,7 @@
           - ^tox.ini$
           - ^tripleo_ansible/playbooks/docker-vfs-setup.yml$
           - ^tripleo_ansible/.*molecule.*
-          - ^tripleo_ansible/.*meta.*
+          - ^tripleo_ansible/roles/.*/meta.*
           - ^tripleo_ansible/roles/test_deps/.*
           - ^zuul.d/.*
       - tripleo-ci-centos-8-standalone: &basic_standalone
