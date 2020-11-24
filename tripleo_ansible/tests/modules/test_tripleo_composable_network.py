@@ -52,9 +52,10 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
 
     def test_create_net_spec(self):
         net_data = {'name': 'NetName'}
+        overcloud_domain_name = 'example.com.'
         expected = {
             'admin_state_up': plugin.DEFAULT_ADMIN_STATE,
-            'dns_domain': '.'.join(['netname', plugin.DEFAULT_DOMAIN]),
+            'dns_domain': '.'.join(['netname', overcloud_domain_name]),
             'mtu': plugin.DEFAULT_MTU,
             'name': 'NetName',
             'shared': plugin.DEFAULT_SHARED,
@@ -62,7 +63,8 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'provider:network_type': plugin.DEFAULT_NETWORK_TYPE,
             'tags': [],
         }
-        result = plugin.create_net_spec(net_data)
+
+        result = plugin.create_net_spec(net_data, overcloud_domain_name)
         self.assertEqual(expected, result)
 
     def test_validate_network_update(self):
@@ -594,3 +596,28 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
                 msg='Multiple segments with no name attribute exist on '
                     'network {}, unable to reliably adopt the implicit '
                     'segment.'.format(fake_network.id))
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_get_overcloud_domain_name(self, mock_conn):
+        mock_conn.network.find_network.return_value = stubs.FakeNeutronNetwork(
+            dns_domain='ctlplane.example.com.')
+        self.assertEqual(
+            'example.com.',
+            plugin.get_overcloud_domain_name(mock_conn, 'ctlplane'))
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_get_overcloud_domain_name_no_ctlplane_network(self, mock_conn):
+        mock_conn.network.find_network.return_value = None
+        self.assertEqual(
+            plugin.DEFAULT_DOMAIN,
+            plugin.get_overcloud_domain_name(mock_conn, 'ctlplane')
+        )
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_get_overcloud_domain_name_no_ctlplane_dns_domain(self, mock_conn):
+        mock_conn.network.find_network.return_value = stubs.FakeNeutronNetwork(
+            dns_domain='')
+        self.assertEqual(
+            plugin.DEFAULT_DOMAIN,
+            plugin.get_overcloud_domain_name(mock_conn, 'ctlplane')
+        )
