@@ -146,7 +146,7 @@ def create_net_spec(net_data, overcloud_domain_name):
                                     overcloud_domain_name])
         ),
         'mtu': net_data.get('mtu', DEFAULT_MTU),
-        'name': net_data['name'],
+        'name': name_lower,
         'shared': net_data.get('shared', DEFAULT_SHARED),
         'provider:physical_network': name_lower,
         'provider:network_type': DEFAULT_NETWORK_TYPE,

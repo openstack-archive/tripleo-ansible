@@ -123,7 +123,7 @@ def get_subnets_attrs(subnets):
 
 def set_composable_network_attrs(module, conn, name_lower, net_data, attrs=None,
                                  cidr_map=None, ip_version_map=None):
-    net = conn.network.find_network(net_data['name'])
+    net = conn.network.find_network(name_lower)
     if net is None:
         msg = ('Failed crating deployed network environment. Network '
                '{} not found'.format(net_data['name']))

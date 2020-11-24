@@ -57,7 +57,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'admin_state_up': plugin.DEFAULT_ADMIN_STATE,
             'dns_domain': '.'.join(['netname', overcloud_domain_name]),
             'mtu': plugin.DEFAULT_MTU,
-            'name': 'NetName',
+            'name': 'netname',
             'shared': plugin.DEFAULT_SHARED,
             'provider:physical_network': 'netname',
             'provider:network_type': plugin.DEFAULT_NETWORK_TYPE,
