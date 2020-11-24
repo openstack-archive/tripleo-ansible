@@ -6,13 +6,6 @@
       set_fact:
         tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.projects['opendev.org/openstack/tripleo-ansible'].src_dir }}"
 
-    - name: Set action plugin path fact
-      set_fact:
-        tripleo_action_plugins_paths:
-          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
-          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
-          - "/usr/share/ansible/plugins/action"
-
     - name: Ensure output dirs
       file:
         path: "{{ ansible_user_dir }}/zuul-output/logs"

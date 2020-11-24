@@ -19,13 +19,6 @@
         triple_ansible_testdir: "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/tests"
       when: tripleo_role_name is not defined
 
-    - name: Set action plugin path fact
-      set_fact:
-        tripleo_action_plugins_paths:
-          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy/config_template/action"
-          - "{{ tripleo_ansible_project_path }}/tripleo_ansible/ansible_plugins/action"
-          - "/usr/share/ansible/plugins/action"
-
   tasks:
     - name: Run role test job
       shell: |-
@@ -39,5 +32,3 @@
       args:
         chdir: "{{ triple_ansible_testdir }}"
         executable: /bin/bash
-      environment:
-        ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
