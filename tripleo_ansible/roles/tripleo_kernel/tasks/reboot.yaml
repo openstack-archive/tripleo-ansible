@@ -27,6 +27,8 @@
 # BOOTPROTO of all interface config files (except provisioning), will be set to "none" to avoid reboot failing to acquire IP on other networks
 - name: Apply workaround for node reboot
   block:
+    - name: Update facts before attempting to disable interfaces
+      setup:
     - name: Find the ifcg files
       find:
         paths: /etc/sysconfig/network-scripts/
