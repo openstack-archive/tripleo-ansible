@@ -18,13 +18,15 @@
 - name: Prepare
   hosts: all:localhost
   become: true
+  vars:
+    test_deps_setup_tripleo: true
   roles:
     - role: test_deps
   post_tasks:
     - name: Install ovs
       package:
         name:
-          - openvswitch*
+          - openvswitch
           - libibverbs
         state: present
 
