@@ -8,7 +8,7 @@ if ($inputname == "imudp" and $syslogfacility-text == "local0" and $syslogseveri
 }
 
 # Output the amphora administrative logs
-if ($inputname == "imudp" and $syslogfacility-text == "local1" and $hostname startswith "amphora") then {
+if ($inputname == "imudp" and $syslogfacility-text != "local0" and $hostname startswith "amphora") then {
     action(type="omfile" FileCreateMode="0644" File="/var/log/octavia/octavia-amphora.log")
     stop
 }
