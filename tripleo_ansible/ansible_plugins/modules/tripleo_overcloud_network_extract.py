@@ -256,19 +256,27 @@ def get_subnet_info(conn, subnet_id):
         subnet_dict.update({
             'ip_subnet': subnet.cidr,
             'allocation_pools': subnet.allocation_pools,
-            'gateway_ip': subnet.gateway_ip,
             'routes': subnet.host_routes,
         })
+
+        if subnet.gateway_ip:
+            subnet_dict.update({
+                'gateway_ip': subnet.gateway_ip,
+            })
 
     if subnet.ip_version == 6:
         subnet_dict.update({
             'ipv6_subnet': subnet.cidr,
             'ipv6_allocation_pools': subnet.allocation_pools,
-            'gateway_ipv6': subnet.gateway_ip,
             'routes_ipv6': subnet.host_routes,
             'ipv6_address_mode': subnet.ipv6_address_mode,
             'ipv6_ra_mode': subnet.ipv6_ra_mode,
         })
+
+        if subnet.gateway_ip:
+            subnet_dict.update({
+                'gateway_ipv6': subnet.gateway_ip,
+            })
 
     pop_defaults(subnet_dict)
 
