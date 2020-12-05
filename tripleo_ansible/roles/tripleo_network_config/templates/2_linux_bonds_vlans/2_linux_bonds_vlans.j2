@@ -8,14 +8,14 @@
 {# The bridge, bond or interface must have an MTU to allow the VLAN with the #}
 {# largest MTU. #}
 {% if network.startswith('Tenant') %}
-{{ mtu_dataplane_list.append(lookup('vars', role_networks_lower[network] ~ '_mtu')) }}
+{{ mtu_dataplane_list.append(lookup('vars', networks_lower[network] ~ '_mtu')) }}
 {# This block resolves the minimum viable MTU for interfaces connected to #}
 {# the control plane network(s) (don't start by "Tenant"), and also bonds #}
 {# and bridges that carry multiple VLANs. Each VLAN may have different MTU. #}
 {# The bridge, bond or interface must have an MTU to allow the VLAN with the #}
 {# largest MTU. #}
 {% else %}
-{{ mtu_ctlplane_list.append(lookup('vars', role_networks_lower[network] ~ '_mtu')) }}
+{{ mtu_ctlplane_list.append(lookup('vars', networks_lower[network] ~ '_mtu')) }}
 {%- endfor %}
 {% set min_viable_mtu_ctlplane = mtu_ctlplane_list | max %}
 {% set min_viable_mtu_dataplane = mtu_dataplane_list | max %}
@@ -45,11 +45,11 @@ network_config:
 {% for network in role_networks if not network.startswith('Tenant') %}
 - type: vlan
   device: bond_api
-  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
-  vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}
+  mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
+  vlan_id: {{ lookup('vars', networks_lower[network] ~ '_vlan_id') }}
   addresses:
-  - ip_netmask: {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
-  routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+  - ip_netmask: {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
+  routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
 {% endfor %}
 - type: ovs_bridge
   name: {{ neutron_physical_bridge_name }}
@@ -70,9 +70,9 @@ network_config:
 {% for network in role_networks if network.startswith('Tenant') %}
 - type: vlan
   device: bond-data
-  mtu: {{ lookup('vars', role_networks_lower[network] ~ '_mtu') }}
-  vlan_id: {{ lookup('vars', role_networks_lower[network] ~ '_vlan_id') }}
+  mtu: {{ lookup('vars', networks_lower[network] ~ '_mtu') }}
+  vlan_id: {{ lookup('vars', networks_lower[network] ~ '_vlan_id') }}
   addresses:
-  - ip_netmask: {{ lookup('vars', role_networks_lower[network] ~ '_ip') }}/{{ lookup('vars', role_networks_lower[network] ~ '_cidr') }}
-  routes: {{ lookup('vars', role_networks_lower[network] ~ '_host_routes') }}
+  - ip_netmask: {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
+  routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
 {%- endfor %}
