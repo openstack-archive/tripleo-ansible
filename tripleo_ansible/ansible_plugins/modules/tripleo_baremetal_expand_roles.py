@@ -216,7 +216,7 @@ def main():
 
     try:
         if state in ('present', 'all'):
-            present, env, role_net_map = bd.expand(
+            present, env, role_net_map, hostname_role_map = bd.expand(
                 roles=module.params['baremetal_deployment'],
                 stack_name=module.params['stack_name'],
                 expand_provisioned=True,
@@ -226,7 +226,7 @@ def main():
                 ssh_public_keys=module.params['ssh_public_keys'],
             )
         if state in ('absent', 'all'):
-            absent, _, _ = bd.expand(
+            absent, _, _, _ = bd.expand(
                 roles=module.params['baremetal_deployment'],
                 stack_name=module.params['stack_name'],
                 expand_provisioned=False,
@@ -234,6 +234,7 @@ def main():
             )
             env = {}
             role_net_map = {}
+            hostname_role_map = {}
         if state == 'present':
             instances = present
         elif state == 'absent':
@@ -246,7 +247,8 @@ def main():
             msg='Expanded to %d instances' % len(instances),
             instances=instances,
             environment=env,
-            role_net_map=role_net_map
+            role_net_map=role_net_map,
+            hostname_role_map=hostname_role_map,
         )
     except Exception as e:
         module.fail_json(msg=str(e))
