@@ -19,7 +19,7 @@ ansible>=2.8,!=2.8.9,!=2.9.12,<2.10.0
 sphinx>=2.0.0,!=2.1.0 # BSD
 openstackdocstheme>=2.2.1 # Apache-2.0
 reno>=3.1.0 # Apache-2.0
-doc8>=0.8.0 # Apache-2.0
+doc8>=0.8.1 # Apache-2.0
 bashate>=0.6.0 # Apache-2.0
 metalsmith>=1.2.0 # Apache-2.0
 jsonschema  # MIT
