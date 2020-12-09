@@ -32,38 +32,33 @@
                          | intersect(ansible_devices.keys())
                          + (tripleo_tripleo_lvmfilter_devices_allowlist | default([]))
                          | unique }}"
-    - name: create lvm.conf with global_filter
-      when:
-        - allowed_devices is defined
-        - (allowed_devices | length) > 0
-      block:
-        - name: build lvm2 allow list
-          set_fact:
-            lvm2_allow_list: "\"{{ allowed_devices | map('regex_replace', '(.+)', 'a|\\1|')
-                             | join('\",\"') }}\""
-        - name: build lvm2 deny list
-          set_fact:
-            lvm2_deny_list: "\"{{ tripleo_tripleo_lvmfilter_devices_denylist | default([])
-                            | map('regex_replace', '(.+)', 'r|\\1|') | join('\",\"') }}\""
-        - name: build lvm2 filter
-          set_fact:
-            filter: "{{ lvm2_allow_list + ',' + lvm2_deny_list }}"
-        - name: regenerate lvm config
-          become: true
-          command: >
-            lvmconfig -f /tmp/tripleo_lvmfilter.conf
-            --mergedconfig --withgeneralpreamble --withspaces --withsummary --withcomments --ignorelocal --showdeprecated
-            --config devices/global_filter='[{{ filter }}]'
-        - name: copy new lvm.conf in place
-          become: true
-          copy:
-            remote_src: true
-            src: /tmp/tripleo_lvmfilter.conf
-            dest: /etc/lvm/lvm.conf
-            owner: root
-            group: root
-            mode: '0644'
-            backup: true
-          when: tripleo_tripleo_lvmfilter_enabled
-          notify:
-            - Refresh LVM caches
+    - name: build lvm2 allow list
+      set_fact:
+        lvm2_allow_list: "\"{{ allowed_devices | map('regex_replace', '(.+)', 'a|\\1|')
+                         | join('\",\"') }}\""
+    - name: build lvm2 deny list
+      set_fact:
+        lvm2_deny_list: "\"{{ tripleo_tripleo_lvmfilter_devices_denylist | default([])
+                        | map('regex_replace', '(.+)', 'r|\\1|') | join('\",\"') }}\""
+    - name: build lvm2 filter
+      set_fact:
+        lvm2_filter: "{{ lvm2_allow_list + ',' + lvm2_deny_list }}"
+    - name: regenerate lvm config
+      become: true
+      command: >
+        lvmconfig -f /tmp/tripleo_lvmfilter.conf
+        --mergedconfig --withgeneralpreamble --withspaces --withsummary --withcomments --ignorelocal --showdeprecated
+        --config devices/global_filter='[{{ lvm2_filter }}]'
+    - name: copy new lvm.conf in place
+      become: true
+      copy:
+        remote_src: true
+        src: /tmp/tripleo_lvmfilter.conf
+        dest: /etc/lvm/lvm.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+      when: tripleo_tripleo_lvmfilter_enabled
+      notify:
+        - Refresh LVM caches
