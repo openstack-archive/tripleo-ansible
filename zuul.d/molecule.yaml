@@ -203,8 +203,6 @@
 - job:
     files:
     - ^tripleo_ansible/ansible_plugins/.*$
-    - ^tox.ini
-    - ^molecule-requirements.txt
     name: tripleo-ansible-centos-8-molecule-tripleo-modules
     parent: tripleo-ansible-centos-8-base
 - job:

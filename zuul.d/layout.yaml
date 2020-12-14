@@ -6,7 +6,9 @@
     - openstack-python3-wallaby-jobs
     check:
       jobs:
-      - tripleo-ci-centos-8-content-provider
+      - tripleo-ci-centos-8-content-provider:
+          irrelevant-files:
+          - ^tox.ini$
       - openstack-tox-linters: &tripleo-linters
           nodeset: centos-8
       - openstack-tox-docs: &tripleo-docs
