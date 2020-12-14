@@ -15,16 +15,16 @@
 # under the License.
 
 - name: list current namespaces
-  shell: >-
+  shell: |
     set -euxo pipefail
-    ndctl list -X | jq ".[].name"
+    ndctl list -X | jq -r ".[].name"
   register: namespaces
   changed_when: false
 - name: create namespace
   command: >-
     ndctl create-namespace -s {{ input[0] }} -m devdax -M mem -n {{ input[1] }}
   when:
-    - namespaces.stdout is defined
-    - input[1] not in namespaces.stdout
+    - namespaces.stdout_lines is defined
+    - input[1] not in namespaces.stdout_lines
   register: ret
   changed_when: ret.rc == 0
