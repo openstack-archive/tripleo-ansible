@@ -68,6 +68,25 @@
         name: "{{ tripleo_bootstrap_network_service }}"
         enabled: true
 
+- name: Stop NetworkManager from updating resolv.conf
+  become: true
+  when: tripleo_bootstrap_network_service == 'NetworkManager'
+  block:
+    - name: Set 'dns=none' in /etc/NetworkManager/NetworkManager.conf
+      ini_file:
+        path: /etc/NetworkManager/NetworkManager.conf
+        state: present
+        no_extra_spaces: true
+        section: main
+        option: dns
+        value: none
+        backup: true
+
+    - name: Reload NetworkManager
+      service:
+        name: NetworkManager
+        state: reloaded
+
 - name: Symlink puppet modules under /etc/puppet/modules
   become: true
   shell: >-
