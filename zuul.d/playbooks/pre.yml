@@ -22,6 +22,17 @@
       include_role:
         name: ensure-pip
 
+    # NOTE(mwhahaha): pin container tools to an older version since the newer
+    # one conflicts with the docker requirements for stable/train. We need
+    # to convert all jobs to podman or figure out another workaround
+    - name: Pin container-tools
+      shell: |
+        yum module disable container-tools:rhel8
+        yum module enable container-tools:2.0
+      when:
+        - (ansible_os_family | lower) == "redhat"
+        - (ansible_distribution_major_version | int) >= 8
+
     - name: Setup bindep
       pip:
         name: "bindep"
@@ -49,21 +60,6 @@
         . {{ ansible_user_dir }}/test-python/bin/activate
         pip freeze
 
-    # NOTE(cloudnull): This is being done because docker is not supported on RHEL-8
-    #                  and tests within this repo still require docker.
-    - name: Manual install of containerd.io from docker.com
-      become: true
-      when:
-        - (ansible_os_family | lower) == "redhat"
-        - (ansible_distribution_major_version | int) >= 8
-      block:
-        - name: Import GPG key from docker.com
-          rpm_key:
-            state: present
-            key: https://download.docker.com/linux/centos/gpg
-        - name: Install containerd.io
-          package:
-            name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
   tasks:
     - name: Get Ansible Galaxy roles
       command: >-
