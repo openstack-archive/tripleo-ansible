@@ -17,6 +17,8 @@
           - ^molecule-requirements.txt
           - ^README.rst
           - ^requirements.txt
+          - ^tripleo_ansible/ansible_plugins/module_utils/podman/.*
+          - ^tripleo_ansible/ansible_plugins/modules/podman_.*
       - tripleo-ci-centos-8-containers-multinode: &containers_multinode
           vars: &multi_consumer_vars
             consumer_job: true

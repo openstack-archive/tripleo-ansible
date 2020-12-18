@@ -18,7 +18,10 @@ import json  # noqa: F402
 from distutils.version import LooseVersion  # noqa: F402
 
 from ansible.module_utils._text import to_bytes, to_native  # noqa: F402
-from ansible.module_utils.podman.common import lower_keys
+try:
+    from ansible.module_utils.podman.common import lower_keys
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils.podman.common import lower_keys  # noqa: F402
 
 __metaclass__ = type
 
