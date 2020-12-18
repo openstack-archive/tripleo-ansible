@@ -115,6 +115,38 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
         self.assertEqual(expected, subnet)
 
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_get_subnet_info_ipv4_no_gateway_ip(self, conn_mock):
+        fake_subnet = stubs.FakeNeutronSubnet(
+            name='public_subnet',
+            is_dhcp_enabled=False,
+            tags=['tripleo_vlan_id=100'],
+            ip_version=4,
+            cidr='10.0.0.0/24',
+            allocation_pools=[{'start': '10.0.0.10', 'end': '10.0.0.150'}],
+            gateway_ip=None,
+            host_routes=[{'destination': '172.17.1.0/24',
+                          'nexthop': '10.0.0.1'}],
+        )
+        fake_segment = stubs.FakeNeutronSegment(
+            name='public_subnet',
+            network_type='flat',
+            physical_network='public_subnet'
+        )
+        conn_mock.network.get_subnet.return_value = fake_subnet
+        conn_mock.network.get_segment.return_value = fake_segment
+        expected = {
+            'vlan': 100,
+            'ip_subnet': '10.0.0.0/24',
+            'allocation_pools': [{'start': '10.0.0.10', 'end': '10.0.0.150'}],
+            'routes': [{'destination': '172.17.1.0/24',
+                        'nexthop': '10.0.0.1'}],
+            'physical_network': 'public_subnet',
+        }
+        name, subnet = plugin.get_subnet_info(conn_mock, mock.Mock())
+        self.assertEqual(name, 'public_subnet')
+        self.assertEqual(expected, subnet)
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_get_subnet_info_ipv6(self, conn_mock):
         fake_subnet = stubs.FakeNeutronSubnet(
             name='public_subnet',
@@ -143,6 +175,42 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
             'ipv6_allocation_pools': [{'start': '2001:db8:a::0010',
                                        'end': '2001:db8:a::fff9'}],
             'gateway_ipv6': '2001:db8:a::1',
+            'routes_ipv6': [{'destination': '2001:db8:b::/64',
+                             'nexthop': '2001:db8:a::1'}],
+            'physical_network': 'public_subnet',
+        }
+        name, subnet = plugin.get_subnet_info(conn_mock, mock.Mock())
+        self.assertEqual(name, 'public_subnet')
+        self.assertEqual(expected, subnet)
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_get_subnet_info_ipv6_no_gateway_ip(self, conn_mock):
+        fake_subnet = stubs.FakeNeutronSubnet(
+            name='public_subnet',
+            is_dhcp_enabled=False,
+            tags=['tripleo_vlan_id=200'],
+            ip_version=6,
+            cidr='2001:db8:a::/64',
+            allocation_pools=[{'start': '2001:db8:a::0010',
+                               'end': '2001:db8:a::fff9'}],
+            gateway_ip=None,
+            host_routes=[{'destination': '2001:db8:b::/64',
+                          'nexthop': '2001:db8:a::1'}],
+            ipv6_address_mode=None,
+            ipv6_ra_mode=None,
+        )
+        fake_segment = stubs.FakeNeutronSegment(
+            name='public_subnet',
+            network_type='flat',
+            physical_network='public_subnet'
+        )
+        conn_mock.network.get_subnet.return_value = fake_subnet
+        conn_mock.network.get_segment.return_value = fake_segment
+        expected = {
+            'vlan': 200,
+            'ipv6_subnet': '2001:db8:a::/64',
+            'ipv6_allocation_pools': [{'start': '2001:db8:a::0010',
+                                       'end': '2001:db8:a::fff9'}],
             'routes_ipv6': [{'destination': '2001:db8:b::/64',
                              'nexthop': '2001:db8:a::1'}],
             'physical_network': 'public_subnet',
