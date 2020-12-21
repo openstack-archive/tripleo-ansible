@@ -89,7 +89,7 @@ def deploy_rpm(filename):
 
 
 def deploy_targz(filename):
-    cmd = "tar xvzf -C / " + filename
+    cmd = "tar xvz -C / -f " + filename
     try:
         _ = subprocess.run(cmd, shell=True, check=True, stderr=subprocess.PIPE,
                            universal_newlines=True)

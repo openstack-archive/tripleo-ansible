@@ -132,7 +132,7 @@ class TestTripleoDeployArtifacts(tests_base.TestCase):
     @mock.patch('subprocess.run')
     def test_deploy_targz(self, mock_run):
         tripleo_deploy_artifacts.deploy_targz('foo')
-        mock_run.assert_called_once_with('tar xvzf -C / foo', check=True,
+        mock_run.assert_called_once_with('tar xvz -C / -f foo', check=True,
                                          shell=True, stderr=-1,
                                          universal_newlines=True)
 
