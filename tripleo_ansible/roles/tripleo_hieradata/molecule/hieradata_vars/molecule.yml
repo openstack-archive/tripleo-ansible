@@ -257,7 +257,8 @@ provisioner:
           validate_ntp: true
       Standalone:
         hosts:
-          ubi8: {}
+          ubi8:
+            datacentre: bb:bb:bb:bb:bb:bb
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

@@ -34,7 +34,8 @@ def test_json_render(host):
       "net_ip_map",
       "service_configs",
       "service_names",
-      "vip_data"
+      "vip_data",
+      "ovn_chassis_mac_map"
     ]
 
     for f in rendered_files:
