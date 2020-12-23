@@ -57,6 +57,11 @@
     - ceph_input_vars.stat.exists == False
     - ceph_ansible_group_vars_all is defined
 
+- name: Configure multiple external ceph clusters
+  include_tasks: multiple_external_ceph_clusters.yml
+  when:
+    - multiple is defined and multiple | length > 0
+
 - include_tasks: create_keys.yml
   name: Render keys provided for the Ceph cluster
   vars:
