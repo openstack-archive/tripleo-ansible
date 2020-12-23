@@ -15,7 +15,7 @@
 # under the License.
 
 
-- name: authorize TripleO Mistral key for user {{ tripleo_admin_user }}
+- name: authorize TripleO key for user {{ tripleo_admin_user }}
   lineinfile:
     path: /home/{{ tripleo_admin_user }}/.ssh/authorized_keys
     line: '{{ tripleo_admin_pubkey }}'

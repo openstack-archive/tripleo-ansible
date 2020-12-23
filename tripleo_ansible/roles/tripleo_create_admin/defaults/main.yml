@@ -26,3 +26,11 @@ tripleo_admin_generate_key: false
 # When `tripleo_admin_pubkey` is defined an additional authorized key will
 # added to the admin users authroized_keys file.
 #   tripleo_admin_pubkey: ssh-rsa AAAA...
+
+# When `tripleo_admin_prikey` is defined and not empty and when
+# distribute_private_key is true, then a private key will
+# be added to the admin user's home dir. It will be called
+# "~/.ssh/id_rsa" and contain something like:
+#   tripleo_admin_prikey: -----BEGIN OPENSSH PRIVATE KEY-----\nb3B...
+
+distribute_private_key: false
