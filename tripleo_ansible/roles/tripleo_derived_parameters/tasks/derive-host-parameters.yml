@@ -78,13 +78,14 @@
   set_fact:
     hugepages: "{{ (((total_memory | int)/1024)-4)*((huge_page_allocation_percentage|float)/100) }}"
 
-- name: Get cpu modal
+- name: Get cpu model
   set_fact:
-    intel_cpu_modal: "{{ 'Intel' in hw_data.get('inventory', {}).get('cpu', {}).get('model_name', '') }}"
+    intel_cpu_model: "{{ 'Intel' in hw_data.get('inventory', {}).get('cpu', {}).get('model_name', '') }}"
+    amd_cpu_model: "{{ 'AMD' in hw_data.get('inventory', {}).get('cpu', {}).get('model_name', '') }}"
 
 - name: Get iommu info
   set_fact:
-    iommu_info: "{% if intel_cpu_modal %}intel_iommu=on iommu=pt{% else %}{% endif %}"
+    iommu_info: "{% if intel_cpu_model %}intel_iommu=on iommu=pt{% elif amd_cpu_model %}amd_iommu=on iommu=pt{% else %}{% endif %}"
 
 - name: Get kernel args
   set_fact:
