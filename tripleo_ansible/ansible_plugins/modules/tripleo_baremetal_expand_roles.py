@@ -99,6 +99,7 @@ options:
     suboptions: dict
     default:
       - network: ctlplane
+        vif: true
   default_image:
     description:
       - Default image
@@ -191,11 +192,13 @@ EXAMPLES = '''
       defaults:
         image:
           href: overcloud-full
+        networks: []
     - name: Compute
       count: 3
       defaults:
         image:
           href: overcloud-full
+        networks: []
     state: present
     stack_name: overcloud
   register: tripleo_baremetal_instances
