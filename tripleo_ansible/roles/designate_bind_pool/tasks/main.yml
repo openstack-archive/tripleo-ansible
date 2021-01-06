@@ -1,0 +1,20 @@
+---
+# XXX (beagles) which permissions?
+- name: create bind pool configuration for designate
+  become: true
+  template:
+      src: pools.yaml.j2
+      dest: "{{ designate_pool_config_file_path }}"
+
+- name: ensure rndc key path exists
+  become: true
+  file:
+      path: "{{ designate_bind_pool_key_file_path }}"
+      state: directory
+
+- name: create rndc key files for each bind instance
+  become: true
+  template:
+      src: rndc.key.j2
+      dest: "{{ designate_bind_pool_key_file_path }}/bind{{ item.0|int + 1 }}.key"
+  with_indexed_items: "{{ designate_bind_node_ips  }}"
