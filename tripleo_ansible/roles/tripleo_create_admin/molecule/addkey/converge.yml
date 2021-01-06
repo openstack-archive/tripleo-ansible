@@ -26,3 +26,11 @@
       vars:
         tripleo_admin_user: tripleo-admin
         tripleo_admin_pubkey: ssh-rsa AAAATEST
+
+    - import_role:
+        name: tripleo_create_admin
+        tasks_from: distribute_key_files.yml
+      vars:
+        tripleo_admin_user: tripleo-admin
+        distribute_private_key: true
+        tripleo_admin_prikey: '-----BEGIN OPENSSH PRIVATE KEY-----'

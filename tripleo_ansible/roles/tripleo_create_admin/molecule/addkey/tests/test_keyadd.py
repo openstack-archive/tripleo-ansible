@@ -26,3 +26,5 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 def test_user_key_add(host):
     auth_keys = host.file("/home/tripleo-admin/.ssh/authorized_keys")
     assert 'ssh-rsa AAAATEST' in auth_keys.content_string
+    private_key = host.file("/home/tripleo-admin/.ssh/id_rsa")
+    assert '-----BEGIN OPENSSH PRIVATE KEY-----' in private_key.content_string

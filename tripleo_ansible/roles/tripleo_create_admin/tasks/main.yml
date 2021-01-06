@@ -17,3 +17,5 @@
 
 - import_tasks: create_user.yml
 - import_tasks: authorize_user.yml
+- import_tasks: distribute_key_files.yml
+  when: distribute_private_key | bool

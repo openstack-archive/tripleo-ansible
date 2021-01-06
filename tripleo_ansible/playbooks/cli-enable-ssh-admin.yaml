@@ -21,6 +21,7 @@
   any_errors_fatal: true
   vars:
     BlacklistedIpAddresses: []
+    distribute_private_key: false
   handlers:
     - name: Remove mistral tmp file
       file:
@@ -226,7 +227,7 @@
     - role: tripleo_create_admin
       tripleo_admin_user: tripleo-admin
       tripleo_admin_pubkey: "{{ user_public_key }}"
-
+      tripleo_admin_prikey: "{{ user_private_key }}"
 
 - name: Validate TripleO Admin Access
   hosts: localhost:tripleo_queues
