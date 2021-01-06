@@ -26,9 +26,10 @@
     # one conflicts with the docker requirements for stable/train. We need
     # to convert all jobs to podman or figure out another workaround
     - name: Pin container-tools
+      become: true
       shell: |
-        yum module disable container-tools:rhel8
-        yum module enable container-tools:2.0
+        dnf module disable container-tools:rhel8 -y
+        dnf module enable container-tools:2.0 -y
       when:
         - (ansible_os_family | lower) == "redhat"
         - (ansible_distribution_major_version | int) >= 8
@@ -70,6 +71,8 @@
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
   roles:
     - role: ensure-docker
+      when:
+        - install_docker_c8|default(true)|bool
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
@@ -85,3 +88,4 @@
         ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
       when:
         - tripleo_docker_enable_vfs is defined
+        - install_docker_c8|default(true)|bool

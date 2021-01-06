@@ -10,7 +10,7 @@
             name: "{{ item }}"
             state: absent
           loop:
-            - "alpine:3.7"
+            - "ubi-minimal"
             - "container"
             - "container2"
 
@@ -48,13 +48,13 @@
 
         - name: Ensure image doesn't exist
           podman_image:
-            name: alpine:3.7
+            name: registry.access.redhat.com/ubi8/ubi-minimal
             state: absent
 
         - name: Check pulling image
           podman_container:
             name: container
-            image: alpine:3.7
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: present
             command: sleep 1d
           register: image
@@ -62,7 +62,7 @@
         - name: Check using already pulled image
           podman_container:
             name: container2
-            image: alpine:3.7
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: present
             command: sleep 1d
           register: image2
@@ -73,12 +73,12 @@
               - image is changed
               - image.container is defined
               - image.container['State']['Running']
-              - "'pulled image alpine:3.7' in image.actions"
+              - "'pulled image registry.access.redhat.com/ubi8/ubi-minimal' in image.actions"
               - "'started container' in image.actions"
               - image2 is changed
               - image2.container is defined
               - image2.container['State']['Running']
-              - "'pulled image alpine:3.7' not in image2.actions"
+              - "'pulled image registry.access.redhat.com/ubi8/ubi-minimal' not in image2.actions"
               - "'started container2' in image2.actions"
             fail_msg: Pulling image test failed!
             success_msg: Pulling image test passed!
@@ -102,7 +102,7 @@
         - name: Force container recreate
           podman_container:
             name: container
-            image: alpine
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: present
             command: sleep 1d
             recreate: true
@@ -173,7 +173,7 @@
         - name: Create container, but don't run
           podman_container:
             name: container
-            image: alpine:3.7
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: stopped
             command: sleep 1d
           register: created
@@ -197,7 +197,7 @@
         - name: Start container that was deleted
           podman_container:
             name: container
-            image: alpine:3.7
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: started
             command: sleep 1d
           register: started
@@ -208,7 +208,7 @@
               - started is changed
               - started.container is defined
               - started.container['State']['Running']
-              - "'pulled image alpine:3.7' not in started.actions"
+              - "'pulled image registry.access.redhat.com/ubi8/ubi-minimal' not in started.actions"
 
         - name: Delete started container
           podman_container:
@@ -239,7 +239,7 @@
         - name: Recreate container with parameters
           podman_container:
             name: container
-            image: docker.io/alpine:3.7
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: started
             command: sleep 1d
             recreate: true
@@ -306,7 +306,7 @@
               - "'TEST=1' in test.container['Config']['Env']"
               - "'BOOL=False' in test.container['Config']['Env']"
               # test labels
-              - test.container['Config']['Labels'] | length == 2
+              - test.container['Config']['Labels'] | length >= 2
               - test.container['Config']['Labels']['somelabel'] == "labelvalue"
               - test.container['Config']['Labels']['otheralbe'] == "othervalue"
               # test mounts
@@ -326,14 +326,14 @@
         - name: Check basic idempotency of running container
           podman_container:
             name: testidem
-            image: docker.io/alpine
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: present
             command: sleep 20m
 
         - name: Check basic idempotency of running container - run it again
           podman_container:
             name: testidem
-            image: alpine:latest
+            image: ubi-minimal:latest
             state: present
             command: sleep 20m
           register: idem
@@ -346,7 +346,7 @@
         - name: Run changed container (with tty enabled)
           podman_container:
             name: testidem
-            image: alpine
+            image: ubi-minimal
             state: present
             command: sleep 20m
             tty: true
@@ -360,7 +360,7 @@
         - name: Run changed container without specifying an option, use defaults
           podman_container:
             name: testidem
-            image: alpine
+            image: ubi-minimal
             state: present
             command: sleep 20m
           register: idem2
@@ -384,7 +384,7 @@
         - name: Check basic idempotency of pod container
           podman_container:
             name: testidem-pod
-            image: docker.io/alpine
+            image: registry.access.redhat.com/ubi8/ubi-minimal
             state: present
             command: sleep 20m
             pod: "new:testidempod"
@@ -392,7 +392,7 @@
         - name: Check basic idempotency of pod container - run it again
           podman_container:
             name: testidem-pod
-            image: alpine:latest
+            image: ubi-minimal:latest
             state: present
             command: sleep 20m
             pod: testidempod
@@ -406,7 +406,7 @@
         - name: Run changed pod container (with tty enabled)
           podman_container:
             name: testidem-pod
-            image: alpine
+            image: ubi-minimal
             state: present
             command: sleep 20m
             tty: true
@@ -429,9 +429,12 @@
             name: "{{ item }}"
             state: absent
           loop:
-            - "alpine:3.7"
             - "container"
             - "container2"
+            - "ubi-minimal"
+            - "web"
+            - "test"
+            - "testidem"
 
         - name: Remove pod
           shell: podman pod rm -f testidempod

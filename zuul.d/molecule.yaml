@@ -383,6 +383,7 @@
       tripleo_role_name: tripleo-hosts-entries
 - job:
     files:
+    - ^zuul.d/playbooks/pre.yml
     - ^tripleo_ansible/roles/tripleo-container-manage/.*
     - ^tripleo_ansible/roles/tripleo-container-rm/.*
     - ^tripleo_ansible/ansible_plugins/action/container_status.py$
@@ -397,6 +398,7 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo-container-manage
+      install_docker_c8: false
 
 - job:
     files:
@@ -405,6 +407,8 @@
     - ^molecule-requirements.txt
     name: tripleo-ansible-centos-8-molecule-tripleo-modules
     parent: tripleo-ansible-centos-8-base
+    vars:
+      install_docker_c8: false
 
 - job:
     files:
