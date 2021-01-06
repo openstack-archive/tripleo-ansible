@@ -40,8 +40,8 @@
         - tripleo_cloud_name is defined
       block:
         - name: Run blacklist IP check
-          command: >-
-            openstack --os-cloud undercloud stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
+          shell: >-
+            openstack stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
           register: blacklist_cmd
           changed_when: false
           async: 1000

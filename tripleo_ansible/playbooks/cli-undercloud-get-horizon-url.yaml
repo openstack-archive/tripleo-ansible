@@ -32,8 +32,8 @@
         - horizon_url_output_file
   tasks:
     - name: Fetch stack data
-      command: >-
-        openstack --os-cloud undercloud stack output show {{ stack_name }} EndpointMap -f yaml
+      shell: >-
+        openstack stack output show {{ stack_name }} EndpointMap -f yaml
       register: stack_data_cmd
       changed_when: false
 
