@@ -15,7 +15,7 @@ network_config:
 - type: ovs_bridge
   name: br-ctlplane
   use_dhcp: false
-  mtu: {{ local_mtu }}
+  mtu: {{ ctlplane_mtu }}
   ovs_extra:
   - br-set-external-id br-ctlplane bridge-id br-ctlplane
   addresses:
@@ -29,4 +29,4 @@ network_config:
     - type: interface
       name: {{ neutron_public_interface_name }}
       primary: true
-      mtu: {{ local_mtu }}
+      mtu: {{ ctlplane_mtu }}
