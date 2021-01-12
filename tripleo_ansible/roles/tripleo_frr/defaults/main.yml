@@ -26,6 +26,7 @@ tripleo_frr_bgp_ipv4_allowas_in: false
 tripleo_frr_bgp_ipv4_src_network: ctlplane
 tripleo_frr_bgp_ipv6: true
 tripleo_frr_bgp_ipv6_allowas_in: false
+tripleo_frr_bgp_neighbor_ttl_security_hops: 1
 tripleo_frr_bgp_uplinks_scope: internal
 tripleo_frr_config_basedir: "/var/lib/config-data/ansible-generated/frr"
 tripleo_frr_hostname: "{{ ansible_hostname }}"

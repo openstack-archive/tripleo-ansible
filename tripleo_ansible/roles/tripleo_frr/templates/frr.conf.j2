@@ -18,6 +18,9 @@ router bgp {{ tripleo_frr_bgp_asn }}
 {% for iface in tripleo_frr_bgp_uplinks_mapped %}
   neighbor {{ iface }} interface peer-group uplink
 {% endfor %}
+{% if tripleo_frr_bgp_neighbor_ttl_security_hops | int > 0 %}
+  neighbor uplink ttl-security hops {{ tripleo_frr_bgp_neighbor_ttl_security_hops }}
+{% endif %}
 
 {% if tripleo_frr_bgp_ipv4 %}
   address-family ipv4 unicast
