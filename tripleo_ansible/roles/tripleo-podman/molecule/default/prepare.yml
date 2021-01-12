@@ -32,10 +32,10 @@
         state: latest
 
     - name: Pull container image
-      command: "podman pull centos:8"
+      command: "podman pull ubi8:latest"
 
     - name: Create test containers
-      command: "podman run -itd --systemd true --name {{ item }} fedora bash"
+      command: "podman run -itd --systemd true --name {{ item }} ubi8:latest bash"
       with_items:
         - podman-container1
         - podman-container2
