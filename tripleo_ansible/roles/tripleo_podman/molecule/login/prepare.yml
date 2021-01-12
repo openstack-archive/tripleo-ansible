@@ -35,6 +35,10 @@
     - role: test_deps
 
   tasks:
+    - name: Disable SELinux
+      become: true
+      selinux:
+        state: disabled
 
     - name: Ensure registry doesn't exist
       podman_container:
@@ -78,8 +82,3 @@
         name: tripleo_podman
         tasks_from: tripleo_podman_install.yml
         vars_from: "redhat.yml"
-
-    - name: Disable SELinux
-      become: true
-      selinux:
-        state: disabled
