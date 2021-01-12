@@ -102,7 +102,7 @@ class TestExpandRoles(base.TestCase):
             {'name': 'Compute'},
             {'name': 'Controller'},
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
 
@@ -128,13 +128,16 @@ class TestExpandRoles(base.TestCase):
                 }
             },
             environment['parameter_defaults'])
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-novacompute-0': 'Compute'},
+                         hostname_role_map)
 
     def test_default_network(self):
         roles = [
             {'name': 'Compute'},
             {'name': 'Controller'},
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image, self.default_network
         )
         self.assertEqual(
@@ -149,6 +152,9 @@ class TestExpandRoles(base.TestCase):
                  'nics': [{'network': 'ctlplane'}]},
             ],
             instances)
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-novacompute-0': 'Compute'},
+                         hostname_role_map)
 
     def test_networks_set_no_default_network(self):
         roles = [
@@ -165,7 +171,7 @@ class TestExpandRoles(base.TestCase):
                  ]}
              },
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image, None
         )
         self.assertEqual(
@@ -180,6 +186,9 @@ class TestExpandRoles(base.TestCase):
                  'nics': [{'network': 'some_net'}]},
             ],
             instances)
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-novacompute-0': 'Compute'},
+                         hostname_role_map)
 
     def test_networks_set_default_appended(self):
         roles = [
@@ -196,7 +205,7 @@ class TestExpandRoles(base.TestCase):
                  ]}
              },
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image, self.default_network
         )
         self.assertEqual(
@@ -213,6 +222,9 @@ class TestExpandRoles(base.TestCase):
                  'nics': [{'network': 'ctlplane'}]},
             ],
             instances)
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-novacompute-0': 'Compute'},
+                         hostname_role_map)
 
     def test_networks_vif_set_default_appended(self):
         roles = [
@@ -229,7 +241,7 @@ class TestExpandRoles(base.TestCase):
                  ]}
              },
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image, self.default_network
         )
         self.assertEqual(
@@ -255,6 +267,9 @@ class TestExpandRoles(base.TestCase):
                  ]},
             ],
             instances)
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-novacompute-0': 'Compute'},
+                         hostname_role_map)
 
     def test_networks_nics_are_mutually_exclusive(self):
         # Neither 'nics' nor 'networks' - OK
@@ -289,7 +304,7 @@ class TestExpandRoles(base.TestCase):
                 'hostname': 'overcloud-controller-1',
             }]
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual(
@@ -321,7 +336,7 @@ class TestExpandRoles(base.TestCase):
             },
             'hostname_format': 'controller-%index%.example.com'
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image,
             user_name='heat-admin', ssh_public_keys='aaaa'
         )
@@ -366,6 +381,12 @@ class TestExpandRoles(base.TestCase):
                 }
             },
             environment['parameter_defaults'])
+        self.assertEqual({'compute-0.example.com': 'Compute',
+                          'compute-1.example.com': 'Compute',
+                          'controller-0.example.com': 'Controller',
+                          'controller-1.example.com': 'Controller',
+                          'controller-2.example.com': 'Controller'},
+                         hostname_role_map)
 
     def test_explicit_instances(self):
         roles = [{
@@ -397,7 +418,7 @@ class TestExpandRoles(base.TestCase):
                               'vif': True}]},
             ]},
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual(
@@ -440,6 +461,11 @@ class TestExpandRoles(base.TestCase):
                 }
             },
             environment['parameter_defaults'])
+        self.assertEqual({'compute-0.example.com': 'Compute',
+                          'compute-1.example.com': 'Compute',
+                          'controller-X.example.com': 'Controller',
+                          'node-0': 'Controller'},
+                         hostname_role_map)
 
     def test_count_with_instances(self):
         roles = [{
@@ -464,7 +490,7 @@ class TestExpandRoles(base.TestCase):
                 'nics': [{'subnet': 'leaf-2'}]},
             ]},
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual([
@@ -508,6 +534,12 @@ class TestExpandRoles(base.TestCase):
                 'overcloud-controller-2': 'overcloud-controller-2'}
             },
             environment['parameter_defaults'])
+        self.assertEqual({'compute-0.example.com': 'Compute',
+                          'compute-1.example.com': 'Compute',
+                          'controller-X.example.com': 'Controller',
+                          'node-0': 'Controller',
+                          'overcloud-controller-2': 'Controller'},
+                         hostname_role_map)
 
     def test_unprovisioned(self):
         roles = [{
@@ -524,7 +556,7 @@ class TestExpandRoles(base.TestCase):
                 'provisioned': False
             }]
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual([
@@ -552,8 +584,11 @@ class TestExpandRoles(base.TestCase):
                 'overcloud-controller-3': 'overcloud-controller-3'}
             },
             environment['parameter_defaults'])
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-controller-3': 'Controller'},
+                         hostname_role_map)
 
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', False, self.default_image
         )
         self.assertEqual([
@@ -568,6 +603,9 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({}, environment)
+        self.assertEqual({'overcloud-controller-1': 'Controller',
+                          'overcloud-controller-2': 'Controller'},
+                         hostname_role_map)
 
     def test_reprovisioned(self):
         roles = [{
@@ -584,7 +622,7 @@ class TestExpandRoles(base.TestCase):
                 'provisioned': False
             }]
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual([
@@ -622,8 +660,13 @@ class TestExpandRoles(base.TestCase):
                 'overcloud-controller-5': 'overcloud-controller-5'}
             },
             environment['parameter_defaults'])
+        self.assertEqual({'overcloud-controller-0': 'Controller',
+                          'overcloud-controller-3': 'Controller',
+                          'overcloud-controller-4': 'Controller',
+                          'overcloud-controller-5': 'Controller'},
+                         hostname_role_map)
 
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', False, self.default_image
         )
         self.assertEqual([
@@ -663,7 +706,7 @@ class TestExpandRoles(base.TestCase):
                 'provisioned': True
             }]
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual([
@@ -694,7 +737,7 @@ class TestExpandRoles(base.TestCase):
             },
             environment['parameter_defaults'])
 
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', False, self.default_image
         )
         self.assertEqual([
@@ -711,6 +754,8 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({}, environment)
+        self.assertEqual({'controller-1': 'Controller',
+                          'controller-2': 'Controller'}, hostname_role_map)
 
     def test_unprovisioned_no_hostname(self):
         roles = [{
@@ -732,7 +777,7 @@ class TestExpandRoles(base.TestCase):
                 'provisioned': True
             }]
         }]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual([
@@ -762,8 +807,10 @@ class TestExpandRoles(base.TestCase):
                 'overcloud-controller-3': 'node-3'}
             },
             environment['parameter_defaults'])
+        self.assertEqual({'node-0': 'Controller', 'node-3': 'Controller'},
+                         hostname_role_map)
 
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', False, self.default_image
         )
         self.assertEqual([
@@ -780,6 +827,8 @@ class TestExpandRoles(base.TestCase):
             }],
             instances)
         self.assertEqual({}, environment)
+        self.assertEqual({'node-1': 'Controller', 'node-2': 'Controller'},
+                         hostname_role_map)
 
     def test_name_in_defaults(self):
         roles = [{
@@ -836,7 +885,7 @@ class TestExpandRoles(base.TestCase):
                 'nics': [{'subnet': 'leaf-2'}]},
             ]},
         ]
-        instances, environment, role_net_map = bd.expand(
+        instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
         )
         self.assertEqual(
@@ -854,6 +903,11 @@ class TestExpandRoles(base.TestCase):
                  'traits': ['CUSTOM_FOO'], 'nics': [{'subnet': 'leaf-2'}]},
             ],
             instances)
+        self.assertEqual({'compute-0.example.com': 'Compute',
+                          'compute-1.example.com': 'Compute',
+                          'node-0': 'Controller',
+                          'overcloud-controller-0': 'Controller'},
+                         hostname_role_map)
 
     def test_more_instances_than_count(self):
         roles = [{

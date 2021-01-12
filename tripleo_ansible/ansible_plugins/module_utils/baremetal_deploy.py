@@ -171,6 +171,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
     hostname_map = {}
     parameter_defaults = {'HostnameMap': hostname_map}
     role_net_map = {}
+    hostname_role_map = {}
     for role in roles:
         name = role['name']
         role_net_map.setdefault(name, set())
@@ -264,6 +265,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
 
                 role_net_map[name].update(
                     [x['network'] for x in inst.get('networks', [])])
+                hostname_role_map[inst['hostname']] = name
 
         parameter_defaults['%sCount' % name] = (
             provisioned_count)
@@ -273,7 +275,7 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
         env = {'parameter_defaults': parameter_defaults}
     else:
         env = {}
-    return instances, env, role_net_map
+    return instances, env, role_net_map, hostname_role_map
 
 
 def merge_networks_defaults(defaults, instance):
