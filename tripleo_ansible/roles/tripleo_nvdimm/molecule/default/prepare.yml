@@ -21,7 +21,7 @@
     - include_role:
         name: test_deps
       vars:
-        test_deps_setup_tripleo: true
-        test_deps_setup_stream: false
+        test_deps_setup_tripleo: false
+        test_deps_setup_stream: true
         test_deps_extra_packages:
           - jq

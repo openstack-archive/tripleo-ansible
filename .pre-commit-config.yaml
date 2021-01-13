@@ -29,12 +29,13 @@ repos:
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict -f parsable
-  - repo: https://github.com/ansible/ansible-lint
-    rev: v4.3.5
+  - repo: https://github.com/ansible-community/ansible-lint
+    rev: v5.3.2
     hooks:
       - id: ansible-lint
         additional_dependencies:
           - 'ansible<2.10'
+          - yamllint
   - repo: https://github.com/openstack-dev/bashate.git
     rev: 2.0.0
     hooks:

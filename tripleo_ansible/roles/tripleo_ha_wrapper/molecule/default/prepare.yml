@@ -20,8 +20,8 @@
   roles:
     - role: test_deps
       vars:
-        test_deps_setup_tripleo: true
-        test_deps_setup_stream: false
+        test_deps_setup_tripleo: false
+        test_deps_setup_stream: true
 
   post_tasks:
     - name: Create paths
