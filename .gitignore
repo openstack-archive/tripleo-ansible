@@ -38,3 +38,4 @@ doc/build/*
 
 # JetBrain
 .idea/
+.cache
