@@ -1,0 +1,14 @@
+---
+tripleo_ceph_client_fsid: {{ tripleo_cephadm_fsid }}
+external_cluster_mon_ips: "{{ external_cluster_mon_ips }}"
+keys:
+{% for ceph_key_cmd in tripleo_cephadm_client_keys.results %}
+{%   for cephx in (ceph_key_cmd.stdout | from_json) %}
+- name: {{ cephx.entity }}
+  key: {{ cephx.key }}
+  caps:
+{%     for key, value in cephx.caps.items() %}
+    {{ key }}: {{ value }}
+{%     endfor %}
+{%   endfor %}
+{% endfor %}

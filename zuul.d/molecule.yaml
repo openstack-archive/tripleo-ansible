@@ -14,6 +14,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
@@ -52,11 +53,11 @@
       - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_timezone
       - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
       - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -69,6 +70,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
@@ -107,12 +109,11 @@
       - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_timezone
       - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
       - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
-
     name: tripleo-ansible-molecule-jobs
     periodic-weekly:
       jobs:
@@ -126,6 +127,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
+      - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
@@ -238,6 +240,14 @@
     vars:
       tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
       tripleo_role_name: tripleo_ceph_run_ansible
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_cephadm/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_cephadm
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_job_ansible_args: --skip-tags=cephadm_bootstrap,cephadm_mon_dump,cephadm_extract_keys
+      tripleo_role_name: tripleo_cephadm
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_clients_install/.*
@@ -520,6 +530,13 @@
       tripleo_role_name: tripleo_transfer
 - job:
     files:
+    - ^tripleo_ansible/roles/tripleo_update_trusted_cas/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tox_envlist: mol-tripleo_update_trusted_cas
+- job:
+    files:
     - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
     name: tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
     parent: tripleo-ansible-centos-8-base
@@ -554,11 +571,3 @@
     timeout: 1800
     vars:
       tox_envlist: role-addition
-
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo_update_trusted_cas/.*
-    name: tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tox_envlist: mol-tripleo_update_trusted_cas
