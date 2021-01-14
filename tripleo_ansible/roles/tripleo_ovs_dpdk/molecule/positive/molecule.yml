@@ -16,8 +16,6 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     privileged: true
@@ -33,8 +31,6 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     privileged: true
