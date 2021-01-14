@@ -85,6 +85,8 @@ _INSTANCE_SCHEMA = {
             'items': {'type': 'string'}
         },
         'user_name': {'type': 'string'},
+        'managed': {'type': 'boolean'},
+        'management_ip': {'type': 'string'},
     },
     'additionalProperties': False,
 }
@@ -306,7 +308,12 @@ def check_existing(instances, provisioner, baremetal):
 
     not_found = []
     found = []
+    unmanaged = []
     for request in instances:
+        if not request.get('managed', True):
+            unmanaged.append(request)
+            continue
+
         ident = request.get('name', request['hostname'])
 
         try:
@@ -346,7 +353,7 @@ def check_existing(instances, provisioner, baremetal):
                 )
             found.append(instance)
 
-    return found, not_found
+    return found, not_found, unmanaged
 
 
 def populate_environment(instance_uuids, provisioner, environment,
@@ -390,7 +397,9 @@ def validate_instances(instances, schema):
     jsonschema.validate(instances, schema)
     hostnames = set()
     names = set()
+    fixed_ips = set()
     for inst in instances:
+        name = inst.get('hostname', inst.get('name'))
         # NOTE(dtantsur): validate image parameters
         get_source(inst)
 
@@ -405,6 +414,22 @@ def validate_instances(instances, schema):
                 raise ValueError('Node %s is requested more than once' %
                                  inst['name'])
             names.add(inst['name'])
+
+        inst_ips = {net['fixed_ip'] for net in inst.get('networks', [])
+                    if net.get('fixed_ip')}
+        if inst_ips.intersection(fixed_ips):
+            raise ValueError(
+                'One or more IP address {ips} for Node {name} is requested '
+                'more than once'.format(
+                    ips=', '.join(inst_ips.intersection(fixed_ips)),
+                    name=name))
+            fixed_ips.update(inst_ips)
+
+        if not inst.get('managed', True):
+            if not inst_ips and not inst.get('management_ip'):
+                raise ValueError('Node %s that is managed: false requires '
+                                 'either a fixed IP address, or a management '
+                                 'ip address' % name)
 
 
 def validate_roles(roles):

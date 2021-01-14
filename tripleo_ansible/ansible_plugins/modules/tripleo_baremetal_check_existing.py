@@ -114,7 +114,7 @@ def main():
     provisioner = metalsmith.Provisioner(cloud_region=cloud.config)
 
     try:
-        found, not_found = bd.check_existing(
+        found, not_found, pre_provisioned = bd.check_existing(
             instances=module.params['instances'],
             provisioner=provisioner,
             baremetal=cloud.baremetal
@@ -126,6 +126,9 @@ def main():
         if not_found:
             msg += ('Instance(s) %s do not exist. '
                     % ', '.join(r['hostname'] for r in not_found))
+        if pre_provisioned:
+            msg += ('Instance(s) %s are pre-provisioned. '
+                    % ', '.join(r['hostname'] for r in pre_provisioned))
 
         instances = [{
             'name': i.node.name or i.uuid,
@@ -136,7 +139,8 @@ def main():
             changed=False,
             msg=msg,
             instances=instances,
-            not_found=not_found
+            not_found=not_found,
+            pre_provisioned=pre_provisioned
         )
     except Exception as e:
         module.fail_json(msg=str(e))
