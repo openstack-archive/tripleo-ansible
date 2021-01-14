@@ -26,30 +26,23 @@
         name: "{{ tripleo_podman_packages }}"
         state: latest
 
-    - name: Check for cni0 interface
-      command: ip link show cni0
-      changed_when: false
-      failed_when: false
-      register: cni0_interface
-
-    - name: Delete cni0 interface
+    - name: Delete legacy cni0 interface (podman < 1.6)
       command: ip link delete cni0
       when:
-        - cni0_interface.rc is defined
-        - cni0_interface.rc == 0
+        - '"cni0" in ansible_interfaces'
 
-    - name: Check if 87-podman-bridge.conflist exists
-      stat:
-        path: /etc/cni/net.d/87-podman-bridge.conflist
-      register: podman_bridge_config
-
-    - name: Remove default cni config for cni0 if exists
+    # don't update the network config if the network is already running
+    # meaning cni-podman0 is running somewhere
+    - name: Update default network configuration if possible
       copy:
         dest: /etc/cni/net.d/87-podman-bridge.conflist
-        content: ''
-        force: true
+        content: "{{ tripleo_podman_default_network_config | to_json }}"
+        mode: '0644'
+        owner: root
+        group: root
       when:
-        - podman_bridge_config.stat.exists | bool
+        - '"cni-podman0" not in ansible_interfaces'
+
 
     - name: configure insecure registries /etc/containers/registries.conf
       ini_file:

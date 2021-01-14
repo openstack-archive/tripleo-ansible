@@ -15,15 +15,18 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
-
-tripleo_container_registry_insecure_registries: []
-tripleo_container_registry_login: false
-tripleo_container_registry_logins: {}
-tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
-tripleo_buildah_packages: "{{ _tripleo_buildah_packages | default([]) }}"
-tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
-tripleo_podman_tls_verify: true
-tripleo_podman_debug: false
-tripleo_podman_buildah_login: false
-tripleo_podman_default_network_config: {}
+- name: Converge
+  hosts: all
+  vars:
+    tripleo_podman_buildah_login: true
+    tripleo_podman_tls_verify: false
+    tripleo_container_registry_logins:
+      localhost:5000:
+        testuser: testpassword
+  tasks:
+    - include_role:
+        name: tripleo-podman
+        tasks_from: tripleo_podman_login.yml
+    - include_role:
+        name: tripleo-podman
+        tasks_from: tripleo_podman_buildah_login.yml
