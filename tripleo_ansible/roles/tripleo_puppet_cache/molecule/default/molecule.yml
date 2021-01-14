@@ -12,8 +12,6 @@ platforms:
       url: registry.access.redhat.com
     dockerfile: Dockerfile
     pkg_extras: python*setuptools
-    capabilities:
-      - ALL
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg

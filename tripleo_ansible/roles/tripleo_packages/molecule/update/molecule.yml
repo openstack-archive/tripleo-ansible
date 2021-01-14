@@ -17,8 +17,6 @@ platforms:
       /bin/mkdir -p /var/run/dbus &&
       /usr/bin/dbus-uuidgen > /var/lib/dbus/machine-id &&
       /usr/bin/dbus-daemon --config-file=/usr/share/dbus-1/system.conf
-    capabilities:
-      - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules

@@ -13,8 +13,6 @@ platforms:
     dockerfile: Dockerfile
     pkg_extras: python*setuptools cronie rsyslog
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
