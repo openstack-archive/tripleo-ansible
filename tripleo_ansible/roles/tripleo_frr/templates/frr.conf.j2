@@ -1,0 +1,59 @@
+! {{ ansible_managed }}
+
+hostname {{ tripleo_frr_hostname }}
+log file /var/log/frr/frr.log {{ tripleo_frr_log_level }}
+service integrated-vtysh-config
+line vty
+
+router bgp {{ tripleo_frr_bgp_asn }}
+  bgp log-neighbor-changes
+  bgp graceful-shutdown
+
+  neighbor uplink peer-group
+  neighbor uplink remote-as {{ tripleo_frr_bgp_uplinks_scope }}
+  ! neighbor uplink capability extended-nexthop
+{% if tripleo_frr_bfd %}
+  neighbor uplink bfd
+{% endif %}
+{% for iface in tripleo_frr_bgp_uplinks %}
+  neighbor {{ iface }} interface peer-group uplink
+{% endfor %}
+
+{% if tripleo_frr_bgp_ipv4 %}
+  address-family ipv4 unicast
+    redistribute connected
+{% if tripleo_frr_bgp_ipv4_allowas_in %}
+    neighbor uplink allowas-in origin
+{% endif %}
+    neighbor uplink prefix-list only-host-prefixes out
+  exit-address-family
+{% endif %}
+
+{% if tripleo_frr_bgp_ipv6 %}
+  address-family ipv6 unicast
+    redistribute connected
+    neighbor uplink activate
+{% if tripleo_frr_bgp_ipv6_allowas_in %}
+    neighbor uplink allowas-in origin
+{% endif %}
+    neighbor uplink prefix-list only-host-prefixes out
+  exit-address-family
+{% endif %}
+
+{% if tripleo_frr_bgp_ipv4 %}
+ip prefix-list only-default permit 0.0.0.0/0
+ip prefix-list only-host-prefixes permit 0.0.0.0/0 ge 32
+
+{% if tripleo_frr_bgp_ipv4_default_src_map|length > 0 and tripleo_frr_hostname in tripleo_frr_bgp_ipv4_default_src_map %}
+route-map rm-only-default permit 10
+  match ip address prefix-list only-default
+  set src {{ tripleo_frr_bgp_ipv4_default_src_map[tripleo_frr_hostname] }}
+
+ip protocol bgp route-map rm-only-default
+{% endif %} {# tripleo_frr_bgp_ipv4_default_src_map #}
+{% endif %} {# tripleo_frr_bgp_ipv4 #}
+
+{% if tripleo_frr_bgp_ipv6 %}
+ipv6 prefix-list only-default permit ::/0
+ipv6 prefix-list only-host-prefixes permit ::/0 ge 128
+{% endif %}
