@@ -13,8 +13,6 @@ platforms:
     dockerfile: Dockerfile
     pkg_extras: python*setuptools
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
