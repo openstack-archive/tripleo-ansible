@@ -5,3 +5,5 @@ quiet: false
 rulesdir:
     - .ansible-lint_rules/
 verbosity: 1
+warn_list:
+  - '901'  # Failed to load or parse file

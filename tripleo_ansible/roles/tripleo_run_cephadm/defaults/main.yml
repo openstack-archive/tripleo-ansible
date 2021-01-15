@@ -1,0 +1,3 @@
+---
+# defaults file for tripleo_ceph_run_cephadm
+tripleo_run_cephadm_command_log: "cephadm_command.log"
