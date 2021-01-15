@@ -7,6 +7,8 @@
     check:
       jobs:
       - tripleo-ci-centos-8-content-provider:
+          dependencies:
+            - openstack-tox-linters
           irrelevant-files:
           - ^tox.ini$
       - openstack-tox-linters: &tripleo-linters
@@ -35,7 +37,6 @@
               - overcloud-post-deploy
               - overcloud-validate
           dependencies: &deps
-            - openstack-tox-linters
             - tripleo-ci-centos-8-content-provider
           files: &containers_files
           - ^tripleo_ansible/.*
