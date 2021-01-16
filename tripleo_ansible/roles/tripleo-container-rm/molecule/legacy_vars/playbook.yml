@@ -20,7 +20,7 @@
   hosts: all
   roles:
     - role: tripleo-container-rm
-      container_cli: podman
+      container_cli: docker
       containers_to_rm:
-        - podman-legacy-container1
-        - podman-legacy-container2
+        - docker-legacy-container1
+        - docker-legacy-container2

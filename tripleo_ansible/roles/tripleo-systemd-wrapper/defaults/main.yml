@@ -19,4 +19,4 @@
 
 # All variables within this role should have a prefix of "tripleo_systemd_wrapper"
 tripleo_systemd_wrapper_debug: false
-tripleo_systemd_wrapper_container_cli: podman
+tripleo_systemd_wrapper_container_cli: docker

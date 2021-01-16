@@ -25,7 +25,7 @@ else
   CLI="nsenter --net=/run/netns/${NETNS} --preserve-credentials -m -t 1 podman"
 fi
 {% elif tripleo_systemd_wrapper_container_cli == 'docker' %}
-{% if tripleo_systemd_wrapper_docker_additional_sockets and tripleo_systemd_wrapper_docker_additional_sockets|length > 0-%}
+{% if tripleo_systemd_wrapper_docker_additional_sockets is defined and tripleo_systemd_wrapper_docker_additional_sockets | length > 0-%}
 export DOCKER_HOST=unix://{{ tripleo_systemd_wrapper_docker_additional_sockets[0] }}
 {% endif -%}
 CLI='docker'
