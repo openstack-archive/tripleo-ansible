@@ -24,10 +24,8 @@
         path: "{{ tripleo_ceph_client_fetch_dir }}/"
       when: clean
     - name: Create ceph_client_fetch_dir for the current execution
-      become: true
       tags: 'build_fetch_dir'
       file:
         path: "{{ tripleo_ceph_client_fetch_dir }}"
         state: directory
-        owner: "{{ ansible_user }}"
       when: build

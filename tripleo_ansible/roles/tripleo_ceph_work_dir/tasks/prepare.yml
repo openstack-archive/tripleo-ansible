@@ -15,11 +15,9 @@
 # under the License.
 
 - name: create ceph-ansible temp dirs
-  become: true
   file:
     path: "{{ item }}"
     state: directory
-    owner: "{{ ansible_user }}"
   with_items:
     - "{{ playbook_dir }}/ceph-ansible"
     - "{{ playbook_dir }}/ceph-ansible/group_vars"
