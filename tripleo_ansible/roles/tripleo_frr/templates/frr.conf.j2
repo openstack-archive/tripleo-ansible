@@ -15,7 +15,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
 {% if tripleo_frr_bfd %}
   neighbor uplink bfd
 {% endif %}
-{% for iface in tripleo_frr_bgp_uplinks %}
+{% for iface in tripleo_frr_bgp_uplinks_mapped %}
   neighbor {{ iface }} interface peer-group uplink
 {% endfor %}
 
