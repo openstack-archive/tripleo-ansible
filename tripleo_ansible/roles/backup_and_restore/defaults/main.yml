@@ -69,3 +69,6 @@ tripleo_backup_and_restore_ceph_backup_file: "/var/lib/ceph.tar.gz"
 
 # Ceph directory to back up
 tripleo_backup_and_restore_ceph_path: "/var/lib/ceph"
+
+# If there is a firewalld active, setup the zone where the NFS server ports need to be opened
+tripleo_backup_and_restore_firewalld_zone: "libvirt"

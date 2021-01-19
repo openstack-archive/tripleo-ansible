@@ -68,6 +68,38 @@
   tags:
     - bar_setup_nfs_server
 
+- name: Gather status of services running on the system
+  service_facts:
+  register: services_state
+  ignore_errors: true
+  tags:
+    - bar_setup_nfs_server
+
+- name: Open ports in firewalld
+  become: true
+  block:
+    - name: Allow NFS port 111 in the firewall
+      firewalld:
+        port: 111/tcp
+        permanent: true
+        immediate: true
+        state: enabled
+        zone: "{{ tripleo_backup_and_restore_firewalld_zone }}"
+
+    - name: Allow NFS port 2049 in the firewall
+      firewalld:
+        port: 2049/tcp
+        permanent: true
+        immediate: true
+        state: enabled
+        zone: "{{ tripleo_backup_and_restore_firewalld_zone }}"
+  when: >
+        services_state is defined and
+        services_state.ansible_facts.services['firewalld.service'] is defined and
+        services_state.ansible_facts.services['firewalld.service'].state == "running"
+  tags:
+    - bar_setup_nfs_server
+
 - name: Enable the NFS service in the NFS server
   become: true
   systemd:
