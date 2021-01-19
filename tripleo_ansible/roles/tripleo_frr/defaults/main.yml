@@ -23,6 +23,7 @@ tripleo_frr_bfd: false
 tripleo_frr_bgp: false
 tripleo_frr_bgp_ipv4: true
 tripleo_frr_bgp_ipv4_allowas_in: false
+tripleo_frr_bgp_ipv4_src_network: ctlplane
 tripleo_frr_bgp_ipv6: true
 tripleo_frr_bgp_ipv6_allowas_in: false
 tripleo_frr_bgp_uplinks_scope: internal
@@ -31,4 +32,3 @@ tripleo_frr_hostname: "{{ ansible_hostname }}"
 tripleo_frr_log_level: informational
 tripleo_frr_watchfrr: true
 tripleo_frr_zebra: false
-tripleo_frr_bgp_ipv4_default_src_map: {}
