@@ -141,7 +141,8 @@ def run_module():
             python_interpretor,
             ssh_user,
             ssh_private_key_file,
-            ssh_network)
+            ssh_network,
+            conn.session)
         result['inventory_path'] = inventory_path
         result['success'] = True
         result['changed'] = True
