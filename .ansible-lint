@@ -62,3 +62,4 @@ mock_modules:
     - tripleo_swift_tempurl
     - tripleo_templates_upload
     - tripleo_unmanaged_populate_environment
+    - tripleo_generate_inventory_network_config
