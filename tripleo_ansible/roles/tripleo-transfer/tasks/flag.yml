@@ -19,8 +19,6 @@
   stat:
     path: "{{ tripleo_transfer_flag_file }}"
   register: tripleo_transfer_flag_stat
-  become: "{{ tripleo_transfer_dest_become }}"
-  delegate_to: "{{ tripleo_transfer_dest_host }}"
 
 - name: fail if flag file exists
   fail:
@@ -32,18 +30,13 @@
       and re-run the data transfer.
   when:
     - tripleo_transfer_flag_stat.stat.exists
-  delegate_to: "{{ tripleo_transfer_dest_host }}"
 
 - name: ensure directory for flag file exists
   file:
     path: "{{ tripleo_transfer_flag_file|dirname }}"
     state: directory
-  become: "{{ tripleo_transfer_dest_become }}"
-  delegate_to: "{{ tripleo_transfer_dest_host }}"
 
 - name: create the flag file
   file:
     path: "{{ tripleo_transfer_flag_file }}"
     state: touch
-  become: "{{ tripleo_transfer_dest_become }}"
-  delegate_to: "{{ tripleo_transfer_dest_host }}"

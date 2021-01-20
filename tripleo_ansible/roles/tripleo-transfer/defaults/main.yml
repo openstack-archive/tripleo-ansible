@@ -23,10 +23,12 @@
 #   * `tripleo_transfer_src_dir` -- directory on the source host to transfer from
 #   * `tripleo_transfer_dest_host` -- the inventory name of the destination host
 #   * `tripleo_transfer_dest_dir` -- directory on the destination host to transfer to
-
-tripleo_transfer_storage_root_dir: /var/lib/mistral/tripleo-transfer
-tripleo_transfer_storage_root_become: false
 tripleo_transfer_src_become: true
 tripleo_transfer_dest_become: true
-tripleo_transfer_dest_wipe: true
 tripleo_transfer_flag_file: ~
+# tripleo_transfer_key_location: location of the private key used to connect
+# from src host to dest host.
+tripleo_transfer_key_location: "~/transfer_key"
+# tripleo_transfer_cleanup_keys: clean up the keypair from the source host
+# and remove public key from destination host when true.
+tripleo_transfer_cleanup_keys: true
