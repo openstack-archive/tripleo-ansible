@@ -33,4 +33,6 @@
 
 - include_tasks: enforce_release.yml
   name: Enforce RHEL/OSP version pair
-  when: tripleo_redhat_enforce|bool
+  when:
+    - (ansible_distribution | lower) == "redhat"
+    - tripleo_redhat_enforce|bool
