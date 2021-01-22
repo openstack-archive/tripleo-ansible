@@ -234,7 +234,9 @@ def port_need_update(port_def, port):
     return update_fields
 
 
-def update_ports(result, conn, port_defs, inst_ports, tags):
+def update_ports(result, conn, port_defs, inst_ports, tags, net_maps,
+                 network_config):
+    default_route_network = network_config.get('default_route_network', [])
     for port_def in port_defs:
         for p in inst_ports:
             if (p.name == port_def['name']
@@ -252,18 +254,42 @@ def update_ports(result, conn, port_defs, inst_ports, tags):
             conn.network.update_port(port.id, update_fields)
             result['changed'] = True
 
+        net_name = net_maps['by_id'][port.network_id]
         p_tags = set(port.tags)
+
+        if net_name in default_route_network:
+            tags.update({'tripleo_default_route=true'})
+        elif 'tripleo_default_route=true' in p_tags:
+            p_tags.remove('tripleo_default_route=true')
+            conn.network.set_tags(port, list(p_tags))
+
         if not tags.issubset(p_tags):
             p_tags.update(tags)
             conn.network.set_tags(port, list(p_tags))
 
+        # Remove the 'tripleo_default_route' tag before processing next port
+        try:
+            tags.remove('tripleo_default_route=true')
+        except KeyError:
+            pass
 
-def create_ports(result, conn, port_defs, inst_ports, tags):
+
+def create_ports(result, conn, port_defs, inst_ports, tags, net_maps,
+                 network_config):
+    default_route_network = network_config.get('default_route_network', [])
     ports = conn.network.create_ports(port_defs)
 
     for port in ports:
+        net_name = net_maps['by_id'][port.network_id]
+        if net_name in default_route_network:
+            tags.update({'tripleo_default_route=true'})
         conn.network.set_tags(port, list(tags))
         inst_ports.append(port)
+        # Remove the 'tripleo_default_route' tag before processing next port
+        try:
+            tags.remove('tripleo_default_route=true')
+        except KeyError:
+            pass
 
     result['changed'] = True
 
@@ -334,6 +360,7 @@ def delete_removed_nets(result, conn, instance, net_maps, inst_ports):
 def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
                      ironic_uuid, role):
     hostname = instance['hostname']
+    network_config = instance.get('network_config', {})
     tags = ['tripleo_stack_name={}'.format(stack),
             'tripleo_role={}'.format(role)]
     # TODO(hjensas): This can be moved below the ironic_uuid condition in
@@ -356,9 +383,11 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
                                                             inst_ports)
 
     if create_port_defs:
-        create_ports(result, conn, create_port_defs, inst_ports, tags)
+        create_ports(result, conn, create_port_defs, inst_ports, tags,
+                     net_maps, network_config)
     if update_port_defs:
-        update_ports(result, conn, update_port_defs, inst_ports, tags)
+        update_ports(result, conn, update_port_defs, inst_ports, tags,
+                     net_maps, network_config)
 
     ports_by_node[hostname] = inst_ports
 
@@ -415,7 +444,7 @@ def validate_instance_nets_in_net_map(instances, net_maps):
 
 
 def manage_instances_ports(result, conn, stack, instances, concurrency, state,
-                           uuid_by_hostname, hostname_role_map):
+                           uuid_by_hostname, hostname_role_map, net_maps):
     if not instances:
         return
 
@@ -423,7 +452,6 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
     if concurrency < 1:
         concurrency = len(instances)
 
-    net_maps = n_utils.create_name_id_maps(conn)
     validate_instance_nets_in_net_map(instances, net_maps)
     ports_by_node = dict()
 
@@ -467,11 +495,19 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
 
 
 def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, hostname,
-                                   tags):
+                                   tags, default_route_network, net_maps):
     instance = provisioner.show_instance(uuid)
 
     for nic in instance.nics():
         nic_tags = set(nic.tags)
+        net_name = net_maps['by_id'][nic.network_id]
+
+        # If default route network is not set, default to true for ctlplane
+        if not default_route_network and net_name == 'ctlplane':
+            tags.update({'tripleo_default_route=true'})
+        elif net_name in default_route_network:
+            tags.update({'tripleo_default_route=true'})
+
         if not tags.issubset(nic_tags):
             nic_tags.update(tags)
             conn.network.set_tags(nic, list(nic_tags))
@@ -480,9 +516,16 @@ def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, hostname,
             conn.network.update_port(nic, dns_name=hostname)
             result['changed'] = True
 
+        # Remove the 'tripleo_default_route' tag before processing next port
+        try:
+            tags.remove('tripleo_default_route=true')
+        except KeyError:
+            pass
+
 
 def tag_metalsmith_managed_ports(result, conn, concurrency, stack,
-                                 uuid_by_hostname, hostname_role_map):
+                                 uuid_by_hostname, hostname_role_map,
+                                 instances_by_hostname, net_maps):
     # no limit on concurrency, create a worker for every instance
     if concurrency < 1:
         concurrency = len(uuid_by_hostname)
@@ -494,13 +537,17 @@ def tag_metalsmith_managed_ports(result, conn, concurrency, stack,
     with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
         for hostname, uuid in uuid_by_hostname.items():
             role = hostname_role_map[hostname]
+            default_route_network = instances_by_hostname[hostname].get(
+                'network_config', {}).get('default_route_network', [])
+
             tags = {'tripleo_stack_name={}'.format(stack),
                     'tripleo_ironic_uuid={}'.format(uuid),
                     'tripleo_role={}'.format(role),
                     'tripleo_ironic_vif_port=true'}
             provision_jobs.append(
                 p.submit(_tag_metalsmith_instance_ports,
-                         result, conn, provisioner, uuid, hostname, tags)
+                         result, conn, provisioner, uuid, hostname, tags,
+                         default_route_network, net_maps)
             )
 
     for job in futures.as_completed(provision_jobs):
@@ -536,18 +583,22 @@ def run_module():
     state = module.params['state']
     provisioned_instances = module.params['provisioned_instances']
     hostname_role_map = module.params['hostname_role_map']
-
     uuid_by_hostname = {i['hostname']: i['id'] for i in provisioned_instances}
+    instances_by_hostname = {i['hostname']: i for i in instances}
 
     try:
         _, conn = openstack_cloud_from_module(module)
 
+        net_maps = n_utils.create_name_id_maps(conn)
+
         if state == 'present' and uuid_by_hostname:
             tag_metalsmith_managed_ports(result, conn, concurrency, stack,
-                                         uuid_by_hostname, hostname_role_map)
+                                         uuid_by_hostname, hostname_role_map,
+                                         instances_by_hostname, net_maps)
 
         manage_instances_ports(result, conn, stack, instances, concurrency,
-                               state, uuid_by_hostname, hostname_role_map)
+                               state, uuid_by_hostname, hostname_role_map,
+                               net_maps)
         result['success'] = True
         module.exit_json(**result)
     except Exception as err:
