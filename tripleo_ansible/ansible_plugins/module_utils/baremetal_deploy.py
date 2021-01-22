@@ -44,6 +44,32 @@ _NIC_SCHEMA = {
     'additionalProperties': False
 }
 
+_NETWORK_CONFIG_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'template': {'type': 'string'},
+        'physical_bridge_name': {'type': 'string'},
+        'public_interface_name': {'type': 'string'},
+        'network_deployment_actions': {
+            'type': 'array',
+            'items': {'type': 'string',
+                      'enum': ['CREATE', 'UPDATE']}
+        },
+        'net_config_data_lookup': {'type': 'object'},
+        'default_route_network': {
+            'type': 'array',
+            'items': {'type': 'string'},
+        },
+        'networks_skip_config': {
+            'type': 'array',
+            'items': {'type': 'string'}
+        },
+        'dns_search_domains': {'type': 'string'},
+        'bond_interface_ovs_options': {'type': 'string'},
+    },
+    'additionalProperties': False
+}
+
 _NETWORK_SCHEMA = {
     'type': 'object',
     'properties': {
@@ -71,6 +97,7 @@ _INSTANCE_SCHEMA = {
         'netboot': {'type': 'boolean'},
         'nics': {'type': 'array',
                  'items': _NIC_SCHEMA},
+        'network_config': _NETWORK_CONFIG_SCHEMA,
         'networks': {'type': 'array',
                      'items': _NETWORK_SCHEMA},
         'passwordless_sudo': {'type': 'boolean'},
@@ -137,7 +164,8 @@ class BaremetalDeployException(Exception):
 
 
 def expand(roles, stack_name, expand_provisioned=True, default_image=None,
-           default_network=None, user_name=None, ssh_public_keys=None):
+           default_network=None, user_name=None, ssh_public_keys=None,
+           default_network_config=None):
 
     def _remove_vif_key(nets):
         for net in nets:
@@ -155,9 +183,12 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             default_networks = defaults.setdefault('networks', [])
             default_networks.extend([x for x in default_network
                                      if x not in default_networks])
+        if default_network_config:
+            default_network_config = defaults.setdefault('network_config', {})
 
         for inst in role.get('instances', []):
             merge_networks_defaults(defaults, inst)
+            merge_network_config_defaults(defaults, inst)
 
             for k, v in defaults.items():
                 inst.setdefault(k, v)
@@ -278,6 +309,17 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
     else:
         env = {}
     return instances, env, role_net_map, hostname_role_map
+
+
+def merge_network_config_defaults(defaults, instance):
+    d_network_config = defaults.get('network_config', {})
+    i_network_config = instance.get('network_config', {})
+    if not d_network_config:
+        return
+
+    # only merge network_config not already defined on the instance
+    for k, v in d_network_config.items():
+        i_network_config.setdefault(k, v)
 
 
 def merge_networks_defaults(defaults, instance):

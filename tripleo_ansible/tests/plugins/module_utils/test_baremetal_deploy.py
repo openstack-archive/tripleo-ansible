@@ -91,6 +91,21 @@ class TestBaremetalDeployUtils(base.TestCase):
         self.assertEqual({'networks': [{'network': 'instance_net'},
                                        {'network': 'role_net'}]}, instance)
 
+    def test_merge_network_config_defaults(self):
+        # Config defined only in role defaults is appended
+        defaults = {'network_config': {'foo': 'bar'}}
+        instance = {'network_config': {'bar': 'foo'}}
+        bd.merge_network_config_defaults(defaults, instance)
+        self.assertEqual({'network_config': {'foo': 'bar', 'bar': 'foo'}},
+                         instance)
+
+        # Config defined in both role defaults and instance,
+        #   instance value preferred
+        instance = {'network_config': {'foo': 'bar', 'bar': 'override'}}
+        bd.merge_networks_defaults(defaults, instance)
+        self.assertEqual({'network_config': {'foo': 'bar', 'bar': 'override'}},
+                         instance)
+
 
 class TestExpandRoles(base.TestCase):
 
