@@ -41,7 +41,7 @@
       find:
         paths: "{{ environment_directories | tht_abspath(ignore_error=true) }}"
         patterns: '*.yaml'
-      when: environment_directories
+      when: environment_directories|list|length > 0
       register: out_env_files
     - name: Build environment_files
       set_fact:
