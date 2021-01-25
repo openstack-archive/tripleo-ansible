@@ -40,6 +40,15 @@
   tags:
     - bar_setup_rear
 
+- name: Remove ReaR rpm default cron programming
+  become: true
+  file:
+    path: /etc/cron.d/rear
+    state: absent
+  when: tripleo_backup_and_restore_remove_default_cronjob | bool
+  tags:
+    - bar_setup_rear
+
 - name: Get local hostname
   command: hostname
   register: tripleo_backup_and_restore_hostname
