@@ -20,14 +20,14 @@
     path: "/etc/tuned/{{ tuned_profile }}"
     state: directory
   when:
-    - (custom_profile is defined) and ((custom_profile | length) > 0)
+    - (tuned_custom_profile is defined) and ((tuned_custom_profile | length) > 0)
 
 - name: Create custom tuned profile
   copy:
-    content: "{{ custom_profile }}"
+    content: "{{ tuned_custom_profile }}"
     dest: "/etc/tuned/{{ tuned_profile }}/tuned.conf"
   when:
-    - (custom_profile is defined) and ((custom_profile | length) > 0)
+    - (tuned_custom_profile is defined) and ((tuned_custom_profile | length) > 0)
 
 - name: Check tuned active profile
   slurp:
