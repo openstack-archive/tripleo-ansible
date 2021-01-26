@@ -43,6 +43,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
+      - tripleo-ansible-centos-8-molecule-tripleo_multipathd
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -86,6 +87,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
+      - tripleo-ansible-centos-8-molecule-tripleo_multipathd
     name: tripleo-ansible-molecule-jobs
 - job:
     files:
@@ -268,6 +270,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_lvmfilter
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_multipathd/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_multipathd
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_multipathd
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo-network-config/.*
