@@ -242,9 +242,20 @@ class ActionModule(ActionBase):
                         }
                     )
 
-                if 'dport' in rule:
+                # NOTE(cloudnull): while dport is the only supported option,
+                #                  port has been added as an ailias to ensure
+                #                  our legacy configs remain functional.
+                if 'dport' in rule or 'port' in rule:
                     dport_rule_data = versioned_rule_data.copy()
-                    dports = rule['dport']
+                    dports = rule.get('dport', 'port')
+
+                    if 'port' in rule:
+                        DISPLAY.v(
+                            'The use of "port" is deprecated and will be'
+                            ' removed in a future release. Please convert'
+                            ' all uses of "port" to "dport".'
+                        )
+
                     if not isinstance(dports, list):
                         dports = [dports]
 
