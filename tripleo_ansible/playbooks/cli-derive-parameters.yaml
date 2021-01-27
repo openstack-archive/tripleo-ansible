@@ -22,7 +22,6 @@
   any_errors_fatal: true
   vars:
     plan: overcloud
-    persist_params_in_plan: true
 
   pre_tasks:
     - name: Set local connection user facts
@@ -66,3 +65,16 @@
       loop: "{{ tripleo_role_list.roles }}"
       loop_control:
         loop_var: outer_item
+
+    - name: Write environment to {{ derived_environment_path }}
+      block:
+        - name: create derived params dictionary
+          set_fact:
+            derived_params_env: "{{ {'parameter_defaults': derived_parameters_result['derived_parameters'] | default({})} }}"
+        - name: Write environment
+          copy:
+            dest: "{{ derived_environment_path }}"
+            content: "{{ dervied_params_env | to_nice_yaml(indent=2) }}"
+      when:
+        - derived_environment_path is defined
+        - derived_parameters_result is defined
