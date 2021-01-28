@@ -11,5 +11,5 @@
     - zuul.d/playbooks/pre.yml
     run:
     - zuul.d/playbooks/run.yml
-    timeout: 1800
+    timeout: 3600
     voting: true

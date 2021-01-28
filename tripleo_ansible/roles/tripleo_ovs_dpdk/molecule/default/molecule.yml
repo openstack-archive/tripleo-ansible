@@ -16,8 +16,6 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -36,8 +34,6 @@ platforms:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
       https_proxy: "{{ lookup('env', 'https_proxy') }}"
     command: /sbin/init
-    capabilities:
-      - ALL
     volumes:
       - /run/udev:/run/udev:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
