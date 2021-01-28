@@ -35,6 +35,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
+      - tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_multipathd
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
@@ -95,6 +96,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
+      - tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
       - tripleo-ansible-centos-8-molecule-tripleo_multipathd
       - tripleo-ansible-centos-8-molecule-tripleo_network_config
@@ -411,6 +413,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_lvmfilter
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_metrics_qdr/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_metrics_qdr
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_module_load/.*

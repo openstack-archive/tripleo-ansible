@@ -1,0 +1,30 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+
+    - name: "Enable delorean repos"
+      command: |
+        dnf config-manager --add-repo https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
+
+    - name: "Install tripleo-repos"
+      package:
+        name: "python*tripleo-repos"
+        state: present
+
+    - name: "Set-up tripleo-repos"
+      command: |
+        tripleo-repos -b master current-tripleo
+
+    - name: Install Deps
+      package:
+        name:
+          - qpid-dispatch-router
+          - qpid-dispatch-tools
+
+    - name: "Make sure that /var/log/qdrouterd exists"
+      file:
+        path: "/var/log/qdrouterd"
+        state: directory
+        owner: qdrouterd
+        mode: 0755
