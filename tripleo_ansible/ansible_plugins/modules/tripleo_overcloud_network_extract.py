@@ -160,6 +160,9 @@ def tripleo_resource_tags_to_dict(resource_tags):
         except ValueError:
             continue
 
+        if key == 'tripleo_net_idx':
+            value = int(value)
+
         tag_dict.update({key: value})
 
     return tag_dict
@@ -211,7 +214,7 @@ def get_network_info(conn, network_id):
 
     pop_defaults(net_dict)
 
-    return net_dict
+    return tag_dict['tripleo_net_idx'], net_dict
 
 
 def get_subnet_info(conn, subnet_id):
@@ -284,21 +287,23 @@ def get_subnet_info(conn, subnet_id):
 
 
 def parse_net_resources(conn, net_resources):
-    network_data = list()
+    indexed_networks = dict()
     for net in net_resources:
         name = net.rpartition('Network')[0]
         net_entry = {'name': name, 'subnets': dict()}
         for res in net_resources[net]:
             res_dict = net_resources[net][res]
             if res_dict['resource_type'] == TYPE_NET:
-                net_dict = get_network_info(conn, res_dict[RES_ID])
+                idx, net_dict = get_network_info(conn, res_dict[RES_ID])
                 net_entry.update(net_dict)
             if res_dict['resource_type'] == TYPE_SUBNET:
                 subnet_name, subnet_dict = get_subnet_info(conn,
                                                            res_dict[RES_ID])
                 net_entry['subnets'].update({subnet_name: subnet_dict})
 
-        network_data.append(net_entry)
+        indexed_networks[idx] = net_entry
+
+    network_data = [indexed_networks[i] for i in sorted(indexed_networks)]
 
     return network_data
 

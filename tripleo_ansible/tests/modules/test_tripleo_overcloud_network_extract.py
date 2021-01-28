@@ -25,8 +25,10 @@ from tripleo_ansible.tests import stubs
 class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
 
     def test_tripleo_resource_tags_to_dict(self):
-        tags = ['foo=bar', 'baz=qux', 'tripleo_foo=bar', 'tripleo_baz=qux']
-        expected = {'tripleo_foo': 'bar', 'tripleo_baz': 'qux'}
+        tags = ['foo=bar', 'baz=qux', 'tripleo_foo=bar', 'tripleo_baz=qux',
+                'tripleo_net_idx=3']
+        expected = {'tripleo_foo': 'bar', 'tripleo_baz': 'qux',
+                    'tripleo_net_idx': 3}
         result = plugin.tripleo_resource_tags_to_dict(tags)
         self.assertEqual(expected, result)
 
@@ -69,14 +71,13 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
             mtu=1500,
             is_shared=False,
             is_admin_state_up=False,
-            tags=['tripleo_service_net_map_replace=external']
+            tags=['tripleo_net_idx=3',
+                  'tripleo_service_net_map_replace=external']
         )
         conn_mock.network.get_network.return_value = fake_network
-        expected = {
-            'name_lower': 'public',
-            'dns_domain': 'public.localdomain.',
-            'service_net_map_replace': 'external',
-        }
+        expected = (3, {'name_lower': 'public',
+                        'dns_domain': 'public.localdomain.',
+                        'service_net_map_replace': 'external'})
         result = plugin.get_network_info(
             conn_mock, '132f871f-eaec-4fed-9475-0d54465e0f00')
         self.assertEqual(expected, result)
@@ -264,7 +265,7 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
             'physical_network': 'leaf1',
         }
 
-        mock_get_network.return_value = fake_network
+        mock_get_network.return_value = (0, fake_network)
         mock_get_subnet.side_effect = [
             ('storage', fake_subnet_storage),
             ('leaf1', fake_subnet_storage_leaf1)]
