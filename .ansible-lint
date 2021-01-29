@@ -68,3 +68,4 @@ mock_modules:
     - tripleo_overcloud_network_vip_provision
     - tripleo_overcloud_network_vip_populate_environment
     - tripleo_ovn_mac_addresses
+    - tripleo_unprovision_network
