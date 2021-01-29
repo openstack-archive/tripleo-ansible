@@ -28,4 +28,14 @@ Listen {{ tripleo_container_registry_port }}
         Header set Cache-Control "max-age=31536000"
         Header set Content-Type "application/octet-stream"
     </LocationMatch>
+
+    <LocationMatch "^/v2/.*/blobs/sha256:.*$">
+        SetEnvIf Request_URI "sha256:(.*)$" digest=sha256:$1
+        Header set Docker-Content-Digest "%{digest}e"
+        Header set ETag "%{digest}e"
+        Header set Cache-Control "max-age=31536000"
+        Header set Content-Type "application/octet-stream"
+    </LocationMatch>
+
+
 </VirtualHost>
