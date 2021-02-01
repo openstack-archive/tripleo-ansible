@@ -83,7 +83,6 @@
       systemd:
         name: network
         enabled: true
-        state: started
       when:
         - tripleo_network_config_manage_service
         - not ansible_check_mode|bool
