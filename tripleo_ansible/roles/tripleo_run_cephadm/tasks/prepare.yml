@@ -108,5 +108,6 @@
       tripleo_cephadm_spec_on_bootstrap: false
       tripleo_cephadm_pools: {{ openstack_pools.get('openstack_pools', []) }}
       tripleo_cephadm_keys: {{ keys.get('keys',[]) }}
-      dashboard_frontend_vip: {{ grafana_vip|default() }}
+      tripleo_cephadm_dashboard_frontend_vip: {{ grafana_vip|default() }}
       service_net_map: {{ service_net_map|default({}) }}
+      tripleo_enabled_services: {{ enabled_services | default([]) }}

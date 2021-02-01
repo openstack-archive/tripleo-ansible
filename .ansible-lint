@@ -14,8 +14,11 @@ mock_roles:
 mock_modules:
     - baremetal_nodes_validate
     - baremetal_register_or_update_nodes
+    - ceph_dashboard_user
     - ceph_key
+    - ceph_fs
     - ceph_pool
+    - ceph_mkspec
     - config_template
     - container_startup_config
     - lvm2_physical_devices_facts
