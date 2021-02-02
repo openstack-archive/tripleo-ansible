@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new role for ``tripleo_unbound`` to configure the Unbound DNS
+    resolver for TripleO deployments.

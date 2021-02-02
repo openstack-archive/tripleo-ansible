@@ -53,6 +53,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_timezone
       - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_unbound
       - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
       - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
@@ -109,6 +110,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_timezone
       - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_unbound
       - tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
       - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
@@ -164,6 +166,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
       - tripleo-ansible-centos-8-molecule-tripleo_timezone
       - tripleo-ansible-centos-8-molecule-tripleo_transfer
+      - tripleo-ansible-centos-8-molecule-tripleo_unbound
       - tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
@@ -528,6 +531,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_transfer
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_unbound/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_unbound
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_unbound
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_update_trusted_cas/.*
