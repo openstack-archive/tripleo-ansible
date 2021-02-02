@@ -53,6 +53,10 @@ options:
     description:
       - Structure describing a TripleO composable network
     type: dict
+  idx:
+    description:
+      - TripleO network index number
+    type: int
 author:
     - Harald Jensås <hjensas@redhat.com>
 '''
@@ -96,6 +100,7 @@ EXAMPLES = '''
               nexthop: 172.18.1.254
           vip: false
           vlan: 21
+    idx: 1
 '''
 
 DEFAULT_NETWORK = 'ctlplane'
@@ -115,8 +120,9 @@ def get_overcloud_domain_name(conn, default_network):
         return DEFAULT_DOMAIN
 
 
-def build_network_tag_field(net_data):
-    tags = ['='.join(['tripleo_network_name', net_data['name']])]
+def build_network_tag_field(net_data, idx):
+    tags = ['='.join(['tripleo_network_name', net_data['name']]),
+            '='.join(['tripleo_net_idx', str(idx)])]
     service_net_map_replace = net_data.get('service_net_map_replace')
     vip = net_data.get('vip')
     if service_net_map_replace:
@@ -137,7 +143,7 @@ def build_subnet_tag_field(subnet_data):
     return tags
 
 
-def create_net_spec(net_data, overcloud_domain_name):
+def create_net_spec(net_data, overcloud_domain_name, idx):
     name_lower = net_data.get('name_lower', net_data['name'].lower())
     net_spec = {
         'admin_state_up': net_data.get('admin_state_up', DEFAULT_ADMIN_STATE),
@@ -152,7 +158,7 @@ def create_net_spec(net_data, overcloud_domain_name):
         'provider:network_type': DEFAULT_NETWORK_TYPE,
     }
 
-    net_spec.update({'tags': build_network_tag_field(net_data)})
+    net_spec.update({'tags': build_network_tag_field(net_data, idx)})
 
     return net_spec
 
@@ -418,6 +424,7 @@ def run_module():
 
     default_network = module.params.get('default_network', DEFAULT_NETWORK)
     net_data = module.params['net_data']
+    idx = module.params['idx']
     error_messages = network_data_v2.validate_json_schema(net_data)
     if error_messages:
         module.fail_json(msg='\n\n'.join(error_messages))
@@ -427,7 +434,7 @@ def run_module():
 
         # Create or update the network
         net_spec = create_net_spec(
-            net_data, get_overcloud_domain_name(conn, default_network))
+            net_data, get_overcloud_domain_name(conn, default_network), idx)
         changed, network = create_or_update_network(conn, module, net_spec)
         result['changed'] = changed if changed else result['changed']
 

@@ -25,18 +25,22 @@ from tripleo_ansible.tests import stubs
 class TestTripleoComposableNetwork(tests_base.TestCase):
 
     def test_build_network_tag_field(self):
+        idx = 3
         net_data = {'name': 'foo',
                     'service_net_map_replace': 'replacement',
                     'vip': True}
         expected = ['tripleo_network_name=foo',
+                    'tripleo_net_idx=3',
                     'tripleo_service_net_map_replace=replacement',
                     'tripleo_vip=true']
-        result = plugin.build_network_tag_field(net_data)
+        result = plugin.build_network_tag_field(net_data, idx)
         self.assertEqual(expected, result)
 
+        idx = 1
         net_data = {'name': 'foo'}
-        expected = ['tripleo_network_name=foo']
-        result = plugin.build_network_tag_field(net_data)
+        expected = ['tripleo_network_name=foo',
+                    'tripleo_net_idx=1']
+        result = plugin.build_network_tag_field(net_data, idx)
         self.assertEqual(expected, result)
 
     def test_build_subnet_tag_field(self):
@@ -52,6 +56,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         self.assertEqual(expected, result)
 
     def test_create_net_spec(self):
+        idx = 3
         net_data = {'name': 'NetName'}
         overcloud_domain_name = 'example.com.'
         expected = {
@@ -62,10 +67,11 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'shared': plugin.DEFAULT_SHARED,
             'provider:physical_network': 'netname',
             'provider:network_type': plugin.DEFAULT_NETWORK_TYPE,
-            'tags': ['tripleo_network_name=NetName'],
+            'tags': ['tripleo_network_name=NetName',
+                     'tripleo_net_idx=3'],
         }
 
-        result = plugin.create_net_spec(net_data, overcloud_domain_name)
+        result = plugin.create_net_spec(net_data, overcloud_domain_name, idx)
         self.assertEqual(expected, result)
 
     def test_validate_network_update(self):

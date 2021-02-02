@@ -49,10 +49,13 @@
       when:
         - network_data is undefined
 
-    - name: Create composable networks
+    - name: Create/Update composable networks
       tripleo_composable_network:
         net_data: "{{ item }}"
+        idx: "{{ idx }}"
       loop: "{{ network_data }}"
+      loop_control:
+        index_var: idx
 
     - name: Populate environment
       tripleo_network_populate_environment:
