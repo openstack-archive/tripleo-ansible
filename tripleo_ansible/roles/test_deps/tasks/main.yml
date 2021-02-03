@@ -53,6 +53,11 @@
         content: "{{ tripleo_packages.content }}"
         dest: /etc/yum.repos.d/delorean.repo
 
+    - name: Disable ubi host subscription-manager integration
+      file:
+        path: /etc/rhsm-host
+        state: absent
+
 - name: Install tripleo-repos package
   become: true
   package:
