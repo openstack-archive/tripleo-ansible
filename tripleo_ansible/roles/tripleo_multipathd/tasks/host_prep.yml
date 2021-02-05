@@ -1,0 +1,52 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Check if multipathd is deployed on the host
+  command: systemctl is-enabled --quiet multipathd
+  failed_when: false
+  register: multipathd_enabled_result
+  check_mode: false
+
+- name: Set fact multipathd_enabled
+  set_fact:
+    multipathd_enabled: "{{ multipathd_enabled_result.rc == 0 }}"
+
+- name: Stop multipathd service on the host
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  when:
+    - multipathd_enabled|bool
+  ignore_errors: true
+  loop:
+    - multipathd.service
+    - multipathd.socket
+  loop_control:
+    index_var: multipath_service_index
+
+- name: Load dm-multipath
+  import_role:
+    name: tripleo-module-load
+  vars:
+    modules:
+      - name: dm-multipath
+
+- name: Prepare /etc/multipath directory
+  file:
+    path: /etc/multipath
+    state: directory
+    setype: container_file_t
