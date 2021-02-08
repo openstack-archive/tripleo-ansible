@@ -48,9 +48,9 @@
         openstack --os-cloud undercloud container delete "{{ item }}" --recursive
       failed_when:
         - container_objects.rc != 0
-        - "'Not Found' not in container_objects.stderr"
+        - "'not found' not in container_objects.stderr | lower"
       changed_when:
-        - "'Not Found' not in container_objects.stderr"
+        - "'not found' not in container_objects.stderr | lower"
       register: container_objects
       loop:
         - "{{ stack_name }}"
