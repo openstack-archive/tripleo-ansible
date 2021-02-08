@@ -44,13 +44,11 @@ router bgp {{ tripleo_frr_bgp_asn }}
 ip prefix-list only-default permit 0.0.0.0/0
 ip prefix-list only-host-prefixes permit 0.0.0.0/0 ge 32
 
-{% if tripleo_frr_bgp_ipv4_default_src_map|length > 0 and tripleo_frr_hostname in tripleo_frr_bgp_ipv4_default_src_map %}
 route-map rm-only-default permit 10
   match ip address prefix-list only-default
-  set src {{ tripleo_frr_bgp_ipv4_default_src_map[tripleo_frr_hostname] }}
+  set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
 
 ip protocol bgp route-map rm-only-default
-{% endif %} {# tripleo_frr_bgp_ipv4_default_src_map #}
 {% endif %} {# tripleo_frr_bgp_ipv4 #}
 
 {% if tripleo_frr_bgp_ipv6 %}
