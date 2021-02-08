@@ -76,3 +76,4 @@ tripleo_podman_default_network_config:
 #   - prefix: registry.fedoraproject.org
 #     blocked: true
 tripleo_podman_registries: []
+tripleo_container_default_pids_limit: 4096
