@@ -39,6 +39,12 @@
         {{ tripleo_ansible_project_path }}/scripts/bindep-install
       become: true
 
+    - name: Ensure a recent version of pip is installed in virtualenv
+      pip:
+        name: "pip>=19.1.1"
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
+
     - name: Setup test-python
       pip:
         requirements: "{{ tripleo_ansible_project_path }}/molecule-requirements.txt"
