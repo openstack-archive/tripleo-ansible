@@ -12,7 +12,7 @@
       become: true
     - name: Set data fact
       set_fact:
-        heradata_content: "{{ _file_data['content'] | b64decode }}"
+        hieradata_content: "{{ _file_data['content'] | b64decode }}"
   when:
     - _hiera_file.stat is defined
     - _hiera_file.stat.exists
