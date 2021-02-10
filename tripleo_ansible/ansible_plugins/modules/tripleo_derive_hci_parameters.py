@@ -35,7 +35,7 @@ description:
     - "When collocating Ceph OSDs on Nova Compute hosts (hyperconverged or hci) the Nova Scheduler does not take into account the CPU/Memory needs of the OSDs. This module returns  recommended NovaReservedHostMemory and NovaCPUAllocationRatio parmaters so that the host reseves memory and CPU for Ceph. The values are based on workload description, deployment configuration, and Ironic data. The workload description is the expected average_guest_cpu_utilization_percentage and average_guest_memory_size_in_mb."
 options:
     tripleo_environment_parameters:
-        description: Map from key environment_parameters from output of the tripleo_get_flatten_stack module stack_data. Used to determine number of OSDs in deployment per role
+        description: Map from key environment_parameters from stack_data. Used to determine number of OSDs in deployment per role
         required: True
         type: map
     tripleo_role_name:

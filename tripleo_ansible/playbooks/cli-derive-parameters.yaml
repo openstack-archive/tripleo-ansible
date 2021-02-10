@@ -32,27 +32,19 @@
       when:
         - (tripleo_target_host is defined) | ternary('ssh', 'local') == 'local'
 
-  tasks:
-    - name: Get flatten params
-      tripleo_get_flatten_stack:
-        container: "{{ plan }}"
-      register: tripleo_get_flatten_params
+    - name: Fail if stack_data is not defined
       when:
-        - tripleo_get_flatten_params is undefined
-
-    - name: Get role list
-      tripleo_get_role_list:
-        container: "{{ plan }}"
-        valid: false
-      register: tripleo_role_list
-      when:
-        - tripleo_role_list is undefined
-
-    - name: Fail if stack_data has not been extracted
-      when:
-        - tripleo_get_flatten_params.stack_data is not defined
+        - tripleo_get_flatten_params.stack_data is not defined or
+          stack_data is not defined
       fail:
-        msg: "{{ plan }} is mising stack_data"
+        msg: "Missing stack_data"
+
+    - name: Fail if role_list is not defined
+      when:
+        - tripleo_role_list.roles is not defined or
+          role_list is not defined
+      fail:
+        msg: "Missing valid roles"
 
     - name: Derive params for each role
       include_role:
