@@ -167,6 +167,7 @@ class ActionModule(ActionBase):
         self.service_net_map = task_vars['service_net_map']
         self.nova_additional_cell = task_vars['nova_additional_cell']
         self.all_nodes_extra_map_data = task_vars['all_nodes_extra_map_data']
+        service_vip_vars = task_vars.get('service_vip_vars', {})
         net_vip_map = task_vars['net_vip_map']
         enabled_services = task_vars['enabled_services']
         primary_role_name = task_vars['primary_role_name']
@@ -198,6 +199,8 @@ class ActionModule(ActionBase):
         if 'redis' in enabled_services or self.nova_additional_cell:
             if 'redis_vip' in self.all_nodes_extra_map_data:
                 all_nodes['redis_vip'] = self.all_nodes_extra_map_data['redis_vip']
+            elif 'redis' in service_vip_vars:
+                all_nodes['redis_vip'] = service_vip_vars['redis']
             elif 'redis' in net_vip_map:
                 all_nodes['redis_vip'] = net_vip_map['redis']
 
@@ -207,6 +210,8 @@ class ActionModule(ActionBase):
             if 'ovn_dbs_vip' in self.all_nodes_extra_map_data:
                 all_nodes['ovn_dbs_vip'] = \
                     self.all_nodes_extra_map_data['ovn_dbs_vip']
+            elif 'ovn_dbs' in service_vip_vars:
+                all_nodes['ovn_dbs_vip'] = service_vip_vars['ovn_dbs']
             elif 'ovn_dbs' in net_vip_map:
                 all_nodes['ovn_dbs_vip'] = net_vip_map['ovn_dbs']
 

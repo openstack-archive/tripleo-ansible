@@ -30,10 +30,18 @@
 {% endif %}
 {% set _ = vip_data.__setitem__('tripleo::haproxy::controller_virtual_ip', (net_vip_map.ctlplane)) %}
 {% set _ = vip_data.__setitem__('tripleo::keepalived::controller_virtual_ip', (net_vip_map.ctlplane)) %}
+{% if service_vip_vars.redis is defined %}
+{% set _ = vip_data.__setitem__('tripleo::keepalived::redis_virtual_ip', (service_vip_vars.redis)) %}
+{% elif net_vip_map.redis is defined %}
 {% set _ = vip_data.__setitem__('tripleo::keepalived::redis_virtual_ip', (net_vip_map.redis)) %}
+{% endif %}
 {% set _ = vip_data.__setitem__('tripleo::redis_notification::haproxy_monitor_ip', (net_vip_map.ctlplane)) %}
-{% if 'ovn_dbs' in enabled_services and net_vip_map.ovn_dbs is defined %}
-{%   set _ = vip_data.__setitem__('tripleo::keepalived::ovndbs_virtual_ip', (net_vip_map.ovn_dbs)) %}
+{% if 'ovn_dbs' in enabled_services %}
+{%   if service_vip_vars.ovn_dbs is defined %}
+{%     set _ = vip_data.__setitem__('tripleo::keepalived::ovndbs_virtual_ip', (service_vip_vars.ovn_dbs)) %}
+{%   elif net_vip_map.ovn_dbs is defined %}
+{%     set _ = vip_data.__setitem__('tripleo::keepalived::ovndbs_virtual_ip', (net_vip_map.ovn_dbs)) %}
+{%   endif %}
 {% endif %}
 {% for key, value in cloud_names.items() %}
 {%   set _ = vip_data.__setitem__(key, value) %}
@@ -46,7 +54,7 @@
 {%       set _ = vip_data.__setitem__((service ~ '_vip'), (net_vip_map[service_net_map[service ~ '_network']])) %}
 {%     endif %}
 {# we set the ovn_dbs_vip to the per-network VIP *if* we detect that there is no separate ovn_dbs VIP set (I.e. THT patch for separate OVN VIP is missing) #}
-{%     if service in ['ovn_dbs'] and net_vip_map.ovn_dbs is not defined%}
+{%     if service in ['ovn_dbs'] and net_vip_map.ovn_dbs is not defined and service_vip_vars.ovn_dbs is not defined%}
 {%       set _ = vip_data.__setitem__((service ~ '_vip'), (net_vip_map[service_net_map[service ~ '_network']])) %}
 {%     endif %}
 {%   endif %}
