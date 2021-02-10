@@ -1,0 +1,2 @@
+---
+designate_rndc_key_file_path: '/var/lib/config-data/puppet-generated/designate/etc/designate/private'
