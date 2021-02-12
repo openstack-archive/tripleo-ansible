@@ -1,5 +1,5 @@
 ---
-# Copyright 2020 Red Hat, Inc.
+# Copyright 2021 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -22,6 +22,26 @@
     state: directory
     selevel: s0
     setype: container_file_t
+
+- name: identify the real interfaces via os-net-config
+  shell: os-net-config -i
+  register: os_net_config_result
+
+- name: os-net-config from json
+  set_fact:
+    iface_map: "{{ os_net_config_result.stdout }}"
+
+- name: FRR uplink interfaces
+  block:
+    - name: construct FRR uplink interfaces from os-net-config mappings
+      set_fact:
+        tripleo_frr_bgp_uplinks_mapped: "{{ tripleo_frr_bgp_uplinks | map('extract', iface_map) | list }}"
+  rescue:
+    - name: failed to construct FRR uplink interfaces
+      ansible.builtin.fail:
+        msg: |
+          Failed to map at least one interface from {{ tripleo_frr_bgp_uplinks }} to {{ iface_map }}.
+          Please check value of Ansible variable tripleo_frr_bgp_uplinks.
 
 - name: configure FRR
   become: true
