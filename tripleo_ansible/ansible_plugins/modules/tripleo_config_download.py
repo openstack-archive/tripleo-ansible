@@ -48,11 +48,6 @@ options:
             - Overcloud plan name
         type: str
         default: overcloud
-    config_container:
-        description:
-            - Config container name
-        type: str
-        default: overcloud-config
     work_dir:
         description:
             - Work dir
@@ -75,7 +70,6 @@ EXAMPLES = '''
 - name: Download config
   tripleo_config_download:
       plan: overcloud
-      config_container: overcloud-config
       work_dir: /home/stack/config-downloa
 '''
 
@@ -99,7 +93,6 @@ def run_module():
 
     try:
         plan = module.params.get('plan')
-        config_container = module.params.get('config_container')
         work_dir = module.params.get('work_dir')
         config_type = module.params.get('config_type')
         download = module.params.get('download')
@@ -109,10 +102,9 @@ def run_module():
 
         heat = tripleo.get_orchestration_client()
         ooo_config.get_overcloud_config(
-            swift=False,
+            swift=None,
             heat=heat,
             container=plan,
-            container_config=config_container,
             config_dir=work_dir,
             config_type=config_type,
             preserve_config=download)

@@ -51,7 +51,6 @@
     - name: Get config
       tripleo_config_download:
         plan: "{{ plan }}"
-        config_container: "{{ config_container }}"
         config_type: "{{ config_type }}"
         work_dir: "{{ work_dir }}"
         download: true

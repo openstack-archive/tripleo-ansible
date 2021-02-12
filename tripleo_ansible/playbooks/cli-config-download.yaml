@@ -33,16 +33,14 @@
         output_dir: "{{ lookup('env', 'HOME')~'/config-download'}}"
       when: output_dir is not defined
 
-    - name: Set work_dir and config_container
+    - name: Set work_dir
       set_fact:
-        config_container: "{{ plan ~ '-config' }}"
         work_dir: "{{ output_dir ~ '/' ~ plan }}"
 
     - name: Download config
       tripleo_config_download:
         plan: "{{ plan }}"
         work_dir: "{{ work_dir }}"
-        config_container: "{{ config_container }}"
         download: true
 
     - name: Generate ansible inventory
