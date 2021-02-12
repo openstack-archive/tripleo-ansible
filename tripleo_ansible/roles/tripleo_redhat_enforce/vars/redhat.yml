@@ -18,6 +18,5 @@
 # All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_redhat_enforce"
-tripleo_redhat_enforce: true
 tripleo_redhat_enforce_osp: ''
 tripleo_redhat_enforce_os: ''
