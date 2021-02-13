@@ -22,7 +22,18 @@
   block:
     - name: Set nic_config_file fact
       set_fact:
-        nic_config_file: "{{ (tripleo_network_config_with_ansible|bool) | ternary('/etc/os-net-config/config.yaml', '/etc/os-net-config/config.json') }}"
+        nic_config_file: "{{ (tripleo_network_config_with_ansible|bool) \
+                          | ternary('/etc/os-net-config/config.yaml', \
+                          '/etc/os-net-config/config.json') }}"
+    - name: Render overidden network config
+      no_log: "{{ tripleo_network_config_hide_sensitive_logs | bool }}"
+      copy:
+        content: "{{tripleo_network_config_override | to_yaml}}"
+        dest: "{{ nic_config_file }}"
+        mode: 0600
+        backup: true
+      when:
+        - tripleo_network_config_override.keys()|length > 0
     - name: Render network_config
       no_log: "{{ tripleo_network_config_hide_sensitive_logs | bool }}"
       template:
@@ -30,7 +41,9 @@
         dest: "{{ nic_config_file }}"
         mode: 0600
         backup: true
-      when: not tripleo_network_config_with_ansible|bool
+      when:
+        - not tripleo_network_config_with_ansible|bool
+        - tripleo_network_config_override.keys()|length == 0
     - name: Render network_config from template
       no_log: "{{ tripleo_network_config_hide_sensitive_logs | bool }}"
       template:
@@ -38,7 +51,9 @@
         dest: "{{ nic_config_file }}"
         mode: 0600
         backup: true
-      when: tripleo_network_config_with_ansible|bool
+      when:
+        - tripleo_network_config_with_ansible|bool
+        - tripleo_network_config_override.keys()|length == 0
     - name: Run tripleo_os_net_config_module with network_config
       tripleo_os_net_config:
         config_file: "{{ nic_config_file }}"
