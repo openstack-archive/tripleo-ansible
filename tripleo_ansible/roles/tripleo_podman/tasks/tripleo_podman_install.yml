@@ -26,6 +26,16 @@
         name: "{{ tripleo_podman_packages }}"
         state: latest
 
+    - name: Ensure we get the ansible_interfaces fact
+      when:
+        - ansible_interfaces is undefined
+      setup:
+        gather_subset:
+          - '!all'
+          - '!min'
+          - 'network'
+        filter: 'ansible_interfaces'
+
     - name: Delete legacy cni0 interface (podman < 1.6)
       command: ip link delete cni0
       when:
