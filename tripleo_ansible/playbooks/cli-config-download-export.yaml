@@ -31,10 +31,6 @@
         config_dir: "{{ lookup('env', 'HOME') ~ '/tripleo-config' }}"
       when: config_dir is not defined
 
-    - name: Set config_container
-      set_fact:
-        config_container: "{{ plan ~ '-config' }}"
-
     - name: set work_dir
       set_fact:
         work_dir: "{{ config_dir ~ '/' ~ plan }}"
@@ -57,17 +53,5 @@
         plan: "{{ plan }}"
         config_container: "{{ config_container }}"
         config_type: "{{ config_type }}"
-        download: false
-
-    - name: Get temp url for archive
-      tripleo_swift_tempurl:
-        container: "{{ config_container }}"
-        object: "{{ config_container  ~ '.tar.gz' }}"
-        method: GET
-      register: config_download_url
-
-    - name: Extract config download
-      unarchive:
-        src: "{{ config_download_url.tempurl }}"
-        dest: "{{ work_dir }}"
-        remote_src: true
+        work_dir: "{{ work_dir }}"
+        download: true
