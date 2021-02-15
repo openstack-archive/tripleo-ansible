@@ -33,7 +33,8 @@
         gather_subset:
           - '!all'
           - '!min'
-          - 'interfaces'
+          - 'network'
+        filter: 'ansible_interfaces'
 
     - name: Delete legacy cni0 interface (podman < 1.6)
       command: ip link delete cni0

@@ -29,12 +29,25 @@
   block:
     - name: Update facts before attempting to disable interfaces
       setup:
-    - name: Find the ifcg files
+    - name: Find the ifcfg files
       find:
         paths: /etc/sysconfig/network-scripts/
         patterns: ifcfg-*
       register: ifcfg_files
-
+    # NOTE(mwhahaha): On computes collecting all the network facts is a huge
+    # performance issue. So let's only get the ansible facts for the ifcfg
+    # files which will avoid all the tap interfaces. This takes a while but
+    # results in less memory utilization for the rest of the deployment.
+    - name: Get ifcfg facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!min'
+          - network
+        filter: "{{ 'ansible_' + item.path | regex_replace('(^.*ifcfg-)(.*)', '\\2') | replace('-', '_') }}"
+      loop: "{{ ifcfg_files.files |flatten(levels=1)}}"
+      loop_control:
+        label: "{{ item.path | regex_replace('(^.*ifcfg-)(.*)', '\\2') | replace('-', '_') }}"
     - name: Replace BOOTPROTO to none for interfaces which does not have IP
       replace:
         dest: "{{ item.path }}"
