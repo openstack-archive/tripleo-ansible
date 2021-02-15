@@ -93,12 +93,6 @@ EXAMPLES = '''
   debug:
     msg: "{{ derived_parameters_result['derived_parameters']['ComputeHCIParameters']['NovaCPUAllocationRatio'] }}"
 
-- name: Update deployment plan with derived_parameters
-  tripleo_plan_parameters_update:
-    container: "{{ plan }}"
-    parameter_key: 'derived_parameters'
-    parameters: "{{ derived_parameters_result['derived_parameters'] }}"
-    validate: true
 '''
 
 RETURN = '''
