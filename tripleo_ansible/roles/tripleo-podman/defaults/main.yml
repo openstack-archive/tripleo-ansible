@@ -20,6 +20,7 @@
 tripleo_container_registry_insecure_registries: []
 tripleo_container_registry_login: false
 tripleo_container_registry_logins: {}
+tripleo_container_default_pids_limit: 4096
 tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
 tripleo_buildah_packages: "{{ _tripleo_buildah_packages | default([]) }}"
 tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
