@@ -52,3 +52,15 @@
         value: "{{ tripleo_container_registry_insecure_registries }}"
       when:
         - (tripleo_container_registry_insecure_registries | length) > 0
+
+    - name: Write containers.conf
+      ini_file:
+        path: /etc/containers/containers.conf
+        owner: root
+        group: root
+        setype: etc_t
+        mode: '0644'
+        create: true
+        section: containers
+        option: pids_limit
+        value: "{{ tripleo_container_default_pids_limit }}"
