@@ -57,4 +57,10 @@ ip protocol bgp route-map rm-only-default
 {% if tripleo_frr_bgp_ipv6 %}
 ipv6 prefix-list only-default permit ::/0
 ipv6 prefix-list only-host-prefixes permit ::/0 ge 128
+
+route-map rm-only-default permit 11
+  match ipv6 address prefix-list only-default
+  set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv6_src_network ~ '_ip'] }}
+
+ipv6 protocol bgp route-map rm-only-default
 {% endif %}
