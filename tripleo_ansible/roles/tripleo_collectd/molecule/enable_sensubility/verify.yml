@@ -1,0 +1,61 @@
+---
+- import_playbook: ../common/verify.yml
+
+- name: "Verify collectd exec plugin"
+  hosts: all
+  tasks:
+    - name: "Check that the exec plugin config file exists"
+      stat:
+        path: '/etc/collectd.d/exec.conf'
+      register: output
+      failed_when:
+        - not output.stat.exists
+
+    - name: "Get contents of exec file"
+      slurp:
+        path: /etc/collectd.d/exec.conf
+      register: exec_conf
+      failed_when:
+        - '"Exec \"collectd:collectd\" \"collectd-sensubility\"" not in exec_conf.content | b64decode'
+
+    - name: Check that the sensubility file exists
+      stat:
+        path: '/etc/collectd-sensubility.conf'
+      register: output
+      failed_when:
+        - not output.stat.exists
+
+    - name: "Get contents of the generated collectd-sensubility file"
+      slurp:
+        src: /etc/collectd-sensubility.conf
+      register: sensubility_conf
+
+    - name: "Show the contents of generated collectd-sensubility file"
+      debug:
+        msg: "{{ sensubility_conf.content | b64decode }}"
+
+    - name: "Check the contents of generated collectd-sensubility.conf file"
+      assert:
+        that:
+          - '"connection=amqp://sensu:sensu@localhost:5672//sensu" in sensubility_conf.content | b64decode'
+          - '"client_name=standalone.ctlplane.localdomain" in sensubility_conf.content | b64decode'
+          - '"client_address=10.0.0.42" in sensubility_conf.content | b64decode'
+          - '"keepalive_interval=20" in sensubility_conf.content | b64decode'
+          - '"tmp_base_dir=/var/tmp/collectd-sensubility-checks" in sensubility_conf.content | b64decode'
+          - '"shell_path=/usr/bin/sh" in sensubility_conf.content | b64decode'
+          - '"worker_count=2" in sensubility_conf.content | b64decode'
+        success_msg: "Expected content found in collectd-sensubility.conf"
+
+    - name: "Check that the sensubility sudoers file has been created"
+      stat:
+        path: /etc/sudoers.d/sensubility_collectd
+      register: sudoer_file
+      failed_when:
+        - not sudoer_file.stat.exists
+
+    - name: "Check that the sensubility sudoers file has been populated"
+      slurp:
+        src: /etc/sudoers.d/sensubility_collectd
+      register: sensubility_sudoers
+      failed_when:
+        - 'not "collectd ALL = NOPASSWD: ALL" in sensubility_sudoers.content | b64decode'
