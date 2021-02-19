@@ -26,9 +26,9 @@
         name: "{{ tripleo_podman_packages }}"
         state: latest
 
-    - name: Ensure we get the ansible_interfaces fact
+    - name: Ensure we get the ansible interfaces facts
       when:
-        - ansible_interfaces is undefined
+        - ansible_facts['interfaces'] is undefined
       setup:
         gather_subset:
           - '!all'
@@ -39,7 +39,7 @@
     - name: Delete legacy cni0 interface (podman < 1.6)
       command: ip link delete cni0
       when:
-        - '"cni0" in ansible_interfaces'
+        - '"cni0" in ansible_facts["interfaces"]'
 
     # don't update the network config if the network is already running
     # meaning cni-podman0 is running somewhere
@@ -51,8 +51,7 @@
         owner: root
         group: root
       when:
-        - '"cni-podman0" not in ansible_interfaces'
-
+        - '"cni-podman0" not in ansible_facts["interfaces"]'
 
     - name: configure insecure registries /etc/containers/registries.conf
       ini_file:
