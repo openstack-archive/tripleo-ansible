@@ -23,12 +23,12 @@
   with_first_found:
     - skip: true
       files:
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
-        - "{{ ansible_os_family | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - always
 
@@ -68,7 +68,7 @@
 - name: Copy the backup to the shared directory
   copy:
     src: "{{ tripleo_backup_and_restore_ceph_backup_file }}"
-    dest: "{{ tripleo_backup_and_restore_temporary_dir.path }}/{{ ansible_hostname }}"
+    dest: "{{ tripleo_backup_and_restore_temporary_dir.path }}/{{ ansible_facts['hostname'] }}"
     remote_src: true
   tags:
     - bar_create_recover_image

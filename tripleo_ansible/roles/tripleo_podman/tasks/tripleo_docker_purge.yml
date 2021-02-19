@@ -57,12 +57,13 @@
           - '!all'
           - '!min'
           - hardware
+        filter: 'ansible_mounts'
 
     - name: Un-mount docker directories
       mount:
         path: "{{ item.mount }}"
         state: unmounted
-      loop: "{{ ansible_mounts | selectattr('mount', 'search', 'docker') | list }}"
+      loop: "{{ ansible_facts['mounts'] | selectattr('mount', 'search', 'docker') | list }}"
 
     - name: Purge /var/lib/docker
       file:

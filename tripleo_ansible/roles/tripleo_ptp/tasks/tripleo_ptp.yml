@@ -21,13 +21,6 @@
     state: present
   register: _ptp_install_result
 
-- name: Collect only facts returned by facter
-  setup:
-    gather_subset:
-      - '!all'
-      - '!any'
-      - network
-
 # NOTE(cloudnull): In the future, we could potentially revisit this once the Heat
 #                  template for the "kernel" sysctl settings has been converted into
 #                  an Ansible role and re-use the functionality of that.

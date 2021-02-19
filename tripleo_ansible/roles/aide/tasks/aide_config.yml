@@ -64,7 +64,7 @@
       --check
       --config {{ aide_conf_path }}
       | {{ aide_mua_path }}
-      -s '{{ ansible_fqdn }} - AIDE integrity check' {{ aide_email }}
+      -s '{{ ansible_facts['fqdn'] }} - AIDE integrity check' {{ aide_email }}
   when:
     - aide_email.find("v=" ~ "@") == -1
 
