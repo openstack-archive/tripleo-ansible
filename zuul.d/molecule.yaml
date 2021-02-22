@@ -37,6 +37,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
+      - tripleo-ansible-centos-8-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
@@ -90,6 +91,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
+      - tripleo-ansible-centos-8-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
@@ -143,6 +145,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
       - tripleo-ansible-centos-8-molecule-tripleo_nvdimm
+      - tripleo-ansible-centos-8-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
       - tripleo-ansible-centos-8-molecule-tripleo_packages
       - tripleo-ansible-centos-8-molecule-tripleo_persist
@@ -405,6 +408,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_nvdimm
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_ovn_cluster/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_ovn_cluster
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_ovn_cluster
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_ovs_dpdk/.*
