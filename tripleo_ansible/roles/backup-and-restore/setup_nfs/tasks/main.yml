@@ -79,7 +79,7 @@
   become: true
   block:
     - name: Allow NFS port 111 in the firewall
-      firewalld:
+      ansible.posix.firewalld:
         port: 111/tcp
         permanent: true
         immediate: true
@@ -87,7 +87,7 @@
         zone: "{{ tripleo_backup_and_restore_firewalld_zone }}"
 
     - name: Allow NFS port 2049 in the firewall
-      firewalld:
+      ansible.posix.firewalld:
         port: 2049/tcp
         permanent: true
         immediate: true
