@@ -1,0 +1,54 @@
+---
+driver:
+  name: podman
+
+log: true
+
+platforms:
+  - name: ubi8
+    hostname: ubi8
+    image: ubi8/ubi-init
+    registry:
+      url: registry.access.redhat.com
+    dockerfile: Dockerfile
+    pkg_extras: python*setuptools
+    volumes:
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /etc/dnf/vars:/etc/dnf/vars
+    privileged: true
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
+
+provisioner:
+  inventory:
+    hosts:
+      all:
+        hosts:
+          ubi8:
+            ansible_python_interpreter: /usr/bin/python3
+        vars:
+          ctlplane_ip: 192.168.24.2
+          enable_internal_tls: true
+          ovn_dbs_bootstrap_node_ip: 10.0.0.20
+          ovn_dbs_node_ips: 10.0.0.20,10.0.0.30,10.0.0.40
+  name: ansible
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - check
+    - verify
+    - destroy
+
+verifier:
+  name: testinfra
