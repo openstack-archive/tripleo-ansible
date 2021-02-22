@@ -1,0 +1,92 @@
+{
+  "epoch": 3,
+  "fsid": "ca9bf37b-ed0f-4e5a-bb21-e5b5f9b75135",
+  "modified": "2021-01-26T19:23:44.536193Z",
+  "created": "2021-01-26T19:19:33.377161Z",
+  "min_mon_release": 15,
+  "min_mon_release_name": "octopus",
+  "features": {
+    "persistent": [
+      "kraken",
+      "luminous",
+      "mimic",
+      "osdmap-prune",
+      "nautilus",
+      "octopus"
+    ],
+    "optional": []
+  },
+  "mons": [
+    {
+      "rank": 0,
+      "name": "oc0-controller-0",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "type": "v2",
+            "addr": "172.16.11.241:3300",
+            "nonce": 0
+          },
+          {
+            "type": "v1",
+            "addr": "172.16.11.241:6789",
+            "nonce": 0
+          }
+        ]
+      },
+      "addr": "172.16.11.241:6789/0",
+      "public_addr": "172.16.11.241:6789/0",
+      "priority": 0,
+      "weight": 0
+    },
+    {
+      "rank": 1,
+      "name": "oc0-controller-1",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "type": "v2",
+            "addr": "172.16.11.176:3300",
+            "nonce": 0
+          },
+          {
+            "type": "v1",
+            "addr": "172.16.11.176:6789",
+            "nonce": 0
+          }
+        ]
+      },
+      "addr": "172.16.11.176:6789/0",
+      "public_addr": "172.16.11.176:6789/0",
+      "priority": 0,
+      "weight": 0
+    },
+    {
+      "rank": 2,
+      "name": "oc0-controller-2",
+      "public_addrs": {
+        "addrvec": [
+          {
+            "type": "v2",
+            "addr": "172.16.11.82:3300",
+            "nonce": 0
+          },
+          {
+            "type": "v1",
+            "addr": "172.16.11.82:6789",
+            "nonce": 0
+          }
+        ]
+      },
+      "addr": "172.16.11.82:6789/0",
+      "public_addr": "172.16.11.82:6789/0",
+      "priority": 0,
+      "weight": 0
+    }
+  ],
+  "quorum": [
+    0,
+    1,
+    2
+  ]
+}

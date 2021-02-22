@@ -1,0 +1,18 @@
+---
+service_type: host
+addr: standalone.localdomain
+hostname: standalone.localdomain
+---
+service_type: mon
+placement:
+  hosts:
+    - standalone.localdomain
+---
+service_type: osd
+service_id: standalone_drive_group
+placement:
+  hosts:
+    - standalone.localdomain
+data_devices:
+  paths:
+    - /dev/ceph_vg/ceph_lv_data
