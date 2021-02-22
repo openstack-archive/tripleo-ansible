@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new role for ``tripleo_ovn_cluster`` to configure OVN DBs clustered
+    for TripleO deployments.
