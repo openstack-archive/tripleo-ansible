@@ -11,14 +11,14 @@
   set_fact:
     image_filename: "/usr/share/openstack-octavia-amphora-images/amphora-x64-haproxy.qcow2"
   when:
-    - ansible_distribution == 'CentOS'
+    - ansible_facts['distribution'] == 'CentOS'
     - not (image_filename is defined)
 
 - name: set location if Red Hat
   set_fact:
     image_filename: "/usr/share/openstack-octavia-amphora-images/octavia-amphora.qcow2"
   when:
-    - ansible_distribution == 'RedHat'
+    - ansible_facts['distribution'] == 'RedHat'
     - not (image_filename is defined)
 
 - name: check if amphora image file exists
