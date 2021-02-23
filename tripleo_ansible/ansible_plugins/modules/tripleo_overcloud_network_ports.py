@@ -458,8 +458,8 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
     with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
         for instance in instances:
             ironic_uuid = uuid_by_hostname.get(instance['hostname'])
-            role = hostname_role_map[instance['hostname']]
             if state == 'present':
+                role = hostname_role_map[instance['hostname']]
                 provision_jobs.append(
                     p.submit(_provision_ports,
                              result,
