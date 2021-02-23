@@ -58,16 +58,6 @@
           set_fact:
             BlacklistedIpAddresses: "{{ (blacklist_cmd_job_result.stdout | from_yaml)['output_value'] }}"
 
-    - name: Retrieve compute managed network ports
-      os_port_facts:
-        cloud: undercloud
-        filters:
-          status: ACTIVE
-      changed_when: false
-      register: port_check
-      async: 1000
-      poll: 0
-
     - name: Set local connection user facts
       set_fact:
         ansible_home: "{{ lookup('env', 'HOME') }}"
@@ -173,17 +163,6 @@
         key: "{{ user_public_key }}"
       become: true
 
-    - name: Block on async port check
-      async_status:
-        jid: "{{ port_check.ansible_job_id }}"
-      register: port_check_job_result
-      until: port_check_job_result.finished
-      retries: 30
-
-    - name: Set ManagedIpAddresses fact
-      set_fact:
-        ManagedIpAddresses: "{{ openstack_ports | map(attribute='fixed_ips') | sum(start=[]) | map(attribute='ip_address') | list }}"
-
     - name: Set node key fact
       set_fact:
         node_key_fact: "{{ lookup('env', 'ANSIBLE_PRIVATE_KEY_FILE') or (ansible_ssh_private_key_file | default(ansible_home ~ '/.ssh/id_rsa')) }}"
@@ -195,7 +174,7 @@
         user_public_key: "{{ user_public_key }}"
         user_private_key: "{{ user_private_key }}"
         user_private_key_file: "{{ user_private_key_file }}"
-        ansible_user: "{{ (item in ManagedIpAddresses) | ternary('heat-admin', (ssh_user | default(ansible_user))) }}"
+        ansible_user: "{{ ssh_user | default(ansible_user) }}"
         ansible_ssh_private_key_file: "{{ node_key_fact }}"
       changed_when: false
       loop: '{{ set_ssh_servers | difference(((BlacklistedIpAddresses | length) < 1) | ternary([], BlacklistedIpAddresses)) }}'
