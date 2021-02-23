@@ -43,7 +43,7 @@
   tags:
     - bar_create_recover_image
 
-- name: Pause containers for database backup.
+- name: unPause containers
   command: "{{ tripleo_container_cli }} unpause {{ item }}"
   with_items: "{{ container_services.stdout_lines }}"
   when: tripleo_container_cli is defined
