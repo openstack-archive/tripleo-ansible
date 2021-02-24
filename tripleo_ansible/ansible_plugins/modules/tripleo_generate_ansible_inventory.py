@@ -125,12 +125,17 @@ def run_module():
         tripleo = tc.TripleOCommon(session=conn.session)
         heat = tripleo.get_orchestration_client()
 
+        auth_url = getattr(conn.session.auth, "auth_url", None)
+        username = getattr(conn.session.auth, "_username", None)
+        project = getattr(conn.session.auth, "_project_name", None)
+        cacert = getattr(conn.session.auth, "verify", None)
+
         inventory_path = inventory.generate_tripleo_ansible_inventory(
             heat,
-            conn.session.auth.auth_url,
-            conn.session.auth._username,
-            conn.session.auth._project_name,
-            conn.session.verify,
+            auth_url,
+            username,
+            project,
+            cacert,
             plan,
             work_dir,
             python_interpretor,
