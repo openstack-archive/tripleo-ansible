@@ -20,11 +20,13 @@
       when: tripleo_role_name is not defined
 
   tasks:
+    # Remove 'systemd-run --scope --user' when podman has version >2.0.5
+    # see issue: https://github.com/containers/podman/issues/8965
     - name: Run role test job
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
         . {{ tripleo_ansible_project_path }}/ansible-test-env.rc
-        pytest --color=no \
+        systemd-run --scope --user pytest --color=no \
                --html={{ ansible_user_dir }}/zuul-output/logs/reports.html \
                --self-contained-html \
                --ansible-args='{{ tripleo_job_ansible_args | default('') }}' \

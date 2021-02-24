@@ -15,17 +15,6 @@
       include_role:
         name: ensure-pip
 
-    # https://github.com/containers/podman/issues/8965
-    # podman rootless systemd is broken in 2.0.5, so we use 1.6.4
-    - name: Pin container-tools
-      become: true
-      shell: |
-        dnf module disable container-tools:rhel8 -y
-        dnf module enable container-tools:2.0 -y
-      when:
-        - (ansible_os_family | lower) == "redhat"
-        - (ansible_distribution_major_version | int) >= 8
-
     - name: Setup bindep
       pip:
         name: "bindep"
