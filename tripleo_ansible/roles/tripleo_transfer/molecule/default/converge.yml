@@ -16,11 +16,13 @@
 
 
 - name: Converge
-  hosts: all
+  hosts: localhost
+  connection: local
+  any_errors_fatal: true
   roles:
     - role: "tripleo_transfer"
-      tripleo_transfer_src_host: overcloud-controller-0
+      tripleo_transfer_src_host: controller2
       tripleo_transfer_src_dir: /etc
-      tripleo_transfer_dest_host: overcloud-controller-1
+      tripleo_transfer_dest_host: controller1
       tripleo_transfer_dest_dir: /opt/etc-target
       tripleo_transfer_storage_root_dir: /tmp/transfer-staging
