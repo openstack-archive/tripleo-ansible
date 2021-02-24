@@ -1,0 +1,112 @@
+---
+# Copyright 2021 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: create cephadm  workdir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ playbook_dir }}/cephadm"
+  tags:
+    - run_cephadm
+
+- name: symbolic link to tripleo inventory from ceph-ansible work directory
+  file:
+    src: "{{ inventory_file }}"
+    dest: "{{ playbook_dir }}/cephadm/inventory.yml"
+    state: link
+    force: true
+  tags:
+    - run_cephadm
+
+- name: generate ceph-admin.yml extra vars for user creation
+  copy:
+    dest: "{{ playbook_dir }}/cephadm/ceph-admin.yml"
+    content: "{{ ceph_admin_extra_vars | to_nice_yaml }}"
+
+- name: get the list of enabled services on the overcloud
+  set_fact:
+    tripleo_enabled_services: "{{ enabled_services | default([]) }}"
+
+- name: set dashboard_vip variable if dashboard is enabled
+  block:
+    - name: get the frontend_dashboard_vip from the overcloud vars
+      command: "hiera -c /etc/puppet/hiera.yaml ceph_dashboard_vip"
+      register: frontend_vip
+      become: true
+    - name: set dashboard_frontend variable
+      set_fact:
+        grafana_vip: |-
+         {% set dashboard_vip = control_virtual_ip %}
+         {% if frontend_vip.stdout != "nil" %}
+         {%   set dashboard_vip = frontend_vip.stdout %}
+         {% endif %}
+         {{ dashboard_vip }}
+  when:
+    - tripleo_enabled_services | intersect(['ceph_grafana'])
+
+- include_role:
+    name: tripleo_ceph_work_dir
+    tasks_from: build_pools.yml
+  vars:
+    tripleo_pool_images: "{{ ceph_pools.glance_pool.enabled }}"
+    tripleo_pool_vms: "{{ ceph_pools.nova_pool.enabled }}"
+    tripleo_pool_volumes: "{{ ceph_pools.cinder_pool.enabled }}"
+    tripleo_pool_backup: "{{ ceph_pools.cinder_backup_pool.enabled }}"
+    tripleo_pool_metrics: "{{ ceph_pools.gnocchi_pool.enabled }}"
+
+- include_role:
+    name: tripleo_ceph_work_dir
+    tasks_from: build_keys.yml
+
+- include_role:
+    name: tripleo_ceph_work_dir
+    tasks_from: build_config_overrides.yml
+
+- name: generate heat cephadm-extra-vars for running tripleo_cephadm role
+  copy:
+    dest: "{{ playbook_dir }}/cephadm/cephadm-extra-vars-heat.yml"
+    content: "{{ cephadm_extra_vars | combine(ceph_overrides|default({}))
+             | combine(ceph_monitoring_stack|default({}))
+             | combine(ceph_dashboard_vars|default({}))
+             | combine(cephadm_rgw_vars|default({}))
+             | combine(cephfs_metadata|default({}))
+             | combine(ceph_nfs_vars|default({}))
+             | combine(cephfs_data|default({}))
+             | to_nice_yaml }}"
+
+- name: Set bootstrap host
+  set_fact:
+    tripleo_cephadm_bootstrap_host: "{{ groups['ceph_mon'][0] }}"
+
+- name: Set first monitor IP
+  set_fact:
+    tripleo_cephadm_first_mon_ip: "{{ hostvars[tripleo_cephadm_bootstrap_host][tripleo_run_cephadm_net] |
+                      default(ansible_host) }}"
+  vars:
+    tripleo_run_cephadm_net: "{{ service_net_map['ceph_mon_network']|default('') + '_ip' }}"
+
+- name: generate ansible cephadm-extra-vars for running tripleo_cephadm role
+  copy:
+    dest: "{{ playbook_dir }}/cephadm/cephadm-extra-vars-ansible.yml"
+    content: |
+      tripleo_cephadm_bootstrap_host: {{ tripleo_cephadm_bootstrap_host }}
+      tripleo_cephadm_first_mon_ip: {{ tripleo_cephadm_first_mon_ip }}
+      tripleo_cephadm_spec_on_bootstrap: false
+      tripleo_cephadm_pools: {{ openstack_pools.get('openstack_pools', []) }}
+      tripleo_cephadm_keys: {{ keys.get('keys',[]) }}
+      dashboard_frontend_vip: {{ grafana_vip|default() }}
+      service_net_map: {{ service_net_map|default({}) }}

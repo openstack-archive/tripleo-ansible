@@ -47,6 +47,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
       - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
+      - tripleo-ansible-centos-8-molecule-tripleo_run_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_securetty
       - tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
       - tripleo-ansible-centos-8-molecule-tripleo_sshd
@@ -103,6 +104,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
       - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
+      - tripleo-ansible-centos-8-molecule-tripleo_run_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_securetty
       - tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
       - tripleo-ansible-centos-8-molecule-tripleo_sshd
@@ -158,6 +160,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ptp
       - tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
       - tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
+      - tripleo-ansible-centos-8-molecule-tripleo_run_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_securetty
       - tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
       - tripleo-ansible-centos-8-molecule-tripleo_sshd
@@ -486,6 +489,14 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tox_envlist: mol-tripleo_redhat_enforce
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_run_cephadm/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_run_cephadm
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_job_ansible_args: --skip-tags=run_cephadm
+      tripleo_role_name: tripleo_run_cephadm
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_securetty/.*
