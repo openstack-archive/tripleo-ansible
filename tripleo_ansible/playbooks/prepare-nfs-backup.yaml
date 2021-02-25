@@ -13,8 +13,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-- name: TripleO Undercloud backup.
-  hosts: Undercloud
+- name: TripleO BackupNode NFS installation and configuration.
+  hosts: BackupNode
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
   become: true
   roles:
