@@ -160,7 +160,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         mock_conn.network.find_port.assert_called_with(
             'some_port', network_id=FAKE_NET_NAME_MAP['foo']['id'])
 
-        mock_conn.network.set_tags.assrt_called_with(some_port, mock.ANY)
+        mock_conn.network.set_tags.assert_called_with(some_port, mock.ANY)
         set_tags_args = mock_conn.network.set_tags.call_args.args
         self.assertTrue(tags == set(set_tags_args[1]))
 
