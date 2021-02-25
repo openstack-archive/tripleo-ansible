@@ -14,12 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Collect Network Facts
+- name: Collect default network fact
   setup:
     gather_subset:
       - '!all'
-      - '!any'
+      - '!min'
       - network
+    filter: 'ansible_default_ipv4'
 
 - name: Check Default IPv4 Gateway availability
   command: "ping -w 10 -c 1 {{ ansible_facts.default_ipv4.gateway }}"
