@@ -19,6 +19,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.ca_common import is_containerized, container_exec, fatal
 import datetime
 import json
 import yaml
@@ -216,17 +217,6 @@ CEPH_INITIAL_KEYS = ['client.admin',
                      'client.bootstrap-rbd-mirror', 'client.bootstrap-rgw']
 
 
-def fatal(message, module):
-    '''
-    Report a fatal error and exit
-    '''
-
-    if module:
-        module.fail_json(msg=message, rc=1)
-    else:
-        raise(Exception(message))
-
-
 def generate_secret():
     '''
     Generate a CephX secret
@@ -283,43 +273,6 @@ def generate_ceph_cmd(cluster, args, user, user_key_path, container_image=None):
     cmd.extend(base_cmd + args)
 
     return cmd
-
-# Start TripleO change
-# Tripleo only needs ca_common module_utils for this module.
-# Rather than add to tripleo-ansible's module_utils, insert 6 functions here
-#  https://github.com/ceph/ceph-ansible/blob/master/module_utils/ca_common.py
-
-
-def container_exec(binary, container_image):
-    '''
-    Build the docker CLI to run a command inside a container
-    '''
-
-    container_binary = os.getenv('CEPH_CONTAINER_BINARY')
-    command_exec = [container_binary,
-                    'run',
-                    '--rm',
-                    '--net=host',
-                    '-v', '/etc/ceph:/etc/ceph:z',
-                    '-v', '/var/lib/ceph/:/var/lib/ceph/:z',
-                    '-v', '/var/log/ceph/:/var/log/ceph/:z',
-                    '--entrypoint={}'.format(binary), container_image]
-    return command_exec
-
-
-def is_containerized():
-    '''
-    Check if we are running on a containerized cluster
-    '''
-
-    if 'CEPH_CONTAINER_IMAGE' in os.environ:
-        container_image = os.getenv('CEPH_CONTAINER_IMAGE')
-    else:
-        container_image = None
-
-    return container_image
-
-# End TripleO change
 
 
 def generate_ceph_authtool_cmd(cluster, name, secret, caps, dest, container_image=None):
