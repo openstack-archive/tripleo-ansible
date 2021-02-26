@@ -30,12 +30,12 @@
       stat:
         path: "{{ public_key }}"
       register: public_key_stat
-    - name: create private key if it does not eixst
+    - name: create private key if it does not exist
       shell: "ssh-keygen -t rsa -q -N '' -f {{ private_key }}"
       no_log: true
       when:
         - not private_key_stat.stat.exists
-    - name: create public key if it does not eixst
+    - name: create public key if it does not exist
       shell: "ssh-keygen -y -f {{ private_key }} > {{ public_key }}"
       when:
         - not public_key_stat.stat.exists

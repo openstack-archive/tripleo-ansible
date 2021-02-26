@@ -19,6 +19,7 @@ mock_modules:
     - ceph_fs
     - ceph_pool
     - ceph_mkspec
+    - ceph_spec_bootstrap
     - config_template
     - container_startup_config
     - lvm2_physical_devices_facts

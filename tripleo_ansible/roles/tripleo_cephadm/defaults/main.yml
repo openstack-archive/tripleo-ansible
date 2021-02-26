@@ -14,10 +14,14 @@ tripleo_cephadm_container_options: "--net=host --ipc=host"
 tripleo_cephadm_admin_keyring: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.client.admin.keyring"
 tripleo_cephadm_conf: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.conf"
 tripleo_cephadm_bootstrap_conf: "/home/{{ tripleo_cephadm_ssh_user }}/bootstrap_{{ tripleo_cephadm_cluster }}.conf"
+# path on ansible host (i.e. undercloud) of the ceph spec
+tripleo_cephadm_spec_ansible_host: "{{ playbook_dir }}/ceph_spec.yaml"
+# path on bootstrap node of ceph spec (scp'd from above var)
 tripleo_cephadm_spec: "/home/{{ tripleo_cephadm_ssh_user }}/specs/ceph_spec.yaml"
-tripleo_cephadm_spec_home: "/home/{{ tripleo_cephadm_ssh_user }}/specs"
+# path in container on bootstrap node of spec (podman -v'd from above var)
 tripleo_cephadm_container_spec: /home/ceph_spec.yaml
-tripleo_cephadm_spec_ansible_host: "{{ role_path }}/files/ceph_spec.yaml"
+# path of other ceph specs podman -v mounted into running container
+tripleo_cephadm_spec_home: "/home/{{ tripleo_cephadm_ssh_user }}/specs"
 tripleo_cephadm_bootstrap_files:
   - "/home/{{ tripleo_cephadm_ssh_user }}/.ssh/id_rsa"
   - "/home/{{ tripleo_cephadm_ssh_user }}/.ssh/id_rsa.pub"
