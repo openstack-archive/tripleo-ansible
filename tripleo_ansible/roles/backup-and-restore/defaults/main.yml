@@ -65,3 +65,6 @@ tripleo_backup_and_restore_ceph_auth_file: "ceph_auth_export.bak"
 
 # If there is a firewalld active, setup the zone where the NFS server ports need to be opened
 tripleo_backup_and_restore_firewalld_zone: "libvirt"
+
+# The ReaR rpm installs a cronjob at 1:30 each day by default. This variable deactivate that behaviour.
+tripleo_backup_and_restore_remove_default_cronjob: true
