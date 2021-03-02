@@ -37,4 +37,4 @@
 
           Testing with ansible {{ ansible_version.full }}
           with python {{ ansible_python_version }}
-          on host {{ ansible_distribution }} {{ ansible_distribution_version }}
+          on host {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}

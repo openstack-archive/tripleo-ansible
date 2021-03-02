@@ -22,12 +22,12 @@
   with_first_found:
     - skip: true
       files:
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
-        - "{{ ansible_os_family | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - always
 
@@ -39,12 +39,12 @@
 - name: RHEL Block
   become: true
   when:
-    - (ansible_os_family | lower) == 'redhat'
+    - (ansible_facts['os_family'] | lower) == 'redhat'
     - mirrors_file.stat.exists | bool
   block:
     - name: Fetch latest repo version
       uri:
-        url: https://trunk.rdoproject.org/centos{{ ansible_distribution_major_version }}/current/delorean.repo
+        url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
         return_content: true
       register: tripleo_packages
 
@@ -63,7 +63,7 @@
 - name: Tripleo setup block
   become: true
   when:
-    - (ansible_os_family | lower) == 'redhat'
+    - (ansible_facts['os_family'] | lower) == 'redhat'
     - test_deps_setup_tripleo | bool
   block:
     - name: Create tripleo repos
@@ -93,7 +93,7 @@
         name: "{{ test_deps_selinux_packages }}"
         state: present
       when:
-        - (ansible_os_family | lower) == 'redhat'
+        - (ansible_facts['os_family'] | lower) == 'redhat'
 
     - name: Install extra packages
       package:

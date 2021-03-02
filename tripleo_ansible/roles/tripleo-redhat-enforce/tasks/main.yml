@@ -27,12 +27,12 @@
   when:
     - include_file is exists
   vars:
-    include_file: "{{ role_path }}/vars/{{ ansible_distribution | lower }}.yml"
+    include_file: "{{ role_path }}/vars/{{ ansible_facts['distribution'] | lower }}.yml"
   tags:
     - always
 
 - include_tasks: enforce_release.yml
   name: Enforce RHEL/OSP version pair
   when:
-    - (ansible_distribution | lower) == "redhat"
+    - (ansible_facts['distribution'] | lower) == "redhat"
     - tripleo_redhat_enforce|bool
