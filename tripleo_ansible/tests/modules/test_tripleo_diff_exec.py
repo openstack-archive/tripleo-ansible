@@ -22,7 +22,7 @@ import mock
 class TestTripleoDiffExec(tests_base.TestCase):
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_first_run(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -39,6 +39,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
         mock_module.exit_json = mock_exit
         mock_return = mock.MagicMock()
         mock_return.returncode = 0
+        mock_return.communicate.return_value = (-1, -1)
         mock_run.return_value = mock_return
         tripleo_diff_exec.run(mock_module)
         mock_exit.assert_called_once_with(changed=True)
@@ -49,7 +50,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
 
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_no_change(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -71,7 +72,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
 
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_file_changed(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -88,6 +89,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
         mock_module.exit_json = mock_exit
         mock_return = mock.MagicMock()
         mock_return.returncode = 0
+        mock_return.communicate.return_value = (-1, -1)
         mock_run.return_value = mock_return
         tripleo_diff_exec.run(mock_module)
         mock_run.assert_called_once_with(
@@ -98,7 +100,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
 
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_missing_state(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -121,7 +123,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
 
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_exec_exception(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -144,7 +146,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
 
     @mock.patch.dict('os.environ', dict(), clear=True)
     @mock.patch('shutil.copy2')
-    @mock.patch('subprocess.run')
+    @mock.patch('subprocess.Popen')
     @mock.patch('filecmp.cmp')
     @mock.patch('os.path.exists')
     def test_exec_failed(self, mock_exists, mock_cmp, mock_run, mock_copy2):
@@ -160,6 +162,7 @@ class TestTripleoDiffExec(tests_base.TestCase):
         mock_module.exit_json = mock_exit
         mock_return = mock.MagicMock()
         mock_return.returncode = 1
+        mock_return.communicate.return_value = ('out', 'err')
         mock_return.stdout = 'out'
         mock_return.stderr = 'err'
         mock_run.return_value = mock_return

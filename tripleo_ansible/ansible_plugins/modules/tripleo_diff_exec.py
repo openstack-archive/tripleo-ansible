@@ -111,9 +111,10 @@ def run(module):
         try:
             tmp_environment = os.environ.copy()
             tmp_environment.update(environment)
-            r = subprocess.run(command, shell=True, env=tmp_environment,
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                               universal_newlines=True)
+            r = subprocess.Popen(command, shell=True, env=tmp_environment,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 universal_newlines=True)
+            cmd_stdout, cmd_stderr = r.communicate()
             if r.returncode in return_codes:
                 results['changed'] = True
                 # copy old to bkup
@@ -123,7 +124,7 @@ def run(module):
                 results['error'] = "Failed running command"
                 results['msg'] = ("Error running %s. rc: %s, stdout: %s, "
                                   "stderr: %s" % (command, r.returncode,
-                                                  r.stdout, r.stderr))
+                                                  cmd_stdout, cmd_stderr))
         except Exception as e:
             results['failed'] = True
             results['error'] = traceback.format_exc()
