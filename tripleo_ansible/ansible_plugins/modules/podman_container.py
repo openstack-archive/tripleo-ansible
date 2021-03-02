@@ -62,6 +62,10 @@ options:
         a matching container to be stopped and restarted.
       - I(stopped) - Asserts that the container is first I(present), and then
         if the container is running moves it to a stopped state.
+      - I(created) - Asserts that the container exists with given configuration.
+        If container doesn't exist, the module creates it and leaves it in
+        'created' state. If configuration doesn't match or 'recreate' option is
+        set, the container will be recreated
     type: str
     default: started
     choices:
@@ -69,6 +73,7 @@ options:
       - present
       - stopped
       - started
+      - created
   image:
     description:
       - Repository path (or image name) and tag used to create the container.
@@ -896,8 +901,9 @@ def main():
     )
 
     # work on input vars
-    if module.params['state'] in ['started', 'present'] and \
-            not module.params['image']:
+    if (module.params['state'] in ['started', 'present', 'created']
+            and not module.params['force_restart']
+            and not module.params['image']):
         module.fail_json(msg="State '%s' required image to be configured!" %
                              module.params['state'])
 
