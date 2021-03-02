@@ -15,12 +15,15 @@
 # under the License.
 
 
-- name: gather package facts
-  package_facts:
-    manager: auto
+- name: Check if lvm2 is installed
+  shell: rpm -q lvm2
+  become: true
+  failed_when: false
+  register: lvm_pkg_check
 - name: gather allowed block devices list
   when:
-    - "'lvm2' in ansible_facts.packages"
+    - lvm_pkg_check.rc is defined
+    - lvm_pkg_check.rc == 0
     - tripleo_tripleo_lvmfilter_enabled or tripleo_tripleo_lvmfilter_dry_run
   block:
     - name: collect in-use lvm2 devices list
