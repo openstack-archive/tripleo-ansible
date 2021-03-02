@@ -268,7 +268,9 @@ options:
     type: dict
   env_file:
     description:
-      - Read in a line delimited file of environment variables
+      - Read in a line delimited file of environment variables. Doesn't support
+        idempotency. If users changes the file with environment variables it's
+        on them to recreate the container.
     type: path
   env_host:
     description:
@@ -302,7 +304,8 @@ options:
   gidmap:
     description:
       - Run the container in a new user namespace using the supplied mapping.
-    type: str
+    type: list
+    elements: str
   group_add:
     description:
       - Add additional groups to run as
@@ -437,11 +440,27 @@ options:
   log_opt:
     description:
       - Logging driver specific options. Used to set the path to the container
-        log file. For example log_opt
-        "path=/var/log/container/mycontainer.json"
-    type: str
+        log file.
+    type: dict
     aliases:
       - log_options
+    suboptions:
+      path:
+        description:
+          - Specify a path to the log file (e.g. /var/log/container/mycontainer.json).
+        type: str
+        required: false
+      max_size:
+        description:
+          - Specify a max size of the log file (e.g 10mb).
+        type: str
+        required: false
+      tag:
+        description:
+          - Specify a custom log tag for the container.
+        type: str
+        required: false
+
   mac_address:
     description:
       - Specify a MAC address for the container, for example
@@ -629,7 +648,7 @@ options:
   systemd:
     description:
       - Run container in systemd mode. The default is true.
-    type: bool
+    type: str
   tmpfs:
     description:
       - Create a tmpfs mount. For example tmpfs
@@ -643,6 +662,7 @@ options:
     description:
       - Run the container in a new user namespace using the supplied mapping.
     type: list
+    elements: str
   ulimit:
     description:
       - Ulimit options
