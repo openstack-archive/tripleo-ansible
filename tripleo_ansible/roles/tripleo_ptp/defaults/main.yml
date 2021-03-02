@@ -18,7 +18,7 @@
 # All variables intended for modification should be placed in this file.
 
 tripleo_ptp_slave_mode: 1
-tripleo_ptp_interfaces: ["{{ ansible_default_ipv4.interface }}"]
+tripleo_ptp_interfaces: []
 tripleo_ptp_transport: UDPv4
 tripleo_ptp_hardware_offload: false
 

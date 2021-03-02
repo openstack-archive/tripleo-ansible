@@ -26,13 +26,20 @@
     - lvm_pkg_check.rc == 0
     - tripleo_tripleo_lvmfilter_enabled or tripleo_tripleo_lvmfilter_dry_run
   block:
+    - name: collect ansible devices
+      become: true
+      setup:
+        gather_subset:
+          - '!all'
+          - devices
+        filter: 'ansible_devices'
     - name: collect in-use lvm2 devices list
       become: true
       lvm2_physical_devices_facts:
     - name: set allowed_devices
       set_fact:
         allowed_devices: "{{ (ansible_facts['lvm2_active_pvs'] | default([]) | list)
-                         | intersect(ansible_devices.keys())
+                         | intersect(ansible_facts['devices'].keys())
                          + (tripleo_tripleo_lvmfilter_devices_allowlist | default([]))
                          | unique }}"
     - name: build lvm2 allow list

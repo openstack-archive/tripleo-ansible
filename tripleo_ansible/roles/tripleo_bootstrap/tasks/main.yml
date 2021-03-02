@@ -23,12 +23,12 @@
   with_first_found:
     - skip: true
       files:
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
-        - "{{ ansible_os_family | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - always
 
@@ -41,7 +41,7 @@
   # ignore the case where the package can't be found (e.g. missing subscription).
   # https://bugzilla.redhat.com/show_bug.cgi?id=1820306
   failed_when:
-    - (ansible_distribution | lower) == 'redhat'
+    - (ansible_facts['distribution'] | lower) == 'redhat'
     - not ansible_check_mode|bool
     - (tripleo_bootstrap_packages_bootstrap_result.rc | int) == 1
     - not ('No package openvswitch available.' in tripleo_bootstrap_packages_bootstrap_result.failures | default([]))
@@ -100,7 +100,7 @@
 
 - name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
   become: true
-  ignore_errors: "{{ (((ansible_os_family | lower) ~ '-' ~ ansible_distribution_major_version) == 'redhat-7') | bool }}"
+  ignore_errors: "{{ (((ansible_facts['os_family'] | lower) ~ '-' ~ ansible_distribution_major_version) == 'redhat-7') | bool }}"
   copy:
     dest: "{{ item }}"
     content: "# empty ruleset created by deployed-server bootstrap"
