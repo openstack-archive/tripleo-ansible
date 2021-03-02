@@ -29,7 +29,16 @@
 
     - name: set openstack client caps
       set_fact:
-        osp_client_caps: {'mgr': 'allow *', 'mon': 'profile rbd', 'osd': "{{ profiles | regex_replace('\\, $', '') }}"}
+        osp_client_default_caps: {'mgr': 'allow *', 'mon': 'profile rbd'}
+
+    - name: set openstack client osd(s) caps
+      set_fact:
+        osp_client_osd_caps: {'osd': "{{ profiles | regex_replace('\\, $', '') }}"}
+      when: profiles|length > 0
+
+    - name: Combine caps
+      set_fact:
+        osp_client_caps: "{{ osp_client_default_caps | combine(osp_client_osd_caps|default({})) }}"
 
     - name: set openstack client key
       set_fact:
