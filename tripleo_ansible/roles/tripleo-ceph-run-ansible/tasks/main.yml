@@ -45,6 +45,10 @@
       - ANSIBLE_STDOUT_CALLBACK=default
       - "{{ calling_ansible_environment_variables|join(' ') }}"
       - "{{ ceph_ansible_environment_variables|join(' ') }}"
+      # NOTE(mwhahaha): we need to force this for now until ansible addresses fact stuff
+      - ANSIBLE_INJECT_FACT_VARS=True
+      - ANSIBLE_GATHER_SUBSET="all"
+      - ANSIBLE_CACHE_PLUGIN="memory"
       - ansible-playbook
       - '{% if ceph_ansible_private_key_file is defined %}--private-key {{ ceph_ansible_private_key_file }}{% endif %}'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
