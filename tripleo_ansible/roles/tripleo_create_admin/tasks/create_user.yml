@@ -27,6 +27,15 @@
       {{ tripleo_admin_user }} ALL=(ALL) NOPASSWD:ALL
     mode: 0440
 
+# workaround for https://bugs.launchpad.net/tripleo/+bug/1917856
+- name: ensure home dir has the right owner/group for user {{ tripleo_admin_user }}
+  file:
+    path: /home/{{ tripleo_admin_user }}
+    state: directory
+    owner: '{{ tripleo_admin_user }}'
+    group: '{{ tripleo_admin_user }}'
+    mode: 0700
+
 - name: ensure .ssh dir exists for user {{ tripleo_admin_user }}
   file:
     path: /home/{{ tripleo_admin_user }}/.ssh
