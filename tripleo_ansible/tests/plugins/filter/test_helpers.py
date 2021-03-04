@@ -1144,6 +1144,19 @@ class TestHelperFilters(tests_base.TestCase):
         result = self.filters.dict_to_list(data=dict)
         self.assertEqual(result, expected_list)
 
+    def test_snake_case(self):
+        expected_string = "ceph_storage"
+        result = self.filters.snake_case("CephStorage")
+        self.assertEqual(result, expected_string)
+
+        expected_string = "http_worker"
+        result = self.filters.snake_case("HTTPWorker")
+        self.assertEqual(result, expected_string)
+
+        expected_string = "metrics_qdr"
+        result = self.filters.snake_case("MetricsQdr")
+        self.assertEqual(result, expected_string)
+
     def test_get_changed_async_task_names_empty(self):
         result = self.filters.get_changed_async_task_names(data=[])
         self.assertEqual(result, [])

@@ -51,7 +51,8 @@ class FilterModule(object):
             'get_filtered_role_resources': self.get_filtered_role_resources,
             'get_node_capabilities': self.get_node_capabilities,
             'get_node_profile': self.get_node_profile,
-            'tht_abspath': self.tht_abspath
+            'tht_abspath': self.tht_abspath,
+            'snake_case': self.snake_case,
         }
 
     def subsort(self, dict_to_sort, attribute, null_value=0):
@@ -518,6 +519,20 @@ class FilterModule(object):
         for k, v in data.items():
             return_list.append({k: v})
         return return_list
+
+    def snake_case(self, camel_case_string):
+        """Convert from THTCamelCase to ansible_snake_case
+        This filter will return a snake_case version of the input string.
+        >>> filter_snake_case('CephStorage')
+        'ceph_storage'
+        >>> filter_snake_case('HTTPWorker')
+        'http_worker'
+        >>> filter_snake_case('MetricsQDR')
+        'metrics_qdr'
+        """
+        camel_case_string = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2',
+                                   camel_case_string)
+        return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', camel_case_string).lower()
 
     @staticmethod
     def get_filtered_service_chain(resource_chains, role_chain_resources):
