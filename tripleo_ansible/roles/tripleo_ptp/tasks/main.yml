@@ -23,14 +23,30 @@
   with_first_found:
     - skip: true
       files:
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-        - "{{ ansible_distribution | lower }}.yml"
-        - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
-        - "{{ ansible_os_family | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+        - "{{ ansible_facts['distribution'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - always
+
+- name: Get default interface network facts
+  setup:
+    gather_subset:
+      - '!all'
+      - '!any'
+      - network
+    filter: 'ansible_default_ipv4'
+
+- name: Set default ptp interface
+  set_fact:
+    tripleo_ptp_interfaces: ["{{ ansible_facts['default_ipv4']['interface'] }}"]
+  when:
+    - tripleo_ptp_interfaces | length == 0
+    - ansible_facts['default_ipv4'] is defined
+    - ansible_facts['default_ipv4']['interface'] is defined
 
 - name: Run ptp tasks
   include_tasks: tripleo_ptp.yml
