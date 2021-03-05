@@ -15,9 +15,11 @@
 # under the License.
 
 
-- name: ensure tripleo_transfer storage directory is removed
-  file:
-    path: "{{ tripleo_transfer_storage_root_dir }}"
-    state: absent
-  delegate_to: localhost
-  become: "{{ tripleo_transfer_storage_root_become }}"
+# All variables intended for internal use should be placed in this file.
+
+
+# make sure we have a trailing forward slash in the src, otherwise rsync creates extra dir
+tripleo_transfer_src_dir_safe: "{{ tripleo_transfer_src_dir }}/"
+
+# make sure we do not have a trailing forward slash in the dest
+tripleo_transfer_dest_dir_safe: "{{ tripleo_transfer_dest_dir | regex_replace('\\/$', '') }}"
