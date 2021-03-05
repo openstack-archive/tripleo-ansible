@@ -78,6 +78,7 @@
         state: directory
         mode: "0700"
         owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
       become: true
 
     - name: Ensure ssh key pair
