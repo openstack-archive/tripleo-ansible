@@ -104,7 +104,7 @@ EXAMPLES = """
 - name: Generate puppet container config for step 1
   container_puppet_config:
     step: 1
-    puppet-config: /var/lib/container-puppet/container-puppet.json
+    puppet_config: /var/lib/container-puppet/container-puppet.json
     short_hostname: "{{ ansible_facts['hostname'] }}"
     update_config_hash_only: false
 - name: Update config hashes for container startup configs
