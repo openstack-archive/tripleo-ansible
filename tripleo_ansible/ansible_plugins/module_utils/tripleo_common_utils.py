@@ -25,7 +25,6 @@ from ironicclient import client as ironicclient
 from novaclient import client as novaclient
 from swiftclient import client as swift_client
 
-from tripleo_common.actions import baremetal
 from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
 
@@ -165,49 +164,6 @@ class TripleOCommon(object):
                 max_backoff=120
             )
             return self.client_cache['swift_client']
-
-    def baremetal_configure_boot(self, kwargs):
-        """Run the action configure boot, and return data.
-
-        :param kwargs: options to pass into the ConfigureBootAction
-        :type kwargs: Dictionary
-
-        :returns: Object
-        """
-
-        action = baremetal.ConfigureBootAction(**kwargs)
-        baremetal_client = ironicclient.Client(
-            1,
-            session=self.sess
-        )
-        image_client = glanceclient.Client(2, session=self.sess)
-        return action.configure_boot(
-            baremetal_client,
-            image_client
-        )
-
-    def baremetal_configure_root_device(self, kwargs):
-        """Run the action configure root device, and return data.
-
-        :param kwargs: options to pass into the ConfigureRootDeviceAction
-        :type kwargs: Dictionary
-
-        :returns: Object
-        """
-
-        action = baremetal.ConfigureRootDeviceAction(**kwargs)
-        baremetal_client = ironicclient.Client(
-            1,
-            session=self.sess
-        )
-        inspector_client = self.get_ironic_inspector_client()
-        if not action.root_device:
-            return
-        else:
-            return action.configure_root_device(
-                baremetal_client,
-                inspector_client
-            )
 
     def return_introspected_node_data(self, node_id):
         """Return baremetal data from the ironic inspector.
