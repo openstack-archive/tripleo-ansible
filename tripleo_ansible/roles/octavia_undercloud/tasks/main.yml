@@ -62,6 +62,7 @@
     - name: Set final key fact
       set_fact:
         amp_ssh_key_path_final: "{{ ssh_key_tmp_file.path }}"
+  no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   when:
     - amp_ssh_key_path is not defined or ((amp_ssh_key_path | length) < 1)
 
@@ -69,6 +70,7 @@
   shell: |-
     openstack keypair show {{ amp_ssh_key_name }} || \
       openstack keypair create --public-key {{ amp_ssh_key_path_final }} {{ amp_ssh_key_name }}
+  no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   environment:
     OS_USERNAME: "{{ auth_username }}"
     OS_PASSWORD: "{{ auth_password }}"
