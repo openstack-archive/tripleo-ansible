@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Enable ceph-admin user
+- name: Prepare call to ceph-admin-user-playbook
   set_fact:
     cephadm_ssh_list:
       - ANSIBLE_LOG_PATH="{{ playbook_dir }}/cephadm/cephadm_enable_user_key.log"
@@ -23,10 +23,10 @@
       - '-i'
       - '{{ inventory_file }}'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
-      - '/usr/share/ansible/tripleo-playbooks/cli-enable-ssh-admin.yaml'
+      - '/usr/share/ansible/tripleo-playbooks/ceph-admin-user-playbook.yml'
       - '-e @{{ playbook_dir}}/cephadm/ceph-admin.yml'
 
-- name: Prepare cephadm user and keys
+- name: Run ceph-admin-user-playbook
   shell: "{{ cephadm_ssh_list|join(' ') }}"
   tags:
     - run_cephadm
