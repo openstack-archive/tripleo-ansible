@@ -47,4 +47,4 @@
         tripleo_cephadm_client_keys: "{{ mock_ceph_keys }}"
 
     - name: Run verify tasks
-      include_tasks: verify.yml
+      include_tasks: tasks/verify.yml
