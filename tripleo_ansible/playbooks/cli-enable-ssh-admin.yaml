@@ -182,7 +182,7 @@
 
     - name: Set ManagedIpAddresses fact
       set_fact:
-        ManagedIpAddresses: "{{ openstack_ports | map(attribute='fixed_ips') | sum(start=[]) | map(attribute='ip_address') | list }}"
+        ManagedIpAddresses: "{{ ansible_facts['openstack_ports'] | map(attribute='fixed_ips') | sum(start=[]) | map(attribute='ip_address') | list }}"
 
     - name: Set node key fact
       set_fact:
