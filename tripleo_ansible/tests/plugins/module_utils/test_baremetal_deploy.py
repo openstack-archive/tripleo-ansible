@@ -357,23 +357,28 @@ class TestExpandRoles(base.TestCase):
         )
         self.assertEqual(
             [
-                {'hostname': 'compute-0.example.com', 'profile': 'compute',
+                {'hostname': 'compute-0.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
                  'user_name': 'heat-admin'},
-                {'hostname': 'compute-1.example.com', 'profile': 'compute',
+                {'hostname': 'compute-1.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
                  'user_name': 'heat-admin'},
-                {'hostname': 'controller-0.example.com', 'profile': 'control',
+                {'hostname': 'controller-0.example.com',
+                 'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
                  'user_name': 'heat-admin'},
-                {'hostname': 'controller-1.example.com', 'profile': 'control',
+                {'hostname': 'controller-1.example.com',
+                 'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
                  'user_name': 'heat-admin'},
-                {'hostname': 'controller-2.example.com', 'profile': 'control',
+                {'hostname': 'controller-2.example.com',
+                 'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
                  'user_name': 'heat-admin'},
@@ -438,18 +443,21 @@ class TestExpandRoles(base.TestCase):
         )
         self.assertEqual(
             [
-                {'hostname': 'compute-0.example.com', 'profile': 'compute',
+                {'hostname': 'compute-0.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'}},
-                {'hostname': 'compute-1.example.com', 'profile': 'compute',
+                {'hostname': 'compute-1.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'}},
                 {'hostname': 'controller-X.example.com',
                  'image': {'href': 'overcloud-full'},
-                 'profile': 'control-X',
+                 'capabilities': {'profile': 'control-X'},
                  'networks': [{'fixed_ip': '10.1.1.1', 'network': 'inst_net'},
                               {'network': 'foo', 'subnet': 'foo_subnet'}],
                  },
                 # Name provides the default for hostname later on.
-                {'name': 'node-0', 'profile': 'control',
+                {'name': 'node-0',
+                 'capabilities': {'profile': 'control'},
                  'hostname': 'node-0',
                  'networks': [
                      {'network': 'some_net', 'subnet': 'leaf-2', 'vif': True},
@@ -511,26 +519,26 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual([
             {
                 'hostname': 'compute-0.example.com',
-                'profile': 'compute',
+                'capabilities': {'profile': 'compute'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'compute-1.example.com',
-                'profile': 'compute',
+                'capabilities': {'profile': 'compute'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'controller-X.example.com',
-                'profile': 'control-X',
+                'capabilities': {'profile': 'control-X'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'node-0',
                 'name': 'node-0',
                 'nics': [{'subnet': 'leaf-2'}],
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'traits': ['CUSTOM_FOO'],
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-2',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -577,11 +585,11 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual([
             {
                 'hostname': 'overcloud-controller-0',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-3',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -609,11 +617,11 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual([
             {
                 'hostname': 'overcloud-controller-1',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-2',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -643,19 +651,19 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual([
             {
                 'hostname': 'overcloud-controller-0',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-3',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-4',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-5',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -687,11 +695,11 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual([
             {
                 'hostname': 'overcloud-controller-1',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'overcloud-controller-2',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -728,12 +736,12 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'controller-0',
                 'name': 'node-0',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'controller-3',
                 'name': 'node-3',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -759,12 +767,12 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'controller-1',
                 'name': 'node-1',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'controller-2',
                 'name': 'node-2',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -799,12 +807,12 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'node-0',
                 'name': 'node-0',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'node-3',
                 'name': 'node-3',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -832,12 +840,12 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'node-1',
                 'name': 'node-1',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }, {
                 'hostname': 'node-2',
                 'name': 'node-2',
-                'profile': 'control',
+                'capabilities': {'profile': 'control'},
                 'image': {'href': 'overcloud-full'}
             }],
             instances)
@@ -905,14 +913,17 @@ class TestExpandRoles(base.TestCase):
         )
         self.assertEqual(
             [
-                {'hostname': 'compute-0.example.com', 'profile': 'compute',
+                {'hostname': 'compute-0.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'}},
-                {'hostname': 'compute-1.example.com', 'profile': 'compute',
+                {'hostname': 'compute-1.example.com',
+                 'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'}},
-                {'hostname': 'overcloud-controller-0', 'profile': 'control-X',
+                {'hostname': 'overcloud-controller-0',
+                 'capabilities': {'profile': 'control-X'},
                  'image': {'href': 'overcloud-full'}},
                 # Name provides the default for hostname
-                {'name': 'node-0', 'profile': 'control',
+                {'name': 'node-0', 'capabilities': {'profile': 'control'},
                  'hostname': 'node-0',
                  'image': {'href': 'overcloud-full'},
                  'traits': ['CUSTOM_FOO'], 'nics': [{'subnet': 'leaf-2'}]},
