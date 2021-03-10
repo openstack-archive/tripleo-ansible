@@ -8,7 +8,23 @@ from ansible.plugins.callback.default import CallbackModule as DefaultCallback
 from datetime import datetime
 
 
+DOCUMENTATION = """
+    name: tripleo_dense
+    type: stdout
+    short_description: default TripleO screen output
+    version_added: historical
+    description:
+      - This is the default output callback for TripleO.
+    extends_documentation_fragment:
+      - default_callback
+    requirements:
+      - set as stdout in configuration
+"""
+
+
 class CallbackModule(DefaultCallback):
+    def get_options(self, option_string):
+        pass
 
     def _output(self, msg, color=None):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
