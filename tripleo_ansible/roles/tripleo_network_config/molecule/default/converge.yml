@@ -23,36 +23,36 @@
     tripleo_network_config_manage_service: false
     tripleo_network_config_hide_sensitive_logs: false
     local_mtu: 1500
-    ctlplane_ip: 192.168.24.1
+    ctlplane_ip: 203.0.113.1
     ctlplane_subnet_cidr: 24
     ctlplane_host_routes: []
     ctlplane_dns_nameservers: []
     dns_search_domains: []
-    neutron_public_interface_name: tap0
+    neutron_public_interface_name: dummy0
     deployed_server_port_map:
       control_virtual_ip:
         fixed_ips:
-          - ip_address: 192.168.24.3
+          - ip_address: 203.0.113.3
         network:
           tags:
-            - 192.168.24.0/24
+            - 203.0.113.0/24
         subnets:
-          - cidr: 192.168.24.0/24
+          - cidr: 203.0.113.0/24
       public_virtual_ip:
         fixed_ips:
-          - ip_address: 192.168.24.1
+          - ip_address: 203.0.113.1
         network:
           tags:
-            - 192.168.24.0/24
+            - 203.0.113.0/24
         subnets:
-          - cidr: 192.168.24.0/24
+          - cidr: 203.0.113.0/24
       standalone-ctlplane:
         fixed_ips:
-          - ip_address: 192.168.24.1
+          - ip_address: 203.0.113.1
         network:
           tags:
-            - 192.168.24.0/24
+            - 203.0.113.0/24
         subnets:
-          - cidr: 192.168.24.0/24
+          - cidr: 203.0.113.0/24
   roles:
     - role: "tripleo_network_config"
