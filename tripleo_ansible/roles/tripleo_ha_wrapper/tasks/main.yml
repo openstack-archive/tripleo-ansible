@@ -56,6 +56,11 @@
   changed_when: puppet_run.rc == 2
   failed_when: puppet_run.rc != 2 and puppet_run.rc != 0
 
+- name: "Check if {{ tripleo_ha_wrapper_config_basedir }}/{{ tripleo_ha_wrapper_puppet_config_volume }} exists"
+  stat:
+    path: "{{ tripleo_ha_wrapper_config_basedir }}/{{ tripleo_ha_wrapper_puppet_config_volume }}.md5sum"
+  register: config_volume_md5
+
 - name: Run pacemaker restart if the config file for the service changed
   tripleo_diff_exec:
     command: >-
@@ -66,3 +71,5 @@
     state_file_suffix: "{{ tripleo_ha_wrapper_config_suffix }}"
     environment:
       TRIPLEO_MINOR_UPDATE: "{{ tripleo_ha_wrapper_minor_update|default('') }}"
+  when:
+    - (config_volume_md5.stat.exists | bool)
