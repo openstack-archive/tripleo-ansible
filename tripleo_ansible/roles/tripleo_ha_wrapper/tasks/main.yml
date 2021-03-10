@@ -65,4 +65,4 @@
     state_file: "{{ tripleo_ha_wrapper_config_basedir }}/{{ tripleo_ha_wrapper_puppet_config_volume }}.md5sum"
     state_file_suffix: "{{ tripleo_ha_wrapper_config_suffix }}"
     environment:
-      TRIPLEO_MINOR_UPDATE: "{{ tripleo_ha_wrapper_minor_update|default('') }}"
+      TRIPLEO_MINOR_UPDATE: "{{ tripleo_ha_wrapper_minor_update|default('') | string }}"
