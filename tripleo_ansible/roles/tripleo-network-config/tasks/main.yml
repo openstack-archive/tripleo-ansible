@@ -106,5 +106,5 @@
     - (tripleo_network_config_action == "CREATE") or
       ("UPDATE" in tripleo_network_config_network_deployment_actions) or
       (os_net_config_returncode_stat.stat.exists and
-      ((os_net_config_returncode_slurp.content | b64decode) != 0)) or
+      ((os_net_config_returncode_slurp.content | b64decode | int) != 0)) or
        (not os_net_config_returncode_stat.stat.exists)
