@@ -5,5 +5,56 @@ quiet: false
 rulesdir:
     - .ansible-lint_rules/
 verbosity: 1
-warn_list:
-  - '901'  # Failed to load or parse file
+# Mocking modules is not recommended as it prevents testing of invalid
+# arguments or lack of their presence at runtime. It is preffered to
+# make use of requirements.yml to declare them.
+mock_roles:
+    - ceph-defaults
+    - ceph-facts
+mock_modules:
+    - baremetal_nodes_validate
+    - baremetal_register_or_update_nodes
+    - ceph_key
+    - ceph_pool
+    - config_template
+    - container_startup_config
+    - lvm2_physical_devices_facts
+    - metalsmith_instances
+    - os_baremetal_clean_node
+    - os_baremetal_provide_node
+    - os_tripleo_baremetal_configure
+    - os_tripleo_baremetal_node_introspection
+    - podman_container
+    - podman_container_info
+    - podman_volume_info
+    - tripleo_baremetal_check_existing
+    - tripleo_baremetal_expand_roles
+    - tripleo_baremetal_populate_environment
+    - tripleo_build_heat_environment
+    - tripleo_composable_network
+    - tripleo_config_download
+    - tripleo_container_config_scripts
+    - tripleo_container_configs
+    - tripleo_container_image_prepare
+    - tripleo_derive_hci_parameters
+    - tripleo_diff_exec
+    - tripleo_fernet_keys_rotate
+    - tripleo_generate_ansible_inventory
+    - tripleo_generate_overcloudrc
+    - tripleo_get_flatten_stack
+    - tripleo_get_introspected_data
+    - tripleo_get_role_list
+    - tripleo_image_params_prepare
+    - tripleo_iptables
+    - tripleo_network_populate_environment
+    - tripleo_network_ports_populate_environment
+    - tripleo_os_net_config
+    - tripleo_os_net_config_mappings
+    - tripleo_overcloud_network_extract
+    - tripleo_overcloud_network_ports
+    - tripleo_passwords_rotate
+    - tripleo_plan_deploy
+    - tripleo_plan_parameters_update
+    - tripleo_swift_tempurl
+    - tripleo_templates_upload
+    - tripleo_unmanaged_populate_environment
