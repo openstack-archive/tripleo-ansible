@@ -79,6 +79,10 @@ options:
         description:
           - Neutron subnet name or id
         type: str
+      use_neutron:
+        description:
+          - Boolean option to allow not to create a neutron port.
+        type: bool
 
 author:
     - Harald Jensås <hjensas@redhat.com>
@@ -95,6 +99,15 @@ EXAMPLES = '''
     network: internal_api
     fixed_ip:
       - subnet: internal_api_subnet
+  register: redis_vip
+- name: Create foo Virtual IP (Not creating a neutron port)
+  tripleo_service_vip_port:
+    stack_name: overcloud
+    service_name: foo
+    network: foo
+    fixed_ip:
+      - ip_address: 192.0.2.5
+        use_neutron: false
   register: redis_vip
 '''
 
@@ -238,6 +251,37 @@ def use_fake(service, fixed_ips):
     return port
 
 
+# This method is here so that openstack_cloud_from_module
+# can be mocked in tests.
+def _openstack_cloud_from_module(module):
+    _, conn = openstack_cloud_from_module(module)
+
+    return _, conn
+
+
+def create_service_vip(module, stack, service, network, fixed_ips,
+                       playbook_dir):
+    _use_neutron = True
+    for fixed_ip in fixed_ips:
+        if ('use_neutron', False) in fixed_ip.items():
+            _use_neutron = False
+            break
+
+    if _use_neutron:
+        try:
+            _, conn = _openstack_cloud_from_module(module)
+            _use_neutron = conn.identity.find_service('neutron') is not None
+        except kauth1_exc.MissingRequiredOptions:
+            _use_neutron = False
+
+    if _use_neutron:
+        port = use_neutron(conn, stack, service, network, fixed_ips)
+    else:
+        port = use_fake(service, fixed_ips)
+
+    write_vars_file(port, service, playbook_dir)
+
+
 def run_module():
     result = dict(
         success=False,
@@ -258,22 +302,12 @@ def run_module():
     stack = module.params.get('stack_name', 'overcloud')
     service = module.params['service_name']
     network = module.params['network']
-    fixed_ips = module.params['fixed_ips']
+    fixed_ips = module.params.get('fixed_ips', [])
     playbook_dir = module.params['playbook_dir']
 
     try:
-        try:
-            _, conn = openstack_cloud_from_module(module)
-            neutron_found = conn.identity.find_service('neutron') is not None
-        except kauth1_exc.MissingRequiredOptions:
-            neutron_found = False
-
-        if neutron_found:
-            port = use_neutron(conn, stack, service, network, fixed_ips)
-        else:
-            port = use_fake(service, fixed_ips)
-
-        write_vars_file(port, service, playbook_dir)
+        create_service_vip(module, stack, service, network, fixed_ips,
+                           playbook_dir)
 
         result['changed'] = True
         result['success'] = True
