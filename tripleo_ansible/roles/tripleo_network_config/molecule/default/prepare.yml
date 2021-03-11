@@ -23,8 +23,12 @@
       vars:
         test_deps_setup_tripleo: true
     - name: Ensure legacy scripts installed
+      become: true
       package:
         name: network-scripts
         state: present
       when:
         - ansible_facts['distribution_major_version'] is version('8', '==')
+    - name: Create a dummy network interface
+      become: true
+      command: "ip link add dummy0 type dummy"
