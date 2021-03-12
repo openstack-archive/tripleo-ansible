@@ -37,6 +37,31 @@
         name: tripleo_cephadm
         tasks_from: pools
 
+    - name: Config RGW
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: rgw
+
+    - name: Config MDS and Ganesha daemons
+      block:
+        - name: Config MDS
+          import_role:
+            name: tripleo_cephadm
+            tasks_from: mds
+
+        - name: Config Ganesha
+          import_role:
+            name: tripleo_cephadm
+            tasks_from: ganesha
+      when:
+        - cephfs_data_pool is defined
+        - cephfs_metadata_pool is defined
+
+    - name: Configure Monitoring Stack
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: monitoring
+
     - name: Create Keys
       import_role:
         name: tripleo_cephadm
@@ -46,3 +71,8 @@
       import_role:
         name: tripleo_cephadm
         tasks_from: export
+
+    - name: Show the Ceph cluster status
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: post

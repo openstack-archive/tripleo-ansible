@@ -8,6 +8,12 @@ placement:
   hosts:
     - standalone.localdomain
 ---
+service_type: mgr
+service_name: mgr
+placement:
+  hosts:
+    - standalone.localdomain
+---
 service_type: osd
 service_id: standalone_drive_group
 placement:

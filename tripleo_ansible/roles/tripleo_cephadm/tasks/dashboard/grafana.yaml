@@ -1,0 +1,55 @@
+---
+# Copyright 2021 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# TODO: MKSPEC TO DEPLOY GRAFANA
+# - name: Deploy the three, unmanaged grafana instances via the orchestrator
+#   mkspec:
+#   service_type: grafana
+#   service_name: grafana
+#   placement:
+#     hosts:
+#       - ctr1
+#       - ctr2
+#       - ctr3
+#   unmanaged: true
+
+- name: Get the current mgr addr
+  set_fact:
+    grafana_addr: "{{ hostvars[dashboard_backend][tripleo_ceph_dashboard_net] }}"
+  vars:
+    tripleo_ceph_dashboard_net: "{{ service_net_map['ceph_dashboard_network'] + '_ip' }}"
+  delegate_to: "{{ dashboard_backend }}"
+
+- name: Render config files
+  block:
+    - name: Configure grafana
+      template:
+        src: grafana.json.j2
+        dest: "/tmp/grafana.json"
+      become: true
+      delegate_to: "{{ dashboard_backend }}"
+
+- name: Reconfigure grafana component
+  shell: |
+    {{ tripleo_cephadm_bin }} \
+    --image {{ tripleo_cephadm_grafana_container_image }} \
+    deploy \
+    --name grafana.{{ dashboard_backend }} \
+    --fsid {{ tripleo_cephadm_fsid }} \
+    --config-json /tmp/grafana.json
+  register: cephadm_grafana
+  become: true
+  delegate_to: "{{ dashboard_backend }}"

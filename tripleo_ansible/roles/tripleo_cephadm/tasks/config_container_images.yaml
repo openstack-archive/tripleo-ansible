@@ -1,0 +1,57 @@
+---
+# Copyright 2021 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: set default container image in ceph configuration
+  command: |
+    {{ tripleo_cephadm_ceph_cli }} config set global container_image \
+    {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
+  changed_when: false
+  become: true
+
+- name: set container image base in ceph configuration
+  command: |
+    {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_base \
+    {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}
+  changed_when: false
+  become: true
+
+- name: set dashboard container image in ceph mgr configuration
+  when: tripleo_cephadm_dashboard_enabled | bool
+  become: true
+  block:
+    - name: set alertmanager container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_alertmanager \
+        {{ tripleo_cephadm_alertmanager_container_image }}
+      changed_when: false
+
+    - name: set grafana container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_grafana \
+        {{ tripleo_cephadm_grafana_container_image }}
+      changed_when: false
+
+    - name: set node-exporter container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_node_exporter \
+        {{ tripleo_cephadm_node_exporter_container_image }}
+      changed_when: false
+
+    - name: set prometheus container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_prometheus \
+        {{ tripleo_cephadm_prometheus_container_image }}
+      changed_when: false

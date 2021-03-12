@@ -15,6 +15,7 @@ tripleo_cephadm_admin_keyring: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cep
 tripleo_cephadm_conf: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.conf"
 tripleo_cephadm_bootstrap_conf: "/home/{{ tripleo_cephadm_ssh_user }}/bootstrap_{{ tripleo_cephadm_cluster }}.conf"
 tripleo_cephadm_spec: "/home/{{ tripleo_cephadm_ssh_user }}/specs/ceph_spec.yaml"
+tripleo_cephadm_spec_home: "/home/{{ tripleo_cephadm_ssh_user }}/specs"
 tripleo_cephadm_container_spec: /home/ceph_spec.yaml
 tripleo_cephadm_spec_ansible_host: "{{ role_path }}/files/ceph_spec.yaml"
 tripleo_cephadm_bootstrap_files:
@@ -29,8 +30,14 @@ tripleo_cephadm_wait_for_mons: true
 tripleo_cephadm_wait_for_mons_retries: 10
 tripleo_cephadm_wait_for_mons_delay: 20
 tripleo_cephadm_wait_for_mons_ignore_errors: false
+tripleo_cephadm_wait_for_osds: true
+tripleo_cephadm_wait_for_osds_retries: 10
+tripleo_cephadm_wait_for_osds_delay: 20
+tripleo_cephadm_wait_for_osds_ignore_errors: false
+tripleo_cephadm_num_osd_expected: 1
 tripleo_cephadm_predeployed: true
 tripleo_cephadm_conf_overrides: {}
 tripleo_cephadm_fsid_list: []
+tripleo_cephadm_fqdn: false
 # todo(fultonj) add is_hci boolean for target memory
 # https://lists.ceph.io/hyperkitty/list/dev@ceph.io/thread/Z77XO23JPXDNHKM7IG6UN4URYKA6L7VH/

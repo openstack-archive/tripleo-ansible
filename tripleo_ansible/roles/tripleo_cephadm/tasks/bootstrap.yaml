@@ -59,9 +59,7 @@
         --fsid {{ tripleo_cephadm_fsid }} \
         {% if tripleo_cephadm_spec_on_bootstrap %}--apply-spec {{ tripleo_cephadm_spec }} \{% endif %}
         {% if tripleo_cephadm_bootstrap_conf_stat.stat.exists %}--config {{ tripleo_cephadm_bootstrap_conf }} \{% endif %}
-        {% if not tripleo_cephadm_dashboard_enabled %}
         --skip-monitoring-stack --skip-dashboard \
-        {% endif %}
         --mon-ip {{ tripleo_cephadm_first_mon_ip }}
       register: cephadm_bootstrap
       become: true
