@@ -16,6 +16,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
+      - tripleo-ansible-centos-8-molecule-tripleo_collectd
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
@@ -74,6 +75,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
+      - tripleo-ansible-centos-8-molecule-tripleo_collectd
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
@@ -133,6 +135,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
+      - tripleo-ansible-centos-8-molecule-tripleo_collectd
       - tripleo-ansible-centos-8-molecule-tripleo_config
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
@@ -261,6 +264,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_clients_install
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_collectd/.*
+    name: tripleo-ansible-centos-8-molecule-tripleo_collectd
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_collectd
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/.*

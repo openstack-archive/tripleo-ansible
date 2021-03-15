@@ -1,0 +1,59 @@
+---
+# Copyright 2020 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: "Enable delorean repos"
+      command: |
+        dnf config-manager --add-repo https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
+
+    - name: "Install tripleo-repos"
+      package:
+        name: "python*tripleo-repos"
+        state: present
+
+    - name: "Set-up tripleo-repos"
+      command: |
+        tripleo-repos -b master current-tripleo
+
+    - name: "Install collectd plugin packages"
+      package:
+        name:
+          - collectd
+          - collectd-amqp1
+          - collectd-disk
+          - collectd-hugepages
+          # for collectdctl
+          - collectd-utils
+          # enable_stf
+          - collectd-connectivity
+          - collectd-ipmi
+          - collectd-procevent
+          - collectd-rdt
+          # enable_sqlalchemy
+          - collectd-python
+          - python3-sqlalchemy-collectd
+          # libpodstats
+          - collectd-libpod-stats
+        state: present
+
+    - name: "Create a directory for the log file"
+      file:
+        path: /var/log/collectd/
+        state: directory
+        mode: 0766
