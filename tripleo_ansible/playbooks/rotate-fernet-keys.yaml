@@ -25,11 +25,31 @@
     hide_sensitive_logs: true
 
   tasks:
-    - name: Rotate keys and update plan
+    - name: Set fernet_keys_environment_path
+      set_fact:
+        fernet_keys_environment_path: "{{ lookup('env', 'HOME')~'/rotated_fernet_keys.yaml'}}"
+      when: fernet_keys_environment_path is not defined
+
+    - name: Rotate keys
       tripleo_fernet_keys_rotate:
         container: "{{ container }}"
       register: fernet_keys
       no_log: "{{ hide_sensitive_logs | bool }}"
+
+    - name: Write fernet_keys file
+      no_log: "{{ hide_sensitive_logs | bool }}"
+      block:
+        - name: Create fernet_keys parameter fact
+          set_fact:
+            fernet_params_env: "{{ {'parameter_defaults': (fernet_keys['fernet_keys'] | default({}))} }}"
+
+        - name: Write fernet_keys environment file
+          copy:
+            dest: "{{ fernet_keys_environment_path }}"
+            content: "{{ fernet_params_env | to_nice_yaml(indent=2) }}"
+      when:
+        - fernet_keys_environment_path is defined
+        - fernet_keys is defined
 
 - name: Rotate fernet keys on controller nodes
   import_playbook: rotate-keys.yaml fernet_keys="{{ hostvars['undercloud']['fernet_keys']['fernet_keys'] }}"

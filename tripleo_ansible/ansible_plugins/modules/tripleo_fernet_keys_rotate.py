@@ -45,7 +45,7 @@ description:
 options:
     container:
         description:
-            - Overcloud plan container name
+            - Overcloud stack name
         default: overcloud
 author:
     - Rabi Mishra (@ramishra)
@@ -53,7 +53,7 @@ requirements: ["openstacksdk", "tripleo-common"]
 '''
 
 EXAMPLES = '''
-- name: Rotate fernet keys and update plan
+- name: Rotate fernet keys
   tripleo_fernet_keys_rotate:
       container: overcloud
 '''
@@ -106,13 +106,13 @@ def run_module():
         _, conn = openstack_cloud_from_module(module)
         tripleo = tc.TripleOCommon(session=conn.session)
 
+        heat = tripleo.get_orchestration_client()
         # if the user is working with this module in only check mode we do not
         # want to make any changes to the environment, just return the current
         # state with no modifications
         if module.check_mode:
             module.exit_json(**result)
-        swift = tripleo.get_object_client()
-        fernet_keys = plan_utils.update_plan_rotate_fernet_keys(swift, container)
+        fernet_keys = plan_utils.rotate_fernet_keys(heat, container)
         result['success'] = True
         result['fernet_keys'] = fernet_keys
     except Exception as err:
