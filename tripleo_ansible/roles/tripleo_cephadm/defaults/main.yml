@@ -39,5 +39,6 @@ tripleo_cephadm_predeployed: true
 tripleo_cephadm_conf_overrides: {}
 tripleo_cephadm_fsid_list: []
 tripleo_cephadm_fqdn: false
+tripleo_cephadm_crush_rules: []
 # todo(fultonj) add is_hci boolean for target memory
 # https://lists.ceph.io/hyperkitty/list/dev@ceph.io/thread/Z77XO23JPXDNHKM7IG6UN4URYKA6L7VH/
