@@ -26,6 +26,7 @@ tripleo_network_config_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_network_config_hide_sensitive_logs: true
 tripleo_network_config_interface_name: nic1
 tripleo_network_config_manage_service: true
+tripleo_network_config_nmstate: false
 tripleo_network_config_os_net_config_mappings: {}
 tripleo_network_config_safe_defaults: true
 tripleo_network_config_with_ansible: false
