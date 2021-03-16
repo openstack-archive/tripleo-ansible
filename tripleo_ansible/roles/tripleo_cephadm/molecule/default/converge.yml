@@ -31,7 +31,7 @@
         tasks_from: bootstrap
 
     - name: Mock ceph_mon_dump command
-      shell: "cat mock_ceph_mon_dump.json"
+      shell: "cat mock/mock_ceph_mon_dump.json"
       register: ceph_mon_mock_dump
       delegate_to: localhost
 
