@@ -1,0 +1,13 @@
+---
+# XXX (beagles) which permissions?
+- name: ensure rndc key path exists
+  become: true
+  file:
+      path: "{{ designate_rndc_key_file_path }}"
+      state: directory
+
+- name: create rndc key files for each bind instance
+  become: true
+  template:
+      src: rndc.key.j2
+      dest: "{{ designate_rndc_key_file_path }}/rndc.key"
