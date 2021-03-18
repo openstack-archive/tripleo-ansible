@@ -4,94 +4,49 @@
     - tripleo-ansible-molecule-jobs
     - release-notes-jobs-python3
     - openstack-python3-ussuri-jobs
+    - tripleo-multinode-container-minimal-pipeline
+    - tripleo-standalone-scenarios-pipeline
+    - tripleo-undercloud-jobs-pipeline
     check:
       jobs:
       - openstack-tox-linters
-      - tripleo-ci-centos-7-content-provider: &content_provider_c7
+      - tripleo-ci-centos-7-content-provider:
           dependencies: &deps_lint
             - openstack-tox-linters
-      - tripleo-ci-centos-8-content-provider: &content_provider
+      - tripleo-ci-centos-8-content-provider:
           dependencies: *deps_lint
       - openstack-tox-docs: &tripleo-docs
           files:
           - ^doc/.*
           - ^README.rst
-      - tripleo-ci-centos-7-containers-multinode: &containers_multinode_c7
-          vars: &multi_consumer_vars
+      - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
+          vars:
             consumer_job: true
-            build_container_images: false
             remove_tags:
               - build
-          dependencies: &deps_cprovider_c7
-            - tripleo-ci-centos-7-content-provider
-          files: &multi_files
-            - ^tripleo_ansible/.*
-          irrelevant-files: &irrelevant_scenario_files
-            - .*.md$
-            - .*.rst$
-            - .*.txt$
-            - ^tripleo_ansible/.*molecule.*
-            - ^tripleo_ansible/.*meta.*
-            - ^tripleo_ansible/roles/test_deps/.*
-      - tripleo-ci-centos-8-containers-multinode: &containers_multinode
-          vars: *multi_consumer_vars
-          dependencies: &deps_cprovider
+          dependencies:
             - tripleo-ci-centos-8-content-provider
-          files: *multi_files
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-8-scenario001-standalone: &scenario001
-          vars: &sa_consumer_vars
-            consumer_job: true
-            build_container_images: false
-            tags:
-              - standalone
-          dependencies: *deps_cprovider
           files:
-            - ^tripleo_ansible/roles/tripleo-ceph-.*/.*
-            - ^tripleo_ansible/roles/tripleo-hieradata/.*
-            - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
-            - ^setup.*
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-8-scenario002-standalone: &scenario002
-          vars: *sa_consumer_vars
-          dependencies: *deps_cprovider
-          files:
-            - ^tripleo_ansible/roles/tripleo-hieradata/.*
-            - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-8-scenario003-standalone: &scenario003
-          vars: *sa_consumer_vars
-          dependencies: *deps_cprovider
-          files:
-            - ^tripleo_ansible/roles/tripleo-create-admin/.*
-            - ^tripleo_ansible/roles/tripleo-hieradata/.*
-            - ^tripleo_ansible/roles/tripleo-upgrade-hiera/.*
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-8-scenario004-standalone: &scenario004
-          vars: *sa_consumer_vars
-          dependencies: *deps_cprovider
-          files:
-            - ^tripleo_ansible/roles/tripleo-ceph-.*/.*
-          irrelevant-files: *irrelevant_scenario_files
-      - tripleo-ci-centos-8-scenario010-standalone: &scenario010
-          vars: *sa_consumer_vars
-          dependencies: *deps_cprovider
-          files:
-            - ^tripleo_ansible/.*octavia.*
-          irrelevant-files: *irrelevant_scenario_files
+          - ^tripleo_ansible/.*
+          irrelevant-files:
+          - .*.md$
+          - .*.rst$
+          - .*.txt$
+          - ^_skeleton_role_/.*
+          - ^scripts/.*
+          - ^tox.ini$
+          - ^tripleo_ansible/playbooks/docker-vfs-setup.yml$
+          - ^tripleo_ansible/.*molecule.*
+          - ^tripleo_ansible/roles/.*/meta.*
+          - ^tripleo_ansible/roles/test_deps/.*
+          - ^zuul.d/.*
     gate:
       jobs:
       - openstack-tox-linters
-      - tripleo-ci-centos-7-content-provider: *content_provider_c7
-      - tripleo-ci-centos-8-content-provider: *content_provider
+      - tripleo-ci-centos-7-content-provider
+      - tripleo-ci-centos-8-content-provider
       - openstack-tox-docs: *tripleo-docs
-      - tripleo-ci-centos-7-containers-multinode: *containers_multinode_c7
-      - tripleo-ci-centos-8-containers-multinode: *containers_multinode
-      - tripleo-ci-centos-8-scenario001-standalone: *scenario001
-      - tripleo-ci-centos-8-scenario002-standalone: *scenario002
-      - tripleo-ci-centos-8-scenario003-standalone: *scenario003
-      - tripleo-ci-centos-8-scenario004-standalone: *scenario004
-      - tripleo-ci-centos-8-scenario010-standalone: *scenario010
+      - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
     post:
       jobs:
       - publish-openstack-python-branch-tarball
