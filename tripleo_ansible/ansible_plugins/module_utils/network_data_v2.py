@@ -18,6 +18,7 @@
 import collections
 import ipaddress
 import jsonschema
+import os
 import yaml
 
 RES_ID = 'physical_resource_id'
@@ -413,6 +414,17 @@ def validate_json_schema(net_data):
                     config_path, error.message))
 
     return error_messages
+
+
+def validate_playbook_dir(playbook_dir_path):
+    if not os.path.exists(playbook_dir_path):
+        raise Exception('ERROR: Playbook directory {} does not exist.'.format(
+            playbook_dir_path))
+
+    if not os.path.isdir(playbook_dir_path):
+        raise Exception(
+            'ERROR: Playbook directory {} is not a directory'.format(
+                playbook_dir_path))
 
 
 def tags_to_dict(resource_tags):

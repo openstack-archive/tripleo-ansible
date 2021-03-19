@@ -1,1 +1,5 @@
+{% if ovn_bridge_mac_address_vars is defined %}
+{{ ovn_bridge_mac_address_vars[inventory_hostname] | default({}) | to_nice_json }}
+{% else %}
 {{ hostvars[inventory_hostname]['ovn_chassis_mac_map'] | default({}) | to_nice_json }}
+{% endif %}

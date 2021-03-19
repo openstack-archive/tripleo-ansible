@@ -184,17 +184,6 @@ def find_ctlplane_vip(conn, stack=None, service=None):
     return port
 
 
-def validate_playbook_dir(playbook_dir_path):
-    if not os.path.exists(playbook_dir_path):
-        raise Exception('ERROR: Playbook directory {} does not exist.'.format(
-            playbook_dir_path))
-
-    if not os.path.isdir(playbook_dir_path):
-        raise Exception(
-            'ERROR: Playbook directory {} is not a directory'.format(
-                playbook_dir_path))
-
-
 def validate_service_vip_vars_file(service_vip_var_file):
     if not os.path.isfile(service_vip_var_file):
         raise Exception(
@@ -208,7 +197,7 @@ def write_vars_file(port, service, playbook_dir):
         ips = ips[0]
 
     playbook_dir_path = os.path.abspath(playbook_dir)
-    validate_playbook_dir(playbook_dir)
+    network_data_v2.validate_playbook_dir(playbook_dir)
 
     service_vip_var_file = os.path.join(playbook_dir_path,
                                         'service_vip_vars.yaml')
