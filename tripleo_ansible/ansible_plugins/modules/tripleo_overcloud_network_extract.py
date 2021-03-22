@@ -184,15 +184,15 @@ def is_vip_network(conn, network_id):
 
 def get_network_info(conn, network_id):
 
-    def pop_defaults(dict):
-        if dict['mtu'] == DEFAULT_NETWORK_MTU:
-            dict.pop('mtu')
-        if dict['shared'] == DEFAULT_NETWROK_SHARED:
-            dict.pop('shared')
-        if dict['admin_state_up'] == DEFAULT_NETWORK_ADMIN_STATE_UP:
-            dict.pop('admin_state_up')
-        if dict['vip'] == DEFAULT_NETWORK_VIP:
-            dict.pop('vip')
+    def pop_defaults(_dict):
+        if _dict['mtu'] == DEFAULT_NETWORK_MTU:
+            _dict.pop('mtu')
+        if _dict['shared'] == DEFAULT_NETWROK_SHARED:
+            _dict.pop('shared')
+        if _dict['admin_state_up'] == DEFAULT_NETWORK_ADMIN_STATE_UP:
+            _dict.pop('admin_state_up')
+        if _dict['vip'] == DEFAULT_NETWORK_VIP:
+            _dict.pop('vip')
 
     network = conn.network.get_network(network_id)
     tag_dict = tripleo_resource_tags_to_dict(network.tags)
@@ -219,25 +219,25 @@ def get_network_info(conn, network_id):
 
 def get_subnet_info(conn, subnet_id):
 
-    def pop_defaults(dict):
-        if dict['enable_dhcp'] == DEFAULT_SUBNET_DHCP_ENABLED:
-            dict.pop('enable_dhcp')
-        if dict['network_type'] == DEFAULT_NETWORK_TYPE:
-            dict.pop('network_type')
-        if dict['vlan'] is None:
-            dict.pop('vlan')
-        if dict['segmentation_id'] is None:
-            dict.pop('segmentation_id')
+    def pop_defaults(_dict):
+        if _dict['enable_dhcp'] == DEFAULT_SUBNET_DHCP_ENABLED:
+            _dict.pop('enable_dhcp')
+        if _dict['network_type'] == DEFAULT_NETWORK_TYPE:
+            _dict.pop('network_type')
+        if _dict['vlan'] is None:
+            _dict.pop('vlan')
+        if _dict['segmentation_id'] is None:
+            _dict.pop('segmentation_id')
 
         try:
-            if dict['ipv6_address_mode'] == DEFAULT_SUBNET_IPV6_ADDRESS_MODE:
-                dict.pop('ipv6_address_mode')
+            if _dict['ipv6_address_mode'] == DEFAULT_SUBNET_IPV6_ADDRESS_MODE:
+                _dict.pop('ipv6_address_mode')
         except KeyError:
             pass
 
         try:
-            if dict['ipv6_ra_mode'] == DEFAULT_SUBNET_IPV6_RA_MODE:
-                dict.pop('ipv6_ra_mode')
+            if _dict['ipv6_ra_mode'] == DEFAULT_SUBNET_IPV6_RA_MODE:
+                _dict.pop('ipv6_ra_mode')
         except KeyError:
             pass
 

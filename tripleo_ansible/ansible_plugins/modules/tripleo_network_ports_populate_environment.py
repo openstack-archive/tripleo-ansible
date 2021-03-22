@@ -108,7 +108,7 @@ PORT_PATH_TPL = 'network/ports/deployed_{net_name_lower}.yaml'
 
 
 def get_net_name_map(conn, role_net_map):
-    map = {}
+    _map = {}
     networks = set()
 
     for role, nets in role_net_map.items():
@@ -116,7 +116,7 @@ def get_net_name_map(conn, role_net_map):
 
     for name_lower in networks:
         if name_lower == CTLPLANE_NETWORK:
-            map[name_lower] = name_lower
+            _map[name_lower] = name_lower
             continue
 
         net = conn.network.find_network(name_or_id=name_lower)
@@ -132,9 +132,9 @@ def get_net_name_map(conn, role_net_map):
                 'please make sure the network tag tripleo_network_name'
                 '=$NET_NAME is set.'.format(name_lower))
 
-        map[name_lower] = name_upper.pop()
+        _map[name_lower] = name_upper.pop()
 
-    return map
+    return _map
 
 
 def update_environment(environment, node_port_map, role_net_map, net_name_map):
@@ -152,8 +152,8 @@ def update_environment(environment, node_port_map, role_net_map, net_name_map):
                 DEFAULT_THT_DIR, PORT_PATH_TPL.format(net_name_lower=net))
             resource_registry.update({registry_key: template_path})
 
-    p_map = parameter_defaults.setdefault('NodePortMap', {})
-    p_map.update(node_port_map)
+    _map = parameter_defaults.setdefault('NodePortMap', {})
+    _map.update(node_port_map)
 
 
 def run_module():
