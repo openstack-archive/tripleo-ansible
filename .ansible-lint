@@ -66,3 +66,4 @@ mock_modules:
     - tripleo_generate_inventory_network_config
     - tripleo_overcloud_network_vip_extract
     - tripleo_overcloud_network_vip_provision
+    - tripleo_overcloud_network_vip_populate_environment
