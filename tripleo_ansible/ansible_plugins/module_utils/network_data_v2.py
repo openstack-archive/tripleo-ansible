@@ -20,6 +20,13 @@ import ipaddress
 import jsonschema
 import yaml
 
+RES_ID = 'physical_resource_id'
+TYPE_NET = 'OS::Neutron::Net'
+TYPE_SUBNET = 'OS::Neutron::Subnet'
+RES_TYPE = 'resource_type'
+TYPE_SEGMENT = 'OS::Neutron::Segment'
+NET_VIP_SUFFIX = '_virtual_ip'
+
 DOMAIN_NAME_REGEX = (r'^(?=^.{1,255}$)(?!.*\.\..*)(.{1,63}\.)'
                      r'+(.{0,63}\.?)|(?!\.)(?!.*\.\..*)(^.{1,63}$)'
                      r'|(^\.$)$')
@@ -310,6 +317,7 @@ def _get_detailed_errors(error, depth, absolute_schema_path, absolute_schema,
         details.extend(_get_detailed_errors(
             sub_error, depth + 1, schema_path, absolute_schema,
             filter_errors))
+
     return details
 
 
@@ -328,6 +336,7 @@ def _find_type_in_schema_list(schemas, type):
         if ('properties' in schema and 'type' in schema['properties']
                 and schema['properties']['type'] == type):
             return True, index
+
     return False, 0
 
 
@@ -356,6 +365,7 @@ def _pretty_print_schema_path(absolute_schema_path, absolute_schema):
             current_schema = absolute_schema
             for i in current_path[1:]:
                 current_schema = current_schema[i]
+
     return '/'.join([str(x) for x in pretty_path])
 
 
@@ -403,3 +413,68 @@ def validate_json_schema(net_data):
                     config_path, error.message))
 
     return error_messages
+
+
+def tags_to_dict(resource_tags):
+    tag_dict = dict()
+    for tag in resource_tags:
+        if not tag.startswith('tripleo_'):
+            continue
+        try:
+            key, value = tag.rsplit('=')
+        except ValueError:
+            continue
+        if key == 'tripleo_net_idx':
+            value = int(value)
+        tag_dict.update({key: value})
+
+    return tag_dict
+
+
+def wrap_ipv6(ip_address):
+    """Wrap the address in square brackets if it's an IPv6 address."""
+    if ipaddress.ip_address(ip_address).version == 6:
+        return '[{}]'.format(ip_address)
+
+    return ip_address
+
+
+def get_overcloud_network_resources(conn, stack_name):
+    network_resource_dict = dict()
+    networks = [res for res in conn.orchestration.resources(stack_name)
+                if res.name == 'Networks'][0]
+    networks = conn.orchestration.resources(networks.physical_resource_id)
+    for net in networks:
+        if net.name == 'NetworkExtraConfig':
+            continue
+        network_resource_dict[net.name] = dict()
+        for res in conn.orchestration.resources(net.physical_resource_id):
+            if res.resource_type == TYPE_SEGMENT:
+                continue
+            network_resource_dict[net.name][res.name] = {
+                RES_ID: res.physical_resource_id,
+                RES_TYPE: res.resource_type
+            }
+
+    return network_resource_dict
+
+
+def create_name_id_maps(conn):
+    net_name_map = {}
+    net_id_map = {}
+    cidr_prefix_map = {}
+    for net in conn.network.networks():
+        subnets = conn.network.subnets(network_id=net.id)
+        net_id_map[net.id] = net.name
+        net_name_map[net.name] = dict(id=net.id)
+        subnets_map = net_name_map[net.name]['subnets'] = dict()
+
+        for s in subnets:
+            subnets_map[s.name] = s.id
+            cidr_prefix_map[s.id] = s.cidr.split('/')[-1]
+
+    net_maps = dict(by_id=net_id_map,
+                    by_name=net_name_map,
+                    cidr_prefix_map=cidr_prefix_map)
+
+    return net_maps
