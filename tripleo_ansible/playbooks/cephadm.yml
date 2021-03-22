@@ -32,6 +32,12 @@
         tasks_from: apply_spec
       when: not tripleo_cephadm_spec_on_bootstrap
 
+    - name: Set crush rules if provided
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: crush_rules
+      when: tripleo_cephadm_crush_rules | length > 0
+
     - name: Create Pools
       import_role:
         name: tripleo_cephadm

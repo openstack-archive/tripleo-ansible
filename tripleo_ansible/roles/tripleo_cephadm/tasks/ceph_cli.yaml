@@ -19,9 +19,16 @@
     tripleo_cephadm_ceph_cli: >-
       {{ tripleo_cephadm_container_cli }} run --rm {{ tripleo_cephadm_container_options }}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
-      {% if mount_spec|default(false) %} --volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z {% endif %}
+      {% if mount_spec|default(false) %}
+      --volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z
+      {% endif %}
+      {% if admin_daemon|default(false) %}
+      --volume /var/run/ceph/{{ tripleo_cephadm_fsid }}:/var/run/ceph:z
+      {% endif %}
       --entrypoint {{ ceph_command | default('ceph') }}
       {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
-      {% if ceph_command|default('ceph') == 'ceph' %}
-      --fsid {{ tripleo_cephadm_fsid }} -c {{ tripleo_cephadm_conf }} -k {{ tripleo_cephadm_admin_keyring }}
-      {% endif %}
+      {% if ceph_command|default('ceph') == 'ceph' -%}
+        {% if not admin_daemon|default(false) -%}
+        --fsid {{ tripleo_cephadm_fsid }} -c {{ tripleo_cephadm_conf }} -k {{ tripleo_cephadm_admin_keyring }}
+        {%- endif %}
+      {%- endif %}
