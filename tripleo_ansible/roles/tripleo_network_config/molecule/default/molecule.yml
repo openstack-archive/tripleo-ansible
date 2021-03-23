@@ -20,6 +20,7 @@ log: true
 
 platforms:
   - name: instance
+    pkg_extras: libselinux-python* policycoreutils-python-utils
 
 provisioner:
   inventory:

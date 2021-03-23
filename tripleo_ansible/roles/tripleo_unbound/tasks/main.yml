@@ -14,12 +14,30 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather SELinux fact if needed
+  when:
+    - ansible_facts.selinux is undefined
+  setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "selinux"
+
 - name: If specified, configure Unbound to listen on a specific IP address
   import_tasks: collocated_bind.yml
   when:
     - tripleo_unbound_listen_interfaces is defined
     - tripleo_unbound_designate_integration|bool
     - (tripleo_unbound_bind_network is defined) and (tripleo_unbound_bind_network|length > 0)
+
+- name: create fcontext entry for unbound config content
+  when:
+    - ansible_facts.selinux.status == "enabled"
+  sefcontext:
+    target: "{{ tripleo_unbound_config_basedir }}(/.*)?"
+    setype: container_file_t
+    selevel: s0
+    state: present
 
 - name: create directory {{ tripleo_unbound_config_basedir }}
   become: true
