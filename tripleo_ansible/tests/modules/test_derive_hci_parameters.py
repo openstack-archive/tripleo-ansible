@@ -96,7 +96,7 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
                     i += 1
             return ironic
 
-        def get_env(flavor='hdd', osds_per_device=1):
+        def get_env_ceph_ansible(flavor='hdd', osds_per_device=1):
             """Returns a dictionary which mocks the content of the
             tripleo_environment_parameters CephAnsibleDisksConfig
             where the deployer requests four OSDs using device
@@ -133,6 +133,28 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
             }
             return env
 
+        def get_env_cephadm(flavor='hdd', osds_per_device=1):
+            """Returns a dictionary which mocks the content of the
+            tripleo_environment_parameters CephOsd{Count,Type,Spec}
+            where the deployer requests a number of OSDs of differing
+            flavor types. The flavor may be set to one of hdd, ssd,
+            or nvme and it is also possible to set the osds_per_device
+            (usually used with NVMe).
+            """
+            if osds_per_device == 0:
+                osds_per_device = 1
+            env_cephadm = {
+                "CephHciOsdCount": 5,
+                "CephHciOsdType": flavor,
+                "CephOsdSpec": {
+                    "data_devices": {
+                        "all": True,
+                    },
+                    "osds_per_device": osds_per_device
+                }
+            }
+            return env_cephadm
+
         ratio_map = {
             'hdd': 1,
             'ssd': 4,
@@ -140,18 +162,31 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
             'nvme': 3
             }
         for flavor in ratio_map:
+            envs = []
             if flavor == 'nvme':
                 osds_per_device = 4
             else:
                 osds_per_device = 0
-            env = get_env(flavor, osds_per_device)
+            envs.append(get_env_ceph_ansible(flavor, osds_per_device))
+            if flavor != 'by_path':
+                envs.append(get_env_cephadm(flavor, osds_per_device))
             ironic = get_ironic(flavor)
-            num_osds = len(env['CephAnsibleDisksConfig']['devices'])
-            vcpu_ratio, vcpu_msg = derive_params.get_vcpus_per_osd(ironic,
-                                                                   env,
-                                                                   num_osds)
-            self.assertEqual(vcpu_ratio, ratio_map[flavor])
-            self.assertIsNotNone(vcpu_msg)
+            for env in envs:
+                if "CephHciOsdCount" in env and "CephHciOsdType" in env:
+                    vcpu_ratio, vcpu_msg = derive_params\
+                        .get_vcpus_per_osd(env,
+                                           env['CephHciOsdCount'],
+                                           env['CephHciOsdType'],
+                                           env['CephOsdSpec'])
+
+                else:
+                    num_osds = derive_params.count_osds(env)
+                    vcpu_ratio, vcpu_msg = \
+                        derive_params.get_vcpus_per_osd_from_ironic(ironic,
+                                                                    env,
+                                                                    num_osds)
+                self.assertEqual(vcpu_ratio, ratio_map[flavor])
+                self.assertIsNotNone(vcpu_msg)
 
     def test_derive_without_workload(self):
         """Test the derive method without passing the expected average
@@ -175,3 +210,22 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
         gb_from_mb = derive_params.count_memory(mock_ironic_memory_mb)
         gb_from_bytes = derive_params.count_memory(mock_ironic_memory_bytes)
         self.assertEqual(gb_from_mb, gb_from_bytes)
+
+    def test_find_parameter(self):
+        """Tests that the find_parameter method returns the
+        expected output for particular inputs.
+        """
+        env = {'CephHciOsdCount': 3,
+               'CephHciOsdType': 'ssd',
+               'ComputeHCIParameters': {
+                   'CephHciOsdCount': 4
+               },
+        }
+        value = derive_params.find_parameter(env, 'CephHciOsdCount', 'ComputeHCI')
+        self.assertEqual(value, 4)
+        value = derive_params.find_parameter(env, 'CephHciOsdCount')
+        self.assertEqual(value, 3)
+        value = derive_params.find_parameter(env, 'CephOsdSpec')
+        self.assertEqual(value, 0)
+        value = derive_params.find_parameter(env, 'CephHciOsdType')
+        self.assertEqual(value, 'ssd')
