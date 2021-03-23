@@ -14,6 +14,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather SELinux fact if needed
+  when:
+    - ansible_facts.selinux is undefined
+  setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "selinux"
+
+- name: create fcontext entry for collectd data
+  when:
+    - ansible_facts.selinux.status == "enabled"
+  sefcontext:
+    target: "{{ collectd_conf_output_dir }}(/.*)?"
+    seytpe: container_file_t
+    state: present
 
 - name: create persistent directories
   file:

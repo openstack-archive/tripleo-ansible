@@ -14,6 +14,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather SELinux fact if needed
+  when:
+    - ansible_facts.selinux is undefined
+  setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "selinux"
+
+- name: Create fcontext entry for multipath locations
+  when:
+    - ansible_facts.selinux.status == "enabled"
+  sefcontext:
+    target: "/etc/multipath.conf"
+    setype: container_file_t
+    state: present
+
 - name: Install custom multipath.conf if one is specified
   copy:
     src: "{{ tripleo_multipathd_custom_config_file }}"
