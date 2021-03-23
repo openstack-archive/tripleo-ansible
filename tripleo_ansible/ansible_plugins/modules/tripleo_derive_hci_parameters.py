@@ -116,7 +116,7 @@ MB_PER_GB = 1024
 
 def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb=0,
            average_guest_cpu_utilization_percentage=0,
-           mem_gb_per_osd=5, vcpus_per_osd=1.0, total_memory_threshold=0.8):
+           mem_gb_per_osd=5, vcpus_per_osd=1, total_memory_threshold=0.8):
     """
     Determines the recommended Nova scheduler values based on Ceph needs
     and described average Nova guest workload in CPU and Memory utilization.
@@ -249,12 +249,11 @@ def count_osds(tripleo_environment_parameters):
     Returns an integer representing the count.
     """
     total = 0
-    try:
+    if 'CephAnsibleDisksConfig' in tripleo_environment_parameters:
         disks_config = tripleo_environment_parameters['CephAnsibleDisksConfig']
         for key in ['devices', 'lvm_volumes']:
-            total = total + len(disks_config[key])
-    except KeyError:
-        pass
+            if key in disks_config:
+                total = total + len(disks_config[key])
     return total
 
 
@@ -348,7 +347,7 @@ def count_vcpus(module):
     return vcpus
 
 
-def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
+def get_vcpus_per_osd_from_ironic(ironic, tripleo_environment_parameters, num_osds):
     """
     Dynamically sets the vCPU to OSD ratio based the OSD type to:
       HDD  | OSDs per device: 1 | vCPUs per device: 1
@@ -358,7 +357,7 @@ def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
     and looks up the device type in ironic input. Returns the vCPUs
     per OSD, an explanation message.
     """
-    cpus = 1.0
+    cpus = 1
     nvme_re = re.compile('.*nvme.*')
     type_map = {}
     hdd_count = ssd_count = nvme_count = 0
@@ -448,6 +447,86 @@ def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
     return cpus, msg
 
 
+def get_vcpus_per_osd(tripleo_environment_parameters, osd_count, osd_type, osd_spec):
+    """
+    Dynamically sets the vCPU to OSD ratio based the OSD type to:
+      HDD  | OSDs per device: 1 | vCPUs per device: 1
+      SSD  | OSDs per device: 1 | vCPUs per device: 4
+      NVMe | OSDs per device: 4 | vCPUs per device: 3
+    Relies on parameters from tripleo_environment_parameters input.
+    Returns the vCPUs per OSD and an explanation message.
+    """
+    cpus = 1
+    messages = []
+    warning = False
+
+    # This module can analyze a THT file even when it is not called from
+    # within Heat. Thus, we cannot assume THT validations are enforced.
+    if osd_type not in ['hdd', 'ssd', 'nvme']:
+        warning = True
+        messages.append(("'%s' is not a valid osd_type so "
+                         "defaulting to 'hdd'. ") % osd_type)
+        osd_type = 'hdd'
+    messages.append(("CephHciOsdType: %s\n") % osd_type)
+
+    if osd_type == 'hdd':
+        cpus = 1
+    elif osd_type == 'ssd':
+        cpus = 4
+    elif osd_type == 'nvme':
+        # If they set it to NVMe and used a manual spec, then 3 is also valid
+        cpus = 3
+        if type(osd_spec) is not dict:
+            messages.append("\nNo valid CephOsdSpec was not found. Unable "
+                            "to determine if osds_per_device is being used. "
+                            "osds_per_device: 4 is recommended for 'nvme'. ")
+            warning = True
+        if 'osds_per_device' in osd_spec:
+            if osd_spec['osds_per_device'] == 4:
+                cpus = 3
+            else:
+                cpus = 4
+                messages.append("\nosds_per_device not set to 4 "
+                                "but all OSDs are of type NVMe. \n"
+                                "Recommendation to improve IO: "
+                                "set osds_per_device to 4 and re-run \n"
+                                "so that vCPU to OSD ratio is 3 "
+                                "for 12 vCPUs per OSD device.")
+                warning = True
+
+    messages.append(("vCPU to OSD ratio: %i\n" % cpus))
+    if osd_spec != 0 and 'osds_per_device' in osd_spec:
+        messages.append(" (found osds_per_device set to: %i)" %
+                        osd_spec['osds_per_device'])
+    msg = "".join(messages)
+    if warning:
+        msg = "WARNING: " + msg
+
+    return cpus, msg
+
+
+def find_parameter(env, param, role=""):
+    """
+    Find a parameter in an environment map and return it.
+    If paramter is not found return 0.
+
+    Supports role parameters too. E.g. given the following
+    inside of env, with param=CephHciOsdCount and role="",
+    this function returns 3. But if role=ComputeHCI, then
+    it would return 4.
+
+      CephHciOsdCount: 3
+      ComputeHCIParameters:
+        CephHciOsdCount: 4
+    """
+    role_parameters = role + 'Parameters'
+    if role_parameters in env and param in env[role_parameters]:
+        return env[role_parameters][param]
+    elif param in env:
+        return env[param]
+    return 0
+
+
 def main():
     """Main method of Ansible module
     """
@@ -474,16 +553,26 @@ def main():
         module.params['derived_parameters'] = {}
 
     vcpus = count_vcpus(module)
-    num_osds = count_osds(module.params['tripleo_environment_parameters'])
     mem_gb = count_memory(module.params['introspection_data'])
-
-    mem_gb_per_osd = 5
-    vcpu_ratio, vcpu_ratio_msg = get_vcpus_per_osd(
-        module.params['introspection_data'],
-        module.params['tripleo_environment_parameters'],
-        num_osds)
+    num_osds = find_parameter(module.params['tripleo_environment_parameters'],
+                              'CephHciOsdCount', module.params['tripleo_role_name'])
+    if num_osds > 0:
+        osd_type = find_parameter(module.params['tripleo_environment_parameters'],
+                                  'CephHciOsdType', module.params['tripleo_role_name'])
+        osd_spec = find_parameter(module.params['tripleo_environment_parameters'],
+                                  'CephOsdSpec', module.params['tripleo_role_name'])
+        vcpu_ratio, vcpu_ratio_msg = get_vcpus_per_osd(
+            module.params['tripleo_environment_parameters'],
+            num_osds, osd_type, osd_spec)
+    else:
+        num_osds = count_osds(module.params['tripleo_environment_parameters'])
+        vcpu_ratio, vcpu_ratio_msg = get_vcpus_per_osd_from_ironic(
+            module.params['introspection_data'],
+            module.params['tripleo_environment_parameters'],
+            num_osds)
 
     # Derive HCI parameters
+    mem_gb_per_osd = 5
     derivation = derive(mem_gb, vcpus, num_osds,
                         module.params['average_guest_memory_size_in_mb'],
                         module.params['average_guest_cpu_utilization_percentage'],
