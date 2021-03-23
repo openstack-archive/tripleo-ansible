@@ -34,15 +34,15 @@
 
     - name: Fail if stack_data is not defined
       when:
-        - tripleo_get_flatten_params.stack_data is not defined or
-          stack_data is not defined
+        - tripleo_get_flatten_params.stack_data is not defined
+        - stack_data is not defined
       fail:
         msg: "Missing stack_data"
 
     - name: Fail if role_list is not defined
       when:
-        - tripleo_role_list.roles is not defined or
-          role_list is not defined
+        - tripleo_role_list.roles is not defined
+        - role_list is not defined
       fail:
         msg: "Missing valid roles"
 
@@ -66,7 +66,7 @@
         - name: Write environment
           copy:
             dest: "{{ derived_environment_path }}"
-            content: "{{ dervied_params_env | to_nice_yaml(indent=2) }}"
+            content: "{{ derived_params_env | to_nice_yaml(indent=2) }}"
       when:
         - derived_environment_path is defined
         - derived_parameters_result is defined
