@@ -32,12 +32,14 @@ ALLOWED_EXTRA_KEYS = {
         'data_devices',
         'db_devices',
         'wal_devices',
+        'encrypted'
     ]
 }
 
 ALLOWED_SPEC_KEYS = {
     'rgw': [
         'rgw_frontend_port',
+        'rgw_frontend_type',
         'rgw_realm',
         'rgw_zone',
         'rgw_ip_address'
@@ -45,11 +47,6 @@ ALLOWED_SPEC_KEYS = {
     'nfs': [
         'namespace',
         'pool'
-    ],
-    'osd': [
-        'data_devices',
-        'db_devices',
-        'wal_devices',
     ],
 }
 
@@ -203,14 +200,14 @@ class CephDaemonSpec(object):
         # an entry for the current daemon is not found
         # no checks are required (let ceph orch take care of
         # the validation
-        if self.daemon_type not in ALLOWED_SPEC_KEYS.keys():
+        if self.daemon_type not in ALLOWED_KEYS.keys():
             return True
 
         # a basic check on the spec dict: if some constraints
         # are specified, the provided keys should be contained
         # in the ALLOWED keys
         for item in spec:
-            if item not in ALLOWED_SPEC_KEYS.get(self.daemon_type):
+            if item not in ALLOWED_KEYS.get(self.daemon_type):
                 return False
         return True
 
