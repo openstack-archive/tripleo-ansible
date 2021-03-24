@@ -24,7 +24,7 @@
     - name: ensure podman and deps are installed
       package:
         name: "{{ tripleo_podman_packages }}"
-        state: latest
+        state: present
 
     - name: Ensure we get the ansible interfaces facts
       when:
