@@ -1,0 +1,12 @@
+---
+- name: ensure target directory exists
+  become: true
+  file:
+      path: "{{ designate_named_conf_path|dirname }}"
+      state: directory
+
+- name: generate named.conf
+  become: true
+  template:
+      src: named.conf.j2
+      dest: "{{ designate_named_conf_path }}"

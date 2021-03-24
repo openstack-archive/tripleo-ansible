@@ -6,6 +6,7 @@
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-backup_and_restore
+      - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
@@ -65,6 +66,7 @@
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-backup_and_restore
+      - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
@@ -125,6 +127,7 @@
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
       - tripleo-ansible-centos-8-molecule-backup_and_restore
+      - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
@@ -191,6 +194,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: backup_and_restore
+- job:
+    files:
+    - ^tripleo_ansible/roles/designate_bind_config/.*
+    name: tripleo-ansible-centos-8-molecule-designate_bind_config
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: designate_bind_config
 - job:
     files:
     - ^tripleo_ansible/roles/login_defs/.*
