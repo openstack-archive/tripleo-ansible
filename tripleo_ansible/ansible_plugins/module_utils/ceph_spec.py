@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import argparse
+import ipaddress
 import json
 import sys
 
@@ -97,7 +97,6 @@ class CephPlacementSpec(object):
         else:
             spec_template = {}
 
-        # TODO: Add count to the list of placement parameters
         return spec_template
 
 
@@ -136,6 +135,7 @@ class CephDaemonSpec(object):
                  daemon_name: str,
                  hosts: list,
                  placement_pattern: str,
+                 networks: list,
                  spec: dict,
                  labels: list,
                  **kwargs: dict):
@@ -146,6 +146,12 @@ class CephDaemonSpec(object):
         self.hosts = hosts
         self.placement = placement_pattern
         self.labels = labels
+
+        # network list where the current daemon should be bound
+        if not networks:
+            self.networks = []
+        else:
+            self.networks = networks
 
         # extra keywords definition (e.g. data_devices for OSD(s)
         self.extra = {}
@@ -158,11 +164,22 @@ class CephDaemonSpec(object):
     def __setattr__(self, key, value):
         self.__dict__[key] = value
 
+    def validate_networks(self):
+        if len(self.networks) < 1:
+            return False
+
+        for network in self.networks:
+            try:
+                ipaddress.ip_network(network)
+            except ValueError as e:
+                raise Exception(f'Cannot parse network {network}: {e}')
+        return True
+
     def make_daemon_spec(self):
 
-        # the placement dictionary
+        # the placement dict
         pl = {}
-        # the spec dictionary
+        # the spec dict
         sp = {}
 
         place = CephPlacementSpec(self.hosts, self.placement, 0, self.labels)
@@ -174,6 +191,14 @@ class CephDaemonSpec(object):
             'service_name': self.daemon_name,
             'service_id': self.daemon_id,
         }
+
+        # the networks dict
+        ntw = {}
+
+        if self.validate_networks():
+            ntw = {
+                'networks': self.networks
+            }
 
         # process extra parameters if present
         if not self.validate_keys(self.extra.keys(), ALLOWED_EXTRA_KEYS):
@@ -187,7 +212,7 @@ class CephDaemonSpec(object):
                 raise Exception("Fatal: the spec should be composed by only allowed keywords")
 
         # build the resulting daemon template
-        spec_template = {**spec_template, **self.extra, **pl, **sp}
+        spec_template = {**spec_template, **ntw, **self.extra, **pl, **sp}
         return spec_template
 
     def validate_keys(self, spec, ALLOWED_KEYS):

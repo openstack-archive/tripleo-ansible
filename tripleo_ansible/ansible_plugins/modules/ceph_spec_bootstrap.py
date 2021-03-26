@@ -333,7 +333,7 @@ def get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec={}):
                 host_list.append(host)
         if svc in ['mon', 'mgr']:
             d = ceph_spec.CephDaemonSpec(svc, svc, svc, host_list,
-                                         placement_pattern,
+                                         placement_pattern, None,
                                          spec_dict, labels)
         if svc in ['osd']:
             if osd_spec == {}:
@@ -346,7 +346,7 @@ def get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec={}):
             d = ceph_spec.CephDaemonSpec(svc, 'default_drive_group',
                                          'osd.default_drive_group',
                                          host_list, placement_pattern,
-                                         spec_dict, labels, **osd_spec)
+                                         None, spec_dict, labels, **osd_spec)
         specs.append(d.make_daemon_spec())
     return specs
 
