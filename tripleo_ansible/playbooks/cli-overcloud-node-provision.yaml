@@ -176,17 +176,10 @@
         content: "{{ network_ports_environment.environment | default({}) | to_nice_yaml(indent=2) }}"
       when: manage_network_ports|default(false)
 
-    - name: Ensure inventory working directory exists
-      file:
-        path: "{{ output_dir }}/{{ stack_name }}"
-        state: directory
-      when:
-        - manage_network_ports|default(false)
-
     - name: Generate ansible inventory
       tripleo_generate_ansible_inventory:
         plan: "{{ stack_name }}"
-        work_dir: "{{ output_dir }}/{{ stack_name }}"
+        work_dir: "{{ working_dir }}"
         ssh_network: "{{ ssh_network }}"
         ansible_ssh_user: "{{ ssh_user_name }}"
         ansible_python_interpreter: "{{ python_interpreter }}"
