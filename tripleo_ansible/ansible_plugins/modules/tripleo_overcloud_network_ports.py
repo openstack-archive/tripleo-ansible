@@ -333,7 +333,8 @@ def generate_port_defs(net_maps, instance, inst_ports):
 
         port_name = '_'.join([hostname, net_name])
 
-        port_def = dict(name=port_name, network_id=net_id, fixed_ips=fixed_ips)
+        port_def = dict(name=port_name, dns_name=hostname, network_id=net_id,
+                        fixed_ips=fixed_ips)
 
         if port_name not in existing_port_names:
             create_port_defs.append(port_def)
@@ -365,12 +366,14 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
                      ironic_uuid, role):
     hostname = instance['hostname']
     tags = ['tripleo_stack_name={}'.format(stack),
-            'tripleo_hostname={}'.format(hostname),
             'tripleo_role={}'.format(role)]
     # TODO(hjensas): This can be moved below the ironic_uuid condition in
     # later release when all upgraded deployments has had the
     # tripleo_ironic_uuid tag added
-    inst_ports = list(conn.network.ports(tags=tags))
+    inst_ports = conn.network.ports(tags=tags)
+    # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
+    # have to do it manually.
+    inst_ports = [port for port in inst_ports if port.dns_name == hostname]
 
     if ironic_uuid:
         tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
@@ -393,18 +396,20 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
 
 def _unprovision_ports(result, conn, stack, instance, ironic_uuid):
     hostname = instance['hostname']
-    tags = ['tripleo_stack_name={}'.format(stack),
-            'tripleo_hostname={}'.format(hostname)]
+    tags = ['tripleo_stack_name={}'.format(stack)]
     if ironic_uuid:
         tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
-    inst_ports = list(conn.network.ports(tags=tags))
+    inst_ports = conn.network.ports(tags=tags)
+    # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
+    # have to do it manually.
+    inst_ports = [port for port in inst_ports if port.dns_name == hostname]
 
     # TODO(hjensas): This can be removed in later release when all upgraded
     # deployments has had the tripleo_ironic_uuid tag added.
     if not inst_ports:
-        tags = ['tripleo_stack_name={}'.format(stack),
-                'tripleo_hostname={}'.format(hostname)]
-        inst_ports = list(conn.network.ports(tags=tags))
+        tags = ['tripleo_stack_name={}'.format(stack)]
+        inst_ports = conn.network.ports(tags=tags)
+        inst_ports = [port for port in inst_ports if port.dns_name == hostname]
 
     if inst_ports:
         delete_ports(conn, inst_ports)
@@ -492,7 +497,8 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
     generate_node_port_map(result, net_maps, ports_by_node)
 
 
-def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, tags):
+def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, hostname,
+                                   tags):
     instance = provisioner.show_instance(uuid)
 
     for nic in instance.nics():
@@ -500,6 +506,9 @@ def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, tags):
         if not tags.issubset(nic_tags):
             nic_tags.update(tags)
             conn.network.set_tags(nic, list(nic_tags))
+            result['changed'] = True
+        if not nic.dns_name == hostname:
+            conn.network.update_port(nic, dns_name=hostname)
             result['changed'] = True
 
 
@@ -516,14 +525,13 @@ def tag_metalsmith_managed_ports(result, conn, concurrency, stack,
     with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
         for hostname, uuid in uuid_by_hostname.items():
             role = hostname_role_map[hostname]
-            tags = {'tripleo_hostname={}'.format(hostname),
-                    'tripleo_stack_name={}'.format(stack),
+            tags = {'tripleo_stack_name={}'.format(stack),
                     'tripleo_ironic_uuid={}'.format(uuid),
                     'tripleo_role={}'.format(role),
                     'tripleo_ironic_vif_port=true'}
             provision_jobs.append(
                 p.submit(_tag_metalsmith_instance_ports,
-                         result, conn, provisioner, uuid, tags)
+                         result, conn, provisioner, uuid, hostname, tags)
             )
 
     for job in futures.as_completed(provision_jobs):
