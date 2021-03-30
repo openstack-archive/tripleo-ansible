@@ -186,12 +186,19 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
         if default_network_config:
             default_network_config = defaults.setdefault('network_config', {})
 
+        if 'profile' in defaults:
+            capabilities = defaults.setdefault('capabilities', {})
+            capabilities.setdefault('profile', defaults['profile'])
+            del defaults['profile']
+
         for inst in role.get('instances', []):
             merge_networks_defaults(defaults, inst)
             merge_network_config_defaults(defaults, inst)
 
             for k, v in defaults.items():
-                inst.setdefault(k, v)
+                # Need to use deepcopy here so defaults are not accidentally
+                # changed by per-instance manipulations
+                inst.setdefault(k, dcopy(v))
 
             # Set the default hostname now for duplicate hostname
             # detection during validation
@@ -279,6 +286,11 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             if vif_networks:
                 _remove_vif_key(vif_networks)
                 inst.setdefault('nics', vif_networks)
+
+            if 'profile' in inst:
+                capabilities = inst.setdefault('capabilities', {})
+                capabilities['profile'] = inst['profile']
+                del inst['profile']
 
         if unprovisioned_indexes:
             parameter_defaults['%sRemovalPolicies' % name] = [{
