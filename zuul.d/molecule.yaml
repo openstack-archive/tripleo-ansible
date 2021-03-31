@@ -10,7 +10,8 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
+      # https://bugs.launchpad.net/tripleo/+bug/1922091
+      # - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -71,7 +72,8 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
+      # https://bugs.launchpad.net/tripleo/+bug/1922091
+      # - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
