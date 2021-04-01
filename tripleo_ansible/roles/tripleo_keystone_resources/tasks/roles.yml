@@ -15,7 +15,7 @@
 # under the License.
 
 - name: Async creation of Keystone role
-  os_keystone_role:
+  openstack.cloud.identity_role:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: "{{ tripleo_keystone_resources_role }}"
     state: present

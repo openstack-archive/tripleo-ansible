@@ -15,7 +15,7 @@
 # under the License.
 
 - name: "Async assignment of Keystone user to roles"
-  os_user_role:
+  openstack.cloud.role_assignment:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     user: "{{ lookup('dict', tripleo_keystone_resources_data_user).key }}"
     project: "{{ lookup('dict', tripleo_keystone_resources_data_user).value.project | default(omit) }}"
