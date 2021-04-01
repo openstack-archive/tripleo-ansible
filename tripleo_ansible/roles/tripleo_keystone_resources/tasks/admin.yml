@@ -15,7 +15,7 @@
 # under the License.
 
 - name: Create default domain
-  os_keystone_domain:
+  openstack.cloud.identity_domain:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: default
 
@@ -27,12 +27,12 @@
       - service
 
 - name: Create admin role
-  os_keystone_role:
+  openstack.cloud.identity_role:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: admin
 
 - name: Create _member_ role
-  os_keystone_role:
+  openstack.cloud.identity_role:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: _member_
   when:
@@ -40,7 +40,7 @@
 
 - name: Create admin user
   no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
-  os_user:
+  openstack.cloud.identity_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: admin
     password: "{{ tripleo_keystone_resources_admin_password }}"
@@ -49,14 +49,14 @@
     domain: default
 
 - name: Assign admin role to admin project for admin user
-  os_user_role:
+  openstack.cloud.role_assignment:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     user: admin
     project: admin
     role: admin
 
 - name: Assign _member_ role to admin project for admin user
-  os_user_role:
+  openstack.cloud.role_assignment:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     user: admin
     project: admin
@@ -65,13 +65,13 @@
     - keystone_enable_member | default(tripleo_keystone_resources_member_role_enabled)
 
 - name: Create identity service
-  os_keystone_service:
+  openstack.cloud.catalog_service:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: keystone
     service_type: identity
 
 - name: Create identity public endpoint
-  os_keystone_endpoint:
+  openstack.cloud.endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: keystone
     url: "{{ tripleo_keystone_resources_public_endpoint }}"
@@ -79,7 +79,7 @@
     region: "{{ tripleo_keystone_resources_region }}"
 
 - name: Create identity internal endpoint
-  os_keystone_endpoint:
+  openstack.cloud.endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: keystone
     url: "{{ tripleo_keystone_resources_internal_endpoint }}"
@@ -87,7 +87,7 @@
     region: "{{ tripleo_keystone_resources_region }}"
 
 - name: Create identity admin endpoint
-  os_keystone_endpoint:
+  openstack.cloud.endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: keystone
     url: "{{ tripleo_keystone_resources_admin_endpoint }}"

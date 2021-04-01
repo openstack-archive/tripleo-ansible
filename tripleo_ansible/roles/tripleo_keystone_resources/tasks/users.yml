@@ -17,7 +17,7 @@
 - name: "Async creation of Keystone user"
   # needed because it'll throw a warning if you have update_password without it
   no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
-  os_user:
+  openstack.cloud.identity_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
     password: "{{ lookup('dict', tripleo_keystone_resources_data).value.password }}"
