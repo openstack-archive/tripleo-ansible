@@ -74,7 +74,7 @@
   register: ssh_keygen_results
 
 - name: Create keypair
-  os_keypair:
+  openstack.cloud.keypair:
     state: present
     name: "{{ amp_ssh_key_name }}"
     public_key_file: "{{ amp_ssh_key_path_final }}"

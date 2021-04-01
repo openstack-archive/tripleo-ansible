@@ -15,7 +15,7 @@
 # under the License.
 
 - name: Async creation of Keystone project
-  os_project:
+  openstack.cloud.project:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: "{{ tripleo_keystone_resources_project }}"
     domain_id: default

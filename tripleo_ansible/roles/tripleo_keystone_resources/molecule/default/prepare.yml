@@ -33,6 +33,7 @@
           - python3-openstackclient
           - python3-keystoneclient
           - ansible
+          - ansible-collections-openstack
 
     - name: Build keystone container
       shell: "podman build -t keystone-img -f {{ playbook_dir }}/Dockerfile.keystone ."
