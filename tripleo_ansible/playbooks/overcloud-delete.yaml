@@ -27,7 +27,7 @@
         - stack_name
   tasks:
     - name: Delete heat stack
-      os_stack:
+      openstack.cloud.stack:
         name: "{{ stack_name }}"
         state: absent
       register: stack_delete
