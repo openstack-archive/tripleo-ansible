@@ -42,14 +42,14 @@
       copy:
         src: "{{ role_path }}/files/tripleo-container-shutdown-service"
         dest: "/usr/lib/systemd/system/tripleo-container-shutdown.service"
-        mode: '0700'
+        mode: '0644'
         owner: root
         group: root
     - name: "Create /usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset"
       copy:
         src: "{{ role_path }}/files/91-tripleo-container-shutdown-preset"
         dest: "/usr/lib/systemd/system-preset/91-tripleo-container-shutdown.preset"
-        mode: '0700'
+        mode: '0644'
         owner: root
         group: root
     - name: Enable and start tripleo-container-shutdown
@@ -62,14 +62,14 @@
       copy:
         src: "{{ role_path }}/files/netns-placeholder-service"
         dest: "/usr/lib/systemd/system/netns-placeholder.service"
-        mode: '0700'
+        mode: '0644'
         owner: root
         group: root
     - name: "Create /usr/lib/systemd/system-preset/91-netns-placeholder.preset"
       copy:
         src: "{{ role_path }}/files/91-netns-placeholder-preset"
         dest: "/usr/lib/systemd/system-preset/91-netns-placeholder.preset"
-        mode: '0700'
+        mode: '0644'
         owner: root
         group: root
     - name: Enable and start netns-placeholder
