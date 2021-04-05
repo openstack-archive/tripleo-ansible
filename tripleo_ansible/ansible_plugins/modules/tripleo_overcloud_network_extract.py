@@ -18,9 +18,9 @@
 import yaml
 
 try:
-    from ansible.module_utils import tripleo_common_utils as tc
+    from ansible.module_utils import network_data_v2 as n_utils
 except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
+    from tripleo_ansible.ansible_plugins.module_utils import network_data_v2 as n_utils  # noqa
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
@@ -112,13 +112,6 @@ EXAMPLES = '''
     dest: /path/exported-network-data.yaml
 '''
 
-TYPE_NET = 'OS::Neutron::Net'
-TYPE_SUBNET = 'OS::Neutron::Subnet'
-TYPE_SEGMENT = 'OS::Neutron::Segment'
-RES_ID = 'physical_resource_id'
-RES_TYPE = 'resource_type'
-
-NET_VIP_SUFFIX = '_virtual_ip'
 
 DEFAULT_NETWORK_MTU = 1500
 DEFAULT_NETWROK_SHARED = False
@@ -130,49 +123,11 @@ DEFAULT_SUBNET_IPV6_ADDRESS_MODE = None
 DEFAULT_SUBNET_IPV6_RA_MODE = None
 
 
-def get_overcloud_network_resources(conn, stack_name):
-    network_resource_dict = dict()
-    networks = [res for res in conn.orchestration.resources(stack_name)
-                if res.name == 'Networks'][0]
-    networks = conn.orchestration.resources(networks.physical_resource_id)
-    for net in networks:
-        if net.name == 'NetworkExtraConfig':
-            continue
-        network_resource_dict[net.name] = dict()
-        for res in conn.orchestration.resources(net.physical_resource_id):
-            if res.resource_type == TYPE_SEGMENT:
-                continue
-            network_resource_dict[net.name][res.name] = {
-                RES_ID: res.physical_resource_id,
-                RES_TYPE: res.resource_type
-            }
-
-    return network_resource_dict
-
-
-def tripleo_resource_tags_to_dict(resource_tags):
-    tag_dict = dict()
-    for tag in resource_tags:
-        if not tag.startswith('tripleo_'):
-            continue
-        try:
-            key, value = tag.rsplit('=')
-        except ValueError:
-            continue
-
-        if key == 'tripleo_net_idx':
-            value = int(value)
-
-        tag_dict.update({key: value})
-
-    return tag_dict
-
-
 def is_vip_network(conn, network_id):
     network_name = conn.network.get_network(network_id).name
     vip_ports = conn.network.ports(network_id=network_id,
                                    name='{}{}'.format(network_name,
-                                                      NET_VIP_SUFFIX))
+                                                      n_utils.NET_VIP_SUFFIX))
     try:
         next(vip_ports)
         return True
@@ -195,7 +150,7 @@ def get_network_info(conn, network_id):
             _dict.pop('vip')
 
     network = conn.network.get_network(network_id)
-    tag_dict = tripleo_resource_tags_to_dict(network.tags)
+    tag_dict = n_utils.tags_to_dict(network.tags)
 
     net_dict = {
         'name_lower': network.name,
@@ -243,7 +198,7 @@ def get_subnet_info(conn, subnet_id):
 
     subnet = conn.network.get_subnet(subnet_id)
     segment = conn.network.get_segment(subnet.segment_id)
-    tag_dict = tripleo_resource_tags_to_dict(subnet.tags)
+    tag_dict = n_utils.tags_to_dict(subnet.tags)
     subnet_name = subnet.name
 
     subnet_dict = {
@@ -286,22 +241,26 @@ def get_subnet_info(conn, subnet_id):
     return subnet_name, subnet_dict
 
 
+def parse_net_resource(conn, net_resource, indexed_networks, net_entry):
+    for res in net_resource:
+        if net_resource[res][n_utils.RES_TYPE] == n_utils.TYPE_NET:
+            idx, net_dict = get_network_info(
+                conn, net_resource[res][n_utils.RES_ID])
+            net_entry.update(net_dict)
+        if net_resource[res][n_utils.RES_TYPE] == n_utils.TYPE_SUBNET:
+            subnet_name, subnet_dict = get_subnet_info(
+                conn, net_resource[res][n_utils.RES_ID])
+            net_entry['subnets'].update({subnet_name: subnet_dict})
+    indexed_networks[idx] = net_entry
+
+
 def parse_net_resources(conn, net_resources):
     indexed_networks = dict()
     for net in net_resources:
         name = net.rpartition('Network')[0]
         net_entry = {'name': name, 'subnets': dict()}
-        for res in net_resources[net]:
-            res_dict = net_resources[net][res]
-            if res_dict['resource_type'] == TYPE_NET:
-                idx, net_dict = get_network_info(conn, res_dict[RES_ID])
-                net_entry.update(net_dict)
-            if res_dict['resource_type'] == TYPE_SUBNET:
-                subnet_name, subnet_dict = get_subnet_info(conn,
-                                                           res_dict[RES_ID])
-                net_entry['subnets'].update({subnet_name: subnet_dict})
-
-        indexed_networks[idx] = net_entry
+        parse_net_resource(conn, net_resources[net], indexed_networks,
+                           net_entry)
 
     network_data = [indexed_networks[i] for i in sorted(indexed_networks)]
 
@@ -330,7 +289,8 @@ def run_module():
 
     try:
         _, conn = openstack_cloud_from_module(module)
-        net_resources = get_overcloud_network_resources(conn, stack_name)
+        net_resources = n_utils.get_overcloud_network_resources(conn,
+                                                                stack_name)
         result['network_data'] = parse_net_resources(conn, net_resources)
 
         result['changed'] = True if result['network_data'] else False

@@ -16,14 +16,13 @@
 #    under the License.
 
 from concurrent import futures
-import ipaddress
 import metalsmith
 import yaml
 
 try:
-    from ansible.module_utils import tripleo_common_utils as tc
+    from ansible.module_utils import network_data_v2 as n_utils
 except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
+    from tripleo_ansible.ansible_plugins.module_utils import network_data_v2 as n_utils  # noqa
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
@@ -180,36 +179,6 @@ EXAMPLES = '''
         id: 59cf045a-ef7f-4f2e-be66-accd05dcd1e6
     register: overcloud_network_ports
 '''
-
-
-def wrap_ipv6(ip_address):
-    """Wrap the address in square brackets if it's an IPv6 address."""
-    if ipaddress.ip_address(ip_address).version == 6:
-        return '[{}]'.format(ip_address)
-
-    return ip_address
-
-
-def create_name_id_maps(conn):
-    net_name_map = {}
-    net_id_map = {}
-    cidr_prefix_map = {}
-    for net in conn.network.networks():
-        subnets = conn.network.subnets(network_id=net.id)
-
-        net_id_map[net.id] = net.name
-        net_name_map[net.name] = dict(id=net.id)
-        subnets_map = net_name_map[net.name]['subnets'] = dict()
-
-        for s in subnets:
-            subnets_map[s.name] = s.id
-            cidr_prefix_map[s.id] = s.cidr.split('/')[-1]
-
-    net_maps = dict(by_id=net_id_map,
-                    by_name=net_name_map,
-                    cidr_prefix_map=cidr_prefix_map)
-
-    return net_maps
 
 
 def delete_ports(conn, ports):
@@ -432,7 +401,7 @@ def generate_node_port_map(result, net_maps, ports_by_node):
             node_net = node[net_name] = dict()
             node_net['ip_address'] = ip_address
             node_net['ip_subnet'] = '/'.join([ip_address, cidr_prefix])
-            node_net['ip_address_uri'] = wrap_ipv6(ip_address)
+            node_net['ip_address_uri'] = n_utils.wrap_ipv6(ip_address)
 
 
 def validate_instance_nets_in_net_map(instances, net_maps):
@@ -454,7 +423,7 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
     if concurrency < 1:
         concurrency = len(instances)
 
-    net_maps = create_name_id_maps(conn)
+    net_maps = n_utils.create_name_id_maps(conn)
     validate_instance_nets_in_net_map(instances, net_maps)
     ports_by_node = dict()
 

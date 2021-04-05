@@ -75,66 +75,6 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         self.a2g = lambda x: (n for n in x)
 
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
-    def test_create_name_id_maps(self, conn_mock):
-        subnet1 = stubs.FakeNeutronSubnet(id='subnet1_id',
-                                          name='subnet1',
-                                          cidr='192.168.24.0/24')
-        subnet2 = stubs.FakeNeutronSubnet(id='subnet2_id',
-                                          name='subnet2',
-                                          cidr='192.168.25.0/25')
-        subnet3 = stubs.FakeNeutronSubnet(id='subnet3_id',
-                                          name='subnet3',
-                                          cidr='192.168.26.0/26')
-        subnet4 = stubs.FakeNeutronSubnet(id='subnet4_id',
-                                          name='subnet4',
-                                          cidr='192.168.27.0/27')
-        network1 = stubs.FakeNeutronNetwork(
-            id='network1_id',
-            name='network1',
-            subnet_ids=['subnet1_id', 'subnet2_id']
-        )
-        network2 = stubs.FakeNeutronNetwork(
-            id='network2_id',
-            name='network2',
-            subnet_ids=['subnet3_id', 'subnet4_id']
-        )
-        conn_mock.network.networks.return_value = self.a2g([network1,
-                                                            network2])
-        conn_mock.network.subnets.side_effect = [self.a2g([subnet1, subnet2]),
-                                                 self.a2g([subnet3, subnet4])]
-
-        net_maps = plugin.create_name_id_maps(conn_mock)
-        expected_by_name_map = {
-            'network1': {
-                'id': 'network1_id',
-                'subnets': {
-                    'subnet1': 'subnet1_id',
-                    'subnet2': 'subnet2_id'
-                }
-            },
-            'network2': {
-                'id': 'network2_id',
-                'subnets': {
-                    'subnet3': 'subnet3_id',
-                    'subnet4': 'subnet4_id'
-                }
-            }
-        }
-        expected_by_id_map = {
-            'network1_id': 'network1',
-            'network2_id': 'network2',
-        }
-        expected_cidr_prefix_map = {
-            'subnet1_id': '24',
-            'subnet2_id': '25',
-            'subnet3_id': '26',
-            'subnet4_id': '27',
-        }
-        self.assertEqual(expected_by_name_map, net_maps['by_name'])
-        self.assertEqual(expected_by_id_map, net_maps['by_id'])
-        self.assertEqual(expected_cidr_prefix_map, net_maps['cidr_prefix_map'])
-
-    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_delete_ports(self, mock_conn):
         port1 = stubs.FakeNeutronPort(id='port1_id')
         port2 = stubs.FakeNeutronPort(id='port2_id')

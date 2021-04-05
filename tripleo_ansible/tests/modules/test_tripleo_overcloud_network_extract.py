@@ -16,6 +16,10 @@
 import mock
 import openstack
 
+try:
+    from ansible.module_utils import network_data_v2 as n_utils
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import network_data_v2 as n_utils  # noqa
 from tripleo_ansible.ansible_plugins.modules import (
     tripleo_overcloud_network_extract as plugin)
 from tripleo_ansible.tests import base as tests_base
@@ -24,21 +28,13 @@ from tripleo_ansible.tests import stubs
 
 class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
 
-    def test_tripleo_resource_tags_to_dict(self):
-        tags = ['foo=bar', 'baz=qux', 'tripleo_foo=bar', 'tripleo_baz=qux',
-                'tripleo_net_idx=3']
-        expected = {'tripleo_foo': 'bar', 'tripleo_baz': 'qux',
-                    'tripleo_net_idx': 3}
-        result = plugin.tripleo_resource_tags_to_dict(tags)
-        self.assertEqual(expected, result)
-
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_is_vip_network_true(self, conn_mock):
         net_name = 'external'
         net_id = '132f871f-eaec-4fed-9475-0d54465e0f00'
         fake_network = stubs.FakeNeutronNetwork(id=net_id, name=net_name)
         fake_port = stubs.FakeNeutronPort(
-            name='{}{}'.format(net_name, plugin.NET_VIP_SUFFIX),
+            name='{}{}'.format(net_name, n_utils.NET_VIP_SUFFIX),
             fixed_ips=[{'ip_address': '10.10.10.10', 'subnet_id': 'foo'}]
         )
 
@@ -228,11 +224,11 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
         net_resources = {
             'StorageNetwork': {
                 'StorageNetwork': {'physical_resource_id': 'fake-id',
-                                   'resource_type': plugin.TYPE_NET},
+                                   'resource_type': n_utils.TYPE_NET},
                 'StorageSubnet': {'physical_resource_id': 'fake-id',
-                                  'resource_type': plugin.TYPE_SUBNET},
+                                  'resource_type': n_utils.TYPE_SUBNET},
                 'StorageSubnet_leaf1': {'physical_resource_id': 'fake-id',
-                                        'resource_type': plugin.TYPE_SUBNET}
+                                        'resource_type': n_utils.TYPE_SUBNET}
             }
         }
 
