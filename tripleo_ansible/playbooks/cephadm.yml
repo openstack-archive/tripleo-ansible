@@ -56,9 +56,9 @@
             tasks_from: mds
 
         - name: Config Ganesha
-          import_role:
+          include_role:
             name: tripleo_cephadm
-            tasks_from: ganesha
+            tasks_from: nfs
       when:
         - cephfs_data_pool is defined
         - cephfs_metadata_pool is defined
