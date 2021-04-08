@@ -36,10 +36,11 @@
         apply: true
         hosts: "{{ _hosts }}"
         spec:
-          rgw_frontend_port: 8080
+          rgw_frontend_port: "{{ radosgw_frontend_port }}"
           rgw_realm: 'default'
           rgw_zone: 'default'
         render_path: "{{ tripleo_cephadm_spec_home }}"
+        networks: "{{ radosgw_address_block }}"
       register: spc
       environment:
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"

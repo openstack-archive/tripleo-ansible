@@ -85,6 +85,11 @@ options:
           - The host pattern where the daemon is going to be applied
         required: false
         type: str
+    networks:
+        description:
+          - The list of networks on the host where the daemon is bound.
+        required: false
+        type: list
     labels:
         description:
           - The list of labels used to apply the daemon on the Ceph custer
@@ -144,6 +149,18 @@ EXAMPLES = '''
     labels:
       - "controller"
     apply: true
+- name: create the Ceph RGW daemon spec
+  ceph_spec:
+    service_type: rgw
+    service_id: rgw.default
+    service_name: rgw.default
+    networks:
+      - 1.2.3.0/24
+      - 4.5.6.0/24
+    render_path: '/home/ceph-admin/specs'
+    labels:
+      - "controller"
+    apply: true
 '''
 
 RETURN = '''#  '''
@@ -187,6 +204,7 @@ def run_module():
     service_name = module.params.get('service_name')
     hosts = module.params.get('hosts')
     host_pattern = module.params.get('host_pattern')
+    networks = module.params.get('networks')
     labels = module.params.get('labels')
     spec = module.params.get('spec')
     extra = module.params.get('extra')
@@ -225,15 +243,18 @@ def run_module():
     if labels is None:
         labels = []
 
+    # no networks are defined
+    if networks is None:
+        networks = []
+
     d = ceph_spec.CephDaemonSpec(service_type, service_id, service_name,
-                                 hosts, host_pattern, spec, labels, **extra)
+                                 hosts, host_pattern, networks, spec, labels, **extra)
 
     if apply:
         container_image = is_containerized()
         render('{}/{}'.format(render_path, service_type), d.make_daemon_spec())
         cmd = generate_orch_cli(cluster, '{}/{}'.format(render_path, service_type), container_image)
         rc, cmd, out, err = exec_command(module, cmd)
-        # module.exit_json(changed=True, result=cmd)
         exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)
     else:
         # render the dict as the output of the module
