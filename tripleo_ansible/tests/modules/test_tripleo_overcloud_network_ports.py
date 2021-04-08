@@ -25,6 +25,9 @@ from tripleo_ansible.tests import stubs
 
 FAKE_INSTANCE = {
     'hostname': 'instance0',
+    'network_config': {
+      'default_route_network': ['ctlplane'],
+    },
     'networks': [
         {'network': 'ctlplane', 'vif': True},
         {'network': 'foo', 'subnet': 'foo_subnet'},
@@ -33,6 +36,12 @@ FAKE_INSTANCE = {
 }
 
 FAKE_NET_NAME_MAP = {
+    'ctlplane': {
+        'id': 'ctlplane_id',
+        'subnets': {
+            'ctlplane-subnet': 'ctlplane_subnet_id'
+        }
+    },
     'foo': {
         'id': 'foo_id',
         'subnets': {
@@ -48,6 +57,7 @@ FAKE_NET_NAME_MAP = {
 }
 
 FAKE_NET_ID_MAP = {
+    'ctlplane_id': 'ctlplane',
     'foo_id': 'foo',
     'bar_id': 'bar',
 }
@@ -253,8 +263,10 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
     def test_create_ports(self, mock_conn):
         result = {'changed': False}
         inst_ports = []
+        network_config = {'default_route_network': ['foo']}
         tags = set(['tripleo_stack_name=overcloud',
                     'tripleo_ironic_uuid=ironic_uuid'])
+        expected_tags = copy.deepcopy(tags)
         port_foo = stubs.FakeNeutronPort(
             name='instance0_foo', network_id='foo_id',
             fixed_ips=[{'subnet_id': 'foo_subnet_id'}])
@@ -270,7 +282,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         mock_conn.network.create_ports.return_value = self.a2g(
             [port_foo, port_bar])
         plugin.create_ports(result, mock_conn, create_port_defs, inst_ports,
-                            tags)
+                            tags, FAKE_MAPS, network_config)
         mock_conn.network.create_ports.assert_has_calls([
             mock.call([
                 {'name': 'instance0_foo',
@@ -286,10 +298,52 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
             mock.call(port_bar, mock.ANY)
         ])
         set_tag_args = mock_conn.network.set_tags.call_args_list
-        self.assertTrue(set(set_tag_args[1][0][1]) == tags)
-        self.assertTrue(set(set_tag_args[1][0][1]) == tags)
+        self.assertEqual(set(set_tag_args[1][0][1]), expected_tags)
+        # Default route tag only on the 'foo' network port
+        expected_tags.update({'tripleo_default_route=true'})
+        self.assertEqual(set(set_tag_args[0][0][1]), expected_tags)
 
         self.assertEqual([port_foo, port_bar], inst_ports)
+        self.assertTrue(result['changed'])
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_update_ports(self, mock_conn):
+        result = {'changed': False}
+        network_config = {'default_route_network': ['foo']}
+        tags = set(['tripleo_hostname=instance0',
+                    'tripleo_stack_name=overcloud',
+                    'tripleo_ironic_uuid=ironic_uuid'])
+        expected_tags = copy.deepcopy(tags)
+        port_foo = stubs.FakeNeutronPort(
+            id='port_foo_id', name='instance0_foo', network_id='foo_id',
+            fixed_ips=[{'subnet_id': 'NEED_UPDATE'}], tags=[])
+        port_bar = stubs.FakeNeutronPort(
+            id='port_bar_id', name='instance0_bar', network_id='bar_id',
+            fixed_ips=[{'subnet_id': 'NEED_UPDATE'}], tags=[])
+        inst_ports = [port_foo, port_bar]
+        update_port_defs = [
+            dict(name='instance0_foo', network_id='foo_id',
+                 fixed_ips=[{'subnet_id': 'foo_subnet_id'}]),
+            dict(name='instance0_bar', network_id='bar_id',
+                 fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
+        ]
+        plugin.update_ports(result, mock_conn, update_port_defs, inst_ports,
+                            tags, FAKE_MAPS, network_config)
+        mock_conn.network.update_port.assert_has_calls(
+            [mock.call('port_foo_id',
+                       {'fixed_ips': [{'subnet_id': 'foo_subnet_id'}]}),
+             mock.call('port_bar_id',
+                       {'fixed_ips': [{'subnet_id': 'bar_subnet_id'}]})])
+        mock_conn.network.set_tags.assert_has_calls([
+            mock.call(port_foo, mock.ANY),
+            mock.call(port_bar, mock.ANY)
+        ])
+        set_tag_args = mock_conn.network.set_tags.call_args_list
+        self.assertEqual(set(set_tag_args[1][0][1]), expected_tags)
+        # Default route tag only on the 'foo' network port
+        expected_tags.update({'tripleo_default_route=true'})
+        self.assertEqual(set(set_tag_args[0][0][1]), expected_tags)
+
         self.assertTrue(result['changed'])
 
     @mock.patch.object(plugin, 'update_ports', autospec=True)
@@ -312,6 +366,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
                          'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
+        network_config = FAKE_INSTANCE['network_config']
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
                                 FAKE_MAPS, {}, 'ironic_uuid', 'role')
         mock_pre_provisioned.assert_called_with(mock.ANY, mock_conn, FAKE_MAPS,
@@ -319,7 +374,8 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                                                 expected_tags)
         mock_create_ports.assert_called_with(mock.ANY, mock_conn,
                                              create_port_defs,
-                                             mock.ANY, expected_tags)
+                                             mock.ANY, expected_tags,
+                                             FAKE_MAPS, network_config)
         mock_update_ports.assert_not_called()
 
     @mock.patch.object(plugin, 'update_ports', autospec=True)
@@ -353,6 +409,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
                          'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
+        network_config = FAKE_INSTANCE['network_config']
         mock_conn.network.ports.return_value = self.a2g([port_foo, port_bar])
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
                                 FAKE_MAPS, {}, 'ironic_uuid', 'role')
@@ -363,7 +420,8 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         mock_update_ports.assert_called_with(mock.ANY, mock_conn,
                                              update_port_defs,
                                              [port_foo, port_bar],
-                                             expected_tags)
+                                             expected_tags, FAKE_MAPS,
+                                             network_config)
 
     @mock.patch.object(plugin, 'update_ports', autospec=True)
     @mock.patch.object(plugin, 'create_ports', autospec=True)
@@ -395,6 +453,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
                          'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
+        network_config = FAKE_INSTANCE['network_config']
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
                                 FAKE_MAPS, {}, 'ironic_uuid', 'role')
         mock_pre_provisioned.assert_called_with(mock.ANY, mock_conn,
@@ -402,10 +461,12 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                                                 mock.ANY, expected_tags)
         mock_create_ports.assert_called_with(mock.ANY, mock_conn,
                                              create_port_defs, mock.ANY,
-                                             expected_tags)
+                                             expected_tags, FAKE_MAPS,
+                                             network_config)
         mock_update_ports.assert_called_with(mock.ANY, mock_conn,
                                              update_port_defs, [port_foo],
-                                             expected_tags)
+                                             expected_tags, FAKE_MAPS,
+                                             network_config)
 
     @mock.patch.object(plugin, 'delete_ports', autospec=True)
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
@@ -466,8 +527,10 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
             result['node_port_map'])
 
     def test_validate_instance_nets_in_net_map(self):
-        instances = [FAKE_INSTANCE]
-        msg = 'Network ctlplane for instance {} not found.'.format(
+        instances = [copy.deepcopy(FAKE_INSTANCE)]
+        instances[0]['networks'].append({'network': 'missing_net',
+                                         'subnet': 'missing_subnet'},)
+        msg = 'Network missing_net for instance {} not found.'.format(
             FAKE_INSTANCE['hostname'])
         self.assertRaisesRegex(Exception, msg,
                                plugin.validate_instance_nets_in_net_map,
@@ -481,18 +544,24 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                 'tripleo_ironic_uuid=ironic_uuid',
                 'tripleo_role=role',
                 'tripleo_ironic_vif_port=true'}
+        expected_tags = copy.deepcopy(tags)
+        expected_tags.update({'tripleo_default_route=true'})
         fake_nic = stubs.FakeNeutronPort(name='hostname-ctlplane',
+                                         network_id='ctlplane_id',
                                          id='port_uuid',
                                          tags=[])
         fake_instance = mock.Mock()
         fake_instance.nics.return_value = [fake_nic]
         mock_provisioner.show_instance.return_value = fake_instance
+        network_config = FAKE_INSTANCE['network_config']
+        default_route_network = network_config['default_route_network']
         plugin._tag_metalsmith_instance_ports(result, mock_conn,
                                               mock_provisioner, 'ironic_uuid',
-                                              'hostname', tags)
+                                              'hostname', tags,
+                                              default_route_network, FAKE_MAPS)
         mock_conn.network.set_tags.assert_called_with(fake_nic, mock.ANY)
         set_tags_args = mock_conn.network.set_tags.call_args.args
-        self.assertTrue(set(tags) == set(set_tags_args[1]))
+        self.assertEqual(set(expected_tags), set(set_tags_args[1]))
 
         self.assertTrue(result['changed'])
 
@@ -507,17 +576,45 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                 'tripleo_ironic_vif_port=true'}
         fake_nic = stubs.FakeNeutronPort(
             name='hostname-ctlplane', dns_name='hostname', id='port_uuid',
+            network_id='ctlplane_id',
             tags=['tripleo_stack_name={}'.format(STACK),
                   'tripleo_ironic_uuid=ironic_uuid',
                   'tripleo_role=role',
-                  'tripleo_ironic_vif_port=true'])
+                  'tripleo_ironic_vif_port=true',
+                  'tripleo_default_route=true'])
         fake_instance = mock.Mock()
         fake_instance.nics.return_value = [fake_nic]
         mock_provisioner.show_instance.return_value = fake_instance
-        plugin._tag_metalsmith_instance_ports(result, mock_conn,
-                                              mock_provisioner, 'ironic_uuid',
-                                              'hostname', tags)
-        mock_conn.network.update_port.assert_not_called()
+        network_config = FAKE_INSTANCE['network_config']
+        default_route_network = network_config['default_route_network']
+        plugin._tag_metalsmith_instance_ports(
+            result, mock_conn, mock_provisioner, 'ironic_uuid', 'hostname',
+            tags, default_route_network, FAKE_MAPS)
         mock_conn.network.set_tags.assert_not_called()
 
         self.assertFalse(result['changed'])
+
+    @mock.patch.object(plugin, '_tag_metalsmith_instance_ports', autospec=True)
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    @mock.patch.object(metalsmith, 'Provisioner', autospec=True)
+    def test_tag_metalsmith_managed_ports(self, mock_provisioner, mock_conn,
+                                          mock_tag_msmith_ports):
+        result = {'changed': False, 'instance_port_map': {}}
+        mock_conn.config = mock.Mock()
+        concurrency = 1
+        uuid_by_hostname = {FAKE_INSTANCE['hostname']: 'fake_uuid'}
+        hostname_role_map = {FAKE_INSTANCE['hostname']: 'fake_role'}
+        instances_by_hostname = {FAKE_INSTANCE['hostname']: FAKE_INSTANCE}
+        plugin.tag_metalsmith_managed_ports(result, mock_conn, concurrency,
+                                            STACK, uuid_by_hostname,
+                                            hostname_role_map,
+                                            instances_by_hostname, FAKE_MAPS)
+        expected_tags = {'tripleo_role=fake_role',
+                         'tripleo_ironic_vif_port=true',
+                         'tripleo_stack_name=overcloud',
+                         'tripleo_ironic_uuid=fake_uuid'}
+        mock_tag_msmith_ports.assert_called_with(
+            result, mock_conn, mock.ANY, 'fake_uuid',
+            FAKE_INSTANCE['hostname'], expected_tags,
+            FAKE_INSTANCE['network_config']['default_route_network'],
+            FAKE_MAPS)
