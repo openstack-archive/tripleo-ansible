@@ -122,3 +122,4 @@
       tripleo_enabled_services: {{ enabled_services | default([]) }}
       tripleo_cephadm_fqdn: "{{ ceph_spec_fqdn | bool }}"
       tripleo_cephadm_spec_ansible_host: "{{ tripleo_run_cephadm_spec_path }}"
+      tripleo_cephadm_internal_tls_enabled: "{{ enable_internal_tls }}"

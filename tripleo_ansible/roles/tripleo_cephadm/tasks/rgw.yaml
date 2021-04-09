@@ -39,11 +39,19 @@
           rgw_frontend_port: "{{ radosgw_frontend_port }}"
           rgw_realm: 'default'
           rgw_zone: 'default'
+          rgw_frontend_ssl_certificate: "{{ rgw_frontend_cert }}"
         render_path: "{{ tripleo_cephadm_spec_home }}"
         networks: "{{ radosgw_address_block }}"
       register: spc
       environment:
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+      vars:
+        rgw_frontend_cert: |-
+          {% set fcert_lookup = '' %}
+          {% if tripleo_cephadm_internal_tls_enabled | bool %}
+          {%   set fcert_lookup = lookup('file', radosgw_frontend_ssl_certificate) %}
+          {% endif %}
+          {{ fcert_lookup }}
   when:
     - tripleo_enabled_services | intersect(['ceph_rgw'])
