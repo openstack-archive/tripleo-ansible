@@ -15,6 +15,7 @@
 #    under the License.
 from __future__ import (absolute_import, division, print_function)
 import json  # noqa: F402
+import shlex  # noqa: F402
 from distutils.version import LooseVersion  # noqa: F402
 
 from ansible.module_utils._text import to_bytes, to_native  # noqa: F402
@@ -50,7 +51,7 @@ ARGUMENTS_SPEC_CONTAINER = dict(
     cpuset_mems=dict(type='str'),
     detach=dict(type='bool', default=True),
     debug=dict(type='bool', default=False),
-    detach_keys=dict(type='str'),
+    detach_keys=dict(type='str', no_log=False),
     device=dict(type='list', elements='str'),
     device_read_bps=dict(type='list'),
     device_read_iops=dict(type='list'),
@@ -68,7 +69,7 @@ ARGUMENTS_SPEC_CONTAINER = dict(
                 'exposed', 'exposed_ports']),
     force_restart=dict(type='bool', default=False,
                        aliases=['restart']),
-    gidmap=dict(type='str'),
+    gidmap=dict(type='list', elements='str'),
     group_add=dict(type='list', aliases=['groups']),
     healthcheck=dict(type='str'),
     healthcheck_interval=dict(type='str'),
@@ -92,7 +93,11 @@ ARGUMENTS_SPEC_CONTAINER = dict(
     log_level=dict(
         type='str',
         choices=["debug", "info", "warn", "error", "fatal", "panic"]),
-    log_opt=dict(type='str', aliases=['log_options']),
+    log_opt=dict(type='dict', aliases=['log_options'],
+                 options=dict(
+        max_size=dict(type='str'),
+        path=dict(type='str'),
+        tag=dict(type='str'))),
     mac_address=dict(type='str'),
     memory=dict(type='str'),
     memory_reservation=dict(type='str'),
@@ -124,10 +129,10 @@ ARGUMENTS_SPEC_CONTAINER = dict(
     subgidname=dict(type='str'),
     subuidname=dict(type='str'),
     sysctl=dict(type='dict'),
-    systemd=dict(type='bool'),
+    systemd=dict(type='str'),
     tmpfs=dict(type='dict'),
     tty=dict(type='bool'),
-    uidmap=dict(type='list'),
+    uidmap=dict(type='list', elements='str'),
     ulimit=dict(type='list', aliases=['ulimits']),
     user=dict(type='str'),
     userns=dict(type='str', aliases=['userns_mode']),
@@ -334,7 +339,9 @@ class PodmanModuleParams:
         return c
 
     def addparam_gidmap(self, c):
-        return c + ['--gidmap', self.params['gidmap']]
+        for gidmap in self.params['gidmap']:
+            c += ['--gidmap', gidmap]
+        return c
 
     def addparam_group_add(self, c):
         for g in self.params['group_add']:
@@ -402,7 +409,14 @@ class PodmanModuleParams:
         return c + ['--log-driver', self.params['log_driver']]
 
     def addparam_log_opt(self, c):
-        return c + ['--log-opt', self.params['log_opt']]
+        for k, v in self.params['log_opt'].items():
+            if v is not None:
+                c += ['--log-opt',
+                      b"=".join([to_bytes(k.replace('max_size', 'max-size'),
+                                          errors='surrogate_or_strict'),
+                                 to_bytes(v,
+                                          errors='surrogate_or_strict')])]
+        return c
 
     def addparam_log_level(self, c):
         return c + ['--log-level', self.params['log_level']]
@@ -505,7 +519,7 @@ class PodmanModuleParams:
         return c
 
     def addparam_systemd(self, c):
-        return c + ['--systemd=%s' % self.params['systemd']]
+        return c + ['--systemd=%s' % str(self.params['systemd']).lower()]
 
     def addparam_tmpfs(self, c):
         for tmpfs in self.params['tmpfs'].items():
@@ -607,6 +621,8 @@ class PodmanDefaults:
             self.defaults['ipc'] = "private"
             self.defaults['uts'] = "private"
             self.defaults['pid'] = "private"
+        if (LooseVersion(self.version) >= LooseVersion('3.0.0')):
+            self.defaults['log_level'] = "warning"
         return self.defaults
 
 
@@ -620,10 +636,7 @@ class PodmanContainerDiff:
         self.image_info = lower_keys(image_info)
         self.params = self.defaultize()
         self.diff = {'before': {}, 'after': {}}
-        self.non_idempotent = {
-            'env_file',  # We can't get env vars from file to check
-            'env_host',
-        }
+        self.non_idempotent = {}
 
     def defaultize(self):
         params_with_defaults = {}
@@ -671,21 +684,27 @@ class PodmanContainerDiff:
 
     def diffparam_cap_add(self):
         before = self.info['effectivecaps'] or []
+        before = [i.lower() for i in before]
         after = []
         if self.module_params['cap_add'] is not None:
-            after += ["cap_" + i.lower()
-                      for i in self.module_params['cap_add']]
+            for cap in self.module_params['cap_add']:
+                cap = cap.lower()
+                cap = cap if cap.startswith('cap_') else 'cap_' + cap
+                after.append(cap)
         after += before
         before, after = sorted(list(set(before))), sorted(list(set(after)))
         return self._diff_update_and_compare('cap_add', before, after)
 
     def diffparam_cap_drop(self):
         before = self.info['effectivecaps'] or []
+        before = [i.lower() for i in before]
         after = before[:]
         if self.module_params['cap_drop'] is not None:
-            for c in ["cap_" + i.lower() for i in self.module_params['cap_drop']]:
-                if c in after:
-                    after.remove(c)
+            for cap in self.module_params['cap_drop']:
+                cap = cap.lower()
+                cap = cap if cap.startswith('cap_') else 'cap_' + cap
+                if cap in after:
+                    after.remove(cap)
         before, after = sorted(list(set(before))), sorted(list(set(after)))
         return self._diff_update_and_compare('cap_drop', before, after)
 
@@ -715,9 +734,7 @@ class PodmanContainerDiff:
             before = self.info['config']['cmd']
             after = self.params['command']
             if isinstance(after, str):
-                after = [i.lower() for i in after.split()]
-            elif isinstance(after, list):
-                after = [i.lower() for i in after]
+                after = shlex.split(after)
             return self._diff_update_and_compare('command', before, after)
         return False
 
@@ -806,10 +823,7 @@ class PodmanContainerDiff:
                   for i in env_before}
         after = before.copy()
         if self.params['env']:
-            after.update({
-                k: v
-                for k, v in self.params['env'].items()
-            })
+            after.update(self.params['env'])
         return self._diff_update_and_compare('env', before, after)
 
     def diffparam_etc_hosts(self):
@@ -874,7 +888,7 @@ class PodmanContainerDiff:
         after = self.image_info.get('labels') or {}
         if self.params['label']:
             after.update({
-                str(k).lower(): str(v).lower()
+                str(k).lower(): str(v)
                 for k, v in self.params['label'].items()
             })
         return self._diff_update_and_compare('label', before, after)
@@ -893,14 +907,54 @@ class PodmanContainerDiff:
         after = self.params['log_level']
         return self._diff_update_and_compare('log_level', before, after)
 
-    # Parameter has limited idempotency, unable to guess the default log_path
+    # Parameter has limited idempotency
     def diffparam_log_opt(self):
-        before = self.info['logpath']
-        if self.module_params['log_opt'] in [None, '']:
-            after = before
-        else:
-            after = self.params['log_opt'].split("=")[1]
+        before, after = {}, {}
+        # Log path
+        path_before = None
+        if 'logpath' in self.info:
+            path_before = self.info['logpath']
+        # For Podman v3
+        if ('logconfig' in self.info['hostconfig']
+                and 'path' in self.info['hostconfig']['logconfig']):
+            path_before = self.info['hostconfig']['logconfig']['path']
+        if path_before is not None:
+            if (self.module_params['log_opt']
+                    and 'path' in self.module_params['log_opt']
+                    and self.module_params['log_opt']['path'] is not None):
+                path_after = self.params['log_opt']['path']
+            else:
+                path_after = path_before
+            if path_before != path_after:
+                before.update({'log-path': path_before})
+                after.update({'log-path': path_after})
+        # Log tag
+        tag_before = None
+        if 'logtag' in self.info:
+            tag_before = self.info['logtag']
+        # For Podman v3
+        if ('logconfig' in self.info['hostconfig']
+                and 'tag' in self.info['hostconfig']['logconfig']):
+            tag_before = self.info['hostconfig']['logconfig']['tag']
+        if tag_before is not None:
+            if (self.module_params['log_opt']
+                    and 'tag' in self.module_params['log_opt']
+                    and self.module_params['log_opt']['tag'] is not None):
+                tag_after = self.params['log_opt']['tag']
+            else:
+                tag_after = ''
+            if tag_before != tag_after:
+                before.update({'log-tag': tag_before})
+                after.update({'log-tag': tag_after})
         return self._diff_update_and_compare('log_opt', before, after)
+
+    def diffparam_mac_address(self):
+        before = str(self.info['networksettings']['macaddress'])
+        if self.module_params['mac_address'] is not None:
+            after = self.params['mac_address']
+        else:
+            after = before
+        return self._diff_update_and_compare('mac_address', before, after)
 
     def diffparam_memory(self):
         before = str(self.info['hostconfig']['memory'])
@@ -926,6 +980,16 @@ class PodmanContainerDiff:
         net_mode_before = self.info['hostconfig']['networkmode']
         net_mode_after = ''
         before = list(self.info['networksettings'].get('networks', {}))
+        # Remove default 'podman' network in v3 for comparison
+        if before == ['podman']:
+            before = []
+        # Special case for options for slirp4netns rootless networking from v2
+        if net_mode_before == 'slirp4netns' and 'createcommand' in self.info['config']:
+            cr_com = self.info['config']['createcommand']
+            if '--network' in cr_com:
+                cr_net = cr_com[cr_com.index('--network') + 1].lower()
+                if 'slirp4netns:' in cr_net:
+                    before = [cr_net]
         after = self.params['network'] or []
         # If container is in pod and no networks are provided
         if not self.module_params['network'] and self.params['pod']:
@@ -947,6 +1011,9 @@ class PodmanContainerDiff:
 
     def diffparam_no_hosts(self):
         before = not bool(self.info['hostspath'])
+        # For newer verions of Podman
+        if 'resolvconfpath' in self.info:
+            before = not bool(self.info['resolvconfpath'])
         after = self.params['no_hosts']
         if self.params['network'] == ['none']:
             after = True
@@ -969,18 +1036,27 @@ class PodmanContainerDiff:
 
     # TODO(sshnaidm) Need to add port ranges support
     def diffparam_publish(self):
+        def compose(p, h):
+            s = ":".join(
+                [str(h["hostport"]), p.replace('/tcp', '')]
+            ).strip(":")
+            if h['hostip']:
+                return ":".join([h['hostip'], s])
+            return s
+
         ports = self.info['hostconfig']['portbindings']
-        before = [":".join([
-            j[0]['hostip'],
-            str(j[0]["hostport"]),
-            i.replace('/tcp', '')
-        ]).strip(':') for i, j in ports.items()]
+        before = []
+        for port, hosts in ports.items():
+            for h in hosts:
+                before.append(compose(port, h))
         after = self.params['publish'] or []
         if self.params['publish_all']:
             image_ports = self.image_info['config'].get('exposedports', {})
             if image_ports:
                 after += list(image_ports.keys())
-        after = [i.replace("/tcp", "") for i in after]
+        after = [
+            i.replace("/tcp", "").replace("[", "").replace("]", "")
+            for i in after]
         # No support for port ranges yet
         for ports in after:
             if "-" in ports:
@@ -1034,7 +1110,8 @@ class PodmanContainerDiff:
             "sigwinch": "28",
             "sigio": "29",
             "sigpwr": "30",
-            "sigsys": "31"
+            "sigsys": "31",
+            "sigrtmin+3": "37"
         }
         before = str(self.info['config']['stopsignal'])
         if not before.isdigit():
@@ -1091,6 +1168,8 @@ class PodmanContainerDiff:
     def diffparam_volume(self):
         def clean_volume(x):
             '''Remove trailing and double slashes from volumes.'''
+            if not x.rstrip("/"):
+                return "/"
             return x.replace("//", "/").rstrip("/")
 
         before = self.info['mounts']
