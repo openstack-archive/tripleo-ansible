@@ -20,11 +20,7 @@ from openstack import exceptions as sdk_exc
 
 from tripleo_ansible.tests import base
 
-
-# load baremetal_deploy so the next import works
-base.load_module_utils('baremetal_deploy')
-
-from ansible.module_utils import baremetal_deploy as bd  # noqa
+from tripleo_ansible.ansible_plugins.module_utils import baremetal_deploy as bd  # noqa
 
 
 class TestBaremetalDeployUtils(base.TestCase):
@@ -124,9 +120,13 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual(
             [
                 {'hostname': 'overcloud-novacompute-0',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'overcloud-controller-0',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual(
@@ -160,11 +160,13 @@ class TestExpandRoles(base.TestCase):
                 {'hostname': 'overcloud-novacompute-0',
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'ctlplane', 'vif': True}],
-                 'nics': [{'network': 'ctlplane'}]},
+                 'nics': [{'network': 'ctlplane'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Compute'}}},
                 {'hostname': 'overcloud-controller-0',
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'ctlplane', 'vif': True}],
-                 'nics': [{'network': 'ctlplane'}]},
+                 'nics': [{'network': 'ctlplane'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual({'overcloud-controller-0': 'Controller',
@@ -194,11 +196,13 @@ class TestExpandRoles(base.TestCase):
                 {'hostname': 'overcloud-novacompute-0',
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'some_net', 'vif': True}],
-                 'nics': [{'network': 'some_net'}]},
+                 'nics': [{'network': 'some_net'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Compute'}}},
                 {'hostname': 'overcloud-controller-0',
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'some_net', 'vif': True}],
-                 'nics': [{'network': 'some_net'}]},
+                 'nics': [{'network': 'some_net'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual({'overcloud-controller-0': 'Controller',
@@ -229,12 +233,14 @@ class TestExpandRoles(base.TestCase):
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'foo', 'subnet': 'foo_subnet'},
                               {'network': 'ctlplane', 'vif': True}],
-                 'nics': [{'network': 'ctlplane'}]},
+                 'nics': [{'network': 'ctlplane'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Compute'}}},
                 {'hostname': 'overcloud-controller-0',
                  'image': {'href': 'overcloud-full'},
                  'networks': [{'network': 'foo', 'subnet': 'foo_subnet'},
                               {'network': 'ctlplane', 'vif': True}],
-                 'nics': [{'network': 'ctlplane'}]},
+                 'nics': [{'network': 'ctlplane'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual({'overcloud-controller-0': 'Controller',
@@ -269,6 +275,7 @@ class TestExpandRoles(base.TestCase):
                  ],
                  'nics': [{'network': 'foo', 'subnet': 'foo_subnet'},
                           {'network': 'ctlplane'}],
+                 'config_drive': {'meta_data': {'instance-type': 'Compute'}}
                  },
                 {'hostname': 'overcloud-controller-0',
                  'image': {'href': 'overcloud-full'},
@@ -279,7 +286,9 @@ class TestExpandRoles(base.TestCase):
                  'nics': [
                      {'network': 'foo', 'subnet': 'foo_subnet'},
                      {'network': 'ctlplane'}
-                 ]},
+                 ],
+                 'config_drive': {'meta_data': {'instance-type': 'Controller'}},
+                },
             ],
             instances)
         self.assertEqual({'overcloud-controller-0': 'Controller',
@@ -325,13 +334,19 @@ class TestExpandRoles(base.TestCase):
         self.assertEqual(
             [
                 {'hostname': 'overcloud-controller-0',
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
                 {'hostname': 'overcloud-controller-1',
                  'image': {'href': 'file:///tmp/foo.qcow2',
-                           'checksum': '12345678'}},
+                           'checksum': '12345678'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
                 {'hostname': 'overcloud-controller-2',
                  'image': {'href': 'file:///tmp/foo.qcow2',
-                           'checksum': '12345678'}},
+                           'checksum': '12345678'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
             ],
             instances)
 
@@ -361,27 +376,37 @@ class TestExpandRoles(base.TestCase):
                  'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
-                 'user_name': 'heat-admin'},
+                 'user_name': 'heat-admin',
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'compute-1.example.com',
                  'capabilities': {'profile': 'compute'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
-                 'user_name': 'heat-admin'},
+                 'user_name': 'heat-admin',
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'controller-0.example.com',
                  'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
-                 'user_name': 'heat-admin'},
+                 'user_name': 'heat-admin',
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
                 {'hostname': 'controller-1.example.com',
                  'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
-                 'user_name': 'heat-admin'},
+                 'user_name': 'heat-admin',
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
                 {'hostname': 'controller-2.example.com',
                  'capabilities': {'profile': 'control'},
                  'image': {'href': 'overcloud-full'},
                  'ssh_public_keys': 'aaaa',
-                 'user_name': 'heat-admin'},
+                 'user_name': 'heat-admin',
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual(
@@ -430,13 +455,19 @@ class TestExpandRoles(base.TestCase):
                 'profile': 'control-X',
                 'networks': [
                     {'network': 'inst_net', 'fixed_ip': '10.1.1.1'}
-                ]
+                ],
+                'config_drive': {
+                    'meta_data': {'foo': 'bar'}
+                }
             }, {
                 'name': 'node-0',
                 'traits': ['CUSTOM_FOO'],
                 'networks': [{'network': 'some_net', 'subnet': 'leaf-2',
-                              'vif': True}]},
-            ]},
+                              'vif': True}],
+                'config_drive': {
+                    'cloud_config': {'bootcmd': ['echo hi']}
+                }
+            }]},
         ]
         instances, environment, role_net_map, hostname_role_map = bd.expand(
             roles, 'overcloud', True, self.default_image
@@ -445,15 +476,22 @@ class TestExpandRoles(base.TestCase):
             [
                 {'hostname': 'compute-0.example.com',
                  'capabilities': {'profile': 'compute'},
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'compute-1.example.com',
                  'capabilities': {'profile': 'compute'},
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'controller-X.example.com',
                  'image': {'href': 'overcloud-full'},
                  'capabilities': {'profile': 'control-X'},
                  'networks': [{'fixed_ip': '10.1.1.1', 'network': 'inst_net'},
                               {'network': 'foo', 'subnet': 'foo_subnet'}],
+                 'config_drive': {'meta_data': {
+                     'foo': 'bar',
+                     'instance-type': 'Controller'}},
                  },
                 # Name provides the default for hostname later on.
                 {'name': 'node-0',
@@ -465,7 +503,11 @@ class TestExpandRoles(base.TestCase):
                  ],
                  'image': {'href': 'overcloud-full'},
                  'traits': ['CUSTOM_FOO'],
-                 'nics': [{'network': 'some_net', 'subnet': 'leaf-2'}]},
+                 'nics': [{'network': 'some_net', 'subnet': 'leaf-2'}],
+                 'config_drive': {
+                     'cloud_config': {'bootcmd': ['echo hi']},
+                     'meta_data': {'instance-type': 'Controller'}
+                 }},
             ],
             instances)
         self.assertEqual(
@@ -520,26 +562,31 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'compute-0.example.com',
                 'capabilities': {'profile': 'compute'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Compute'}}
             }, {
                 'hostname': 'compute-1.example.com',
                 'capabilities': {'profile': 'compute'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Compute'}}
             }, {
                 'hostname': 'controller-X.example.com',
                 'capabilities': {'profile': 'control-X'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'node-0',
                 'name': 'node-0',
                 'nics': [{'subnet': 'leaf-2'}],
                 'capabilities': {'profile': 'control'},
                 'traits': ['CUSTOM_FOO'],
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-2',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({
@@ -586,11 +633,13 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'overcloud-controller-0',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-3',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({
@@ -618,11 +667,13 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'overcloud-controller-1',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-2',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({}, environment)
@@ -652,19 +703,23 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'overcloud-controller-0',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-3',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-4',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-5',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({
@@ -696,11 +751,13 @@ class TestExpandRoles(base.TestCase):
             {
                 'hostname': 'overcloud-controller-1',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'overcloud-controller-2',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({}, environment)
@@ -737,12 +794,14 @@ class TestExpandRoles(base.TestCase):
                 'hostname': 'controller-0',
                 'name': 'node-0',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'controller-3',
                 'name': 'node-3',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({
@@ -768,12 +827,14 @@ class TestExpandRoles(base.TestCase):
                 'hostname': 'controller-1',
                 'name': 'node-1',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'controller-2',
                 'name': 'node-2',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({}, environment)
@@ -808,12 +869,14 @@ class TestExpandRoles(base.TestCase):
                 'hostname': 'node-0',
                 'name': 'node-0',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'node-3',
                 'name': 'node-3',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({
@@ -841,12 +904,14 @@ class TestExpandRoles(base.TestCase):
                 'hostname': 'node-1',
                 'name': 'node-1',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }, {
                 'hostname': 'node-2',
                 'name': 'node-2',
                 'capabilities': {'profile': 'control'},
-                'image': {'href': 'overcloud-full'}
+                'image': {'href': 'overcloud-full'},
+                'config_drive': {'meta_data': {'instance-type': 'Controller'}}
             }],
             instances)
         self.assertEqual({}, environment)
@@ -915,18 +980,26 @@ class TestExpandRoles(base.TestCase):
             [
                 {'hostname': 'compute-0.example.com',
                  'capabilities': {'profile': 'compute'},
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'compute-1.example.com',
                  'capabilities': {'profile': 'compute'},
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Compute'}}},
                 {'hostname': 'overcloud-controller-0',
                  'capabilities': {'profile': 'control-X'},
-                 'image': {'href': 'overcloud-full'}},
+                 'image': {'href': 'overcloud-full'},
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
                 # Name provides the default for hostname
                 {'name': 'node-0', 'capabilities': {'profile': 'control'},
                  'hostname': 'node-0',
                  'image': {'href': 'overcloud-full'},
-                 'traits': ['CUSTOM_FOO'], 'nics': [{'subnet': 'leaf-2'}]},
+                 'traits': ['CUSTOM_FOO'], 'nics': [{'subnet': 'leaf-2'}],
+                 'config_drive': {'meta_data': {
+                     'instance-type': 'Controller'}}},
             ],
             instances)
         self.assertEqual({'compute-0.example.com': 'Compute',
@@ -1050,3 +1123,45 @@ class TestCheckExistingInstances(base.TestCase):
         self.assertIn("for host0", str(exc))
         self.assertIn("RuntimeError: boom", str(exc))
         pr.show_instance.assert_called_once_with('host0')
+
+    def test_merge_config_drive_defaults(self):
+
+        def assertConfigDriveMerge(cd, cd_defaults, cd_instance):
+            defaults = {}
+            instance = {}
+            if cd_defaults is not None:
+                defaults['config_drive'] = cd_defaults
+            if cd_instance is not None:
+                instance['config_drive'] = cd_instance
+
+            bd.merge_config_drive_defaults(defaults, instance)
+
+            if cd is None:
+                self.assertNotIn(instance, 'config_drive')
+            self.assertEqual(cd, instance.get('config_drive'))
+
+        # assert no config_drive key when nothing to merge
+        assertConfigDriveMerge(None, None, None)
+        assertConfigDriveMerge(None, {}, None)
+        assertConfigDriveMerge({}, None, {})
+        assertConfigDriveMerge({}, {}, {})
+
+        # assert what expand does internally when no config_drive is specified
+        assertConfigDriveMerge(
+            {'meta_data': {'instance-type': 'Compute'}},
+            {'meta_data': {'instance-type': 'Compute'}},
+            None
+        )
+
+        # assert various combinations of defaults and instance to show that
+        # merge works and instance has precedence over defaults
+        assertConfigDriveMerge(
+            {'meta_data': {'one': 1, 'two': 22, 'three': 3, 'four': 44}},
+            {'meta_data': {'one': 1, 'two': 2, 'three': 3}},
+            {'meta_data': {'two': 22, 'four': 44}},
+        )
+        assertConfigDriveMerge(
+            {'cloud_config': {'one': 1, 'two': 22, 'three': 3, 'four': 44}},
+            {'cloud_config': {'one': 1, 'two': 2, 'three': 3}},
+            {'cloud_config': {'two': 22, 'four': 44}},
+        )

@@ -82,11 +82,21 @@ _NETWORK_SCHEMA = {
     'additionalProperties': False
 }
 
+_CONFIG_DRIVE_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'cloud_config': {'type': 'object'},
+        'meta_data': {'type': 'object'},
+    },
+    'additionalProperties': False
+}
+
 _INSTANCE_SCHEMA = {
     'type': 'object',
     'properties': {
         'capabilities': {'type': 'object'},
         'conductor_group': {'type': 'string'},
+        'config_drive': _CONFIG_DRIVE_SCHEMA,
         'hostname': {
             'type': 'string',
             'minLength': 2,
@@ -191,14 +201,21 @@ def expand(roles, stack_name, expand_provisioned=True, default_image=None,
             capabilities.setdefault('profile', defaults['profile'])
             del defaults['profile']
 
+        # Set config-drive metadata instance-name to the role name
+        config_drive = defaults.setdefault('config_drive', {})
+        meta_data = config_drive.setdefault('meta_data', {})
+        meta_data['instance-type'] = role['name']
+
         for inst in role.get('instances', []):
+            merge_config_drive_defaults(defaults, inst)
             merge_networks_defaults(defaults, inst)
             merge_network_config_defaults(defaults, inst)
 
             for k, v in defaults.items():
-                # Need to use deepcopy here so defaults are not accidentally
-                # changed by per-instance manipulations
-                inst.setdefault(k, dcopy(v))
+                if k != 'config_drive':
+                    # Need to use deepcopy here so defaults are not accidentally
+                    # changed by per-instance manipulations
+                    inst.setdefault(k, dcopy(v))
 
             # Set the default hostname now for duplicate hostname
             # detection during validation
@@ -351,6 +368,31 @@ def merge_networks_defaults(defaults, instance):
     # only set non-empty networks value on the instance
     if i_networks:
         instance['networks'] = i_networks
+
+
+def merge_config_drive_defaults(defaults, instance):
+    d_config_drive = defaults.get('config_drive', {})
+    i_config_drive = instance.get('config_drive', {})
+
+    def merge(key):
+        d_dict = d_config_drive.get(key, {})
+        i_dict = i_config_drive.get(key, {})
+
+        # start with a shallow copy of the defaults and update
+        # with the instance value
+        f_dict = dict(d_dict)
+        f_dict.update(i_dict)
+
+        # only set non-empty merge results
+        if f_dict:
+            i_config_drive[key] = f_dict
+
+    merge('cloud_config')
+    merge('meta_data')
+
+    # only set non-empty config_drive value on the instance
+    if i_config_drive:
+        instance['config_drive'] = i_config_drive
 
 
 def check_existing(instances, provisioner, baremetal):
