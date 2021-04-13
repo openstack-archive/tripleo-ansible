@@ -141,6 +141,21 @@ _INSTANCES_INPUT_SCHEMA = {
 }
 """JSON schema of the instances input."""
 
+_ROLE_ANSIBLE_PLAYBOOKS_SCHEMA = {
+    'type': 'array',
+    'items': {
+        'type': 'object',
+        'properties': {
+            'playbook': {'type': 'string'},
+            'pre_network': {'type': 'boolean'},
+            'extra_vars': {'type': 'object'}
+        },
+        'additionalProperties': False,
+        'required': ['playbook'],
+    }
+}
+"""JSON schema of the role ansible_playbooks input."""
+
 _ROLES_INPUT_SCHEMA = {
     'type': 'array',
     'items': {
@@ -151,6 +166,7 @@ _ROLES_INPUT_SCHEMA = {
             'count': {'type': 'integer', 'minimum': 0},
             'defaults': _ROLE_DEFAULTS_SCHEMA,
             'instances': _INSTANCES_INPUT_SCHEMA,
+            'ansible_playbooks': _ROLE_ANSIBLE_PLAYBOOKS_SCHEMA,
         },
         'additionalProperties': False,
         'required': ['name'],
