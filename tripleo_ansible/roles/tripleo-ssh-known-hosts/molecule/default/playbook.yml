@@ -18,5 +18,8 @@
 - name: Converge
   hosts: all
   pre_tasks:
+    - name: Override ssh_host_key_rsa_public test value in ansible_facts
+      set_fact:
+        ansible_facts: "{{ ansible_facts|combine({'ssh_host_key_rsa_public': 'AAAATEST'}) }}"
   roles:
     - role: "tripleo-ssh-known-hosts"

@@ -35,7 +35,6 @@ provisioner:
           allovercloud:
             hosts:
               ubi8:
-                ansible_ssh_host_key_rsa_public: AAAATEST
                 ctlplane_ip: 10.0.0.1
                 ctlplane_hostname: ubi8.ctlplane.localdomain
                 internal_api_ip: 10.0.1.1
