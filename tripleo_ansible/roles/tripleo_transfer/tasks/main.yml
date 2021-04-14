@@ -72,6 +72,7 @@
         -v
         --delay-updates
         -F
+        --ignore-times
         --compress
         --archive
         --delete
