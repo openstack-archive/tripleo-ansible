@@ -49,7 +49,7 @@
         ssh_known_hosts_lines: |-
           {% for host in groups['allovercloud'] | intersect(play_hosts) %}
           {%   set hostdata = hostvars[host] %}
-          {%   if 'ansible_ssh_host_key_rsa_public' in hostdata %}
+          {%   if 'ssh_host_key_rsa_public' in hostdata['ansible_facts'] %}
           {%     set entries = [] %}
           {%     set enabled_host_networks = hostdata['tripleo_role_networks']|default([]) %}
           {%     for network in enabled_host_networks %}
@@ -64,7 +64,7 @@
           {%       set _ = entries.append('[' ~ hostdata['canonical_hostname'] ~ ']*') %}
           {%     endif %}
           {%     set _ = entries.append('[' ~ host ~ ']*') %}
-          {%     set line = entries|unique|join(',') ~ ' ssh-rsa ' ~ hostdata['ansible_ssh_host_key_rsa_public'] %}
+          {%     set line = entries|unique|join(',') ~ ' ssh-rsa ' ~ hostdata['ansible_facts']['ssh_host_key_rsa_public'] %}
           {{ line }}
           {%   endif %}
           {% endfor %}

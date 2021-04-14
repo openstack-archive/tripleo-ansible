@@ -35,7 +35,6 @@ provisioner:
           allovercloud:
             hosts:
               ubi8:
-                ansible_ssh_host_key_rsa_public: AAAATEST
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
