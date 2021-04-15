@@ -43,6 +43,8 @@ provisioner:
 scenario:
   name: default
   test_sequence:
+    - destroy
+    - create
     - prepare
     - converge
 
