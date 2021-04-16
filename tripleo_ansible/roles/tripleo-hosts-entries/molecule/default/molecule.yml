@@ -41,6 +41,8 @@ provisioner:
           tripleo_hosts_entries_undercloud_hosts_entries: []
           tripleo_hosts_entries_extra_hosts_entries: []
           tripleo_hosts_entries_vip_hosts_entries: []
+          tripleo_stack_name: overcloud
+          plan: overcloud
           cloud_domain: localdomain
           enabled_networks:
             - ctlplane
