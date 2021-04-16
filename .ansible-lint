@@ -41,6 +41,7 @@ mock_modules:
     - tripleo_derive_hci_parameters
     - tripleo_diff_exec
     - tripleo_fernet_keys_rotate
+    - tripleo_findif_for_ip
     - tripleo_generate_ansible_inventory
     - tripleo_generate_overcloudrc
     - tripleo_get_flatten_stack

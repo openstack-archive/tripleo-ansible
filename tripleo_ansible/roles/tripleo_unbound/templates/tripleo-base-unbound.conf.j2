@@ -18,7 +18,7 @@ distribution.
 server:
 
 {# The interface unbound should listen on. x.x.x.x x::x #}
-{% for interface in unbound_vars.tripleo_unbound_listen_interfaces %}
+{% for interface in unbound_vars.tripleo_unbound_listen_ips %}
     interface: {{ interface }}
 {% endfor %}
 {# We are in a container, stay in the foreground #}
