@@ -47,6 +47,20 @@ provisioner:
             - testfile4
             - testfile5
             - testfile6
+          test2_src_dir: "/tmp/src_files_2"
+          test2_dst_dir: "/tmp/dst_files_2"
+          test2_src_files:
+            - transferred
+          test2_exclude_src_files:
+            - skip1
+            - skip2
+            - donotcopy
+          test2_include_pattern:
+            - transferred
+          test2_exclude_pattern:
+            - 'skip*'
+            - donotcopy
+
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
