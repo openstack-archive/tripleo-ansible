@@ -83,32 +83,35 @@
              | combine(cephfs_data|default({}))
              | to_nice_yaml }}"
 
-- name: Set bootstrap host
-  set_fact:
-    tripleo_cephadm_bootstrap_host: "{{ groups['ceph_mon'][0] }}"
+- name: Configure boostrap host info for cephadm
+  when: "{{  groups['ceph_mon'] | default([]) | length > 0 }}"
+  block:
+    - name: Set bootstrap host
+      set_fact:
+        tripleo_cephadm_bootstrap_host: "{{ groups['ceph_mon'][0] }}"
 
-- name: Set first monitor IP
-  set_fact:
-    tripleo_cephadm_first_mon_ip: "{{ hostvars[tripleo_cephadm_bootstrap_host][tripleo_run_cephadm_net] |
-                      default(ansible_host) }}"
-  vars:
-    tripleo_run_cephadm_net: "{{ service_net_map['ceph_mon_network']|default('') + '_ip' }}"
+    - name: Set first monitor IP
+      set_fact:
+        tripleo_cephadm_first_mon_ip: "{{ hostvars[tripleo_cephadm_bootstrap_host][tripleo_run_cephadm_net] |
+                          default(ansible_host) }}"
+      vars:
+        tripleo_run_cephadm_net: "{{ service_net_map['ceph_mon_network']|default('') + '_ip' }}"
 
-- name: genereate ceph_spec for bootstrap
-  ceph_spec_bootstrap:
-    new_ceph_spec: "{{ tripleo_run_cephadm_spec_path }}"
-    tripleo_ansible_inventory: "{{ inventory_file }}"
-    fqdn: "{{ ceph_spec_fqdn }}"
-    osd_spec: "{{ ceph_osd_spec }}"
-  when:
-    - tripleo_cephadm_dynamic_spec
+    - name: genereate ceph_spec for bootstrap
+      ceph_spec_bootstrap:
+        new_ceph_spec: "{{ tripleo_run_cephadm_spec_path }}"
+        tripleo_ansible_inventory: "{{ inventory_file }}"
+        fqdn: "{{ ceph_spec_fqdn }}"
+        osd_spec: "{{ ceph_osd_spec }}"
+      when:
+        - tripleo_cephadm_dynamic_spec
 
 - name: generate ansible cephadm-extra-vars for running tripleo_cephadm role
   copy:
     dest: "{{ playbook_dir }}/cephadm/cephadm-extra-vars-ansible.yml"
     content: |
-      tripleo_cephadm_bootstrap_host: {{ tripleo_cephadm_bootstrap_host }}
-      tripleo_cephadm_first_mon_ip: {{ tripleo_cephadm_first_mon_ip }}
+      tripleo_cephadm_bootstrap_host: {{ tripleo_cephadm_bootstrap_host | default('') }}
+      tripleo_cephadm_first_mon_ip: {{ tripleo_cephadm_first_mon_ip | default('') }}
       tripleo_cephadm_spec_on_bootstrap: false
       tripleo_cephadm_pools: {{ openstack_pools.get('openstack_pools', []) }}
       tripleo_cephadm_keys: {{ keys.get('keys',[]) }}
