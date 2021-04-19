@@ -11,7 +11,7 @@ ExecStartPre=-/usr/bin/{{ container_cli }} rm --storage ceph-nfs-%i
 ExecStartPre=-/usr/bin/mkdir -p /var/log/ceph /var/log/ganesha
 {% endif %}
 ExecStartPre=-/usr/bin/{{ container_cli }} rm ceph-nfs-%i
-ExecStartPre={{ '/bin/mkdir' if ansible_facts['os_family'] == 'Debian' else '/usr/bin/mkdir' }} -p /etc/ceph /etc/ganesha /var/lib/nfs/ganesha /var/log/ganesha
+ExecStartPre=/usr/bin/mkdir -p /etc/ceph /etc/ganesha /var/lib/nfs/ganesha /var/log/ganesha
 ExecStart=/usr/bin/{{ container_cli }} run --rm --net=host \
   -d --log-driver journald --conmon-pidfile /%t/%n-pid --cidfile /%t/%n-cid \
   -v /var/lib/ceph:/var/lib/ceph:z \
