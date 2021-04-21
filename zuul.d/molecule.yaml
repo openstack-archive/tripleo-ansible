@@ -411,6 +411,7 @@
     - ^tripleo_ansible/roles/tripleo_ovs_dpdk/.*
     name: tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
     parent: tripleo-ansible-centos-8-base
+    voting: false
     vars:
       tripleo_role_name: tripleo_ovs_dpdk
 - job:
@@ -418,6 +419,7 @@
     - ^tripleo_ansible/roles/tripleo_packages/.*
     name: tripleo-ansible-centos-8-molecule-tripleo_packages
     parent: tripleo-ansible-centos-8-base
+    voting: false
     vars:
       tripleo_role_name: tripleo_packages
 - job:

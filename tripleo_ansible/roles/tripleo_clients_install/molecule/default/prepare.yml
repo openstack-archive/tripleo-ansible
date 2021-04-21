@@ -21,3 +21,4 @@
     - role: test_deps
       vars:
         test_deps_setup_tripleo: true
+        test_deps_setup_stream: false
