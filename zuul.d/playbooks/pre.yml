@@ -41,6 +41,13 @@
         virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
 
+    - name: Set containers module to 3.0
+      become: true
+      shell: |
+        dnf module disable container-tools:rhel8 -y
+        dnf module enable container-tools:3.0 -y
+        dnf clean metadata
+
     - name: Run bindep
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
