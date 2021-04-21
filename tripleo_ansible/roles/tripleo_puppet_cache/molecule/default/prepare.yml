@@ -18,6 +18,7 @@
 - name: Prepare
   hosts: all
   vars:
+    test_deps_setup_stream: false
     required_packages:
       - facter
       - rsync

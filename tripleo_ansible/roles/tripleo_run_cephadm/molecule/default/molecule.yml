@@ -15,6 +15,7 @@ platforms:
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"

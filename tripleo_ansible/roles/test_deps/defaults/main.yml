@@ -19,3 +19,4 @@ test_deps_extra_packages: []
 test_deps_setup_tripleo: false
 test_deps_repo_version: "{{ ansible_facts['distribution'] | lower }}{{ ansible_facts['distribution_major_version'] }}-master"
 test_deps_mirrors_file_path: /etc/ci/mirror_info.sh
+test_deps_setup_stream: true

@@ -33,6 +33,7 @@ platforms:
     command: /sbin/init
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     ulimits: *ulimit
 

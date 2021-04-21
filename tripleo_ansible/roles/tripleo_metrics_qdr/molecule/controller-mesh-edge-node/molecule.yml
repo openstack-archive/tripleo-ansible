@@ -13,6 +13,7 @@ platforms:
     pkg_extras: python*setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/dnf/vars:/etc/dnf/vars
       # Had to comment this out to fix a problem installing rdo-release-victoria
       # see common/prepare.yml
       # - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
