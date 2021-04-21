@@ -17,6 +17,9 @@
 
 - name: Prepare
   hosts: all
+  vars:
+    test_deps_setup_tripleo: true
+    test_deps_setup_stream: false
   tasks:
     - import_role:
         name: test_deps

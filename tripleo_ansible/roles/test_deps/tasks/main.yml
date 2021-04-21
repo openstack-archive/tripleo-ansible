@@ -66,7 +66,7 @@
     - test_deps_setup_tripleo | bool
   block:
     - name: Create tripleo repos
-      command: tripleo-repos -b master current-tripleo
+      command: tripleo-repos {{ test_deps_setup_stream | ternary('--stream', '--no-stream', omit) }} -b master current-tripleo
 
     - name: Install tripleo packages
       package:

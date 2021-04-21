@@ -86,7 +86,7 @@
         - name: Check failed image pull
           podman_container:
             name: container
-            image: ineverneverneverexist
+            image: quay.io/ineverneverneverexist
             state: present
             command: sleep 1d
           register: imagefail
@@ -96,8 +96,6 @@
           assert:
             that:
               - imagefail is failed
-              - imagefail.msg == "Can't pull image ineverneverneverexist"
-
 
         - name: Force container recreate
           podman_container:

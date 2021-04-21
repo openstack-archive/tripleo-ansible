@@ -162,7 +162,7 @@
     - name: Assert that fedora container has not been re-created
       assert:
         that:
-          - fedora_infos_new == fedora_infos_old
+          - fedora_infos_new['containers'][0]['Id'] == fedora_infos_old['containers'][0]['Id']
         fail_msg: 'fedora container was wrongly re-created'
         success_msg: 'fedora container was not re-created'
       when:
