@@ -25,7 +25,7 @@
     - role: test_deps
   post_tasks:
     - name: Create tripleo repos
-      command: tripleo-repos current-tripleo
+      command: tripleo-repos --no-stream current-tripleo
       become: true
     - name: Install required packages
       become: true
