@@ -228,7 +228,7 @@ def run_module():
     stack = module.params.get('stack_name', 'overcloud')
     role_name = module.params['role_name']
     bridge_mappings = module.params['ovn_bridge_mappings']
-    servers = module.params['server_resource_names']
+    servers = module.params.get('server_resource_names') or []
     playbook_dir = module.params['playbook_dir']
     concurrency = module.params.get('concurrency', 0)
     static_mappings = module.params.get(
@@ -241,8 +241,9 @@ def run_module():
             _, conn = openstack_cloud_from_module(module)
 
             net_id = create_ovn_mac_address_network(result, conn)
-            tags = ['tripleo_stack_name={}'.format(stack),
-                    'tripleo_role={}'.format(role_name)]
+            tags = ['tripleo_stack_name={}'.format(stack)]
+            if role_name:
+                tags.append('tripleo_role={}'.format(role_name))
 
             # no limit on concurrency, create a worker for every server
             if concurrency < 1:
