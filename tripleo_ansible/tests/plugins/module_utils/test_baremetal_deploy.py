@@ -1109,6 +1109,19 @@ class TestCheckExistingInstances(base.TestCase):
         self.assertIn("hostname host1 was not found", str(exc))
         pr.show_instance.assert_called_once_with('host1')
 
+    def test_check_existing_no_ironic(self):
+        pr = mock.Mock()
+        instances = [
+            {'hostname': 'host1',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, None)
+
+        self.assertIn(
+            "Instance host1 is not specified as pre-provisioned", str(exc))
+
     def test_unexpected_error(self):
         pr = mock.Mock()
         instances = [

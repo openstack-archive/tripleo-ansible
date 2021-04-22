@@ -406,11 +406,18 @@ def check_existing(instances, provisioner, baremetal):
     found = []
     unmanaged = []
     for request in instances:
+
+        ident = request.get('name', request['hostname'])
+
         if not request.get('managed', True):
             unmanaged.append(request)
             continue
-
-        ident = request.get('name', request['hostname'])
+        elif not baremetal:
+            message = ('Instance %s is not specified as pre-provisioned '
+                       '(managed: False), and no connection to '
+                       'the baremetal service was provided.'
+                       % ident)
+            raise BaremetalDeployException(message)
 
         try:
             instance = provisioner.show_instance(ident)
