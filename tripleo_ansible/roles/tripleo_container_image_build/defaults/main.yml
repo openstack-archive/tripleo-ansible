@@ -22,7 +22,7 @@ tcib_path: "{{ lookup('env', 'HOME') }}"
 tcib_args: {}
 
 # String, required, 'item', implements https://docs.docker.com/engine/reference/builder/#from
-tcib_from: "centos:8"
+tcib_from: "quay.io/centos/centos:stream8"
 
 # Dictionary, single level key:value pairs, optional, implements https://docs.docker.com/engine/reference/builder/#label
 tcib_labels: {}

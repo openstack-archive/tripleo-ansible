@@ -6,8 +6,8 @@ log: true
 
 platforms:
 
-  - name: centos8
-    hostname: centos8
+  - name: stream8
+    hostname: stream8
     image: quay.io/centos/centos:stream8
     dockerfile: Dockerfile
     pkg_extras: python*-setuptools
