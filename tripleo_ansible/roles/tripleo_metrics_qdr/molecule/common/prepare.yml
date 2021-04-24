@@ -14,7 +14,7 @@
 
     - name: "Set-up tripleo-repos"
       command: |
-        tripleo-repos -b master current-tripleo
+        tripleo-repos --no-stream -b master current-tripleo
 
     - name: Install Deps
       package:

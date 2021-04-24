@@ -25,7 +25,7 @@
         name: openssh
         state: present
     - name: Enable ceph repsitory
-      command: tripleo-repos -b master current-tripleo ceph
+      command: tripleo-repos --no-stream -b master current-tripleo ceph
       become: true
     - name: Ensure ceph-admin group exists
       group:
