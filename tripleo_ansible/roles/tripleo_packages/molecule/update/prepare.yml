@@ -17,5 +17,7 @@
 
 - name: Prepare
   hosts: all
+  vars:
+    test_deps_setup_stream: false
   roles:
     - role: test_deps

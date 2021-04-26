@@ -30,14 +30,12 @@
   when:
     - (((step | int) == 0) or ((step | int) == 3)) and (yum_pid_file.stat.exists | bool)
 
-# Ansbile cannot upgrade itself as it will cause the current execution to fail.
-# https://github.com/ansible/ansible/issues/56636
 - name: Update all packages
   when: step|int == 3
   package:
     name: '*'
     state: latest
-    exclude: ansible
+    exclude: "{{ tripleo_packages_exclude_from_update }}"
   register: tripleo_package_update_result
 
 - name: Handle openvswitch service
