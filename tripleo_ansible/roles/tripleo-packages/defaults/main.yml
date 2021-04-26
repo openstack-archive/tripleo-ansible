@@ -79,4 +79,10 @@ tripleo_packages_upgrade_init_command: ''
 tripleo_packages_upgrade_init_common_command: ''
 tripleo_packages_short_bootstrap_node_name: ''
 
+# Exclude specific packages from update
+tripleo_packages_exclude_from_update:
+  # Ansbile cannot upgrade itself as it will cause the current execution to fail.
+  # https://github.com/ansible/ansible/issues/56636
+  - ansible
+
 tripleo_release: "{{ release | default('queens') }}"

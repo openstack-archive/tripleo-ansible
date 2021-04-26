@@ -21,6 +21,7 @@ platforms:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
