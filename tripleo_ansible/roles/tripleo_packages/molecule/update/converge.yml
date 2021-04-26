@@ -19,6 +19,9 @@
   hosts: all
   vars:
     step: 3
+    tripleo_packages_exclude_from_update:
+      - ansible
+      - redhat-release
   tasks:
     - name: Import TripleO packages role
       include_role:
