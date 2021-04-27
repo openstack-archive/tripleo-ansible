@@ -32,5 +32,6 @@ tripleo_frr_bgp_uplinks_scope: internal
 tripleo_frr_config_basedir: "/var/lib/config-data/ansible-generated/frr"
 tripleo_frr_hostname: "{{ ansible_facts['hostname'] }}"
 tripleo_frr_log_level: informational
+tripleo_frr_log_timestamp_precision: 3
 tripleo_frr_watchfrr: true
 tripleo_frr_zebra: false
