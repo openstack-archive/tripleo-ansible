@@ -156,6 +156,34 @@ class TestTripleoServiceVip(tests_base.TestCase):
                                             'network', fixed_ips)
         mock_write_file.assert_called_with(mock_port, 'service', '/tmp/dir')
 
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    @mock.patch.object(plugin, '_openstack_cloud_from_module', autospec=True)
+    def test_delete_service_vip(self, mock_ocfm, mock_conn):
+        module = mock.Mock()
+        mock_ocfm.return_value = None, mock_conn
+        mock_conn.identity.find_service.return_value = True
+        mock_port1 = mock.Mock(id=123,
+                               tags=['tripleo_stack_name=overcloud',
+                                     'tripleo_service_vip=ovn_dbs'])
+        mock_port2 = mock.Mock(id=456, tags=[])
+        mock_conn.network.ports.return_value = [mock_port1, mock_port2]
+        plugin.delete_service_vip(module, 'overcloud')
+        mock_conn.network.delete_port.assert_called_with(123)
+        self.assertEqual(1, mock_conn.network.delete_port.call_count)
+
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    @mock.patch.object(plugin, '_openstack_cloud_from_module', autospec=True)
+    def test_delete_service_vip_with_service(self, mock_ocfm, mock_conn):
+        module = mock.Mock()
+        mock_ocfm.return_value = None, mock_conn
+        mock_conn.identity.find_service.return_value = True
+        mock_port = mock.Mock(id=123,
+                              tags=['tripleo_stack_name=overcloud',
+                                    'tripleo_service_vip=redis'])
+        mock_conn.network.ports.return_value = [mock_port]
+        plugin.delete_service_vip(module, 'overcloud', 'redis')
+        mock_conn.network.delete_port.assert_called_with(123)
+
     @mock.patch.object(plugin, 'write_vars_file', autospec=True)
     @mock.patch.object(plugin, 'use_fake', autospec=True)
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)

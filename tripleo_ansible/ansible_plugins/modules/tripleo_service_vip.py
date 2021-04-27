@@ -61,6 +61,14 @@ options:
     description:
       - Name of the service the Virtual IP is intended for
     type: str
+  state:
+    description:
+      - The desired provision state, "present" to provision, "absent" to
+        unprovision
+    default: present
+    choices:
+    - present
+    - absent
   network:
     description:
       - Neutron network where the Virtual IP port will be created
@@ -93,7 +101,7 @@ RETURN = '''
 
 EXAMPLES = '''
 - name: Create redis Virtual IP
-  tripleo_service_vip_port:
+  tripleo_service_vip:
     stack_name: overcloud
     service_name: redis
     network: internal_api
@@ -101,7 +109,7 @@ EXAMPLES = '''
       - subnet: internal_api_subnet
   register: redis_vip
 - name: Create foo Virtual IP (Not creating a neutron port)
-  tripleo_service_vip_port:
+  tripleo_service_vip:
     stack_name: overcloud
     service_name: foo
     network: foo
@@ -150,7 +158,7 @@ def create_or_update_port(conn, net, stack=None, service=None,
                                 '{}. Service {} is mapped to a subnet that '
                                 'does not exist. Verify that the VipSubnetMap '
                                 'parameter has the correct values.'.format(
-                    subnet_name, net.name, service))
+                                    subnet_name, net.name, service))
             ip_def['subnet_id'] = subnet.id
 
         fixed_ips_def.append(ip_def)
@@ -248,6 +256,30 @@ def _openstack_cloud_from_module(module):
     return _, conn
 
 
+def delete_service_vip(module, stack, service='all'):
+    try:
+        _, conn = _openstack_cloud_from_module(module)
+        _use_neutron = conn.identity.find_service('neutron') is not None
+    except kauth1_exc.MissingRequiredOptions:
+        return
+    if not _use_neutron:
+        return
+    if service == 'all':
+        tags = {'tripleo_stack_name={}'.format(stack)}
+        ports = conn.network.ports(tags=list(tags))
+        matching = [p for p in ports
+                    if any("tripleo_service_vip" in tag for tag in p.tags)]
+    else:
+        tags = {'tripleo_stack_name={}'.format(stack),
+                'tripleo_service_vip={}'.format(service)}
+        matching = conn.network.ports(tags=list(tags))
+    for p in matching:
+        try:
+            conn.network.delete_port(p.id)
+        except Exception:
+            pass
+
+
 def create_service_vip(module, stack, service, network, fixed_ips,
                        playbook_dir):
     _use_neutron = True
@@ -289,22 +321,27 @@ def run_module():
     )
 
     stack = module.params.get('stack_name', 'overcloud')
-    service = module.params['service_name']
-    network = module.params['network']
-    fixed_ips = module.params.get('fixed_ips', [])
-    playbook_dir = module.params['playbook_dir']
+    service = module.params.get('service_name', 'all')
+    state = module.params.get('state', 'present')
 
     try:
-        create_service_vip(module, stack, service, network, fixed_ips,
-                           playbook_dir)
+        if state == 'present' and service == 'all':
+            raise Exception("Provide service_name for service_vip creation.")
 
+        if state == 'absent':
+            delete_service_vip(module, stack, service)
+        else:
+            network = module.params['network']
+            fixed_ips = module.params.get('fixed_ips', [])
+            playbook_dir = module.params['playbook_dir']
+            create_service_vip(module, stack, service, network, fixed_ips,
+                               playbook_dir)
         result['changed'] = True
         result['success'] = True
         module.exit_json(**result)
-
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ('ERROR: Failed creating service virtual IP!'
+        result['msg'] = ('ERROR: Failed creating/deleting service virtual IP!'
                          ' {}'.format(err))
         module.fail_json(**result)
 

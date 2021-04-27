@@ -30,6 +30,10 @@
       loop:
         - stack_name
   tasks:
+    - name: Delete service vips used
+      tripleo_service_vip:
+        stack_name: "{{ stack_name }}"
+        state: absent
     - name: Delete heat stack
       os_stack:
         name: "{{ stack_name }}"

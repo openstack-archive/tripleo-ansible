@@ -60,6 +60,7 @@ mock_modules:
     - tripleo_passwords_rotate
     - tripleo_plan_deploy
     - tripleo_plan_parameters_update
+    - tripleo_service_vip
     - tripleo_swift_tempurl
     - tripleo_templates_upload
     - tripleo_unmanaged_populate_environment
