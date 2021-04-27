@@ -184,9 +184,19 @@ def render(path, content):
         if path is not None and len(path) > 0:
             with open(path, 'w') as f:
                 f.write('---\n')
-                f.write(yaml.dump(content, indent=2))
+                f.write(yaml.safe_dump(content, indent=2))
     else:
         print('Nothing to dump!')
+
+
+def repr_str(dumper, data):
+    if '\n' in data:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+    return dumper.org_represent_str(data)
+
+
+yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
+yaml.add_representer(str, repr_str, Dumper=yaml.SafeDumper)
 
 
 def run_module():
