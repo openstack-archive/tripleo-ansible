@@ -19,6 +19,8 @@
 #       tripleo-common expects the legacy clients. Once
 #       we've updated tripleo-common to use the SDK we
 #       should revise this.
+import os
+
 from glanceclient import client as glanceclient
 from heatclient.v1 import client as heatclient
 from ironicclient import client as ironicclient
@@ -29,6 +31,14 @@ from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
 
 import ironic_inspector_client
+
+try:
+    # TODO(slagle): the try/except can be removed once tripleo_common is
+    # released with
+    # https://review.opendev.org/c/openstack/tripleo-common/+/787819
+    from tripleo_common.utils import heat
+except ImportError:
+    heat = None
 
 
 class DeriveParamsError(Exception):
@@ -74,8 +84,14 @@ class TripleOCommon(object):
         if 'heatclient' in self.client_cache:
             return self.client_cache['heatclient']
         else:
-            self.client_cache['heatclient'] = \
-                heatclient.Client(session=self.sess)
+            if heat and os.environ.get('OS_HEAT_TYPE', '') == 'ephemeral':
+                host = os.environ.get('OS_HEAT_HOST', '127.0.0.1')
+                port = os.environ.get('OS_HEAT_PORT', 8006)
+                self.client_cache['heatclient'] = \
+                    heat.local_orchestration_client(host, int(port))
+            else:
+                self.client_cache['heatclient'] = \
+                    heatclient.Client(session=self.sess)
             return self.client_cache['heatclient']
 
     def get_compute_client(self):
