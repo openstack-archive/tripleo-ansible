@@ -20,6 +20,7 @@
   become: true
   vars:
     test_deps_setup_tripleo: true
+    test_deps_setup_stream: true
   roles:
     - role: test_deps
   post_tasks:
