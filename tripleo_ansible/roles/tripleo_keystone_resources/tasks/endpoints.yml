@@ -15,7 +15,7 @@
 # under the License.
 
 - name: "Async creation of Keystone {{ keystone_endpoint_type }} endpoint"
-  os_keystone_endpoint:
+  openstack.cloud.endpoint:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     service: "{{ tripleo_keystone_resources_data.key }}"
     url: "{{ tripleo_keystone_resources_data['value']['endpoints'][keystone_endpoint_type] }}"

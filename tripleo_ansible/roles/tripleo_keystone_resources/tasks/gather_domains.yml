@@ -13,12 +13,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-#
-- name: Collect OpenStack Keystone domains facts
-  os_keystone_domain_facts:
-    cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-  register: tripleo_domains_facts
 
-- name: Create openstack_domains fact
+- name: Collect OpenStack Keystone domains infos
+  openstack.cloud.identity_domain_info:
+    cloud: "{{ tripleo_keystone_resources_cloud_name }}"
+  register: domain_result
+
+- name: Set openstack_domains fact
   set_fact:
-    openstack_domains: "{{ tripleo_domains_facts['ansible_facts']['openstack_domains'] }}"
+    openstack_domains: "{{ domain_result.openstack_domains }}"
