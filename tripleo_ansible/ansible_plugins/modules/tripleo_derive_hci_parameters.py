@@ -254,13 +254,20 @@ def count_osds(tripleo_environment_parameters):
 
 def count_memory(ironic):
     """
-    Counts the memory found in the ironic introspection data as
-    represented by memory_mb. Returns integer of memory in GB.
+    Counts the memory found in the ironic introspection data. If
+    memory_mb is 0, uses ['inventory']['memory']['total'] in bytes.
+    Returns integer of memory in GB.
     """
-    try:
-        memory = ironic['data']['memory_mb'] / float(MB_PER_GB)
-    except KeyError:
-        memory = 0
+    memory = 0
+    if 'data' in ironic:
+        if 'memory_mb' in ironic['data']:
+            if int(ironic['data']['memory_mb']) > 0:
+                memory = int(ironic['data']['memory_mb']) / float(MB_PER_GB)
+            elif 'inventory' in ironic['data']:
+                if 'memory' in ironic['data']['inventory']:
+                    if 'total' in ironic['data']['inventory']['memory']:
+                        memory = int(ironic['data']['inventory']['memory']['total']) \
+                            / float(MB_PER_GB) / float(MB_PER_GB) / float(MB_PER_GB)
     return memory
 
 
