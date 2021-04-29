@@ -27,18 +27,11 @@ from ironicclient import client as ironicclient
 from novaclient import client as novaclient
 from swiftclient import client as swift_client
 
+from tripleo_common.utils import heat as tc_heat_utils
 from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
 
 import ironic_inspector_client
-
-try:
-    # TODO(slagle): the try/except can be removed once tripleo_common is
-    # released with
-    # https://review.opendev.org/c/openstack/tripleo-common/+/787819
-    from tripleo_common.utils import heat
-except ImportError:
-    heat = None
 
 
 class DeriveParamsError(Exception):
@@ -84,11 +77,11 @@ class TripleOCommon(object):
         if 'heatclient' in self.client_cache:
             return self.client_cache['heatclient']
         else:
-            if heat and os.environ.get('OS_HEAT_TYPE', '') == 'ephemeral':
+            if os.environ.get('OS_HEAT_TYPE', '') == 'ephemeral':
                 host = os.environ.get('OS_HEAT_HOST', '127.0.0.1')
                 port = os.environ.get('OS_HEAT_PORT', 8006)
                 self.client_cache['heatclient'] = \
-                    heat.local_orchestration_client(host, int(port))
+                    tc_heat_utils.local_orchestration_client(host, int(port))
             else:
                 self.client_cache['heatclient'] = \
                     heatclient.Client(session=self.sess)
