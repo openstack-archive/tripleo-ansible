@@ -36,6 +36,8 @@
         tripleo_environment_parameters: "{{ tripleo_get_flatten_params.stack_data.environment_parameters }}"
         tripleo_heat_resource_tree: "{{ tripleo_get_flatten_params.stack_data.heat_resource_tree }}"
         baremetal_data: "{{ lookup('file', '../mock_baremetal_{{ outer_item }}') | from_yaml }}"
+        new_heat_environment_path: ""
+        append_new_heat_environment_path: false
       loop: "{{ tripleo_role_list.roles }}"
       loop_control:
         loop_var: outer_item

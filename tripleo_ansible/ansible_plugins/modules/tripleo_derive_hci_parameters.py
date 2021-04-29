@@ -15,6 +15,7 @@
 # under the License.
 """Derive paramters for HCI (hyper-converged) deployments"""
 
+import os
 import re
 import yaml
 
@@ -64,6 +65,10 @@ options:
         description: Path to file new where resultant derived parameters will be written; result will be valid input to TripleO client, e.g. /home/stack/derived_paramaters.yaml
         required: False
         type: str
+    append_new_heat_environment_path:
+        description: If new_heat_environment_path already exists and append_new_heat_environment_path is true, then append new content to the existing new_heat_environment_path instead of overwriting a new version of that file.
+        required: False
+        type: bool
     report_path:
         description: Path to file new where a report on how HCI paramters were derived be written, e.g. /home/stack/hci_derived_paramaters.txt
         required: False
@@ -446,6 +451,7 @@ def main():
         average_guest_memory_size_in_mb=dict(type=int, required=False, default=0),
         derived_parameters=dict(type=dict, required=False),
         new_heat_environment_path=dict(type=str, required=False),
+        append_new_heat_environment_path=dict(type=bool, required=False),
         report_path=dict(type=str, required=False),
     )
     module = AnsibleModule(
@@ -491,8 +497,29 @@ def main():
         existing_params[role_name_parameters] = role_derivation
         # write out to file if requested
         if module.params['new_heat_environment_path'] and not module.check_mode:
-            output = {}
-            output['parameter_defaults'] = existing_params
+            if module.params['append_new_heat_environment_path'] and \
+               os.path.exists(module.params['new_heat_environment_path']):
+                with open(module.params['new_heat_environment_path'], 'r') as stream:
+                    try:
+                        output = yaml.safe_load(stream)
+                        if 'parameter_defaults' in output:
+                            output['parameter_defaults'][role_name_parameters] = \
+                                role_derivation
+                        else:
+                            result['failed'] = True
+                            result['message'] = ("tripleo_derive_hci_parameters module "
+                                                 "cannot append to environment file %s. "
+                                                 "It is missing the 'parameter_defaults' "
+                                                 "key. Try again with the parameter "
+                                                 "append_new_heat_environment_path set "
+                                                 "False") \
+                            % module.params['new_heat_environment_path']
+                    except yaml.YAMLError as exc:
+                        result['failed'] = True
+                        result['message'] = exec
+            else:
+                output = {}
+                output['parameter_defaults'] = existing_params
             with open(module.params['new_heat_environment_path'], 'w') as outfile:
                 yaml.safe_dump(output, outfile, default_flow_style=False)
             # because we wrote a file we're making a change on the target system
