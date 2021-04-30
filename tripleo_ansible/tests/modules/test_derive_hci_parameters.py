@@ -147,12 +147,11 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
             env = get_env(flavor, osds_per_device)
             ironic = get_ironic(flavor)
             num_osds = len(env['CephAnsibleDisksConfig']['devices'])
-            vcpu_ratio, vcpu_msg, vcpu_warn = derive_params.get_vcpus_per_osd(ironic,
-                                                                              env,
-                                                                              num_osds)
+            vcpu_ratio, vcpu_msg = derive_params.get_vcpus_per_osd(ironic,
+                                                                   env,
+                                                                   num_osds)
             self.assertEqual(vcpu_ratio, ratio_map[flavor])
             self.assertIsNotNone(vcpu_msg)
-            self.assertFalse(vcpu_warn)
 
     def test_derive_without_workload(self):
         """Test the derive method without passing the expected average
