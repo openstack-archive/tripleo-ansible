@@ -32,6 +32,35 @@
   tags:
     - always
 
+- name: Move virtual IPs to another node before stopping pacemaker
+  when: pacemaker_enabled
+  shell: |
+    CLUSTER_NODE=$(crm_node -n)
+    echo "Retrieving all the VIPs which are hosted on this node"
+    VIPS_TO_MOVE=$(crm_mon --as-xml | xmllint --xpath '//resource[@resource_agent = "ocf::heartbeat:IPaddr2" and @role = "Started" and @managed = "true" and ./node[@name = "'${CLUSTER_NODE}'"]]/@id' - | sed -e 's/id=//g' -e 's/"//g')
+    for v in ${VIPS_TO_MOVE}; do
+        echo "Moving VIP $v on another node"
+        pcs resource ban $v ${CLUSTER_NODE} --wait=300
+    done
+    echo "Removing the location constraints that were created to move the VIPs"
+    for v in ${VIPS_TO_MOVE}; do
+        echo "Removing location ban for VIP $v"
+        ban_id=$(cibadmin --query | xmllint --xpath 'string(//rsc_location[@rsc="'${v}'" and @node="'${CLUSTER_NODE}'" and @score="-INFINITY"]/@id)' -)
+        if [ -n "$ban_id" ]; then
+           pcs constraint remove ${ban_id}
+        else
+           echo "Could not retrieve and clear location constraint for VIP $v" 2>&1
+        fi
+    done
+  tags:
+    - bar_create_recover_image
+
+- name: Take this node out of pacemaker
+  command: pcs node standby
+  when: pacemaker_enabled
+  tags:
+    - bar_create_recover_image
+
 - name: Create the node backup
   become: true
   command: rear {{ '-s ' if tripleo_backup_and_restore_rear_simulate else '' }}-d -v mkbackup
@@ -43,5 +72,21 @@
 - name: Display ReaR recovery image creation output
   debug:
     var: tripleo_backup_and_restore_rear_output
+  tags:
+    - bar_create_recover_image
+
+- name: Add the node to the pacemaker cluster
+  command: pcs node unstandby
+  when: pacemaker_enabled
+  tags:
+    - bar_create_recover_image
+
+- name: Wait until pacemaker has Galera up&running
+  shell: netstat -tunlp | grep ":3306 " | sed -e 's/.*\///'
+  register: mysql_result
+  retries: 10
+  until: mysql_result is search('mysqld')
+  delay: 5
+  when: pacemaker_enabled
   tags:
     - bar_create_recover_image
