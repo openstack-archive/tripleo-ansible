@@ -3,6 +3,7 @@
     check:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
+      - tripleo-ansible-centos-8-molecule-backup-and-restore
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_json_error_callback
       - tripleo-ansible-centos-8-molecule-test_package_action
@@ -48,6 +49,7 @@
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
+      - tripleo-ansible-centos-8-molecule-backup-and-restore
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo-bootstrap
@@ -97,6 +99,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: aide
+- job:
+    files:
+    - ^tripleo_ansible/roles/backup-and-restore/.*
+    name: tripleo-ansible-centos-8-molecule-backup-and-restore
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: backup-and-restore
 - job:
     files:
     - ^tripleo_ansible/roles/test_deps/.*
