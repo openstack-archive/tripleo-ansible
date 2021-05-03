@@ -90,3 +90,14 @@
   when: pacemaker_enabled
   tags:
     - bar_create_recover_image
+
+- name: Clean old backups
+  shell: |
+    set -o pipefail
+    rm -rf /tmp/rear.* || true
+    rm -rf /var/lib/rear/output/*
+  failed_when: false
+  args:
+    warn: false
+  tags:
+    - bar_create_recover_image

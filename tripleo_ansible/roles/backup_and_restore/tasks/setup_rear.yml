@@ -109,3 +109,36 @@
     backup: true
   tags:
     - bar_setup_rear
+
+- name: Load rear config
+  become: true
+  slurp:
+    src: /etc/rear/local.conf
+  register: rear_config
+  tags:
+    - bar_setup_rear
+
+- name: Extract OUTPUT_URL from rear config
+  set_fact:
+    output_url: "{{ rear_config.content | b64decode | regex_findall('OUTPUT_URL=(.+)') | first }}"
+  tags:
+    - bar_setup_rear
+
+- name: Check if this is a SFTP backup
+  set_fact:
+    sftp_backup: "{{ output_url is search ('sftp://') }}"
+  tags:
+    - bar_setup_rear
+
+- name: Extract the SFTP hostname
+  set_fact:
+    sftp_host: "{{ output_url | regex_search('(?<=@)(.*?)(?=/)') }}"
+  when: sftp_backup
+  tags:
+    - bar_setup_rear
+
+- name: Retrieve host ssh fingerprint
+  shell: "ssh-keyscan -H {{ sftp_host }} >> ~/.ssh/known_hosts"
+  when: sftp_backup
+  tags:
+    - bar_setup_rear
