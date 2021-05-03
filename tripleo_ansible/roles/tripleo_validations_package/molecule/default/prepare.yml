@@ -21,7 +21,5 @@
     test_deps_setup_stream: false
   roles:
     - role: test_deps
-  post_tasks:
-    - name: Create tripleo repos
-      command: tripleo-repos --no-stream current-tripleo
-      become: true
+      test_deps_setup_tripleo: true
+      test_deps_setup_stream: false

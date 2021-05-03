@@ -19,14 +19,12 @@
   hosts: all
   roles:
     - role: test_deps
+      test_deps_setup_tripleo: true
+      test_deps_setup_stream: false
+      test_deps_setup_ceph: true
+      test_deps_extra_packages:
+        - openssh
   tasks:
-    - name: Install additional dependencies
-      package:
-        name: openssh
-        state: present
-    - name: Enable ceph repsitory
-      command: tripleo-repos --no-stream -b master current-tripleo ceph
-      become: true
     - name: Ensure ceph-admin group exists
       group:
         name: ceph-admin

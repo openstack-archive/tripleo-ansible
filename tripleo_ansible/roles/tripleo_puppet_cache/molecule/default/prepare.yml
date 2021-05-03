@@ -17,22 +17,14 @@
 
 - name: Prepare
   hosts: all
-  vars:
-    test_deps_setup_stream: false
-    required_packages:
-      - facter
-      - rsync
   roles:
     - role: test_deps
+      test_deps_setup_tripleo: true
+      test_deps_setup_stream: false
+      test_deps_extra_packages:
+        - facter
+        - rsync
   post_tasks:
-    - name: Create tripleo repos
-      command: tripleo-repos --no-stream current-tripleo
-      become: true
-    - name: Install required packages
-      become: true
-      package:
-        name: "{{ required_packages }}"
-        state: latest
     - name: Create container-puppet dir
       become: true
       file:
