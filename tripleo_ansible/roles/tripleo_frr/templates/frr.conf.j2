@@ -2,6 +2,7 @@
 
 hostname {{ tripleo_frr_hostname }}
 log file /var/log/frr/frr.log {{ tripleo_frr_log_level }}
+log timestamp precision {{ tripleo_frr_log_timestamp_precision }}
 service integrated-vtysh-config
 line vty
 
