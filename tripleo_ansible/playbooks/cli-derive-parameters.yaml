@@ -54,19 +54,8 @@
         tripleo_role_name: "{{ outer_item }}"
         tripleo_environment_parameters: "{{ tripleo_get_flatten_params.stack_data.environment_parameters }}"
         tripleo_heat_resource_tree: "{{ tripleo_get_flatten_params.stack_data.heat_resource_tree }}"
+        new_heat_environment_path: "{{ derived_environment_path }}"
+        append_new_heat_environment_path: True
       loop: "{{ tripleo_role_list.roles }}"
       loop_control:
         loop_var: outer_item
-
-    - name: Write environment to {{ derived_environment_path }}
-      block:
-        - name: create derived params dictionary
-          set_fact:
-            derived_params_env: "{{ {'parameter_defaults': derived_parameters_result['derived_parameters'] | default({})} }}"
-        - name: Write environment
-          copy:
-            dest: "{{ derived_environment_path }}"
-            content: "{{ derived_params_env | to_nice_yaml(indent=2) }}"
-      when:
-        - derived_environment_path is defined
-        - derived_parameters_result is defined

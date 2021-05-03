@@ -206,6 +206,8 @@
         average_guest_cpu_utilization_percentage: "{{ average_guest_cpu_utilization_percentage }}"
         average_guest_memory_size_in_mb: "{{ average_guest_memory_size_in_mb }}"
         derived_parameters: "{{ derived_parameters }}"
+        new_heat_environment_path: "{{ new_heat_environment_path }}"
+        append_new_heat_environment_path: "{{ append_new_heat_environment_path }}"
       register: derived_parameters_result
 
     - name: Show HCI derived paramters results

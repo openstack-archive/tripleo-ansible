@@ -23,3 +23,5 @@ tripleo_plan_name: Overcloud
 tripleo_role_name: undefined
 tripleo_environment_parameters: {}
 tripleo_heat_resource_tree: {}
+new_heat_environment_path: ""
+append_new_heat_environment_path: false
