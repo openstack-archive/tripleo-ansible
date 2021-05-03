@@ -45,3 +45,34 @@
     var: tripleo_backup_and_restore_rear_output
   tags:
     - bar_create_recover_image
+
+- name: Add the node to the pacemaker cluster
+  command: pcs node unstandby
+  when:
+    - pacemaker_enabled
+    - tripleo_backup_and_restore_enable_snapshots|bool
+  tags:
+    - bar_create_recover_image
+
+- name: Wait until pacemaker has Galera up&running
+  shell: netstat -tunlp | grep ":3306 " | sed -e 's/.*\///'
+  register: mysql_result
+  retries: 10
+  until: mysql_result is search('mysqld')
+  delay: 5
+  when:
+    - pacemaker_enabled
+    - tripleo_backup_and_restore_enable_snapshots|bool
+  tags:
+    - bar_create_recover_image
+
+- name: Clean old backups
+  shell: |
+    set -o pipefail
+    rm -rf /tmp/rear.* || true
+    rm -rf /var/lib/rear/output/*
+  failed_when: false
+  args:
+    warn: false
+  tags:
+    - bar_create_recover_image
