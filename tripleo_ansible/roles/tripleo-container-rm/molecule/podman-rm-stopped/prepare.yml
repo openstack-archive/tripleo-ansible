@@ -33,7 +33,7 @@
 
     - name: Pull container image
       podman_image:
-        name: fedora
+        name: registry.access.redhat.com/ubi8/ubi-minimal
 
     - name: Create test containers
       podman_container:
@@ -41,7 +41,7 @@
         interactive: true
         tty: true
         detach: true
-        image: fedora
+        image: ubi-minimal
         command: bash
       with_items:
         - podman-container1
