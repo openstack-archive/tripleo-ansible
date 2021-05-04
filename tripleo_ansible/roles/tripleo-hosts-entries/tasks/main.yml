@@ -85,6 +85,9 @@
           tripleo_hosts_entries_extra_hosts_entries | default([]) %}
       {{ host }}
       {% endfor %}
+    marker: "# {mark}"
+    marker_begin: "START_HOST_ENTRIES_FOR_STACK: {{ tripleo_stack_name | default(plan) }}"
+    marker_end: "END_HOST_ENTRIES_FOR_STACK: {{ tripleo_stack_name | default(plan) }}"
   register: tripleo_hosts_entries_new_entries
   tags:
     - tripleo_hosts_entries
