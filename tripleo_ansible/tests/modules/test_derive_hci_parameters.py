@@ -161,3 +161,18 @@ class TestTripleoDeriveHciParameters(tests_base.TestCase):
         der = derive_params.derive(mem_gb=256, vcpus=56, osds=16)
         self.assertFalse(der['failed'])
         self.assertEqual(der['nova_reserved_mem_mb'], 81920)
+
+    def test_count_memory(self):
+        """Test that the count_memory method can the right number
+        regardless of which value ironic might provide.
+        """
+        mock_ironic_memory_mb = {'data':
+                                 {'memory_mb': 262144}}
+        mock_ironic_memory_bytes = {'data':
+                                    {'memory_mb': 0,
+                                     'inventory':
+                                     {'memory':
+                                      {'total': 274877906944}}}}
+        gb_from_mb = derive_params.count_memory(mock_ironic_memory_mb)
+        gb_from_bytes = derive_params.count_memory(mock_ironic_memory_bytes)
+        self.assertEqual(gb_from_mb, gb_from_bytes)
