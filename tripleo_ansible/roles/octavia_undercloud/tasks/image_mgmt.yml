@@ -31,9 +31,19 @@
   when:
     - image_file_result.stat.exists | bool
 
+- name: Check the amphora image file format
+  command: |
+    qemu-img info --output=json "{{ image_filename }}"
+  register: image_file_format
+
+- name: Set the image format
+  set_fact:
+    img_format: "{{ (image_file_format.stdout | from_json).format }}"
+
 - name: Convert image if indicated
   when:
     - amp_to_raw | bool
+    - img_format != "raw"
   block:
     - name: create temporary directory
       tempfile:
@@ -48,10 +58,6 @@
       shell: |
         qemu-img convert -f qcow2 -O raw {{ image_filename }} {{ raw_filename }}
 
-    - name: setting amphora format to raw
-      set_fact:
-        raw_format: raw
-
     - name: get the checksum for the converted file
       stat:
         path: "{{ raw_filename }}"
@@ -61,6 +67,10 @@
     - name: update image_checksum with checksum of the converted file
       set_fact:
         image_checksum: "{{ raw_file_result.stat.checksum }}"
+
+    - name: setting amphora format to raw
+      set_fact:
+        img_format: raw
 
 - name: gather facts about the service project
   shell: |
@@ -180,7 +190,7 @@
 
 - name: upload image to glance
   shell: |
-    openstack image create --disk-format {{ raw_format|default('qcow2') }} \
+    openstack image create --disk-format {{ img_format|default('qcow2') }} \
       --container-format bare --tag {{ amp_image_tag }} \
       --file {{ raw_filename|default(image_filename) }} \
       --property hw_architecture={{ amp_hw_arch }} \
