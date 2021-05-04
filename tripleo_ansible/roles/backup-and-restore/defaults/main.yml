@@ -68,3 +68,6 @@ tripleo_backup_and_restore_firewalld_zone: "libvirt"
 
 # The ReaR rpm installs a cronjob at 1:30 each day by default. This variable deactivate that behaviour.
 tripleo_backup_and_restore_remove_default_cronjob: true
+
+# Skip the ping test to the NFS server on rear setup
+tripleo_backup_and_restore_skip_nfs_test: false
