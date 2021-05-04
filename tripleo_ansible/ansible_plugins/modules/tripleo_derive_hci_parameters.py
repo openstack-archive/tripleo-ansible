@@ -128,8 +128,9 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb=0,
 
     # seed the result
     derived = {}
-    derived['message'] = ""
     derived['failed'] = False
+    derived['message'] = ""
+    messages = []
 
     if average_guest_memory_size_in_mb == 0 and \
        average_guest_cpu_utilization_percentage == 0:
@@ -139,42 +140,40 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb=0,
 
     # catch possible errors in parameters
     if mem_gb < 1:
-        msg = "Unable to determine the amount of physical memory "
-        msg += "(no 'memory_mb' found in introspection_data)."
-        derived['message'] += msg + "\n"
+        messages.append("Unable to determine the amount of physical memory "
+                        "(no 'memory_mb' found in introspection_data).")
         derived['failed'] = True
 
     if vcpus < 1:
-        msg = "Unable to determine the number of CPU cores. "
-        msg += "Either no 'cpus' found in introspection_data or "
-        msg += "NovaVcpuPinSet is not correctly set."
-        derived['message'] += msg + "\n"
+        messages.append("Unable to determine the number of CPU cores. "
+                        "Either no 'cpus' found in introspection_data or "
+                        "NovaVcpuPinSet is not correctly set.")
         derived['failed'] = True
 
     if osds < 1:
-        msg = "No OSDs were found in deployment definition under CephAnsibleDisksConfig"
-        derived['message'] += msg + "\n"
+        messages.append("No OSDs were found in the deployment definition. ")
         derived['failed'] = True
 
     if average_guest_memory_size_in_mb < 0 and workload:
-        msg = "If average_guest_memory_size_in_mb is used it must be greater than 0"
-        derived['message'] += msg + "\n"
+        messages.append("If average_guest_memory_size_in_mb "
+                        "is used it must be greater than 0")
         derived['failed'] = True
 
     if average_guest_cpu_utilization_percentage < 0 and workload:
-        msg = "If average_guest_cpu_utilization_percentage is used it must be greater than 0"
-        derived['message'] += msg + "\n"
+        messages.append("If average_guest_cpu_utilization_percentage is "
+                        "used it must be greater than 0")
         derived['failed'] = True
 
     left_over_mem = mem_gb - (mem_gb_per_osd * osds)
 
     if left_over_mem < 0:
-        msg = "There is not enough memory to run %d OSDs. " % (osds)
-        msg += "%d GB RAM - (%d GB per OSD * %d OSDs) is < 0" % (mem_gb, mem_gb_per_osd, osds)
-        derived['message'] += msg + "\n"
+        messages.append(("There is not enough memory to run %d OSDs. "
+                         "%d GB RAM - (%d GB per OSD * %d OSDs) is < 0")
+                        % (osds, mem_gb, mem_gb_per_osd, osds))
         derived['failed'] = True
 
     if derived['failed']:
+        derived['message'] = " ".join(messages)
         return derived
 
     # perform the calculation
@@ -197,47 +196,49 @@ def derive(mem_gb, vcpus, osds, average_guest_memory_size_in_mb=0,
         derived['cpu_allocation_ratio'] = cpu_allocation_ratio
 
     # capture derivation details in message
-    msg = "Derived Parameters results"
-    msg += "\n Inputs:"
-    msg += "\n - Total host RAM in GB: %d" % mem_gb
-    msg += "\n - Total host vCPUs: %d" % vcpus
-    msg += "\n - Ceph OSDs per host: %d" % osds
+    messages.append(("Derived Parameters results"
+                     "\n Inputs:"
+                     "\n - Total host RAM in GB: %d"
+                     "\n - Total host vCPUs: %d"
+                     "\n - Ceph OSDs per host: %d")
+                    % (mem_gb, vcpus, osds))
     if workload:
-        msg += "\n - Average guest memory size in GB: %d" % average_guest_size
-        msg += "\n - Average guest CPU utilization: %.0f%%" % \
-               average_guest_cpu_utilization_percentage
-    msg += "\n "
-    msg += "\n Outputs:"
+        messages.append(("\n - Average guest memory size in GB: %d"
+                         "\n - Average guest CPU utilization: %.0f%%") %
+                        (average_guest_size, average_guest_cpu_utilization_percentage))
+    messages.append("\n Outputs:")
     if workload:
-        msg += "\n - number of guests allowed based on memory = %d" % number_of_guests
-        msg += "\n - number of guest vCPUs allowed = %d" % int(guest_vcpus)
-        msg += "\n - nova.conf cpu_allocation_ratio = %2.2f" % cpu_allocation_ratio
-    msg += "\n - nova.conf reserved_host_memory = %d MB" % nova_reserved_mem_mb
-    msg += "\n "
+        messages.append(("\n - number of guests allowed based on memory = %d"
+                         "\n - number of guest vCPUs allowed = %d"
+                         "\n - nova.conf cpu_allocation_ratio = %2.2f") %
+                        (number_of_guests, int(guest_vcpus), cpu_allocation_ratio))
+    messages.append(("\n - nova.conf reserved_host_memory = %d MB"
+                     % nova_reserved_mem_mb))
     if workload:
-        msg += "\nCompare \"guest vCPUs allowed\" to \"guests allowed based on memory\""
-        msg += "\nfor actual guest count."
-        msg += "\n "
+        messages.append("\nCompare \"guest vCPUs allowed\" to "
+                        "\"guests allowed based on memory\" "
+                        "for actual guest count.")
 
-    warning_msg = ""
+    warnings = []
     if nova_reserved_mem_mb > (MB_PER_GB * mem_gb * total_memory_threshold):
-        warning_msg += "ERROR: %d GB is not enough memory to run hyperconverged\n" % mem_gb
+        warnings.append(("ERROR: %d GB is not enough memory to "
+                         "run hyperconverged\n") % mem_gb)
         derived['failed'] = True
     if workload:
         if cpu_allocation_ratio < 0.5:
-            warning_msg += "ERROR: %d is not enough vCPU to run hyperconverged\n" % vcpus
+            warnings.append("ERROR: %d is not enough vCPU to run hyperconverged\n" % vcpus)
             derived['failed'] = True
         if cpu_allocation_ratio > 16.0:
-            warning_msg += "WARNING: do not increase vCPU overcommit ratio beyond 16:1\n"
+            warnings.append("WARNING: do not increase vCPU overcommit ratio beyond 16:1\n")
     else:
-        warning_msg += "WARNING: the average guest workload was not provided. \n"
-        warning_msg += "Both average_guest_cpu_utilization_percentage and \n"
-        warning_msg += "average_guest_memory_size_in_mb are defaulted to 0. \n"
-        warning_msg += "The HCI derived parameter calculation cannot set the \n"
-        warning_msg += "Nova cpu_allocation_ratio. The Nova reserved_host_memory_mb \n"
-        warning_msg += "will be set based on the number of OSDs but the Nova \n"
-        warning_msg += "guest memory overhead will not be taken into account. \n"
-    derived['message'] = warning_msg + msg
+        warnings.append("WARNING: the average guest workload was not provided. \n"
+                        "Both average_guest_cpu_utilization_percentage and \n"
+                        "average_guest_memory_size_in_mb are defaulted to 0. \n"
+                        "The HCI derived parameter calculation cannot set the \n"
+                        "Nova cpu_allocation_ratio. The Nova reserved_host_memory_mb \n"
+                        "will be set based on the number of OSDs but the Nova \n"
+                        "guest memory overhead will not be taken into account. \n")
+    derived['message'] = " ".join(warnings) + " ".join(messages)
 
     return derived
 
@@ -355,32 +356,30 @@ def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
       NVMe | OSDs per device: 4 | vCPUs per device: 3
     Gets requested OSD list from tripleo_environment_parameters input
     and looks up the device type in ironic input. Returns the vCPUs
-    per OSD, an explanation message, and a boolean warning if settings
-    are non-optimal.
+    per OSD, an explanation message.
     """
-    msg_pre = "OSD type distribution: \n"
-    msg = ""
     cpus = 1.0
     nvme_re = re.compile('.*nvme.*')
     type_map = {}
     hdd_count = ssd_count = nvme_count = 0
     warning = False
+    messages = []
     try:
         devices = tripleo_environment_parameters['CephAnsibleDisksConfig']['devices']
     except KeyError:
         devices = []
-        msg = "No devices defined in CephAnsibleDisksConfig"
+        messages.append("No devices defined in CephAnsibleDisksConfig")
         warning = True
     try:
         ironic_disks = ironic['data']['inventory']['disks']
     except KeyError:
         ironic_disks = []
-        msg = "No disks found in introspection data inventory"
+        messages.append("No disks found in introspection data inventory")
         warning = True
     if len(devices) != num_osds:
-        msg = "Not all OSDs are in the devices list. "
-        msg += "Unable to determine hardware type for all OSDs. "
-        msg += "This might be because lvm_volumes was used to define some OSDs. "
+        messages.append("Not all OSDs are in the devices list. Unable to "
+                        "determine hardware type for all OSDs. This might be "
+                        "because lvm_volumes was used to define some OSDs. ")
         warning = True
     elif len(devices) > 0 and len(ironic_disks) > 0:
         disks_config = tripleo_environment_parameters['CephAnsibleDisksConfig']
@@ -399,14 +398,14 @@ def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
                                 else:
                                     type_map[osd_dev] = 'ssd'
                                     ssd_count += 1
-        msg = "  HDDs %i | Non-NVMe SSDs %i | NVMe SSDs %i \n  " % \
-              (hdd_count, ssd_count, nvme_count)
+        messages.append(("HDDs %i | Non-NVMe SSDs %i | NVMe SSDs %i \n" %
+                         (hdd_count, ssd_count, nvme_count)))
         if hdd_count > 0 and ssd_count == 0 and nvme_count == 0:
             cpus = 1  # default
-            msg += "vCPU to OSD ratio: %i" % cpus
+            messages.append(("vCPU to OSD ratio: %i" % cpus))
         elif hdd_count == 0 and ssd_count > 0 and nvme_count == 0:
             cpus = 4
-            msg += "vCPU to OSD ratio: %i" % cpus
+            messages.append(("vCPU to OSD ratio: %i" % cpus))
         elif hdd_count == 0 and ssd_count == 0 and nvme_count > 0:
             # did they set OSDs per device?
             if 'osds_per_device' in disks_config:
@@ -418,29 +417,35 @@ def get_vcpus_per_osd(ironic, tripleo_environment_parameters, num_osds):
                 cpus = 3
             else:
                 cpus = 4  # use standard SSD default
-                msg += "\nWarning: osds_per_device not set to 4 "
-                msg += "but all OSDs are of type NVMe. \n"
-                msg += "Recomentation to improve IO: "
-                msg += "set osds_per_device to 4 and re-run \n"
-                msg += "so that vCPU to OSD ratio is 3 "
-                msg += "for 12 vCPUs per OSD."
+                messages.append("\nWarning: osds_per_device not set to 4 "
+                                "but all OSDs are of type NVMe. \n"
+                                "Recomentation to improve IO: "
+                                "set osds_per_device to 4 and re-run \n"
+                                "so that vCPU to OSD ratio is 3 "
+                                "for 12 vCPUs per OSD device.")
                 warning = True
-            msg += "vCPU to OSD ratio: %i" % cpus
-            msg += " (found osds_per_device set to: %i)" % osds_per_device
+            messages.append(("vCPU to OSD ratio: %i"
+                             " (found osds_per_device set to: %i)") %
+                            (cpus, osds_per_device))
         elif hdd_count == 0 and ssd_count == 0 and nvme_count == 0:
             cpus = 1  # default
-            msg += "vCPU to OSD ratio: %i" % cpus
-            msg += "\nWarning: unable to determine OSD types. "
-            msg += "Unable to recommend optimal ratio so using default."
+            messages.append(("vCPU to OSD ratio: %i \nWarning: "
+                             "unable to determine OSD types. "
+                             "Unable to recommend optimal ratio "
+                             "so using default.") % cpus)
             warning = True
         else:
             cpus = 1  # default
-            msg += "vCPU to OSD ratio: %i" % cpus
-            msg += "\nWarning: Requested OSDs are of mixed type. "
-            msg += "Unable to recommend optimal ratio so using default."
+            messages.append(("vCPU to OSD ratio: %i \nWarning: Requested "
+                             "OSDs are of mixed type. Unable to recommend "
+                             "optimal ratio so using default.") % cpus)
             warning = True
 
-    return cpus, msg_pre + msg, warning
+    msg = "".join(["\nOSD type distribution:\n"] + messages)
+    if warning:
+        msg = "WARNING: " + msg
+
+    return cpus, msg
 
 
 def main():
@@ -473,7 +478,7 @@ def main():
     mem_gb = count_memory(module.params['introspection_data'])
 
     mem_gb_per_osd = 5
-    vcpu_ratio, vcpu_ratio_msg, vcpu_warn = get_vcpus_per_osd(
+    vcpu_ratio, vcpu_ratio_msg = get_vcpus_per_osd(
         module.params['introspection_data'],
         module.params['tripleo_environment_parameters'],
         num_osds)
@@ -486,11 +491,7 @@ def main():
 
     # directly set failed status and message
     result['failed'] = derivation['failed']
-    result['message'] = derivation['message']
-    if vcpu_warn:
-        result['message'] += "\n" + "Warning: " + vcpu_ratio_msg + "\n"
-    else:
-        result['message'] += "\n" + vcpu_ratio_msg + "\n"
+    result['message'] = derivation['message'] + "\n" + vcpu_ratio_msg
 
     # make a copy of the existing derived_parameters (e.g. perhaps from NFV)
     existing_params = module.params['derived_parameters']
