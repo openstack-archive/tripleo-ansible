@@ -21,6 +21,7 @@ from ansible.module_utils.openstack import openstack_cloud_from_module
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 
+import keystoneauth1
 import metalsmith
 
 import yaml
@@ -114,12 +115,19 @@ def main():
     provisioner = metalsmith.Provisioner(cloud_region=cloud.config)
 
     try:
+        msg = ''
+
+        try:
+            baremetal = cloud.baremetal
+        except keystoneauth1.exceptions.catalog.EndpointNotFound as exc:
+            msg += str(exc)
+            baremetal = None
+
         found, not_found, pre_provisioned = bd.check_existing(
             instances=module.params['instances'],
             provisioner=provisioner,
-            baremetal=cloud.baremetal
+            baremetal=baremetal
         )
-        msg = ''
         if found:
             msg += ('Found existing instances: %s. '
                     % ', '.join([i.uuid for i in found]))
