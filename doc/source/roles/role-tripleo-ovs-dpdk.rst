@@ -83,7 +83,11 @@ Role Defaults
   - **Default**: ``''``
   - **Examples**: ``'100'``
 
+- ``tripleo_ovs_dpdk_pmd_auto_lb``
 
+  - **Description**: (*Optional*) Enable DPDK OVS PMD Auto Load Balance.
+  - **Default**: ``false``
+  - **Examples**: ``true``
 
 - ``tripleo_ovs_dpdk_pmd_load_threshold``
 
