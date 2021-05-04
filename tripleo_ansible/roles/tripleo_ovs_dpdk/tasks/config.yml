@@ -144,6 +144,24 @@
     key: userspace-tso-enable
   when: not tripleo_ovs_dpdk_enable_tso|bool
 
+- name: Enable DPDK OVS PMD Auto Load Balance
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb
+    value: "{{ tripleo_ovs_dpdk_pmd_auto_lb }}"
+  when: tripleo_ovs_dpdk_pmd_auto_lb|bool
+
+- name: Disable DPDK OVS PMD Auto Load Balance
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb
+  when: not tripleo_ovs_dpdk_pmd_auto_lb|bool
+
 - name: Set minimum PMD thread load threshold
   openvswitch_db:
     table: open_vswitch
