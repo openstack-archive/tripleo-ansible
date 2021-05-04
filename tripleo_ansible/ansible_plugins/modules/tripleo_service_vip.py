@@ -320,9 +320,9 @@ def run_module():
         **openstack_module_kwargs()
     )
 
-    stack = module.params.get('stack_name', 'overcloud')
-    service = module.params.get('service_name', 'all')
-    state = module.params.get('state', 'present')
+    stack = module.params.get('stack_name')
+    state = module.params.get('state')
+    service = module.params.get('service_name') or 'all'
 
     try:
         if state == 'present' and service == 'all':
