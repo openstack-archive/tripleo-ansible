@@ -72,7 +72,7 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
+      # - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -234,6 +234,7 @@
     - ^tripleo_ansible/ansible_plugins/.*$
     name: tripleo-ansible-centos-8-molecule-tripleo-modules
     parent: tripleo-ansible-centos-8-base
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/.*
