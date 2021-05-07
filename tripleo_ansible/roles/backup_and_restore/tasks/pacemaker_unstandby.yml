@@ -13,13 +13,18 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+#
+# Start again pacemaker
+- name: Add the node to the pacemaker cluster
+  command: pcs node unstandby
+  tags:
+    - bar_create_recover_image
 
-
-- name: Converge
-  become: true
-  hosts: all
-  roles:
-    - role: backup_and_restore
-      tripleo_backup_and_restore_nfs_server: localhost
-      tripleo_backup_and_restore_rear_simulate: true
-      tripleo_backup_and_restore_hiera_config_file: "{{ ansible_user_dir }}/hiera.yaml"
+- name: Wait until pacemaker has Galera up&running
+  shell: ss -tunlp | grep ":3306 " | sed -e 's/.*\///'
+  register: mysql_result
+  retries: 300
+  until: mysql_result is search('mysqld')
+  delay: 5
+  tags:
+    - bar_create_recover_image

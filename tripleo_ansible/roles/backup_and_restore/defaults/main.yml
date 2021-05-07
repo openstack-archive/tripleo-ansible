@@ -24,6 +24,10 @@ tripleo_container_cli: "{{ container_cli | default('podman') }}"
 # Stop and start all running services before backup is ran.
 tripleo_backup_and_restore_service_manager: true
 
+# If this is false, backup of the overcloud is taken by stopping it completely. Enable it to do a
+# backup stopping only one node at a time, maintaining the controller active during the backup duration.
+tripleo_backup_and_restore_enable_snapshots: true
+
 # Set the name of the mysql container
 tripleo_backup_and_restore_mysql_container: mysql
 
