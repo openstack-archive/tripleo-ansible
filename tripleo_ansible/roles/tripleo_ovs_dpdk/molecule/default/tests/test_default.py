@@ -70,3 +70,18 @@ def test_positive_handler_threads(host):
 def test_positive_emc_prob(host):
     other_config = get_config(host)
     assert 'emc-insert-inv-prob' not in other_config
+
+
+def test_positive_pmd_load_threshold(host):
+    other_config = get_config(host)
+    assert 'pmd-auto-lb-load-threshold' not in other_config
+
+
+def test_positive_pmd_improvement_threshold(host):
+    other_config = get_config(host)
+    assert 'pmd-auto-lb-improvement-threshold' not in other_config
+
+
+def test_positive_pmd_rebal_interval(host):
+    other_config = get_config(host)
+    assert 'pmd-auto-lb-rebal-interval' not in other_config
