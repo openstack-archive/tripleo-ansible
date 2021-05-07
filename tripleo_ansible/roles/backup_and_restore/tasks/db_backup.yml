@@ -90,3 +90,24 @@
   tags:
     - bar_create_recover_image
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
+
+- name: Pause mysql.
+  command: "{{ tripleo_container_cli }} pause {{ tripleo_backup_and_restore_mysql_container }}"
+  when:
+    - mysql_password.stderr is defined
+    - tripleo_backup_and_restore_mysql_container == "mysql"
+    - not enabled_galera
+    - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots
+  tags:
+    - bar_create_recover_image
+
+- name: Stop pacemaker
+  command: pcs cluster stop --all
+  when:
+    - enabled_galera
+    - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots
+  run_once: true
+  tags:
+    - bar_create_recover_image
