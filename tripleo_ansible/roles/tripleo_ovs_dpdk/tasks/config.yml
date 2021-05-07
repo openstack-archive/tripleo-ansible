@@ -143,3 +143,57 @@
     col: other_config
     key: userspace-tso-enable
   when: not tripleo_ovs_dpdk_enable_tso|bool
+
+- name: Set minimum PMD thread load threshold
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-load-threshold
+    value: "{{ tripleo_ovs_dpdk_pmd_load_threshold }}"
+  when: tripleo_ovs_dpdk_pmd_load_threshold|string
+
+- name: Remove minimum PMD thread load threshold
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-load-threshold
+  when: not tripleo_ovs_dpdk_pmd_load_threshold|string
+
+- name: Set PMD load variance improvement threshold
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-improvement-threshold
+    value: "{{ tripleo_ovs_dpdk_pmd_improvement_threshold }}"
+  when: tripleo_ovs_dpdk_pmd_improvement_threshold|string
+
+- name: Remove PMD load variance improvement threshold
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-improvement-threshold
+  when: not tripleo_ovs_dpdk_pmd_improvement_threshold|string
+
+- name: Set PMD auto load balancing interval
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-rebal-interval
+    value: "{{ tripleo_ovs_dpdk_pmd_rebal_interval }}"
+  when: tripleo_ovs_dpdk_pmd_rebal_interval|string
+
+- name: Remove PMD auto load balancing interval
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-auto-lb-rebal-interval
+  when: not tripleo_ovs_dpdk_pmd_rebal_interval|string
