@@ -53,6 +53,7 @@
   when:
     - enabled_galera
     - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots|bool
   run_once: true
   tags:
     - bar_create_recover_image
@@ -68,6 +69,7 @@
   when:
     - enabled_galera
     - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots|bool
   tags:
     - bar_create_recover_image
 
@@ -132,6 +134,7 @@
     - tripleo_backup_and_restore_mysql_container == "mysql"
     - not enabled_galera
     - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots|bool
   tags:
     - bar_create_recover_image
 
@@ -140,6 +143,7 @@
   when:
     - enabled_galera
     - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots|bool
   run_once: true
   tags:
     - bar_create_recover_image
