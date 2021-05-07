@@ -30,3 +30,6 @@
         tripleo_ovs_dpdk_revalidator_cores: 2
         tripleo_ovs_dpdk_handler_cores: 2
         tripleo_ovs_dpdk_emc_insertion_probablity: 0
+        tripleo_ovs_dpdk_pmd_load_threshold: 50
+        tripleo_ovs_dpdk_pmd_improvement_threshold: 10
+        tripleo_ovs_dpdk_pmd_rebal_interval: 5
