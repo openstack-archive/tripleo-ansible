@@ -19,6 +19,8 @@ from concurrent import futures
 import os
 import yaml
 
+import keystoneauth1.exceptions as kauth1_exc
+
 try:
     from ansible.module_utils import network_data_v2
 except ImportError:
@@ -238,7 +240,14 @@ def run_module():
 
     try:
         if not static_mappings:
-            _, conn = openstack_cloud_from_module(module)
+            try:
+                _, conn = openstack_cloud_from_module(module)
+                if conn.identity.find_service('neutron') is None:
+                    result['success'] = True
+                    module.exit_json(**result)
+            except kauth1_exc.MissingRequiredOptions:
+                result['success'] = True
+                module.exit_json(**result)
 
             net_id = create_ovn_mac_address_network(result, conn)
             tags = ['tripleo_stack_name={}'.format(stack),
