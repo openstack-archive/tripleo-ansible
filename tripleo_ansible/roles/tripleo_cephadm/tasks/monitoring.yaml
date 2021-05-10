@@ -38,9 +38,27 @@
         apply: true
         host_pattern: "*"
         render_path: "{{ tripleo_cephadm_spec_home }}"
+        networks: "{{ tripleo_cephadm_monitoring_address_block }}"
       environment:
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+
+    - name: Config ssl cert(s) and key(s) for the exposed components
+      block:
+        - name: Get ceph_cli
+          include_tasks: ceph_cli.yaml
+          vars:
+            mount_certs: true
+
+        - name: import grafana certificate file
+          command: "{{ tripleo_cephadm_ceph_cli }} config-key set mgr/cephadm/grafana_crt -i {{ tripleo_cephadm_grafana_crt }}"
+          changed_when: false
+
+        - name: import grafana certificate key
+          command: "{{ tripleo_cephadm_ceph_cli }} config-key set mgr/cephadm/grafana_key -i {{ tripleo_cephadm_grafana_key }}"
+          changed_when: false
+      when: tripleo_cephadm_dashboard_protocol == "https" and
+            tripleo_cephadm_grafana_crt | length > 0 and tripleo_cephadm_grafana_key | length > 0
 
     - name: Create the monitoring stack Daemon spec definition
       become: true
@@ -49,8 +67,9 @@
         service_id: "{{ item }}"
         service_name: "{{ item }}"
         apply: true
-        hosts: "{{ _hosts }}"
+        hosts: "{{ _hosts | unique }}"
         render_path: "{{ tripleo_cephadm_spec_home }}"
+        networks: "{{ tripleo_cephadm_monitoring_address_block }}"
       environment:
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"

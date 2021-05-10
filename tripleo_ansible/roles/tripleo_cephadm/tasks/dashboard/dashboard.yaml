@@ -18,6 +18,7 @@
   include_tasks: ceph_cli.yaml
   vars:
     mount_spec: true
+    sensitive_data: true
 
 - name: Configure the Ceph Dashboard port
   become: true
@@ -66,6 +67,17 @@
     - name: enable mgr dashboard module (restart)
       command: "{{ tripleo_cephadm_ceph_cli }} mgr module enable dashboard"
 
+- name: create dashboard admin user
+  become: true
+  ceph_dashboard_user:
+    name: "{{ tripleo_cephadm_dashboard_admin_user }}"
+    cluster: "{{ tripleo_cephadm_cluster }}"
+    password: "{{ tripleo_cephadm_dashboard_admin_password }}"
+    roles: ["{{ 'read-only' if tripleo_cephadm_dashboard_admin_user_ro | bool else 'administrator' }}"]
+  environment:
+    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
+    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+
 - name: Configure Monitoring Stack
   become: true
   block:
@@ -78,7 +90,10 @@
     - name: set grafana api user
       command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-username {{ tripleo_cephadm_grafana_admin_user }}"
     - name: set grafana api password
-      command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-password {{ tripleo_cephadm_grafana_admin_password }}"
+      command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-password -i -"
+      args:
+        stdin: "{{ tripleo_cephadm_grafana_admin_password }}"
+        stdin_add_newline: no
     - name: disable ssl verification for grafana
       command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-ssl-verify False"
       changed_when: false
@@ -96,7 +111,9 @@
         {{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-url \
         {{ tripleo_cephadm_dashboard_protocol }}://{{ tripleo_cephadm_dashboard_frontend_vip }}:{{ tripleo_cephadm_grafana_port }}
       changed_when: false
-      when: "{{ tripleo_cephadm_dashboard_frontend_vip is defined and tripleo_cephadm_dashboard_frontend_vip |length > 0 }}"
+      when:
+        - tripleo_cephadm_dashboard_frontend_vip is defined
+        - tripleo_cephadm_dashboard_frontend_vip |length > 0
 
 - name: Restart the Ceph dashboard
   become: true
