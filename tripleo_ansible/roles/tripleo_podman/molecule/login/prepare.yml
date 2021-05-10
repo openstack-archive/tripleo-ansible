@@ -41,12 +41,12 @@
         state: disabled
 
     - name: Ensure registry doesn't exist
-      podman_container:
+      containers.podman.podman_container:
         name: registry
         state: absent
 
     - name: Pull ubuntu image
-      podman_image:
+      containers.podman.podman_image:
         name: ubuntu
         tag: 16.04
 
@@ -63,7 +63,7 @@
         executable: /bin/bash
 
     - name: Create registry
-      podman_container:
+      containers.podman.podman_container:
         name: registry
         image: "registry:2.7.0"
         restart_policy: always

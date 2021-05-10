@@ -29,9 +29,6 @@ mock_modules:
     - os_baremetal_provide_node
     - os_tripleo_baremetal_configure
     - os_tripleo_baremetal_node_introspection
-    - podman_container
-    - podman_container_info
-    - podman_volume_info
     - tripleo_baremetal_check_existing
     - tripleo_baremetal_expand_roles
     - tripleo_baremetal_populate_environment

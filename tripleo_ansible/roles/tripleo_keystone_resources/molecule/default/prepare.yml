@@ -40,7 +40,7 @@
       become: false
 
     - name: Create test containers
-      podman_container:
+      containers.podman.podman_container:
         name: keystone-podman
         image: keystone-img
         detach: true

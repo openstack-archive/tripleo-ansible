@@ -34,7 +34,7 @@
   loop_control:
     label: "{{ lookup('dict', container_data).key }}"
     loop_var: container_data
-  podman_container:
+  containers.podman.podman_container:
     annotation: "{{ lookup('dict', container_data).value.annotation | default(omit) }}"
     cap_add: "{{ lookup('dict', container_data).value.cap_add | default(omit) }}"
     cap_drop: "{{ lookup('dict', container_data).value.cap_drop | default(omit) }}"

@@ -35,11 +35,11 @@
     - role: test_deps
   post_tasks:
     - name: pull an image
-      podman_image:
+      containers.podman.podman_image:
         name: "ubi8:latest"
 
     - name: Create a data container
-      podman_container:
+      containers.podman.podman_container:
         name: "{{ item }}"
         image: "ubi8:latest"
         detach: true

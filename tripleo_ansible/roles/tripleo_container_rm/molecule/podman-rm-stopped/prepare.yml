@@ -32,11 +32,11 @@
         state: latest
 
     - name: Pull container image
-      podman_image:
+      containers.podman.podman_image:
         name: fedora
 
     - name: Create test containers
-      podman_container:
+      containers.podman.podman_container:
         name: "{{ item }}"
         interactive: true
         tty: true
@@ -48,7 +48,7 @@
         - podman-container2
 
     - name: Stop test containers
-      podman_container:
+      containers.podman.podman_container:
         name: "{{ item }}"
         state: stopped
       with_items:

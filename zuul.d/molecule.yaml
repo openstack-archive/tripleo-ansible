@@ -10,7 +10,6 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -72,7 +71,6 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      # - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -135,7 +133,6 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -231,12 +228,6 @@
       tripleo_role_name: test_package_action
 - job:
     files:
-    - ^tripleo_ansible/ansible_plugins/.*$
-    name: tripleo-ansible-centos-8-molecule-tripleo-modules
-    parent: tripleo-ansible-centos-8-base
-    voting: false
-- job:
-    files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/.*
     name: tripleo-ansible-centos-8-molecule-tripleo_bootstrap
     parent: tripleo-ansible-centos-8-base
@@ -320,8 +311,6 @@
     - ^tripleo_ansible/ansible_plugins/modules/container_config_data.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_puppet_config.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py$
-    - ^tripleo_ansible/ansible_plugins/modules/podman_container.py$
-    - ^tripleo_ansible/ansible_plugins/modules/podman_container_info.py$
     name: tripleo-ansible-centos-8-molecule-tripleo_container_manage
     parent: tripleo-ansible-centos-8-base
     vars:

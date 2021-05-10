@@ -226,4 +226,4 @@ TripleO Heat Templates. Note that it doesn't write down the overrides in the
 JSON file so if an update / upgrade is executed, the container will be
 re-configured with the configuration that is in the JSON file.
 
-.. _podman_container: https://docs.openstack.org/tripleo-ansible/latest/modules/modules-podman_container.html
+.. _podman_container: https://github.com/containers/ansible-podman-collections
