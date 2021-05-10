@@ -17,6 +17,7 @@
 - name: Overcloud Node Network Config
   hosts: allovercloud
   any_errors_fatal: true
+  gather_facts: false
   pre_tasks:
     - name: Wait for provisioned nodes to boot
       wait_for:
