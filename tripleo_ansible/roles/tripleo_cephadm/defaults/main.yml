@@ -47,5 +47,6 @@ tripleo_cephadm_crush_rules: []
 tripleo_cephadm_internal_tls_enabled: false
 tripleo_cephadm_nfs_rados_export_index: 'ganesha-export-index'
 tripleo_cephadm_ceph_nfs_rados_backend: true
+tripleo_cephadm_certs: /etc/pki/tls
 # todo(fultonj) add is_hci boolean for target memory
 # https://lists.ceph.io/hyperkitty/list/dev@ceph.io/thread/Z77XO23JPXDNHKM7IG6UN4URYKA6L7VH/

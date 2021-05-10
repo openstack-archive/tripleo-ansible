@@ -35,7 +35,7 @@
   ceph_mkspec:
     service_type: mds
     apply: true
-    hosts: "{{ _hosts }}"
+    hosts: "{{ _hosts | unique }}"
     render_path: "{{ tripleo_cephadm_spec_home }}"
   register: spc
   environment:

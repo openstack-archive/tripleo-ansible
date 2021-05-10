@@ -18,6 +18,12 @@
   set_fact:
     tripleo_cephadm_ceph_cli: >-
       {{ tripleo_cephadm_container_cli }} run --rm {{ tripleo_cephadm_container_options }}
+      {% if mount_certs|default(false) %}
+      --volume {{ tripleo_cephadm_certs }}:/etc/pki/tls:z
+      {% endif %}
+      {% if sensitive_data|default(false) %}
+      --interactive
+      {% endif %}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
       {% if mount_spec|default(false) %}
       --volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z
