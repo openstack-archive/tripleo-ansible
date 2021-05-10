@@ -80,14 +80,14 @@
             }
 
     - name: pull some images
-      podman_image:
+      containers.podman.podman_image:
         name: "{{ item }}"
       with_items:
         - registry.access.redhat.com/ubi8/ubi-minimal
         - mysql
 
     - name: Create a data container
-      podman_container:
+      containers.podman.podman_container:
         name: "{{ item }}"
         image: ubi-minimal
         state: started
@@ -97,7 +97,7 @@
         - test-container2
 
     - name: Start myql container
-      podman_container:
+      containers.podman.podman_container:
         name: mysql
         image: mysql
         state: started
