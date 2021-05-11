@@ -17,8 +17,7 @@
 - name: Gather podman infos
   podman_container_info: {}
   register: podman_containers
-  # Temporarily disable no_log for this task to debug #1926649
-  no_log: false # "{{ not (tripleo_container_manage_debug | bool) }}"
+  no_log: "{{ not (tripleo_container_manage_debug | bool) }}"
   when:
     - tripleo_container_manage_cli == 'podman'
 
