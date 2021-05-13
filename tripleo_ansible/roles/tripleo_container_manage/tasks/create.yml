@@ -15,13 +15,12 @@
 # under the License.
 
 - name: "Create containers managed by Podman for {{ tripleo_container_manage_config }}"
-  when:
-    - tripleo_container_manage_cli == 'podman'
-  include_tasks: podman/start_order.yml
-  vars:
-    order: "{{ item.key }}"
-    data: "{{ item.value }}"
-  loop: "{{ all_containers_hash | subsort(attribute='start_order', null_value=0) | dict2items | list }}"
+  tripleo_container_manage:
+    config_id: "{{ tripleo_container_manage_config_id }}"
+    config_dir: "{{ tripleo_container_manage_config }}"
+    config_patterns: "{{ tripleo_container_manage_config_patterns }}"
+    config_overrides: "{{ tripleo_container_manage_config_overrides }}"
+    concurrency: "{{ tripleo_container_manage_concurrency }}"
 
 - name: "Manage container systemd services and cleanup old systemd healthchecks for {{ tripleo_container_manage_config }}"
   become: true

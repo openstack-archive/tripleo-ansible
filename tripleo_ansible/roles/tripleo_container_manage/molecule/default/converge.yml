@@ -229,7 +229,7 @@
           assert:
             that:
               - "'fedora:rawhide' in fedora_infos.containers.0.ImageName"
-            fail_msg: 'fedora container has wrong image'
+            fail_msg: "fedora container has wrong image {{ fedora_infos.containers }}"
             success_msg: 'fedora container has the right image'
         - name: Check if tripleo_fedora systemd service is active
           command: systemctl is-active --quiet tripleo_fedora
