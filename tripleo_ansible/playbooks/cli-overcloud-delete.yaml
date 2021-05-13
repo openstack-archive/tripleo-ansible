@@ -34,6 +34,9 @@
       tripleo_service_vip:
         stack_name: "{{ stack_name }}"
         state: absent
+    - name: Delete OVN MAC Address ports
+      tripleo_ovn_mac_addresses:
+        stack: "{{ stack_name }}"
     - name: Delete heat stack
       openstack.cloud.stack:
         name: "{{ stack_name }}"
