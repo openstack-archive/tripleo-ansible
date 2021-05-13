@@ -35,8 +35,8 @@ tripleo_cephadm_wait_for_mons_retries: 10
 tripleo_cephadm_wait_for_mons_delay: 20
 tripleo_cephadm_wait_for_mons_ignore_errors: false
 tripleo_cephadm_wait_for_osds: true
-tripleo_cephadm_wait_for_osds_retries: 10
-tripleo_cephadm_wait_for_osds_delay: 20
+tripleo_cephadm_wait_for_osds_retries: 40
+tripleo_cephadm_wait_for_osds_delay: 30
 tripleo_cephadm_wait_for_osds_ignore_errors: false
 tripleo_cephadm_num_osd_expected: 1
 tripleo_cephadm_predeployed: true
