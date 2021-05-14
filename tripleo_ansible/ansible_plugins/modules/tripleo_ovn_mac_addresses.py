@@ -229,7 +229,7 @@ def run_module():
 
     stack = module.params.get('stack_name', 'overcloud')
     role_name = module.params['role_name']
-    bridge_mappings = module.params['ovn_bridge_mappings']
+    bridge_mappings = module.params['ovn_bridge_mappings'] or []
     servers = module.params.get('server_resource_names') or []
     playbook_dir = module.params['playbook_dir']
     concurrency = module.params.get('concurrency', 0)
@@ -258,26 +258,27 @@ def run_module():
             if concurrency < 1:
                 concurrency = len(servers)
 
-            jobs = []
-            exceptions = []
-            with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
-                for server in servers:
-                    jobs.append(p.submit(create_ovn_mac_address_ports,
-                                         result, conn, net_id, tags,
-                                         physnets, server))
+            if servers:
+                jobs = []
+                exceptions = []
+                with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
+                    for server in servers:
+                        jobs.append(p.submit(create_ovn_mac_address_ports,
+                                             result, conn, net_id, tags,
+                                             physnets, server))
 
-            for job in futures.as_completed(jobs):
-                e = job.exception()
-                if e:
-                    exceptions.append(e)
+                for job in futures.as_completed(jobs):
+                    e = job.exception()
+                    if e:
+                        exceptions.append(e)
 
-            if exceptions:
-                raise exceptions[0]
+                if exceptions:
+                    raise exceptions[0]
 
             remove_obsolete_ports(result, conn, net_id, tags, servers,
                                   physnets)
-
-        write_vars_file(conn, playbook_dir, net_id, tags, static_mappings)
+        if static_mappings or servers:
+            write_vars_file(conn, playbook_dir, net_id, tags, static_mappings)
 
         result['success'] = True
         module.exit_json(**result)
