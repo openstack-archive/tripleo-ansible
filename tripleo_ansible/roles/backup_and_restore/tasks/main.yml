@@ -42,7 +42,7 @@
   import_tasks: service_manager_pause.yml
   when:
     - tripleo_backup_and_restore_service_manager|bool
-    - not tripleo_backup_and_restore_enable_snapshots
+    - not tripleo_backup_and_restore_enable_snapshots|bool
 
 - name: Backup the database
   import_tasks: db_backup.yml
@@ -50,11 +50,19 @@
 - name: Backup pacemaker configuration
   import_tasks: pacemaker_backup.yml
 
-- name: Create recovery images with ReaR
-  import_tasks: run_backup.yml
+- name: Perform backup
+  block:
+    - name: Create recovery images with ReaR
+      import_tasks: run_backup.yml
+  always:
+    - name: Service management
+      import_tasks: service_manager_unpause.yml
+      when:
+        - tripleo_backup_and_restore_service_manager|bool
+        - not tripleo_backup_and_restore_enable_snapshots|bool
 
-- name: Service management
-  import_tasks: service_manager_unpause.yml
-  when:
-    - tripleo_backup_and_restore_service_manager|bool
-    - not tripleo_backup_and_restore_enable_snapshots
+    - name: Pacemaker management
+      import_tasks: pacemaker_unstandby.yml
+      when:
+        - pacemaker_enabled
+        - tripleo_backup_and_restore_enable_snapshots|bool
