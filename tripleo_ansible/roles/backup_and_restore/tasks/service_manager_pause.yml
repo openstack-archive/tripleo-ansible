@@ -39,6 +39,7 @@
     /usr/bin/{{ tripleo_container_cli }} ps --format '{{ '{{' }}.Names {{ '}}' }} ' | /usr/bin/egrep -v 'galera|mysql|bundle'
   register: container_services
   changed_when: container_services.stdout is undefined
+  failed_when: false
   tags:
     - bar_create_recover_image
 
