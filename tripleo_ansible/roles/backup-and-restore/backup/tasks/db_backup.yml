@@ -48,6 +48,29 @@
   tags:
     - bar_create_recover_image
 
+- name: Enable pacemaker if it is stopped
+  command: pcs cluster start --all
+  when:
+    - enabled_galera
+    - tripleo_backup_and_restore_service_manager|bool
+  run_once: true
+  tags:
+    - bar_create_recover_image
+
+- name: Wait until pacemaker has Galera up&running
+  shell: |
+    set -o pipefail
+    netstat -tunlp | grep ":3306 " | sed -e 's/.*\///'
+  register: mysql_result
+  retries: 300
+  until: mysql_result is search('mysqld')
+  delay: 5
+  when:
+    - enabled_galera
+    - tripleo_backup_and_restore_service_manager|bool
+  tags:
+    - bar_create_recover_image
+
 - name: Get the mysql container id when galera is enabled
   shell: |
     set -o pipefail
@@ -62,6 +85,17 @@
   set_fact:
     tripleo_backup_and_restore_mysql_container: "{{ galera_container_id.stdout }}"
   when: enabled_galera
+  tags:
+    - bar_create_recover_image
+
+- name: Unpause mysql for backup if it is paused
+  command: "{{ tripleo_container_cli }} unpause {{ tripleo_backup_and_restore_mysql_container }}"
+  when:
+    - mysql_password.stderr is defined
+    - tripleo_backup_and_restore_mysql_container == "mysql"
+    - not enabled_galera
+    - tripleo_backup_and_restore_service_manager|bool
+  failed_when: false
   tags:
     - bar_create_recover_image
 
