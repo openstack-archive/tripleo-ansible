@@ -1085,6 +1085,7 @@ class TestCheckExistingInstances(base.TestCase):
             state=metalsmith.InstanceState.ACTIVE)
         existing.uuid = 'aaaa'
         pr.show_instance.return_value = existing
+        baremetal.get_allocation.side_effect = sdk_exc.ResourceNotFound
 
         found, not_found, unmanaged = bd.check_existing(instances, pr,
                                                         baremetal)
@@ -1108,6 +1109,56 @@ class TestCheckExistingInstances(base.TestCase):
 
         self.assertIn("hostname host1 was not found", str(exc))
         pr.show_instance.assert_called_once_with('host1')
+
+    def test_hostname_mismatch_but_instance_info_display_name_correct(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        instances = [
+            {'name': 'bm_node1', 'resource_class': 'baremetal',
+             'hostname': 'correct_hostname',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        existing = mock.MagicMock(
+            name='bm_node1', hostname='wrong_hostname', allocation=None,
+            state=metalsmith.InstanceState.ACTIVE)
+        existing.uuid = 'aaaa'
+        pr.show_instance.return_value = existing
+        baremetal.get_node.return_value.instance_info = {
+            'display_name': 'correct_hostname'}
+        baremetal.get_allocation.side_effect = sdk_exc.ResourceNotFound
+
+        found, not_found, unmanaged = bd.check_existing(instances, pr,
+                                                        baremetal)
+
+        baremetal.create_allocation.assert_called_once_with(
+            name='correct_hostname', node='bm_node1',
+            resource_class='baremetal')
+
+        self.assertEqual([], not_found)
+        self.assertEqual([existing], found)
+        pr.show_instance.assert_called_once_with('bm_node1')
+
+    def test_hostname_mismatch_and_instance_info_display_name_mismatch(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        instances = [
+            {'name': 'bm_node1', 'resource_class': 'baremetal',
+             'hostname': 'correct_hostname',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        existing = mock.MagicMock(
+            name='bm_node1', hostname='wrong_hostname', allocation=None,
+            state=metalsmith.InstanceState.ACTIVE)
+        existing.uuid = 'aaaa'
+        pr.show_instance.return_value = existing
+        baremetal.get_node.return_value.instance_info = {
+            'display_name': 'mismatching_hostname'}
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, baremetal)
+
+        self.assertIn("hostname correct_hostname was not found", str(exc))
+        pr.show_instance.assert_called_once_with('bm_node1')
 
     def test_check_existing_no_ironic(self):
         pr = mock.Mock()

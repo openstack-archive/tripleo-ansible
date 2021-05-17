@@ -442,27 +442,39 @@ def check_existing(instances, provisioner, baremetal):
                 metalsmith.exceptions.Error):
             not_found.append(request)
         except Exception as exc:
-
             message = ('Failed to request instance information for %s'
                        % ident)
             raise BaremetalDeployException(
-                "%s. %s: %s" % (message, type(exc).__name__, exc)
-            )
+                "%s. %s: %s" % (message, type(exc).__name__, exc))
         else:
             # NOTE(dtantsur): metalsmith can match instances by node names,
-            # provide a safeguard to avoid conflicts.
+            # provide a safeguard to avoid conflicts
             if (instance.hostname
                     and instance.hostname != request['hostname']):
-                error = ("Requested hostname %s was not found, but the "
-                         "deployed node %s has a matching name. Refusing "
-                         "to proceed to avoid confusing results. Please "
-                         "either rename the node or use a different "
-                         "hostname") % (request['hostname'], instance.uuid)
-                raise BaremetalDeployException(error)
+                node = baremetal.get_node(instance.uuid)
+                if (node.instance_info.get('display_name')
+                        != request['hostname']):
+                    error = ("Requested hostname %s was not found, but the "
+                             "deployed node %s has a matching name. Refusing "
+                             "to proceed to avoid confusing results. Please "
+                             "either rename the node or use a different "
+                             "hostname") % (request['hostname'], instance.uuid)
+                    raise BaremetalDeployException(error)
 
             if (not instance.allocation
                     and instance.state == metalsmith.InstanceState.ACTIVE
                     and 'name' in request):
+                try:
+                    baremetal.get_allocation(request['hostname'])
+                    raise BaremetalDeployException(
+                        'An allocation with the requested hostname %s '
+                        'already exists. Refusing to proceed to avoid '
+                        'confusing results. Please either change the node '
+                        'name or use a different hostname'
+                        % request['hostname'])
+                except sdk.exceptions.ResourceNotFound:
+                    pass
+
                 # Existing node is missing an allocation record,
                 # so create one without triggering allocation
                 baremetal.create_allocation(
@@ -470,6 +482,7 @@ def check_existing(instances, provisioner, baremetal):
                     name=request['hostname'],
                     node=request['name']
                 )
+
             found.append(instance)
 
     return found, not_found, unmanaged
