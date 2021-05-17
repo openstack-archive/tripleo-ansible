@@ -444,12 +444,14 @@ class TestNetworkDataV2(tests_base.TestCase):
         network1 = stubs.FakeNeutronNetwork(
             id='network1_id',
             name='network1',
-            subnet_ids=['subnet1_id', 'subnet2_id']
+            subnet_ids=['subnet1_id', 'subnet2_id'],
+            tags=['tripleo_network_name=Network1']
         )
         network2 = stubs.FakeNeutronNetwork(
             id='network2_id',
             name='network2',
-            subnet_ids=['subnet3_id', 'subnet4_id']
+            subnet_ids=['subnet3_id', 'subnet4_id'],
+            tags=['tripleo_network_name=Network2']
         )
         conn_mock.network.networks.return_value = self.a2g([network1,
                                                             network2])
@@ -459,6 +461,7 @@ class TestNetworkDataV2(tests_base.TestCase):
         expected_by_name_map = {
             'network1': {
                 'id': 'network1_id',
+                'name_upper': 'Network1',
                 'subnets': {
                     'subnet1': 'subnet1_id',
                     'subnet2': 'subnet2_id'
@@ -466,6 +469,7 @@ class TestNetworkDataV2(tests_base.TestCase):
             },
             'network2': {
                 'id': 'network2_id',
+                'name_upper': 'Network2',
                 'subnets': {
                     'subnet3': 'subnet3_id',
                     'subnet4': 'subnet4_id'
