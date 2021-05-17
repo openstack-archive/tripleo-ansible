@@ -38,18 +38,21 @@ FAKE_INSTANCE = {
 FAKE_NET_NAME_MAP = {
     'ctlplane': {
         'id': 'ctlplane_id',
+        'name_upper': 'ctlplane',
         'subnets': {
             'ctlplane-subnet': 'ctlplane_subnet_id'
         }
     },
     'foo': {
         'id': 'foo_id',
+        'name_upper': 'Foo',
         'subnets': {
             'foo_subnet': 'foo_subnet_id',
         }
     },
     'bar': {
         'id': 'bar_id',
+        'name_upper': 'Bar',
         'subnets': {
             'bar_subnet': 'bar_subnet_id',
         }
@@ -121,11 +124,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         create_port_defs, update_port_defs = plugin.generate_port_defs(
             FAKE_MAPS, FAKE_INSTANCE, inst_ports)
         self.assertEqual([
-            {'name': 'instance0_foo',
+            {'name': 'instance0_Foo',
              'dns_name': 'instance0',
              'network_id': 'foo_id',
              'fixed_ips': [{'subnet_id': 'foo_subnet_id'}]},
-            {'name': 'instance0_bar',
+            {'name': 'instance0_Bar',
              'dns_name': 'instance0',
              'network_id': 'bar_id',
              'fixed_ips': [{'subnet_id': 'bar_subnet_id'}]},
@@ -134,21 +137,21 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
 
     def test_generate_port_defs_update(self):
         port_foo = stubs.FakeNeutronPort(
-            name='instance0_foo', network_id='foo_id',
+            name='instance0_Foo', network_id='foo_id',
             fixed_ips=[{'subnet_id': 'foo_subnet_id'}])
         port_bar = stubs.FakeNeutronPort(
-            name='instance0_bar', network_id='bar_id',
+            name='instance0_Bar', network_id='bar_id',
             fixed_ips=[{'subnet_id': 'bar_subnet_id'}])
         inst_ports = [port_foo, port_bar]
         create_port_defs, update_port_defs = plugin.generate_port_defs(
             FAKE_MAPS, FAKE_INSTANCE, inst_ports)
         self.assertEqual([], create_port_defs)
         self.assertEqual([
-            {'name': 'instance0_foo',
+            {'name': 'instance0_Foo',
              'dns_name': 'instance0',
              'network_id': 'foo_id',
              'fixed_ips': [{'subnet_id': 'foo_subnet_id'}]},
-            {'name': 'instance0_bar',
+            {'name': 'instance0_Bar',
              'dns_name': 'instance0',
              'network_id': 'bar_id',
              'fixed_ips': [{'subnet_id': 'bar_subnet_id'}]}
@@ -156,19 +159,19 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
 
     def test_generate_port_defs_create_and_update(self):
         port_foo = stubs.FakeNeutronPort(
-            name='instance0_foo', network_id='foo_id',
+            name='instance0_Foo', network_id='foo_id',
             fixed_ips=[{'subnet_id': 'foo_subnet_id'}])
         inst_ports = [port_foo]
         create_port_defs, update_port_defs = plugin.generate_port_defs(
             FAKE_MAPS, FAKE_INSTANCE, inst_ports)
         self.assertEqual([
-            {'name': 'instance0_bar',
+            {'name': 'instance0_Bar',
              'dns_name': 'instance0',
              'network_id': 'bar_id',
              'fixed_ips': [{'subnet_id': 'bar_subnet_id'}]},
         ], create_port_defs)
         self.assertEqual([
-            {'name': 'instance0_foo',
+            {'name': 'instance0_Foo',
              'dns_name': 'instance0',
              'network_id': 'foo_id',
              'fixed_ips': [{'subnet_id': 'foo_subnet_id'}]},
@@ -182,11 +185,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         create_port_defs, update_port_defs = plugin.generate_port_defs(
             FAKE_MAPS, instance, inst_ports)
         self.assertEqual([
-            {'name': 'instance0_foo',
+            {'name': 'instance0_Foo',
              'dns_name': 'instance0',
              'network_id': 'foo_id',
              'fixed_ips': [{'subnet_id': 'foo_subnet_id'}]},
-            {'name': 'instance0_bar',
+            {'name': 'instance0_Bar',
              'dns_name': 'instance0',
              'network_id': 'bar_id',
              'fixed_ips': [{'subnet_id': 'bar_subnet_id'}]},
@@ -220,11 +223,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         create_port_defs, update_port_defs = plugin.generate_port_defs(
             maps, instance, inst_ports)
         self.assertEqual([
-            {'name': 'instance0_foo',
+            {'name': 'instance0_Foo',
              'dns_name': 'instance0',
              'network_id': 'foo_id',
              'fixed_ips': [{'ip_address': 'baz_fixed_ip'}]},
-            {'name': 'instance0_bar',
+            {'name': 'instance0_Bar',
              'dns_name': 'instance0',
              'network_id': 'bar_id',
              'fixed_ips': [{'ip_address': 'bar_fixed_ip'}]},
@@ -353,11 +356,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
     def test__provision_ports_create(self, mock_conn, mock_pre_provisioned,
                                      mock_create_ports, mock_update_ports):
         create_port_defs = [
-            dict(name='instance0_foo',
+            dict(name='instance0_Foo',
                  dns_name='instance0',
                  network_id='foo_id',
                  fixed_ips=[{'subnet_id': 'foo_subnet_id'}]),
-            dict(name='instance0_bar',
+            dict(name='instance0_Bar',
                  dns_name='instance0',
                  network_id='bar_id',
                  fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
@@ -385,23 +388,23 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
     def test__provision_ports_update(self, mock_conn, mock_pre_provisioned,
                                      mock_create_ports, mock_update_ports):
         port_foo = stubs.FakeNeutronPort(
-            name='instance0_foo',
+            name='instance0_Foo',
             dns_name='instance0',
             network_id='foo_id',
             fixed_ips=[{'subnet_id': 'foo_subnet_id'}],
             tags=[])
         port_bar = stubs.FakeNeutronPort(
-            name='instance0_bar',
+            name='instance0_Bar',
             dns_name='instance0',
             network_id='bar_id',
             fixed_ips=[{'subnet_id': 'bar_subnet_id'}],
             tags=[])
         update_port_defs = [
-            dict(name='instance0_foo',
+            dict(name='instance0_Foo',
                  dns_name='instance0',
                  network_id='foo_id',
                  fixed_ips=[{'subnet_id': 'foo_subnet_id'}]),
-            dict(name='instance0_bar',
+            dict(name='instance0_Bar',
                  dns_name='instance0',
                  network_id='bar_id',
                  fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
@@ -432,19 +435,19 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                                                 mock_create_ports,
                                                 mock_update_ports):
         port_foo = stubs.FakeNeutronPort(
-            name='instance0_foo',
+            name='instance0_Foo',
             dns_name='instance0',
             network_id='foo_id',
             fixed_ips=[{'subnet_id': 'foo_subnet_id'}],
             tags=[])
         create_port_defs = [
-            dict(name='instance0_bar',
+            dict(name='instance0_Bar',
                  dns_name='instance0',
                  network_id='bar_id',
                  fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
         ]
         update_port_defs = [
-            dict(name='instance0_foo',
+            dict(name='instance0_Foo',
                  dns_name='instance0',
                  network_id='foo_id',
                  fixed_ips=[{'subnet_id': 'foo_subnet_id'}]),

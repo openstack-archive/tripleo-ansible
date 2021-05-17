@@ -476,9 +476,13 @@ def create_name_id_maps(conn):
     net_id_map = {}
     cidr_prefix_map = {}
     for net in conn.network.networks():
+        tags = tags_to_dict(net.tags)
         subnets = conn.network.subnets(network_id=net.id)
         net_id_map[net.id] = net.name
-        net_name_map[net.name] = dict(id=net.id)
+        net_name_map[net.name] = dict(
+            id=net.id,
+            name_upper=tags.get('tripleo_network_name')
+        )
         subnets_map = net_name_map[net.name]['subnets'] = dict()
 
         for s in subnets:
