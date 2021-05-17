@@ -32,11 +32,6 @@
   tags:
     - run_cephadm
 
-- name: generate ceph-admin.yml extra vars for user creation
-  copy:
-    dest: "{{ playbook_dir }}/cephadm/ceph-admin.yml"
-    content: "{{ ceph_admin_extra_vars | to_nice_yaml }}"
-
 - name: get the list of enabled services on the overcloud
   set_fact:
     tripleo_enabled_services: "{{ enabled_services | default([]) }}"

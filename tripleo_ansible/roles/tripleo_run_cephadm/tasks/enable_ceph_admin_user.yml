@@ -24,9 +24,20 @@
       - '{{ inventory_file }}'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
       - '/usr/share/ansible/tripleo-playbooks/ceph-admin-user-playbook.yml'
-      - '-e @{{ playbook_dir}}/cephadm/ceph-admin.yml'
+      - '-e tripleo_admin_user=ceph-admin'
+    cephadm_public_private_ssh_list:
+      - '-e distribute_private_key=true'
+      - '--limit undercloud,ceph_mon,ceph_mgr'
+    cephadm_public_ssh_list:
+      - '-e distribute_private_key=false'
+      - '--limit undercloud,ceph_osd,ceph_rgw,ceph_mds,ceph_nfs,ceph_rbdmirror'
 
-- name: Run ceph-admin-user-playbook
-  shell: "{{ cephadm_ssh_list|join(' ') }}"
+- name: Run ceph-admin-user-playbook for public and private keys
+  shell: "{{ (cephadm_ssh_list + cephadm_public_private_ssh_list)|join(' ') }}"
+  tags:
+    - run_cephadm
+
+- name: Run ceph-admin-user-playbook for public keys
+  shell: "{{ (cephadm_ssh_list + cephadm_public_ssh_list)|join(' ') }}"
   tags:
     - run_cephadm
