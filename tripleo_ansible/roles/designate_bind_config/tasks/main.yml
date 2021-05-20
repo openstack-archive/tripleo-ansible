@@ -2,11 +2,29 @@
 - name: ensure target directory exists
   become: true
   file:
-      path: "{{ designate_named_conf_path|dirname }}"
-      state: directory
+    path: "{{ designate_named_conf_path}}/named"
+    state: directory
+
+- name: generate named/options.conf
+  become: true
+  template:
+    src: options.conf.j2
+    dest: "{{ designate_named_conf_path }}/named/options.conf"
+
+- name: generate named/rndc.conf
+  become: true
+  template:
+    src: rndc.conf.j2
+    dest: "{{ designate_named_conf_path}}/named/rndc.conf"
+
+- name: generate named/logging.conf
+  become: true
+  template:
+    src: logging.conf.j2
+    dest: "{{ designate_named_conf_path}}/named/logging.conf"
 
 - name: generate named.conf
   become: true
   template:
-      src: named.conf.j2
-      dest: "{{ designate_named_conf_path }}"
+    src: named.conf.j2
+    dest: "{{ designate_named_conf_path}}/named.conf"
