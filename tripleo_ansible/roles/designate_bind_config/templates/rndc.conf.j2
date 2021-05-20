@@ -1,0 +1,3 @@
+controls {
+	inet {{ external_ip|default(ctlplane_ip)|default('127.0.0.1') }} allow { {{ rndc_allowed_addresses|join(';') }}; } keys { "rndc-key"; };
+};
