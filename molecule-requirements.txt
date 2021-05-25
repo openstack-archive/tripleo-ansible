@@ -12,7 +12,7 @@ molecule>=3.0,<3.1
 ruamel.yaml
 testinfra
 netaddr
-jinja2>=2.8.0,<3
+jinja2
 
 # this is required for the docs build jobs
 ansible>=2.8,!=2.8.9,!=2.9.12,<2.10.0
