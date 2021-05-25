@@ -70,13 +70,13 @@
     memory: "{{ lookup('dict', container_data).value.mem_limit | default(omit) }}"
     memory_swap: "{{ lookup('dict', container_data).value.mem_swappiness | default(omit) }}"
     name: "{{ lookup('dict', container_data).key }}"
-    net: "{{ lookup('dict', container_data).value.net | default('none') }}"
+    network: "{{ lookup('dict', container_data).value.net | default('none') }}"
     pid: "{{ lookup('dict', container_data).value.pid | default(omit) }}"
     pids_limit: "{{ lookup('dict', container_data).value.pids_limit | default(omit) }}"
     privileged: "{{ lookup('dict', container_data).value.privileged | default(false) }}"
     rm: "{{ lookup('dict', container_data).value.remove | default(false) }}"
     security_opt: "{{ lookup('dict', container_data).value.security_opt | default(omit) }}"
-    state: present
+    state: started
     stop_signal: "{{ lookup('dict', container_data).value.stop_signal | default(omit) }}"
     stop_timeout: "{{ lookup('dict', container_data).value.stop_grace_period | default(omit) | int }}"
     sysctl: "{{ lookup('dict', container_data).value.sysctl | default(omit) }}"
