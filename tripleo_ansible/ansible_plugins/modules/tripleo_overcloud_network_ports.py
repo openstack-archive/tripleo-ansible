@@ -302,6 +302,7 @@ def generate_port_defs(net_maps, instance, inst_ports):
 
     for net in instance['networks']:
         net_name = net['network']
+        net_name_upper = net_maps['by_name'][net_name]['name_upper']
 
         if net.get('vif', False):
             # VIF port's are managed by metalsmith.
@@ -326,7 +327,7 @@ def generate_port_defs(net_maps, instance, inst_ports):
 
             fixed_ips = [{'subnet_id': subnet_id}]
 
-        port_name = '_'.join([hostname, net_name])
+        port_name = '_'.join([hostname, net_name_upper])
 
         port_def = dict(name=port_name, dns_name=hostname, network_id=net_id,
                         fixed_ips=fixed_ips)
