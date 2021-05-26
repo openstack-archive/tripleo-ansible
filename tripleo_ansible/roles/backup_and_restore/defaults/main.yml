@@ -31,6 +31,12 @@ tripleo_backup_and_restore_enable_snapshots: true
 # Set the name of the mysql container
 tripleo_backup_and_restore_mysql_container: mysql
 
+# Default name for the Undercloud mysql DB backup file
+tripleo_backup_and_restore_mysql_backup_file: "openstack-backup-mysql.sql"
+
+# Default name for the Undercloud mysql DB grants file
+tripleo_backup_and_restore_mysql_grants_file: "openstack-backup-mysql-grants.sql"
+
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
 # By default this should be the Undercloud node
 tripleo_backup_and_restore_nfs_server: 192.168.24.1
