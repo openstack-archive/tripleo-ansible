@@ -54,7 +54,6 @@
   systemd:
     state: stopped
     name: "ceph-radosgw@rgw.{{ ansible_facts['hostname'] }}.{{ bar_ceph_rgw_name.stdout }}"
-  become: true
   when:
     - bar_ceph_rgw_exits.stdout!="0"
     - bar_ceph_rgw_name.stdout!=""

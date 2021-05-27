@@ -36,6 +36,5 @@
   systemd:
     state: stopped
     name: "ceph-mgr@{{ ansible_facts['hostname'] }}"
-  become: true
   tags:
     - bar_create_recover_image

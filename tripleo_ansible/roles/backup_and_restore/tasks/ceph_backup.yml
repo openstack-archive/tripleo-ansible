@@ -43,7 +43,6 @@
       --acls \
       -f {{ tripleo_backup_and_restore_ceph_backup_file }} \
       {{ tripleo_backup_and_restore_ceph_path }}
-  become: true
   tags:
     - bar_create_recover_image
 
