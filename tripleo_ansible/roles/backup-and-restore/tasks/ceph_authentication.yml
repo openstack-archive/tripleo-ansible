@@ -42,6 +42,5 @@
   shell: |
     set -o pipefail
     {{ tripleo_container_cli }} exec ceph-mon-{{ ansible_facts['hostname'] }} bash -c "ceph auth export" > {{ tripleo_backup_and_restore_ceph_auth_file }}
-  become: true
   tags:
     - bar_create_recover_image
