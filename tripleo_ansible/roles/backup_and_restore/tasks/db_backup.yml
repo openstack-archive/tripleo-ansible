@@ -21,7 +21,6 @@
   when: mysql_password is undefined
   register: mysql_password
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
-  become: true
   tags:
     - bar_create_recover_image
 
@@ -30,7 +29,6 @@
     hiera -c '{{ tripleo_backup_and_restore_hiera_config_file }}' 'tripleo::profile::pacemaker::database::mysql::bind_address'
   when: tripleo_backup_and_restore_pacemaker_galera_bind_address is undefined
   register: tripleo_backup_and_restore_pacemaker_galera_bind_address
-  become: true
   tags:
     - bar_create_recover_image
 
@@ -79,7 +77,6 @@
     {{ tripleo_container_cli }} ps -a | grep galera | awk '{print $1}'
   when: enabled_galera
   register: galera_container_id
-  become: true
   tags:
     - bar_create_recover_image
 
