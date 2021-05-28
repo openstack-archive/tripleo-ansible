@@ -15,11 +15,15 @@ https://review.opendev.org/c/openstack/tripleo-ansible/+/773784
 {# Get the unbound listen interface IP address #}
 
 {% if tripleo_unbound_listen_interfaces is not defined or tripleo_unbound_listen_interfaces == "" %}
-  {% if tripleo_unbound_network_name is defined and tripleo_unbound_network_name != "" %}
-    {% set tripleo_unbound_listen_interfaces = [hostvars[inventory_hostname][tripleo_unbound_network_name + "_ip"]] %}
+  {% if hostvars[inventory_hostname].tripleo_unbound_listen_interfaces is defined and hostvars[inventory_hostname].tripleo_unbound_listen_interfaces != "" %}
+    {% set tripleo_unbound_listen_ips = [hostvars[inventory_hostname].tripleo_unbound_listen_interfaces] %}
+  {% elif tripleo_unbound_network_name is defined and tripleo_unbound_network_name != "" %}
+    {% set tripleo_unbound_listen_ips = [hostvars[inventory_hostname][tripleo_unbound_network_name + "_ip"]] %}
   {% else %}
-    {% set tripleo_unbound_listen_interfaces = ['127.0.0.1'] %}
+    {% set tripleo_unbound_listen_ips = ['127.0.0.1'] %}
   {% endif %}
+{% else %}
+    {% set tripleo_unbound_listen_ips = tripleo_unbound_listen_interfaces %}
 {% endif %}
 
 {# Get the cloud "external" subnet CIDRs to allow for queries #}
