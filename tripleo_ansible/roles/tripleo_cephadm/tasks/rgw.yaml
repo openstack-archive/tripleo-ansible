@@ -34,7 +34,7 @@
       ceph_mkspec:
         service_type: rgw
         apply: true
-        hosts: "{{ _hosts }}"
+        hosts: "{{ _hosts | unique }}"
         spec:
           rgw_frontend_port: "{{ radosgw_frontend_port }}"
           rgw_realm: 'default'
