@@ -208,13 +208,24 @@ class CephDaemonSpec(object):
         # append the spec if provided
         if len(self.spec.keys()) > 0:
             if self.validate_keys(self.spec.keys(), ALLOWED_SPEC_KEYS):
-                sp = {'spec': self.filter_spec(self.spec)}
+                sp = {'spec': self.normalize_spec(self.filter_spec(self.spec))}
             else:
                 raise Exception("Fatal: the spec should be composed by only allowed keywords")
 
         # build the resulting daemon template
         spec_template = {**spec_template, **ntw, **self.extra, **pl, **sp}
         return spec_template
+
+    def normalize_spec(self, spec):
+        '''
+        For each spec key we need to make sure
+        that ports are evaluated as int, otherwise
+        cephadm fails when the spec is applied.
+        '''
+        for k, v in spec.items():
+            if 'port' in k:
+                spec[k] = int(v)
+        return spec
 
     def filter_spec(self, spec):
         return {k: v for k, v in spec.items() if v}

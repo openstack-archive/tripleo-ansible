@@ -63,20 +63,22 @@
     - name: Create the monitoring stack Daemon spec definition
       become: true
       ceph_mkspec:
-        service_type: "{{ item }}"
-        service_id: "{{ item }}"
-        service_name: "{{ item }}"
+        service_type: "{{ item.daemon }}"
+        service_id: "{{ item.daemon }}"
+        service_name: "{{ item.daemon }}"
         apply: true
         hosts: "{{ _hosts | unique }}"
         render_path: "{{ tripleo_cephadm_spec_home }}"
         networks: "{{ tripleo_cephadm_monitoring_address_block }}"
+        spec:
+          port: "{{ item.port }}"
       environment:
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
       with_items:
-        - "alertmanager"
-        - "prometheus"
-        - "grafana"
+        - {"daemon": "grafana", "port": "{{ tripleo_cephadm_grafana_port | default(3100) }}"}
+        - {"daemon": "prometheus", "port": "{{ tripleo_cephadm_prometheus_port | default(9092) }}"}
+        - {"daemon": "alertmanager", "port": "{{ tripleo_cephadm_alertmanager_port | default(9094) }}"}
   when: tripleo_cephadm_dashboard_enabled | bool
 
 - include_tasks: dashboard/dashboard.yaml
