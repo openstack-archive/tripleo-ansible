@@ -18,6 +18,7 @@ insecure = {{ mirror.insecure | default(False) | bool | ternary('true', 'false')
 {% endif %}
 {% endfor %}
 
+{% if tripleo_podman_insecure_registries is defined %}
 # insecure registry list
 {% for reg in tripleo_podman_insecure_registries %}
 [[registry]]
@@ -25,3 +26,4 @@ prefix = "{{ reg }}"
 insecure = true
 location = "{{ reg }}"
 {% endfor %}
+{% endif %}
