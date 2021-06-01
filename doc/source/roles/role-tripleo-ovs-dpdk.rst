@@ -95,6 +95,34 @@ Role Defaults
   - **Default**: ``false``
   - **Examples**: ``true``
 
+- ``tripleo_ovs_dpdk_pmd_load_threshold``
+
+  - **Description**: (*Optional*) Minimum PMD thread load threshold, in range
+    0 to 100. Its a string with a number, specifies the minimum
+    PMD thread load threshold (% of used cycles) of any non-isolated PMD threads
+    when a PMD Auto Load Balance may be triggered.
+  - **Default**: ``''``
+  - **Examples**: ``'50'``
+
+- ``tripleo_ovs_dpdk_pmd_improvement_threshold``
+
+  - **Description**: (*Optional*) PMD load variance improvement threshold, in range
+    0 to 100. Its a string with a number, specifies the minimum evaluated % improvement
+    in load distribution across the non-isolated PMD threads that will allow
+    a PMD Auto Load Balance to occur.
+    Note, setting this parameter to 0 will always allow an auto load balance to occur
+    regardless of estimated improvement or not.
+  - **Default**: ``''``
+  - **Examples**: ``'10'``
+
+- ``tripleo_ovs_dpdk_pmd_rebal_interval``
+
+  - **Description**: (*Optional*) PMD auto load balancing interval, in range
+    0 to 20,000. Its a string with a number, specifies the minimum time (in minutes)
+    between 2 consecutive PMD Auto Load Balancing iterations. The defaul value is 1 min.
+  - **Default**: ``''``
+  - **Examples**: ``'5'``
+
 Modules
 -------
 

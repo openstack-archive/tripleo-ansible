@@ -80,3 +80,21 @@ def test_positive_enable_tso(host):
     other_config = get_config(host)
     tso_enabled = other_config['userspace-tso-enable'].replace('"', '')
     assert tso_enabled == "true"
+
+
+def test_positive_pmd_load_threshold(host):
+    other_config = get_config(host)
+    pmd_load_threshold = other_config['pmd-auto-lb-load-threshold'].replace('"', '')
+    assert pmd_load_threshold == "50"
+
+
+def test_positive_pmd_improvement_threshold(host):
+    other_config = get_config(host)
+    pmd_improvement_threshold = other_config['pmd-auto-lb-improvement-threshold'].replace('"', '')
+    assert pmd_improvement_threshold == "10"
+
+
+def test_positive_pmd_rebal_interval(host):
+    other_config = get_config(host)
+    pmd_rebal_interval = other_config['pmd-auto-lb-rebal-interval'].replace('"', '')
+    assert pmd_rebal_interval == "5"
