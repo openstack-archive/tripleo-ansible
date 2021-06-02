@@ -240,7 +240,6 @@ provisioner:
             qdr_network: ctlplane
             rabbitmq_network: ctlplane
             redis_network: ctlplane
-            sahara_api_network: ctlplane
             snmpd_network: ctlplane
             standalone_hostname_resolve_network: ctlplane
             swift_proxy_network: ctlplane
