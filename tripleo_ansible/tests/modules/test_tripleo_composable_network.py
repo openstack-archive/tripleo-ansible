@@ -353,11 +353,11 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'tags': ['tripleo_vlan_id=100'],
         }
         subnet_v4_spec, subnet_v6_spec = plugin.create_subnet_spec(
-            net_id, name, subnet_data)
+            net_id, name, subnet_data, True)
         self.assertEqual(None, subnet_v4_spec)
         self.assertEqual(expected, subnet_v6_spec)
 
-    def test_create_subnet_spec_dual_stack(self):
+    def test_create_subnet_spec_both_ipv4_ipv6(self):
         net_id = 'net_id'
         name = 'subnet0'
         subnet_data = {
@@ -412,6 +412,10 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         subnet_v4_spec, subnet_v6_spec = plugin.create_subnet_spec(
             net_id, name, subnet_data)
         self.assertEqual(expected_ipv4, subnet_v4_spec)
+        self.assertEqual(None, subnet_v6_spec)
+        subnet_v4_spec, subnet_v6_spec = plugin.create_subnet_spec(
+            net_id, name, subnet_data, True)
+        self.assertEqual(None, subnet_v4_spec)
         self.assertEqual(expected_ipv6, subnet_v6_spec)
 
     def test_validate_subnet_update(self):

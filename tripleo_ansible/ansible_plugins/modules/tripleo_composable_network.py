@@ -18,10 +18,6 @@
 import yaml
 
 try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
-try:
     from ansible.module_utils import network_data_v2
 except ImportError:
     from tripleo_ansible.ansible_plugins.module_utils import network_data_v2
@@ -46,7 +42,8 @@ short_description: Create a TripleO Composable network
 version_added: "2.8"
 
 description:
-    - "Create a TripleO Composable network, a network, one or more segments and one or more subnets"
+    - Create a TripleO Composable network, a network,
+      one or more segments and one or more subnets
 
 options:
   net_data:
@@ -270,11 +267,12 @@ def create_or_update_segment(conn, module, segment_spec, segment_id=None):
     return changed, segment
 
 
-def create_subnet_spec(net_id, name, subnet_data):
+def create_subnet_spec(net_id, name, subnet_data,
+                       ipv6_enabled=False):
     tags = build_subnet_tag_field(subnet_data)
     subnet_v4_spec = None
     subnet_v6_spec = None
-    if subnet_data.get('ip_subnet'):
+    if not ipv6_enabled and subnet_data.get('ip_subnet'):
         subnet_v4_spec = {
             'ip_version': 4,
             'name': name,
@@ -286,7 +284,7 @@ def create_subnet_spec(net_id, name, subnet_data):
             'host_routes': subnet_data.get('routes', []),
             'tags': tags,
         }
-    if subnet_data.get('ipv6_subnet'):
+    if ipv6_enabled and subnet_data.get('ipv6_subnet'):
         subnet_v6_spec = {
             'ip_version': 6,
             'name': name,
@@ -321,7 +319,7 @@ def validate_subnet_update(module, subnet, subnet_spec):
         module.fail_json(
             msg='Cannot update segment_id in existing subnet, '
                 'Current segment_id: {} Update segment_id: {}'.format(
-                subnet.segment_id, segment_id))
+                    subnet.segment_id, segment_id))
 
     # Remove fields that don't need update from spec
     if subnet.name == subnet_spec['name']:
@@ -354,6 +352,7 @@ def create_or_update_subnet(conn, module, subnet_spec):
     tags = subnet_spec.pop('tags')
 
     subnet = conn.network.find_subnet(subnet_spec['name'],
+                                      ip_version=subnet_spec['ip_version'],
                                       network_id=subnet_spec['network_id'])
     if not subnet:
         subnet = conn.network.create_subnet(**subnet_spec)
@@ -432,6 +431,7 @@ def run_module():
     try:
         _, conn = openstack_cloud_from_module(module)
 
+        ipv6_enabled = net_data.get('ipv6', False)
         # Create or update the network
         net_spec = create_net_spec(
             net_data, get_overcloud_domain_name(conn, default_network), idx)
@@ -445,13 +445,12 @@ def run_module():
         changed = adopt_the_implicit_segment(conn, module, segments,
                                              subnets, network)
         result['changed'] = changed if changed else result['changed']
-
         for subnet_name, subnet_data in net_data.get('subnets', {}).items():
             segment_spec = create_segment_spec(
                 network.id, network.name, subnet_name,
                 physical_network=subnet_data.get('physical_network'))
             subnet_v4_spec, subnet_v6_spec = create_subnet_spec(
-                network.id, subnet_name, subnet_data)
+                network.id, subnet_name, subnet_data, ipv6_enabled)
 
             changed, segment = create_or_update_segment(
                 conn, module, segment_spec)
@@ -461,6 +460,7 @@ def run_module():
                 subnet_v4_spec.update({'segment_id': segment.id})
                 changed = create_or_update_subnet(conn, module, subnet_v4_spec)
                 result['changed'] = changed if changed else result['changed']
+
             if subnet_v6_spec:
                 subnet_v6_spec.update({'segment_id': segment.id})
                 changed = create_or_update_subnet(conn, module, subnet_v6_spec)
