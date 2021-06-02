@@ -22,6 +22,18 @@
     config_overrides: "{{ tripleo_container_manage_config_overrides }}"
     concurrency: "{{ tripleo_container_manage_concurrency }}"
 
+- name: Check if /etc/sysconfig/podman_drop_in exists
+  stat:
+    path: /etc/sysconfig/podman_drop_in
+  register: podman_drop_in_file
+
+# NOTE(mwhahaha): this fact is used as part of the container_systemd templating
+- name: Set podman_drop_in fact
+  set_fact:
+    podman_drop_in: true
+  when:
+    - podman_drop_in_file.stat.exists
+
 - name: "Manage container systemd services and cleanup old systemd healthchecks for {{ tripleo_container_manage_config }}"
   become: true
   container_systemd:
