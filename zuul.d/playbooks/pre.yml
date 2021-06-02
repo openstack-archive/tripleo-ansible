@@ -109,3 +109,11 @@
         {{ tripleo_ansible_project_path }}/tripleo_ansible/ansible-role-requirements.yml
       environment:
         ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"
+
+    - name: Get Ansible Galaxy collections
+      command: >-
+        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy collection install
+        -fr
+        {{ tripleo_ansible_project_path }}/tripleo_ansible/requirements.yml
+      environment:
+        ANSIBLE_ROLES_PATH: "{{ tripleo_ansible_project_path }}/tripleo_ansible/roles.galaxy"

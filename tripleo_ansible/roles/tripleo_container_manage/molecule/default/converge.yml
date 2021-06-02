@@ -76,7 +76,7 @@
         - name: Check for fedora container
           command: podman container exists fedora
         - name: Gather facts about fedora container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora
           register: fedora_infos
         - name: Assert that fedora container has the right image
@@ -110,7 +110,7 @@
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Gather facts about fedora_bis container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora_bis
           register: fedora_bis_infos
         - name: Assert that fedora_bis container has the right image
@@ -124,7 +124,7 @@
         - name: Check for fedora_three container
           command: podman container exists fedora_three
         - name: Gather facts about fedora_three container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora_three
           register: fedora_three_infos
         - name: Assert that fedora_three container has the right image
@@ -145,7 +145,7 @@
     tripleo_container_manage_systemd_order: true
   tasks:
     - name: Gather facts about fedora container before new run
-      podman_container_info:
+      containers.podman.podman_container_info:
         name: fedora
       register: fedora_infos_old
       when:
@@ -153,7 +153,7 @@
     - include_role:
         name: tripleo_container_manage
     - name: Gather facts about fedora container after new run
-      podman_container_info:
+      containers.podman.podman_container_info:
         name: fedora
       register: fedora_infos_new
       when:
@@ -222,7 +222,7 @@
         - name: Check for fedora container
           command: podman container exists fedora
         - name: Gather facts about fedora container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora
           register: fedora_infos
         - name: Assert that fedora container has the right image
@@ -271,7 +271,7 @@
         - name: Check for fedora container
           command: podman container exists fedora
         - name: Gather facts about fedora container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora
           register: fedora_infos
         - name: Check if tripleo_fedora systemd service is active
@@ -357,7 +357,7 @@
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Gather facts about fedora_bis container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora_bis
           register: fedora_bis_infos
         - name: Assert that fedora_bis container has the right image
@@ -394,7 +394,7 @@
         - name: Check for fedora_bis container
           command: podman container exists fedora_bis
         - name: Gather facts about fedora_bis container
-          podman_container_info:
+          containers.podman.podman_container_info:
             name: fedora_bis
           register: fedora_bis_infos
         - name: Assert that fedora_bis container has the right image
