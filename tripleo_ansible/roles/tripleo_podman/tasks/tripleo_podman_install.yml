@@ -70,6 +70,13 @@
         setype: etc_t
         mode: '0644'
         create: true
-        section: containers
-        option: pids_limit
-        value: "{{ tripleo_container_default_pids_limit }}"
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - section: containers
+          option: pids_limit
+          value: "{{ tripleo_container_default_pids_limit }}"
+        - section: engine
+          option: events_logger
+          value: "\"{{ tripleo_container_events_logger_mechanism }}\""
