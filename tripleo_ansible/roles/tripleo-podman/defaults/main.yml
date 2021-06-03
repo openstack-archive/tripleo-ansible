@@ -51,3 +51,4 @@ tripleo_podman_default_network_config:
         portMappings: true
     - type: firewall
     - type: tuning
+tripleo_container_events_logger_mechanism: journald
