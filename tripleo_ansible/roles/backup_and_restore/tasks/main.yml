@@ -49,8 +49,15 @@
 - name: Backup pacemaker configuration
   import_tasks: pacemaker_backup.yml
 
-- name: Create recovery images with ReaR
-  import_tasks: run_backup.yml
+- name: Perform backup
+  block:
+    - name: Create recovery images with ReaR
+      import_tasks: run_backup.yml
+  always:
+    - name: Service management
+      import_tasks: service_manager_unpause.yml
+      when:
+        - tripleo_backup_and_restore_service_manager|bool
 
 - name: Service management
   import_tasks: service_manager_unpause.yml
