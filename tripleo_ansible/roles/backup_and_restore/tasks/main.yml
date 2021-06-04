@@ -62,7 +62,7 @@
         - not tripleo_backup_and_restore_enable_snapshots|bool
 
     - name: Pacemaker management
-      import_tasks: pacemaker_unstandby.yml
+      import_tasks: pacemaker_start.yml
       when:
         - pacemaker_enabled
         - tripleo_backup_and_restore_enable_snapshots|bool
