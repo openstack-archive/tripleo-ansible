@@ -481,7 +481,7 @@ def create_name_id_maps(conn):
         net_id_map[net.id] = net.name
         net_name_map[net.name] = dict(
             id=net.id,
-            name_upper=tags.get('tripleo_network_name')
+            name_upper=tags.get('tripleo_network_name', net.name)
         )
         subnets_map = net_name_map[net.name]['subnets'] = dict()
 
