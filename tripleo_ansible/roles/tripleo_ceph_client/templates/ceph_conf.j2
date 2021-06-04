@@ -18,19 +18,9 @@ mon host = {% if tripleo_ceph_client_mon_ips is defined and tripleo_ceph_client_
 {{ external_cluster_mon_ips }}
 {% endif %}
 
-{# Build CephConfigOverrides #}
-{% for key, value in (config_overrides | default({})).items() %}
-{%   if not (['global', 'mon', 'mgr', 'osd', 'mds', 'client']) | intersect([key]) %}
-{{ key }} = {{ value }}
-{%   elif (['global']) | intersect([key]) %}
-{# Merge global defined values into this section #}
-{{ render_map(value) }}
-{%   endif %}
-{% endfor %}
-
 {# Build the remaining sections #}
 {% for key, value in (config_overrides | default({})).items() %}
-{%   if (['mon', 'mgr', 'osd', 'mds', 'client']) | intersect([key]) %}
+{%   if (['client']) | intersect([key]) %}
 [{{ key }}]
 {# Render the current section #}
 {{ render_map(value) }}
