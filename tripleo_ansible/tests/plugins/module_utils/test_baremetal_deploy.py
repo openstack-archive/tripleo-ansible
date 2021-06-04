@@ -1094,7 +1094,8 @@ class TestCheckExistingInstances(base.TestCase):
 
         self.assertEqual([], not_found)
         self.assertEqual([existing], found)
-        pr.show_instance.assert_called_once_with('server2')
+        pr.show_instance.assert_has_calls([mock.call('server2'),
+                                           mock.call(existing.uuid)])
 
     def test_hostname_mismatch(self):
         pr = mock.Mock()
@@ -1136,7 +1137,9 @@ class TestCheckExistingInstances(base.TestCase):
 
         self.assertEqual([], not_found)
         self.assertEqual([existing], found)
-        pr.show_instance.assert_called_once_with('bm_node1')
+        self.assertEqual(2, pr.show_instance.call_count)
+        pr.show_instance.assert_has_calls([mock.call('bm_node1'),
+                                           mock.call(existing.uuid)])
 
     def test_hostname_mismatch_and_instance_info_display_name_mismatch(self):
         pr = mock.Mock()
