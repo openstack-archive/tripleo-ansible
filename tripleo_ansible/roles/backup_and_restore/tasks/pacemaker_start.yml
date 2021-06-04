@@ -16,7 +16,7 @@
 #
 # Start again pacemaker
 - name: Add the node to the pacemaker cluster
-  command: pcs node unstandby
+  command: pcs cluster start
   tags:
     - bar_create_recover_image
 
