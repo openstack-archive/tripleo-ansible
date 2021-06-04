@@ -33,8 +33,11 @@
       {% endif %}
       --entrypoint {{ ceph_command | default('ceph') }}
       {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
-      {% if ceph_command|default('ceph') == 'ceph' -%}
+      {% if ceph_command|default('ceph') == 'ceph' or ceph_command|default('ceph') == 'rados' -%}
         {% if not admin_daemon|default(false) -%}
-        --fsid {{ tripleo_cephadm_fsid }} -c {{ tripleo_cephadm_conf }} -k {{ tripleo_cephadm_admin_keyring }}
+        --fsid {{ tripleo_cephadm_fsid }} -c {{ tripleo_cephadm_conf }} -k {{ tripleo_cephadm_keyring_prefix }}.{{ select_keyring| default('admin') }}.keyring
+        {%- endif %}
+        {% if external_cluster|default(false) -%}
+        -n client.{{ select_keyring }}
         {%- endif %}
       {%- endif %}
