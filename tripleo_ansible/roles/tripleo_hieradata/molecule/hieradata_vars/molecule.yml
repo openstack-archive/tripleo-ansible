@@ -235,7 +235,6 @@ provisioner:
             ovn_dbs_network: ctlplane
             pacemaker_network: ctlplane
             pacemaker_remote_network: ctlplane
-            panko_api_network: ctlplane
             placement_network: ctlplane
             public_network: ctlplane
             qdr_network: ctlplane
