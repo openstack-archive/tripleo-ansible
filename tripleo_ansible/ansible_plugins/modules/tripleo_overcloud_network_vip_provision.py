@@ -39,13 +39,12 @@ DOCUMENTATION = '''
 ---
 module: tripleo_overcloud_network_vip_provision
 
-short_description: Extract information on provisioned overcloud Virtual IPs
+short_description: Provision overcloud Virtual IPs
 
 version_added: "2.8"
 
 description:
-    - Extract information about provisioned network Virtual IP resources in
-      overcloud heat stack.
+    - Provision network Virtual IP resources for an overcloud
 
 options:
   stack_name:
