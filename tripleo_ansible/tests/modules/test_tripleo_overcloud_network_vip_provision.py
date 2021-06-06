@@ -122,8 +122,9 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
         mock_conn.network.ports.return_value = self.a2g([])
         managed_ports = list()
         plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
-                                  managed_ports)
+                                  managed_ports, 'admin')
         mock_conn.network.create_port.assert_called_with(
+            project_id='admin',
             dns_name='overcloud',
             fixed_ips=[{'ip_address': '1.2.3.4'}],
             name='network1_virtual_ip',
@@ -146,8 +147,8 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
         mock_conn.network.ports.return_value = self.a2g([fake_port])
         managed_ports = list()
         plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
-                                  managed_ports)
-        self.assertEqual([fake_port.id], managed_ports)
+                                  managed_ports, 'admin')
+        self.assertEqual([fake_port.id], managed_ports, 'admin')
         mock_conn.network.create_port.assert_not_called()
         mock_conn.network.update_port.assert_not_called()
         mock_conn.network.set_tags.assert_not_called()
@@ -171,7 +172,7 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
         mock_conn.network.ports.return_value = self.a2g([fake_port])
         managed_ports = list()
         plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
-                                  managed_ports)
+                                  managed_ports, 'admin')
         self.assertEqual([fake_port.id], managed_ports)
         mock_conn.network.create_port.assert_not_called()
         mock_conn.network.update_port.assert_called_with(fake_port.id,
