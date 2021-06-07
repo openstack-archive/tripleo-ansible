@@ -18,6 +18,10 @@
   include_tasks: ceph_cli.yaml
   vars:
     ceph_command: 'rados'
+    # ceph cli needs manila cephx keyring if admin is not available
+    select_keyring: "{{ 'manila' if groups['ceph_mon'] | default([]) | length == 0 else 'admin' }}"
+    # when ceph is external and admin keyring is not available we're passing -n client.{{ selected_keyring }}
+    external_cluster: "{{ true if groups['ceph_mon'] | default([]) | length == 0 else false }}"
 
 - name: check if rados index object exists
   shell: |
