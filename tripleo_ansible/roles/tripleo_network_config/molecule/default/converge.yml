@@ -22,7 +22,7 @@
     tripleo_network_config_template: templates/standalone.j2
     tripleo_network_config_manage_service: false
     tripleo_network_config_hide_sensitive_logs: false
-    local_mtu: 1500
+    ctlplane_mtu: 1500
     ctlplane_ip: 203.0.113.1
     ctlplane_subnet_cidr: 24
     ctlplane_host_routes: []
