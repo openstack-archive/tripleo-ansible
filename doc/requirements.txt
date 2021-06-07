@@ -1,1 +1,10 @@
-../molecule-requirements.txt
+# this is required for the docs build jobs
+ruamel.yaml
+ansible>=2.8,!=2.8.9,!=2.9.12,<2.10.0
+sphinx>=2.0.0,!=2.1.0 # BSD
+openstackdocstheme
+reno
+doc8
+bashate
+metalsmith
+jsonschema  # MIT
