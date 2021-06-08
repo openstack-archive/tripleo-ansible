@@ -91,3 +91,6 @@ tripleo_backup_and_restore_skip_nfs_test: false
 
 # How many seconds do we want to wait fir pcs cluster stop to finish
 tripleo_backup_and_restore_pcs_timeout: 3600
+
+# Enable historical backups
+tripleo_backup_and_restore_historical: true
