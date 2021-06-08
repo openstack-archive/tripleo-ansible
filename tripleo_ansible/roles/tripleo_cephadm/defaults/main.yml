@@ -50,3 +50,5 @@ tripleo_cephadm_internal_tls_enabled: false
 tripleo_cephadm_nfs_rados_export_index: 'ganesha-export-index'
 tripleo_cephadm_ceph_nfs_rados_backend: true
 tripleo_cephadm_certs: /etc/pki/tls
+tripleo_cephadm_idmap_conf: "/etc/ganesha/idmap.conf"
+tripleo_cephadm_idmap_overrides: {}
