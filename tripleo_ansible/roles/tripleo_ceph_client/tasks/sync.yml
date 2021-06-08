@@ -55,5 +55,6 @@
       copy:
         src: "{{ item[0] }}"
         dest: "{{ tripleo_ceph_client_config_home }}/{{ item[0] | basename }}"
+        mode: "{{ '600' if item[0] | regex_search('.*.keyring$') else '644' }}"
       delegate_to: "{{ item[1] }}"
       loop: "{{ tripleo_ceph_client_dist }}"
