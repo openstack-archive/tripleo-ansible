@@ -32,6 +32,12 @@
   tags:
     - always
 
+- name: Unpause ceph mon container if paused
+  command: "{{ tripleo_container_cli }} unpause ceph-mon-{{ ansible_facts['hostname'] }}"
+  failed_when: false
+  tags:
+    - bar_create_recover_image
+
 - name: Export ceph authentication
   shell: |
     set -o pipefail
