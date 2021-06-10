@@ -52,3 +52,6 @@ tripleo_cephadm_ceph_nfs_rados_backend: true
 tripleo_cephadm_certs: /etc/pki/tls
 tripleo_cephadm_idmap_conf: "/etc/ganesha/idmap.conf"
 tripleo_cephadm_idmap_overrides: {}
+tripleo_cephadm_rbd_mirror_pool: ''
+tripleo_cephadm_rbd_mirror_remote_cluster: not-ceph
+tripleo_cephadm_rbd_mirror_remote_user: ''
