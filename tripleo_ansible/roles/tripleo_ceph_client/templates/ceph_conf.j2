@@ -30,3 +30,9 @@ mon host = {% if tripleo_ceph_client_mon_ips is defined and tripleo_ceph_client_
 [client.libvirt]
 admin socket = {{ tripleo_ceph_client_rbd_admin_socket_path }}/$cluster-$type.$id.$pid.$cctid.asok
 log file = {{ tripleo_ceph_client_rbd_log_file }}
+
+{% if tripleo_cephadm_ceph_nfs_ceph_user is defined %}
+[client.{{ tripleo_cephadm_ceph_nfs_ceph_user }}]
+client mount uid = 0
+client mount gid = 0
+{% endif %}
