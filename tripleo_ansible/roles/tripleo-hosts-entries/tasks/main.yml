@@ -48,6 +48,19 @@
   tags:
     - tripleo_hosts_entries
 
+- name: Remove old ansible marker hosts configuration (if present)
+  become: true
+  blockinfile:
+    state: absent
+    path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
+    block: ""
+    marker: "# {mark}"
+    marker_begin: "BEGIN ANSIBLE MANAGED BLOCK"
+    marker_end: "END ANSIBLE MANAGED BLOCK"
+  register: tripleo_hosts_entries_old_ansible_marker
+  tags:
+    - tripleo_hosts_entries
+
 - name: Render out the hosts entries
   run_once: true
   set_fact:
@@ -96,7 +109,7 @@
   become: true
   # cp preserves the inode of the existing file tripleo_hosts_entries_hosts_path
   command: cp "{{ tripleo_hosts_entries_tmp_hosts.path }}" "{{ tripleo_hosts_entries_hosts_path }}"
-  when: tripleo_hosts_entries_heat_marker.changed or tripleo_hosts_entries_new_entries.changed
+  when: tripleo_hosts_entries_heat_marker.changed or tripleo_hosts_entries_new_entries.changed or tripleo_hosts_entries_old_ansible_marker.changed
   tags:
     - tripleo_hosts_entries
 
