@@ -32,7 +32,7 @@
   tags:
     - always
 
-- name: Unpause ceph mon container if paused
+- name: Ensure cephmon container is running
   command: "{{ tripleo_container_cli }} unpause ceph-mon-{{ ansible_facts['hostname'] }}"
   failed_when: false
   tags:
