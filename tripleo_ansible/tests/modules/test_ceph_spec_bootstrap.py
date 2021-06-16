@@ -62,9 +62,9 @@ class TestCephSpecBootstrap(tests_base.TestCase):
                     'oc0-ceph-1': ['osd'],
                     'oc0-ceph-2': ['osd'],
                     'oc0-compute-0': [],
-                    'oc0-controller-0': ['mgr', 'mon'],
-                    'oc0-controller-1': ['mgr', 'mon'],
-                    'oc0-controller-2': ['mgr', 'mon']}
+                    'oc0-controller-0': ['mgr', 'mon', '_admin'],
+                    'oc0-controller-1': ['mgr', 'mon', '_admin'],
+                    'oc0-controller-2': ['mgr', 'mon', '_admin']}
         self.assertEqual(label_map, expected)
 
         specs = ceph_spec_bootstrap.get_specs(hosts_to_ips, label_map, ceph_service_types)
@@ -76,11 +76,11 @@ class TestCephSpecBootstrap(tests_base.TestCase):
             {'service_type': 'host', 'addr': '192.168.24.14',
              'hostname': 'oc0-ceph-2', 'labels': ['osd']},
             {'service_type': 'host', 'addr': '192.168.24.23',
-             'hostname': 'oc0-controller-0', 'labels': ['mgr', 'mon']},
+             'hostname': 'oc0-controller-0', 'labels': ['mgr', 'mon', '_admin']},
             {'service_type': 'host', 'addr': '192.168.24.15',
-             'hostname': 'oc0-controller-1', 'labels': ['mgr', 'mon']},
+             'hostname': 'oc0-controller-1', 'labels': ['mgr', 'mon', '_admin']},
             {'service_type': 'host', 'addr': '192.168.24.7',
-             'hostname': 'oc0-controller-2', 'labels': ['mgr', 'mon']},
+             'hostname': 'oc0-controller-2', 'labels': ['mgr', 'mon', '_admin']},
             {
                 'service_type': 'mon',
                 'service_name': 'mon',
@@ -107,6 +107,11 @@ class TestCephSpecBootstrap(tests_base.TestCase):
                 'data_devices': {'all': True}
             }
         ]
+        for index in range(0, len(expected)):
+            if expected[index].get('service_type', '') == 'host':
+                expected[index].get('labels', {}).sort()
+                specs[index].get('labels', {}).sort()
+
         self.assertEqual(specs, expected)
 
     def test_inventory_based_spec(self):
@@ -132,13 +137,16 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
         label_map = ceph_spec_bootstrap.get_label_map(hosts_to_ips, roles_to_svcs,
                                                       roles_to_hosts, ceph_service_types)
-        expected = {'standalone': ['osd', 'mgr', 'mon']}
+        expected = {'standalone': ['osd', 'mgr', '_admin', 'mon']}
+        # the order of the labels does not matter, sort them for consistency
+        label_map['standalone'].sort()
+        expected['standalone'].sort()
         self.assertEqual(label_map, expected)
 
         specs = ceph_spec_bootstrap.get_specs(hosts_to_ips, label_map, ceph_service_types)
         expected = [{'addr': '192.168.24.1',
                      'hostname': 'standalone',
-                     'labels': ['osd', 'mgr', 'mon'],
+                     'labels': ['osd', 'mgr', '_admin', 'mon'],
                      'service_type': 'host'},
                     {'placement': {'hosts': ['standalone']},
                      'service_id': 'mon',
@@ -153,4 +161,9 @@ class TestCephSpecBootstrap(tests_base.TestCase):
                      'service_id': 'default_drive_group',
                      'service_name': 'osd.default_drive_group',
                      'service_type': 'osd'}]
+        # the order of the labels does not matter, sort them for consistency
+        expected[0]['labels'].sort()
+        specs[0]['labels'].sort()
+
+        self.assertEqual(len(specs), len(expected))
         self.assertEqual(specs, expected)

@@ -33,6 +33,7 @@
       become: true
       ceph_mkspec:
         service_type: rgw
+        cluster: "{{ tripleo_cephadm_cluster }}"
         apply: true
         hosts: "{{ _hosts | unique }}"
         spec:
