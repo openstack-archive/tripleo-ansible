@@ -34,6 +34,7 @@
   become: true
   ceph_mkspec:
     service_type: mds
+    cluster: "{{ tripleo_cephadm_cluster }}"
     apply: true
     hosts: "{{ _hosts | unique }}"
     render_path: "{{ tripleo_cephadm_spec_home }}"

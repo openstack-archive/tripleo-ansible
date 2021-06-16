@@ -112,7 +112,7 @@ class CephHostSpec(object):
         self.daemon_hostname = daemon_hostname
 
         assert isinstance(labels, list)
-        self.labels = labels
+        self.labels = list(set(labels))
 
     def make_daemon_spec(self):
         lb = {}

@@ -35,6 +35,7 @@
         service_type: "node-exporter"
         service_id: "node-exporter"
         service_name: "node-exporter"
+        cluster: "{{ tripleo_cephadm_cluster }}"
         apply: true
         host_pattern: "*"
         render_path: "{{ tripleo_cephadm_spec_home }}"
@@ -66,6 +67,7 @@
         service_type: "{{ item.daemon }}"
         service_id: "{{ item.daemon }}"
         service_name: "{{ item.daemon }}"
+        cluster: "{{ tripleo_cephadm_cluster }}"
         apply: true
         hosts: "{{ _hosts | unique }}"
         render_path: "{{ tripleo_cephadm_spec_home }}"
@@ -78,7 +80,7 @@
       with_items:
         - {"daemon": "grafana", "port": "{{ tripleo_cephadm_grafana_port | default(3100) }}"}
         - {"daemon": "prometheus", "port": "{{ tripleo_cephadm_prometheus_port | default(9092) }}"}
-        - {"daemon": "alertmanager", "port": "{{ tripleo_cephadm_alertmanager_port | default(9094) }}"}
+        - {"daemon": "alertmanager", "port": "{{ tripleo_cephadm_alertmanager_port | default(9093) }}"}
   when: tripleo_cephadm_dashboard_enabled | bool
 
 - include_tasks: dashboard/dashboard.yaml

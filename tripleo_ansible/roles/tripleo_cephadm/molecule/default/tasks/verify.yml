@@ -99,7 +99,7 @@
     that:
       - item.hostname is match("oc0-(controller|ceph)-(0|1|2)")
       - item.addr is match("192.168.24.[0-9]{1,2}")
-      - (item.labels | join(' ')) is match ("mgr|mon|osd")
+      - (item.labels | join(' ')) is match ("mgr|mon|osd|_admin")
   when:
     - item.service_type == 'host'
   loop: "{{ cat_ceph_spec.stdout | from_yaml_all | list }}"

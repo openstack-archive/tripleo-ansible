@@ -296,7 +296,7 @@ def get_roles_to_svcs_from_roles(roles_file):
 def get_label_map(hosts_to_ips, roles_to_svcs, roles_to_hosts, ceph_service_types):
     """Return a map of hostname to list of ceph service to run on that host, e.g.
          label_map['oc0-ceph-0'] = ['osd']
-         label_map['oc0-controller-0'] = ['mon', 'mgr']
+         label_map['oc0-controller-0'] = ['mon', 'mgr', '_admin']
     """
     label_map = {}
     for host in hosts_to_ips:
@@ -307,6 +307,8 @@ def get_label_map(hosts_to_ips, roles_to_svcs, roles_to_hosts, ceph_service_type
                     for potential_ceph_svc in SERVICE_MAP[tripleo_svc]:
                         if potential_ceph_svc in ceph_service_types:
                             label_map[host].append(potential_ceph_svc)
+                        if potential_ceph_svc == 'mon':
+                            label_map[host].append('_admin')
     return label_map
 
 
