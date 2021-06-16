@@ -276,7 +276,8 @@ def update_ports(result, conn, port_defs, inst_ports, tags, net_maps,
 
 def create_ports(result, conn, port_defs, inst_ports, tags, net_maps,
                  network_config):
-    default_route_network = network_config.get('default_route_network', [])
+    default_route_network = network_config.get('default_route_network',
+                                               ['ctlplane'])
     ports = conn.network.create_ports(port_defs)
 
     for port in ports:
@@ -503,10 +504,7 @@ def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, hostname,
         nic_tags = set(nic.tags)
         net_name = net_maps['by_id'][nic.network_id]
 
-        # If default route network is not set, default to true for ctlplane
-        if not default_route_network and net_name == 'ctlplane':
-            tags.update({'tripleo_default_route=true'})
-        elif net_name in default_route_network:
+        if net_name in default_route_network:
             tags.update({'tripleo_default_route=true'})
 
         if not tags.issubset(nic_tags):
@@ -539,7 +537,8 @@ def tag_metalsmith_managed_ports(result, conn, concurrency, stack,
         for hostname, uuid in uuid_by_hostname.items():
             role = hostname_role_map[hostname]
             default_route_network = instances_by_hostname[hostname].get(
-                'network_config', {}).get('default_route_network', [])
+                'network_config', {}).get(
+                'default_route_network', ['ctlplane'])
 
             tags = {'tripleo_stack_name={}'.format(stack),
                     'tripleo_ironic_uuid={}'.format(uuid),
