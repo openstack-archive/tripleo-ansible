@@ -83,13 +83,13 @@
       podman_image:
         name: "{{ item }}"
       with_items:
-        - centos:8
+        - registry.access.redhat.com/ubi8/ubi-minimal
         - mysql
 
     - name: Create a data container
       podman_container:
         name: "{{ item }}"
-        image: centos:8
+        image: ubi-minimal
         state: started
         command: sleep 1d
       with_items:
