@@ -266,10 +266,8 @@ class ContainerPuppetManager:
         default_data = {
             # the security_opt can be removed once we properly address:
             # https://bugs.launchpad.net/tripleo/+bug/1864501
-            'security_opt': ['label=disable'],
+            'security_opt': 'label=disable',
             'user': 0,
-            # container-puppet shouldn't detach
-            'detach': False,
             'entrypoint': CONTAINER_ENTRYPOINT,
             'environment': self._get_environment_config()
         }
@@ -281,10 +279,10 @@ class ContainerPuppetManager:
                 volumes += ['/etc/puppet/check-mode:'
                             '/tmp/puppet-check-mode:ro']
             if self.net_host:
-                cdata['net'] = ['host']
+                cdata['net'] = 'host'
                 volumes += ['/etc/hosts:/etc/hosts:ro']
             else:
-                cdata['net'] = ['none']
+                cdata['net'] = 'none'
 
             cdata['environment']['PUPPET_TAGS'] = (
                 self._get_puppet_tags(config))
