@@ -483,6 +483,9 @@ def check_existing(instances, provisioner, baremetal):
                     node=request['name']
                 )
 
+                # Refresh the instance after adding the allocation
+                # See: https://bugs.launchpad.net/tripleo/+bug/1929555
+                instance = provisioner.show_instance(instance.uuid)
             found.append(instance)
 
     return found, not_found, unmanaged
