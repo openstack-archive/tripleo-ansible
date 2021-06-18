@@ -14,7 +14,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import os
 import yaml
 
 from ansible.module_utils import tripleo_common_utils as tc
@@ -105,9 +105,8 @@ def run_module():
     argument_spec = openstack_full_argument_spec(
         **yaml.safe_load(DOCUMENTATION)['options']
     )
-
     module = AnsibleModule(
-        argument_spec,
+        argument_spec=argument_spec,
         supports_check_mode=False,
         **openstack_module_kwargs()
     )
@@ -115,34 +114,26 @@ def run_module():
     try:
         plan = module.params.get('plan')
         ssh_user = module.params.get('ansible_ssh_user')
-        ssh_private_key_file = module.params.get('ansible_ssh_private_key_file')
+        ssh_private_key_file = module.params.get(
+            'ansible_ssh_private_key_file')
         python_interpretor = module.params.get('ansible_python_interpretor')
         ssh_network = module.params.get('ssh_network')
         work_dir = module.params.get('work_dir')
 
         _, conn = openstack_cloud_from_module(module)
-
         tripleo = tc.TripleOCommon(session=conn.session)
         heat = tripleo.get_orchestration_client()
 
-        auth_url = getattr(conn.session.auth, "auth_url", None)
-        username = getattr(conn.session.auth, "_username", None)
-        project = getattr(conn.session.auth, "_project_name", None)
-        cacert = getattr(conn.session.auth, "verify", None)
-
+        cloud_name = os.environ.get('OS_CLOUD', 'undercloud')
         inventory_path = inventory.generate_tripleo_ansible_inventory(
-            heat,
-            auth_url,
-            username,
-            project,
-            cacert,
-            plan,
-            work_dir,
-            python_interpretor,
-            ssh_user,
-            ssh_private_key_file,
-            ssh_network,
-            conn.session)
+            cloud_name=cloud_name,
+            heat=heat,
+            plan=plan,
+            work_dir=work_dir,
+            ansible_python_interpreter=python_interpretor,
+            ansible_ssh_user=ssh_user,
+            undercloud_key_file=ssh_private_key_file,
+            ssh_network=ssh_network)
         result['inventory_path'] = inventory_path
         result['success'] = True
         result['changed'] = True
