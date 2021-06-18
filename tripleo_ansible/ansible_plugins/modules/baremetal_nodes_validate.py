@@ -83,9 +83,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
     try:
-        nodes_json = nodes.convert_nodes_json_mac_to_ports(
-            module.params['nodes_list']
-        )
+        nodes_json = module.params['nodes_list']
         nodes.validate_nodes(nodes_json)
         result['success'] = True
     except exception.InvalidNode as exc:

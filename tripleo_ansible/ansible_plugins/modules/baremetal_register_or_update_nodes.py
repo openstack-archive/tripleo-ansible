@@ -90,9 +90,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
 
-    nodes_json = nodes.convert_nodes_json_mac_to_ports(
-        module.params['nodes_json']
-    )
+    nodes_json = module.params['nodes_json']
 
     for node in nodes_json:
         caps = node.get('capabilities', {})
