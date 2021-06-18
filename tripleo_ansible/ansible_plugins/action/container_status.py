@@ -202,7 +202,7 @@ class ActionModule(ActionBase):
         """
         tvars = copy.deepcopy(task_vars)
         result = self._execute_module(
-            module_name='podman_container_info',
+            module_name='containers.podman.podman_container_info',
             module_args=dict(name=containers),
             task_vars=tvars
         )

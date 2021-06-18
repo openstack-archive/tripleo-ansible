@@ -79,7 +79,7 @@
     daemon_reload: true
 
 - name: Stop and remove container if exists
-  podman_container:
+  containers.podman.podman_container:
     name: "{{ container }}"
     state: absent
   register: result
