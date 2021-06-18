@@ -14,6 +14,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather SELinux fact if needed
+  when:
+    - ansible_facts.selinux is undefined
+  setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "selinux"
+
+- name: Create fcontext entry for multipath directory
+  when:
+    - ansible_facts.selinux.status == "enabled"
+  sefcontext:
+    target: "/etc/multipath(/.*)?"
+    setype: container_file_t
+    state: present
+
 - name: Check if multipathd is deployed on the host
   command: systemctl is-enabled --quiet multipathd
   failed_when: false

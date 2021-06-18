@@ -13,7 +13,7 @@ platforms:
     registry:
       url: registry.access.redhat.com
     dockerfile: ../common/Dockerfile
-    pkg_extras: python*setuptools
+    pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/dnf/vars:/etc/dnf/vars
@@ -38,7 +38,7 @@ platforms:
     registry:
       url: registry.access.redhat.com
     dockerfile: ../common/Dockerfile
-    pkg_extras: python*setuptools
+    pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
     privileged: true
