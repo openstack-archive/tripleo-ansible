@@ -15,12 +15,9 @@
 # under the License.
 
 - name: create cephx key(s)
-  become: true
   template:
     src: templates/ceph_key.j2
     dest: "{{ tripleo_ceph_client_fetch_dir }}/{{ tripleo_ceph_client_cluster | default('ceph') }}.{{ item.name }}.keyring"
-    group: root
-    owner: root
-    mode: 0644
+    mode: 0600
     force: true
   loop: "{{ ceph_keys| default([]) }}"
