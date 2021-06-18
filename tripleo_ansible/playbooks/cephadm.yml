@@ -73,6 +73,11 @@
         name: tripleo_cephadm
         tasks_from: keys
 
+    - name: Configure RBD Mirror
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: rbd_mirror
+
     - name: Export configuration for tripleo_ceph_client
       import_role:
         name: tripleo_cephadm

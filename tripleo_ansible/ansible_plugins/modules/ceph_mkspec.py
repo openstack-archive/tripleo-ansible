@@ -64,7 +64,7 @@ options:
           - The Ceph daemon that is going to be applied
         required: true
         type: str
-        choices: ['host', 'mon', 'osd', 'mds', 'rgw', 'nfs', 'node-exporter', 'prometheus', 'alertmanager', 'grafana']
+        choices: ['host', 'mon', 'osd', 'mds', 'rgw', 'nfs', 'node-exporter', 'prometheus', 'alertmanager', 'grafana', 'rbd-mirror']
     service_id:
         description:
           - The ID associated to the Ceph daemon
