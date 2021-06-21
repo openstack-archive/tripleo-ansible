@@ -48,18 +48,20 @@
     # Set nodes to available
     - name: Make nodes available
       os_baremetal_provide_node:
-        cloud: undercloud
         node_uuid: "{{ node_uuids_provide }}"
         timeout: 1200
         wait_for_bridge_mappings: true
 
     - name: Detect nova service endpoint
       command: >-
-        openstack --os-cloud undercloud catalog show nova
-      register: nova_catalog_show
+        openstack compute service list
+      register: compute_service_list
+      failed_when: false
 
     - name: Nova cell host discovery
-      when: "'service nova not found' not in nova_catalog_show.stderr"
+      when:
+        - "'Could not find requested endpoint' not in compute_service_list.stderr"
+        - "'not found' not in compute_service_list.stderr"
       block:
         # Run cellv2 discovery of hosts
         - name: Run cell_v2 host discovery
@@ -69,7 +71,7 @@
 
         - name: Wait for nova resources
           command: >-
-            openstack --os-cloud undercloud hypervisor show {{ item }}
+            openstack hypervisor show {{ item }}
           loop: "{{ node_uuids_provide }}"
           changed_when: false
           register: hypervisor_check
@@ -80,7 +82,7 @@
     # Power off nodes the nodes
     - name: Power off nodes
       command: >-
-        openstack --os-cloud undercloud baremetal node power off {{ item }}
+        openstack baremetal node power off {{ item }}
       loop: "{{ node_uuids_provide }}"
       async: 2400
       poll: 0
