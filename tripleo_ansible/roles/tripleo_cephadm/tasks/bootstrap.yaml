@@ -42,8 +42,6 @@
 
 - name: Bootstrap Ceph if there are no running Ceph Daemons
   block:
-    #   items to add
-    #   --registry-json
     - name: Run cephadm bootstrap
       shell: |
         {{ tripleo_cephadm_bin }} \
@@ -57,6 +55,9 @@
         --output-keyring {{ tripleo_cephadm_admin_keyring }} \
         --output-config {{ tripleo_cephadm_conf }} \
         --fsid {{ tripleo_cephadm_fsid }} \
+        {% if tripleo_cephadm_registry_url|length > 0 %}--registry-url {{ tripleo_cephadm_registry_url }} \{% endif %}
+        {% if tripleo_cephadm_registry_username|length > 0 %}--registry-username {{ tripleo_cephadm_registry_username }} \{% endif %}
+        {% if tripleo_cephadm_registry_password|length > 0 %}--registry-password {{ tripleo_cephadm_registry_password }} \{% endif %}
         {% if tripleo_cephadm_spec_on_bootstrap %}--apply-spec {{ tripleo_cephadm_spec }} \{% endif %}
         {% if tripleo_cephadm_bootstrap_conf_stat.stat.exists %}--config {{ tripleo_cephadm_bootstrap_conf }} \{% endif %}
         --skip-monitoring-stack --skip-dashboard \

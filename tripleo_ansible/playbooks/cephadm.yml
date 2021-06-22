@@ -25,18 +25,23 @@
       import_role:
         name: tripleo_cephadm
         tasks_from: bootstrap
+      when:
+        - not tripleo_cephadm_deployed_ceph
 
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm
         tasks_from: apply_spec
-      when: not tripleo_cephadm_spec_on_bootstrap
+      when:
+        - not tripleo_cephadm_spec_on_bootstrap
+        - not tripleo_cephadm_deployed_ceph
 
     - name: Set crush rules if provided
       import_role:
         name: tripleo_cephadm
         tasks_from: crush_rules
-      when: tripleo_cephadm_crush_rules | length > 0
+      when:
+        - tripleo_cephadm_crush_rules | length > 0
 
     - name: Create Pools
       import_role:
