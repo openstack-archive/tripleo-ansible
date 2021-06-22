@@ -47,8 +47,7 @@
 
 - name: build manila key for openstack
   vars:
-    manila_caps: {"mgr": "allow *", "mon": "allow r, allow command 'auth del', allow command 'auth caps',
-                   allow command 'auth get', allow command 'auth get-or-create'", "mds": "allow *", "osd": "allow rw"}
+    manila_caps: {"mgr": "allow rw", "mon": "allow r", "osd": "allow rw pool {{ manila_pools.data }}"}
   set_fact:
     manila_key: [{'name': '{{ ".".join(("client", ceph_keys.manila.name)) }}', 'key': '{{ ceph_keys.manila.key }}',
                   'mode': '0600', 'caps': '{{ manila_caps }}'}]
