@@ -1,0 +1,190 @@
+---
+# Copyright 2021 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Create Ceph Spec
+  hosts: undercloud
+  gather_facts: false
+  vars:
+    osd_spec:
+      data_devices:
+        all: true
+    tripleo_roles_path: "/usr/share/openstack-tripleo-heat-templates/roles_data.yaml"
+    dynamic_ceph_spec: true
+    cephadm_admin_hosts: []
+    cephadm_non_admin_hosts: []
+  pre_tasks:
+    - fail:
+        msg: baremetal_deployed_path is a required input
+      when:
+        - baremetal_deployed_path is undefined
+    - fail:
+        msg: deployed_ceph_tht_path is a required input
+      when:
+        - deployed_ceph_tht_path is undefined
+    - fail:
+        msg: working_dir is a required input
+      when:
+        - working_dir is undefined
+  tasks:
+    - name: ensure ceph_spec_path is defined
+      set_fact:
+        ceph_spec_path: "{{ working_dir }}/generated_ceph_spec.yaml"
+      when:
+        - ceph_spec_path is undefined
+
+    - name: Override osd_spec if osd_spec_path is provided
+      set_fact:
+        osd_spec: "{{ osd_spec_path_content | from_yaml }}"
+      vars:
+        osd_spec_path_content: "{{ lookup('file', osd_spec_path) }}"
+      when:
+        - osd_spec_path is defined
+        - osd_spec_path | length > 0
+
+    - name: Create Ceph spec based on baremetal_deployed_path and tripleo_roles
+      ceph_spec_bootstrap:
+        new_ceph_spec: "{{ ceph_spec_path }}"
+        deployed_metalsmith: "{{ baremetal_deployed_path }}"
+        tripleo_roles: "{{ tripleo_roles_path }}"
+        osd_spec: "{{ osd_spec }}"
+      when:
+        - dynamic_ceph_spec | bool
+
+    - name: Get list of hosts which need ceph-admin user
+      vars:
+        cephadm_spec_content: "{{ lookup('file', ceph_spec_path) }}"
+      block:
+        - name: Add hosts with mon label to the cephadm_admin_hosts list
+          set_fact:
+            cephadm_admin_hosts: "{{ cephadm_admin_hosts }} + [ '{{ item.hostname }}' ]"
+          loop: "{{ cephadm_spec_content | from_yaml_all | list }}"
+          when:
+            - item | length > 0
+            - item.hostname is defined
+            - item.service_type is defined
+            - item.service_type == 'host'
+            - item.labels is defined
+            - '"mon" in item.labels | list'
+
+        - name: Add hosts with osd label to the cephadm_non_admin_hosts list
+          set_fact:
+            cephadm_non_admin_hosts: "{{ cephadm_non_admin_hosts }} + [ '{{ item.hostname }}' ]"
+          loop: "{{ cephadm_spec_content | from_yaml_all | list }}"
+          when:
+            - item | length > 0
+            - item.hostname is defined
+            - item.service_type is defined
+            - item.service_type == 'host'
+            - item.labels is defined
+            - '"osd" in item.labels | list'
+
+    - name: Ensure there is at least one monitor in the spec file
+      fail:
+        msg: "No hosts with the mon label were in the spec {{ ceph_spec_path }}"
+      when:
+        - not cephadm_admin_hosts | length > 0
+
+    - name: Add hosts with mon label to new ceph_mon inventory group for next play
+      add_host:
+        name: "{{ item }}"
+        groups: ceph_mon
+      loop: "{{ cephadm_admin_hosts }}"
+
+    - name: Prepare cephadm user and keys
+      include_role:
+        name: tripleo_run_cephadm
+        tasks_from: enable_ceph_admin_user.yml
+      vars:
+        ceph_working_dir: "{{ working_dir }}"
+
+
+- name: Bootstrap Ceph and apply spec
+  hosts: ceph_mon[0]
+  gather_facts: false
+  vars:
+    tripleo_cephadm_spec_on_bootstrap: false
+    tripleo_cephadm_spec_ansible_host: "{{ ceph_spec_path }}"
+    storage_network_name: Storage
+    storage_mgmt_network_name: StorageMgmt
+  pre_tasks:
+    - name: ensure ceph_spec_path is defined
+      set_fact:
+        ceph_spec_path: "{{ working_dir }}/generated_ceph_spec.yaml"
+      when:
+        - ceph_spec_path is undefined
+
+    - name: Ensure storage networks are in the inventory
+      fail:
+        msg: >
+          Both {{ storage_network_name }} and {{ storage_mgmt_network_name }}
+          should be in {{ networks }} but are not. If desired, override the
+          network name variables, e.g. -e storage_network_name=ctlplane
+          -e storage_mgmt_network_name=ctlplane
+      when:
+        - storage_network_name not in networks or
+          storage_mgmt_network_name not in networks
+      vars:
+        networks: "{{ hostvars[inventory_hostname_short]['networks_all']
+                   | union(['ctlplane']) | list | unique }}"
+
+    - name: Set Network Facts
+      set_fact:
+        tripleo_cephadm_bootstrap_host: "{{ inventory_hostname_short }}"
+        tripleo_cephadm_first_mon_ip: "{{ hv[netmap[storage_network_name] + '_ip'] }}"
+        storage_mgmt_network_ip: "{{ hv[netmap[storage_mgmt_network_name] + '_ip'] }}"
+        storage_network_cidr: "{{ hv[netmap[storage_network_name] + '_cidr'] }}"
+        storage_mgmt_network_cidr: "{{ hv[netmap[storage_mgmt_network_name] + '_cidr' ]}}"
+      vars:
+        hv: "{{ hostvars[inventory_hostname_short] }}"
+        netmap: "{{ hostvars[inventory_hostname_short]['networks_lower'] }}"
+
+    - name: Set public and cluster networks
+      set_fact:
+        public_network: "{{ public | ansible.netcommon.ipaddr('network/prefix') }}"
+        cluster_network: "{{ private | ansible.netcommon.ipaddr('network/prefix') }}"
+      vars:
+        public: "{{ tripleo_cephadm_first_mon_ip }}/{{ storage_network_cidr }}"
+        private: "{{ storage_mgmt_network_ip }}/{{ storage_mgmt_network_cidr }}"
+
+  tasks:
+    - name: Satisfy Ceph prerequisites
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: pre
+
+    - name: Bootstrap Ceph
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: bootstrap
+
+    - name: Apply Ceph spec
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: apply_spec
+      when:
+        - not tripleo_cephadm_spec_on_bootstrap
+
+    - name: Show the Ceph cluster status
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: post
+
+    - name: Create Deployed Ceph environment file for overcloud deployment
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: make_deployed_ceph_tht
+      vars:
+        tripleo_cephadm_deployed_ceph_tht_path: "{{ deployed_ceph_tht_path }}"

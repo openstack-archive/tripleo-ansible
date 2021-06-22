@@ -6,11 +6,14 @@ tripleo_cephadm_bin: /usr/sbin/cephadm
 tripleo_cephadm_cluster: ceph
 tripleo_cephadm_config_home: /etc/ceph
 tripleo_cephadm_verbose: true
-tripleo_cephadm_container_ns: "docker.io/ceph"
+tripleo_cephadm_container_ns: "quay.io/ceph"
 tripleo_cephadm_container_image: "ceph"
-tripleo_cephadm_container_tag: "v15"
+tripleo_cephadm_container_tag: "v16"
 tripleo_cephadm_container_cli: "podman"
 tripleo_cephadm_container_options: "--net=host --ipc=host"
+tripleo_cephadm_registry_password: ''
+tripleo_cephadm_registry_username: ''
+tripleo_cephadm_registry_url: ''
 tripleo_cephadm_keyring_prefix: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.client"
 tripleo_cephadm_admin_keyring: "{{ tripleo_cephadm_keyring_prefix }}.admin.keyring"
 tripleo_cephadm_conf: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.conf"
@@ -57,3 +60,5 @@ tripleo_cephadm_rbd_mirror_remote_cluster: not-ceph
 tripleo_cephadm_rbd_mirror_remote_user: ''
 tripleo_cephadm_debug: false
 tripleo_cephadm_min_compat_client: mimic
+tripleo_cephadm_deployed_ceph: false
+tripleo_cephadm_deployed_ceph_tht_path: "/home/stack/deployed_ceph.yaml"
