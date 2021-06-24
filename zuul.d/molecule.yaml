@@ -14,7 +14,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_distribute_keys
-      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_collectd
@@ -76,7 +75,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_distribute_keys
-      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_collectd
@@ -139,7 +137,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_distribute_keys
-      - tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
       - tripleo-ansible-centos-8-molecule-tripleo_cephadm
       - tripleo-ansible-centos-8-molecule-tripleo_clients_install
       - tripleo-ansible-centos-8-molecule-tripleo_collectd
@@ -259,14 +256,6 @@
     vars:
       tripleo_job_ansible_args: --skip-tags=ceph_fetch_admin_keyring,ceph_admin_key_rsync
       tripleo_role_name: tripleo_ceph_distribute_keys
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo_ceph_.*
-    name: tripleo-ansible-centos-8-molecule-tripleo_ceph_run_ansible
-    parent: tripleo-ansible-centos-8-base
-    vars:
-      tripleo_job_ansible_args: -v --skip-tags=run_uuid_ansible,run_ceph_ansible
-      tripleo_role_name: tripleo_ceph_run_ansible
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_cephadm/.*
