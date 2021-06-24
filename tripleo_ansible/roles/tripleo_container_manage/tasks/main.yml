@@ -54,11 +54,6 @@
       set_fact:
         all_containers_hash: "{{ container_config_data.configs }}"
 
-- name: "Manage systemd shutdown files"
-  include_tasks: shutdown.yml
-  when:
-    - tripleo_container_manage_systemd_order|bool
-
 - name: "Manage containers from {{ tripleo_container_manage_config }}"
   when:
     - (all_containers_hash|length) > 0
