@@ -45,6 +45,9 @@
       until: stack_delete is success
       delay: 4
       retries: 16
+    - name: Delete overcloud network Virtual IPs
+      tripleo_overcloud_network_vip_provision:
+        stack_name: "{{ stack_name }}"
   post_tasks:
     - name: Workflow notice
       debug:

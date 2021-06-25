@@ -109,7 +109,7 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
         vip_spec = {'network': 'network1'}
         msg = (
             'Network {} has multiple subnets, please add a subnet or an '
-            'ip_address for the vip on whit network.'.format(
+            'ip_address for the vip on this network.'.format(
                 vip_spec['network']))
         self.assertRaisesRegex(Exception, msg,
                                plugin.create_port_def, vip_spec, NET_MAPS)
@@ -120,7 +120,9 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
                     'ip_address': '1.2.3.4',
                     'dns_name': 'overcloud'}
         mock_conn.network.ports.return_value = self.a2g([])
-        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec)
+        managed_ports = list()
+        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
+                                  managed_ports)
         mock_conn.network.create_port.assert_called_with(
             dns_name='overcloud',
             fixed_ips=[{'ip_address': '1.2.3.4'}],
@@ -142,7 +144,10 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
             tags=['tripleo_stack_name=stack', 'tripleo_vip_net=network1']
         )
         mock_conn.network.ports.return_value = self.a2g([fake_port])
-        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec)
+        managed_ports = list()
+        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
+                                  managed_ports)
+        self.assertEqual([fake_port.id], managed_ports)
         mock_conn.network.create_port.assert_not_called()
         mock_conn.network.update_port.assert_not_called()
         mock_conn.network.set_tags.assert_not_called()
@@ -164,8 +169,37 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
                     'fixed_ips': [{'ip_address': '11.22.33.44'}],
                     'name': 'network1_virtual_ip'}
         mock_conn.network.ports.return_value = self.a2g([fake_port])
-        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec)
+        managed_ports = list()
+        plugin.provision_vip_port(mock_conn, 'stack', NET_MAPS, vip_spec,
+                                  managed_ports)
+        self.assertEqual([fake_port.id], managed_ports)
         mock_conn.network.create_port.assert_not_called()
         mock_conn.network.update_port.assert_called_with(fake_port.id,
                                                          **port_def)
         mock_conn.network.set_tags.assert_not_called()
+
+    def test_remove_obsolete_ports_deletes_port(self, mock_conn):
+        fake_port = stubs.FakeNeutronPort(
+            id='port_id',
+            name='network1_virtual_ip',
+            network_id='network1_id',
+            fixed_ips=[{'ip_address': '1.2.3.4'}],
+            dns_name='overcloud',
+            tags=['tripleo_stack_name=stack', 'tripleo_vip_net=network1']
+        )
+        mock_conn.network.ports.return_value = self.a2g([fake_port])
+        plugin.remove_obsolete_ports(mock_conn, 'stack', [])
+        mock_conn.network.delete_port.assert_called_once_with(fake_port.id)
+
+    def test_remove_obsolete_ports_does_not_delete_managed(self, mock_conn):
+        fake_port = stubs.FakeNeutronPort(
+            id='port_id',
+            name='network1_virtual_ip',
+            network_id='network1_id',
+            fixed_ips=[{'ip_address': '1.2.3.4'}],
+            dns_name='overcloud',
+            tags=['tripleo_stack_name=stack', 'tripleo_vip_net=network1']
+        )
+        mock_conn.network.ports.return_value = self.a2g([fake_port])
+        plugin.remove_obsolete_ports(mock_conn, 'stack', [fake_port.id])
+        mock_conn.network.delete_port.assert_not_called()

@@ -55,6 +55,7 @@ options:
     description:
       - Dictionary of network Virtual IP definitions
     type: list
+    default: []
     elements: dict
     suboptions:
       name:
@@ -145,13 +146,13 @@ def create_port_def(vip_spec, net_maps):
     else:
         raise Exception(
             'Network {} has multiple subnets, please add a subnet or an '
-            'ip_address for the vip on whit network.'.format(
+            'ip_address for the vip on this network.'.format(
                 vip_spec['network']))
 
     return port_def
 
 
-def provision_vip_port(conn, stack, net_maps, vip_spec):
+def provision_vip_port(conn, stack, net_maps, vip_spec, managed_ports):
     port_def = create_port_def(vip_spec, net_maps)
 
     tags = ['tripleo_stack_name={}'.format(stack),
@@ -163,6 +164,7 @@ def provision_vip_port(conn, stack, net_maps, vip_spec):
 
     try:
         port = next(ports)
+        managed_ports.append(port.id)
         del port_def['network_id']
         for k, v in port_def.items():
             if port.get(k) != v:
@@ -171,6 +173,7 @@ def provision_vip_port(conn, stack, net_maps, vip_spec):
     except StopIteration:
         port = conn.network.create_port(**port_def)
         conn.network.set_tags(port, tags)
+        managed_ports.append(port.id)
 
 
 def validate_vip_nets_in_net_map(vip_data, net_maps):
@@ -184,6 +187,15 @@ def validate_vip_nets_in_net_map(vip_data, net_maps):
             raise Exception(
                 'Subnet {} for Virtual IP not found on network {}.'.format(
                     vip['subnet'], vip['network']))
+
+
+def remove_obsolete_ports(conn, stack, managed_ports):
+    ports = conn.network.ports(tags=['tripleo_stack_name={}'.format(stack)])
+    ports = [p for p in ports if any("tripleo_vip_net" in t for t in p.tags)]
+
+    for port in ports:
+        if port.id not in managed_ports:
+            conn.network.delete_port(port.id)
 
 
 def run_module():
@@ -204,8 +216,8 @@ def run_module():
     )
 
     concurrency = module.params['concurrency']
-    stack = module.params['stack_name']
-    vip_data = module.params['vip_data']
+    stack = module.params.get('stack_name')
+    vip_data = module.params.get('vip_data')
 
     try:
         _, conn = openstack_cloud_from_module(module)
@@ -214,14 +226,16 @@ def run_module():
 
         # no limit on concurrency, create a worker for every vip
         if concurrency < 1:
-            concurrency = len(vip_data)
+            concurrency = len(vip_data) if len(vip_data) > 0 else 1
 
         exceptions = list()
         provision_jobs = list()
+        managed_ports = list()
         with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
             for vip_spec in vip_data:
                 provision_jobs.append(p.submit(
-                    provision_vip_port, conn, stack, net_maps, vip_spec))
+                    provision_vip_port, conn, stack, net_maps, vip_spec,
+                    managed_ports))
 
         for job in futures.as_completed(provision_jobs):
             e = job.exception()
@@ -230,6 +244,8 @@ def run_module():
 
         if exceptions:
             raise exceptions[0]
+
+        remove_obsolete_ports(conn, stack, managed_ports)
 
         result['success'] = True
         module.exit_json(**result)
