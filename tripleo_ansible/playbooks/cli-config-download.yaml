@@ -52,3 +52,18 @@
         ansible_python_interpreter: "{{ python_interpreter }}"
         ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
       when: inventory_path is not defined or inventory_path != None
+
+    # TODO(mwhahaha): switch tripleo_generate_ansible_inventory to do this
+    # when we've nuked all the tripleo-ansible-inventory.yaml everywhere
+    - name: Copy inventory to AnsibleRunner location
+      block:
+        - name: Create inventory directory
+          ansible.builtin.file:
+            path: "{{ output_dir ~ '/' ~ plan }}/inventory"
+            state: directory
+            mode: 0700
+        - name: Copy generated inventory
+          ansible.builtin.copy:
+            src: "{{ work_dir }}/tripleo-ansible-inventory.yaml"
+            dest: "{{work_dir }}/inventory/tripleo"
+            remote_src: true
