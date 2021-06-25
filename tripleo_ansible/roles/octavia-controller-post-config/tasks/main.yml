@@ -41,6 +41,23 @@
         dest: "{{ octavia_confd_prefix }}/etc/rsyslog.d/10-octavia.conf"
         selevel: s0
         setype: svirt_sandbox_file_t
+
+    - name: check if octavia rsyslog is running
+      become: true
+      become_user: root
+      shell: |
+        systemctl is-active --quiet tripleo_octavia_rsyslog
+      failed_when: false
+      register: octavia_rsyslog_service
+
+    - name: restart octavia rsyslog service
+      become: true
+      become_user: root
+      systemd:
+        name: tripleo_octavia_rsyslog
+        state: restarted
+      when:
+        - octavia_rsyslog_service.rc == 0
   when: enable_log_offloading | bool
 
 - name: read the current IP list
