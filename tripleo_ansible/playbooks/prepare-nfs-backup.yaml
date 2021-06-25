@@ -13,8 +13,19 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+- name: Check BackupNode group
+  hosts: localhost
+  tasks:
+    - name: File shared server group exists and it has at least one server
+      assert:
+        that:
+          - nfs_server_group_name | default("BackupNode") in groups
+          - ( groups[nfs_server_group_name | default("BackupNode") ] | length ) > 0
+        fail_msg: "There is no server on {{ nfs_server_group_name | default('BackupNode') }} groups"
+      tags: bar_setup_nfs_server
+
 - name: TripleO BackupNode NFS installation and configuration.
-  hosts: BackupNode
+  hosts: '{{ nfs_server_group_name | default("BackupNode") }}'
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
   become: true
   roles:
