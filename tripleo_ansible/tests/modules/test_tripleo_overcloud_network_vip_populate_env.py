@@ -148,8 +148,9 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
             {'name': 'storage_mgmt_virtual_ip', 'network': 'storage_mgmt'},
             {'name': 'external_virtual_ip', 'network': 'external'}]
         env = {}
+        templates = '/foo/tht_root'
         plugin.populate_net_vip_env(mock_conn, 'stack', NET_MAPS, vip_data,
-                                    env)
+                                    env, templates)
         self.assertEqual({
             'ControlPlaneVipData': {
                 'name': 'control_virtual_ip',
@@ -167,17 +168,13 @@ class TestTripleoOvercloudVipProvision(tests_base.TestCase):
                                  'ip_address_uri': '10.0.3.1',
                                  'ip_subnet': '10.0.3.1/24'}}},
             env['parameter_defaults'])
-        self.assertEqual(
-            {'OS::TripleO::Network::Ports::ControlPlaneVipPort': (
-                '/usr/share/openstack-tripleo-heat-templates/network/ports'
-                '/deployed_vip_ctlplane.yaml'),
-             'OS::TripleO::Network::Ports::ExternalVipPort': (
-                 '/usr/share/openstack-tripleo-heat-templates/network/ports/'
-                 'deployed_vip_external.yaml'),
-             'OS::TripleO::Network::Ports::InternalApiVipPort': (
-                 '/usr/share/openstack-tripleo-heat-templates/network/ports/'
-                 'deployed_vip_internal_api.yaml'),
-             'OS::TripleO::Network::Ports::StorageMgmtVipPort': (
-                 '/usr/share/openstack-tripleo-heat-templates/network/ports/'
-                 'deployed_vip_storage_mgmt.yaml')},
+        self.assertEqual({
+            'OS::TripleO::Network::Ports::ControlPlaneVipPort':
+                '/foo/tht_root/network/ports/deployed_vip_ctlplane.yaml',
+            'OS::TripleO::Network::Ports::ExternalVipPort':
+                '/foo/tht_root/network/ports/deployed_vip_external.yaml',
+            'OS::TripleO::Network::Ports::InternalApiVipPort':
+                '/foo/tht_root/network/ports/deployed_vip_internal_api.yaml',
+            'OS::TripleO::Network::Ports::StorageMgmtVipPort':
+                '/foo/tht_root/network/ports/deployed_vip_storage_mgmt.yaml'},
             env['resource_registry'])
