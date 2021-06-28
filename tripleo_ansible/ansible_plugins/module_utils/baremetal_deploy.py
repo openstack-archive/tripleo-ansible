@@ -157,7 +157,6 @@ _ROLE_ANSIBLE_PLAYBOOKS_SCHEMA = {
         'type': 'object',
         'properties': {
             'playbook': {'type': 'string'},
-            'pre_network': {'type': 'boolean'},
             'extra_vars': {'type': 'object'}
         },
         'additionalProperties': False,
