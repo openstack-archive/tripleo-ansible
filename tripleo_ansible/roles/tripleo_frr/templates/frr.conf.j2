@@ -10,6 +10,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
   bgp router-id {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
   bgp log-neighbor-changes
   bgp graceful-shutdown
+  no bgp default ipv4-unicast
 
   neighbor uplink peer-group
   neighbor uplink remote-as {{ tripleo_frr_bgp_uplinks_scope }}
@@ -27,6 +28,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
 {% if tripleo_frr_bgp_ipv4 %}
   address-family ipv4 unicast
     redistribute connected
+    neighbor uplink activate
 {% if tripleo_frr_bgp_ipv4_allowas_in %}
     neighbor uplink allowas-in origin
 {% endif %}
