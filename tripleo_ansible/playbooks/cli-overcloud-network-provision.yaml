@@ -23,6 +23,7 @@
   any_errors_fatal: true
   vars:
     overwrite: false
+    templates: /usr/share/openstack-tripleo-heat-templates
   pre_tasks:
     - fail:
         msg: network_data_path is a required input
@@ -60,6 +61,7 @@
     - name: Populate environment
       tripleo_network_populate_environment:
         net_data: "{{ network_data }}"
+        templates: "{{ templates }}"
       register: network_environment
 
     - name: Write deployed networks environment file

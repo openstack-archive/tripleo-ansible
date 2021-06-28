@@ -15,6 +15,8 @@
 # under the License.
 
 from copy import deepcopy as dcopy
+import os
+
 import jsonschema
 
 import metalsmith
@@ -492,14 +494,13 @@ def check_existing(instances, provisioner, baremetal):
 
 
 def populate_environment(instance_uuids, provisioner, environment,
-                         ctlplane_network):
+                         ctlplane_network, templates):
 
     resource_registry = environment.setdefault(
         'resource_registry', {})
     resource_registry.setdefault(
         'OS::TripleO::DeployedServer::ControlPlanePort',
-        '/usr/share/openstack-tripleo-heat-templates'
-        '/deployed-server/deployed-neutron-port.yaml')
+        os.path.join(templates, 'deployed-server/deployed-neutron-port.yaml'))
     port_map = (environment.setdefault('parameter_defaults', {})
                 .setdefault('DeployedServerPortMap', {}))
     for uuid in instance_uuids:

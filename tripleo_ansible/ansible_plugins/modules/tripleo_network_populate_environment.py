@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import ipaddress
+import os
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule
@@ -45,6 +45,12 @@ options:
     description:
       - Structure describing a TripleO composable network
     type: list
+  templates:
+    description:
+      - The path to tripleo-heat-templates root directory
+    type: path
+    default: /usr/share/openstack-tripleo-heat-templates
+
 author:
     - Harald Jensås <hjensas@redhat.com>
 '''
@@ -70,12 +76,12 @@ EXAMPLES = '''
       - name: External
       - name: InternalApi
         name_lower: internal_api
+    templates: /home/stack/tripleo-heat-templates
   register: network_environment
 '''
 
 
 def get_net_ip_version(subnets, net_data):
-
     ip_versions = {subnet.ip_version for subnet in subnets}
 
     if {4, 6} == ip_versions:
@@ -121,7 +127,8 @@ def get_subnets_attrs(subnets):
     return subnets_map
 
 
-def set_composable_network_attrs(module, conn, name_lower, net_data, attrs=None,
+def set_composable_network_attrs(module, conn, name_lower, net_data,
+                                 attrs=None,
                                  cidr_map=None, ip_version_map=None):
     net = conn.network.find_network(name_lower)
     if net is None:
@@ -157,6 +164,7 @@ def run_module():
     )
 
     networks_data = module.params['net_data']
+    templates = module.params['templates']
 
     try:
         _, conn = openstack_cloud_from_module(module)
@@ -175,9 +183,8 @@ def run_module():
 
         result['environment'] = {
             'resource_registry': {
-              'OS::TripleO::Network': (
-                  '/usr/share/openstack-tripleo-heat-templates'
-                  '/network/deployed_networks.yaml'),
+                'OS::TripleO::Network':
+                    os.path.join(templates, 'network/deployed_networks.yaml'),
             },
             'parameter_defaults': {
                 'DeployedNetworkEnvironment': {
@@ -193,7 +200,7 @@ def run_module():
 
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error overcloud network provision failed!")
+        result['msg'] = "Error overcloud network provision failed!"
         module.fail_json(**result)
 
 

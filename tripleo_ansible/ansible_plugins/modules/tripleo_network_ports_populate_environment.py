@@ -56,6 +56,11 @@ options:
       - Structure with port data mapped by node and network
     type: dict
     default: {}
+  templates:
+    description:
+      - The path to tripleo-heat-templates root directory
+    type: path
+    default: /usr/share/openstack-tripleo-heat-templates
 
 author:
     - Harald Jensås <hjensas@redhat.com>
@@ -102,7 +107,6 @@ EXAMPLES = '''
 
 
 CTLPLANE_NETWORK = 'ctlplane'
-DEFAULT_THT_DIR = '/usr/share/openstack-tripleo-heat-templates'
 REGISTRY_KEY_TPL = 'OS::TripleO::{role}::Ports::{net_name}Port'
 PORT_PATH_TPL = 'network/ports/deployed_{net_name_lower}.yaml'
 
@@ -137,7 +141,8 @@ def get_net_name_map(conn, role_net_map):
     return _map
 
 
-def update_environment(environment, node_port_map, role_net_map, net_name_map):
+def update_environment(environment, node_port_map, role_net_map, net_name_map,
+                       templates):
     resource_registry = environment.setdefault('resource_registry', {})
     parameter_defaults = environment.setdefault('parameter_defaults', {})
 
@@ -149,7 +154,7 @@ def update_environment(environment, node_port_map, role_net_map, net_name_map):
             registry_key = REGISTRY_KEY_TPL.format(role=role,
                                                    net_name=net_name_map[net])
             template_path = os.path.join(
-                DEFAULT_THT_DIR, PORT_PATH_TPL.format(net_name_lower=net))
+                templates, PORT_PATH_TPL.format(net_name_lower=net))
             resource_registry.update({registry_key: template_path})
 
     _map = parameter_defaults.setdefault('NodePortMap', {})
@@ -177,13 +182,14 @@ def run_module():
     environment = result['environment'] = module.params['environment']
     role_net_map = module.params['role_net_map']
     node_port_map = module.params['node_port_map']
+    templates = module.params['templates']
 
     try:
         _, conn = openstack_cloud_from_module(module)
 
         net_name_map = get_net_name_map(conn, role_net_map)
         update_environment(environment, node_port_map, role_net_map,
-                           net_name_map)
+                           net_name_map, templates)
 
         result['success'] = True
 
@@ -191,7 +197,7 @@ def run_module():
 
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error overcloud network provision failed!")
+        result['msg'] = "Error overcloud network provision failed!"
         module.fail_json(**result)
 
 
