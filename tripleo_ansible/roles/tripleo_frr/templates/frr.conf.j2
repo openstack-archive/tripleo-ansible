@@ -11,6 +11,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
   bgp log-neighbor-changes
   bgp graceful-shutdown
   no bgp default ipv4-unicast
+  no bgp ebgp-requires-policy
 
   neighbor uplink peer-group
   neighbor uplink remote-as {{ tripleo_frr_bgp_uplinks_scope }}
@@ -23,6 +24,13 @@ router bgp {{ tripleo_frr_bgp_asn }}
 {% endfor %}
 {% if tripleo_frr_bgp_neighbor_ttl_security_hops | int > 0 %}
   neighbor uplink ttl-security hops {{ tripleo_frr_bgp_neighbor_ttl_security_hops }}
+{% endif %}
+{% if tripleo_frr_bgp_l2vpn|bool and tripleo_frr_bgp_l2vpn_peers|length %}
+  neighbor evpn-peer peer-group
+  neighbor evpn-peer remote-as {{ tripleo_frr_bgp_l2vpn_peers_scope }}
+{% if tripleo_frr_bgp_l2vpn_ebgp_multihop | int > 0 %}
+  neighbor evpn-peer ebgp-multihop {{ tripleo_frr_bgp_l2vpn_ebgp_multihop }}
+{% endif %}
 {% endif %}
 
 {% if tripleo_frr_bgp_ipv4 %}
@@ -44,6 +52,18 @@ router bgp {{ tripleo_frr_bgp_asn }}
     neighbor uplink allowas-in origin
 {% endif %}
     neighbor uplink prefix-list only-host-prefixes out
+  exit-address-family
+{% endif %}
+
+{% if tripleo_frr_bgp_l2vpn %}
+  address-family l2vpn evpn
+{% if tripleo_frr_bgp_l2vpn_uplink_activate|bool %}
+    neighbor uplink activate
+{% endif %}
+{% if tripleo_frr_bgp_l2vpn_peers|length %}
+    neighbor evpn-peer activate
+{% endif %}
+    advertise-all-vni
   exit-address-family
 {% endif %}
 
