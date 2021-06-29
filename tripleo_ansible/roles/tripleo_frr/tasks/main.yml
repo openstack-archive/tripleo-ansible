@@ -98,3 +98,7 @@
         state: restarted
       when:
         - frr_active_service.rc == 0
+
+- name: include OVN BGP agent
+  include_tasks: ovn_bgp_agent.yml
+  when: tripleo_frr_ovn_bgp_agent_enable | bool
