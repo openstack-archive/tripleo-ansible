@@ -27,6 +27,11 @@ tripleo_frr_bgp_ipv4_src_network: ctlplane
 tripleo_frr_bgp_ipv6: true
 tripleo_frr_bgp_ipv6_allowas_in: false
 tripleo_frr_bgp_ipv6_src_network: ctlplane
+tripleo_frr_bgp_l2vpn: true
+tripleo_frr_bgp_l2vpn_ebgp_multihop: 0
+tripleo_frr_bgp_l2vpn_uplink_activate: true
+tripleo_frr_bgp_l2vpn_peers: ['192.168.0.1', '192.168.0.2']
+tripleo_frr_bgp_l2vpn_peers_scope: external
 tripleo_frr_bgp_neighbor_ttl_security_hops: 1
 tripleo_frr_bgp_uplinks_scope: internal
 tripleo_frr_config_basedir: "/var/lib/config-data/ansible-generated/frr"
