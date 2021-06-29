@@ -1,0 +1,13 @@
+# ovn-bgp-agent-rootwrap command filters for scripts
+# This file should be owned by (and only-writable by) the root user
+
+[Filters]
+# privileged/__init__.py: priv_context.PrivContext(default)
+# This line ties the superuser privs with the config files, context name,
+# and (implicitly) the actual python code invoked.
+privsep-rootwrap: RegExpFilter, privsep-helper, root, privsep-helper, --config-file, /etc/(?!\.\.).*, --privsep_context, ovn_bgp_agent.privileged.default, --privsep_sock_path, /tmp/.*
+
+ovs-vsctl: CommandFilter, ovs-vsctl, root
+sysctl: CommandFilter, sysctl, root
+ip: IpFilter, ip, root
+vtysh: CommandFilter, vtysh, root
