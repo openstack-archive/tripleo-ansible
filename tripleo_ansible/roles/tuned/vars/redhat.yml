@@ -16,3 +16,4 @@
 
 _tuned_system_packages:
   - tuned
+  - tuned-profiles-cpu-partitioning
