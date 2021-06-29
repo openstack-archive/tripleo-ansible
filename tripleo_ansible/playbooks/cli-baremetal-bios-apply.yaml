@@ -67,7 +67,6 @@
 
     - name: Start baremetal bios apply
       os_baremetal_clean_node:
-        cloud: undercloud
         node_uuid: "{{ node_uuids_apply }}"
         concurrency: "{{ runtime_concurrency }}"
         timeout: "{{ node_timeout }}"

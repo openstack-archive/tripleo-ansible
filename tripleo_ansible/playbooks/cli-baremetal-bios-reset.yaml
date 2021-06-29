@@ -66,7 +66,6 @@
 
     - name: Start baremetal bios reset
       os_baremetal_clean_node:
-        cloud: undercloud
         node_uuid: "{{ node_uuids_reset }}"
         concurrency: "{{ runtime_concurrency }}"
         timeout: "{{ node_timeout }}"
