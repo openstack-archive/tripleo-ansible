@@ -19,8 +19,6 @@ from concurrent import futures
 import os
 import yaml
 
-import keystoneauth1.exceptions as kauth1_exc
-
 try:
     from ansible.module_utils import network_data_v2
 except ImportError:
@@ -126,11 +124,12 @@ NET_NAME = 'ovn_mac_addr_net'
 NET_DESCRIPTION = 'Network used to allocate MAC addresses for OVN chassis.'
 
 
-def create_ovn_mac_address_network(result, conn):
+def create_ovn_mac_address_network(result, conn, project_id):
     network = conn.network.find_network(NET_NAME)
     if network is None:
         network = conn.network.create_network(name=NET_NAME,
-                                              description=NET_DESCRIPTION)
+                                              description=NET_DESCRIPTION,
+                                              project_id=project_id)
 
         result['changed'] = True
 
@@ -147,14 +146,15 @@ def port_exists(conn, net_id, tags, name):
 
 
 def create_ovn_mac_address_ports(result, conn, net_id, tags, physnets,
-                                 server):
+                                 server, project_id):
     for physnet in physnets:
         name = '_'.join([server, 'ovn_physnet', physnet])
         if port_exists(conn, net_id, tags, name):
             continue
 
         port = conn.network.create_port(network_id=net_id, name=name,
-                                        dns_name=server)
+                                        dns_name=server,
+                                        project_id=project_id)
         conn.network.set_tags(
             port, tags + ['tripleo_ovn_physnet={}'.format(physnet)])
 
@@ -240,16 +240,11 @@ def run_module():
 
     try:
         if not static_mappings:
-            try:
-                _, conn = openstack_cloud_from_module(module)
-                if conn.identity.find_service('neutron') is None:
-                    result['success'] = True
-                    module.exit_json(**result)
-            except kauth1_exc.MissingRequiredOptions:
-                result['success'] = True
-                module.exit_json(**result)
+            _, conn = openstack_cloud_from_module(module)
+            project_id = network_data_v2.get_project_id(conn)
+            net_id = create_ovn_mac_address_network(
+                result, conn, project_id)
 
-            net_id = create_ovn_mac_address_network(result, conn)
             tags = ['tripleo_stack_name={}'.format(stack)]
             if role_name:
                 tags.append('tripleo_role={}'.format(role_name))
@@ -265,7 +260,7 @@ def run_module():
                     for server in servers:
                         jobs.append(p.submit(create_ovn_mac_address_ports,
                                              result, conn, net_id, tags,
-                                             physnets, server))
+                                             physnets, server, project_id))
 
                 for job in futures.as_completed(jobs):
                     e = job.exception()
@@ -275,8 +270,11 @@ def run_module():
                 if exceptions:
                     raise exceptions[0]
 
-            remove_obsolete_ports(result, conn, net_id, tags, servers,
-                                  physnets)
+            try:
+                remove_obsolete_ports(result, conn, net_id, tags, servers,
+                                      physnets)
+            except Exception:
+                pass
         if static_mappings or servers:
             write_vars_file(conn, playbook_dir, net_id, tags, static_mappings)
 

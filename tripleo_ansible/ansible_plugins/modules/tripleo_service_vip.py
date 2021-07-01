@@ -18,8 +18,6 @@
 import os
 import yaml
 
-import keystoneauth1.exceptions as kauth1_exc
-
 try:
     from ansible.module_utils import network_data_v2
 except ImportError:
@@ -136,7 +134,8 @@ def create_or_update_port(conn, net, stack=None, service=None,
 
     tags = {'tripleo_stack_name={}'.format(stack),
             'tripleo_service_vip={}'.format(service)}
-    port_def = dict(name=service + VIRTUAL_IP_NAME_SUFFIX, network_id=net.id)
+    port_def = dict(name=service + VIRTUAL_IP_NAME_SUFFIX,
+                    network_id=net.id,)
 
     try:
         port = next(conn.network.ports(tags=list(tags), network_id=net.id))
@@ -164,7 +163,10 @@ def create_or_update_port(conn, net, stack=None, service=None,
         fixed_ips_def.append(ip_def)
 
     if not port:
-        port = conn.network.create_port(**port_def)
+
+        project_id = network_data_v2.get_project_id(conn)
+        port = conn.network.create_port(project_id=project_id,
+                                        **port_def)
     else:
         # TODO: Check if port needs update
         port = conn.network.update_port(port, **port_def)
@@ -259,25 +261,19 @@ def _openstack_cloud_from_module(module):
 def delete_service_vip(module, stack, service='all'):
     try:
         _, conn = _openstack_cloud_from_module(module)
-        _use_neutron = conn.identity.find_service('neutron') is not None
-    except kauth1_exc.MissingRequiredOptions:
-        return
-    if not _use_neutron:
-        return
-    if service == 'all':
-        tags = {'tripleo_stack_name={}'.format(stack)}
-        ports = conn.network.ports(tags=list(tags))
-        matching = [p for p in ports
-                    if any("tripleo_service_vip" in tag for tag in p.tags)]
-    else:
-        tags = {'tripleo_stack_name={}'.format(stack),
-                'tripleo_service_vip={}'.format(service)}
-        matching = conn.network.ports(tags=list(tags))
-    for p in matching:
-        try:
+        if service == 'all':
+            tags = {'tripleo_stack_name={}'.format(stack)}
+            ports = conn.network.ports(tags=list(tags))
+            matching = [p for p in ports
+                        if any("tripleo_service_vip" in tag for tag in p.tags)]
+        else:
+            tags = {'tripleo_stack_name={}'.format(stack),
+                    'tripleo_service_vip={}'.format(service)}
+            matching = conn.network.ports(tags=list(tags))
+        for p in matching:
             conn.network.delete_port(p.id)
-        except Exception:
-            pass
+    except Exception:
+        pass
 
 
 def create_service_vip(module, stack, service, network, fixed_ips,
@@ -289,13 +285,7 @@ def create_service_vip(module, stack, service, network, fixed_ips,
             break
 
     if _use_neutron:
-        try:
-            _, conn = _openstack_cloud_from_module(module)
-            _use_neutron = conn.identity.find_service('neutron') is not None
-        except kauth1_exc.MissingRequiredOptions:
-            _use_neutron = False
-
-    if _use_neutron:
+        _, conn = _openstack_cloud_from_module(module)
         port = use_neutron(conn, stack, service, network, fixed_ips)
     else:
         port = use_fake(service, fixed_ips)

@@ -12,7 +12,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 import mock
 import openstack
 
@@ -54,7 +53,7 @@ class TestTripleoServiceVip(tests_base.TestCase):
                                      service='test', fixed_ips=fixed_ips)
         mock_conn.network.create_port.assert_called_once_with(
             name='test_virtual_ip', network_id='net_id',
-            fixed_ips=[{'subnet_id': 'subnet_id'}])
+            fixed_ips=[{'subnet_id': 'subnet_id'}], project_id=mock.ANY)
         mock_conn.network.update_port.assert_not_called()
         mock_conn.network.set_tags.assert_called_once_with(
             fake_port, [mock.ANY, mock.ANY])

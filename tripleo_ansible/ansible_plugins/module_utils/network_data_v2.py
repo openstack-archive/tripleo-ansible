@@ -17,9 +17,10 @@
 
 import collections
 import ipaddress
-import jsonschema
 import os
 import yaml
+
+import jsonschema
 
 RES_ID = 'physical_resource_id'
 TYPE_NET = 'OS::Neutron::Net'
@@ -27,6 +28,7 @@ TYPE_SUBNET = 'OS::Neutron::Subnet'
 RES_TYPE = 'resource_type'
 TYPE_SEGMENT = 'OS::Neutron::Segment'
 NET_VIP_SUFFIX = '_virtual_ip'
+_DUMMY_PROJECT_ID = 'dummy_project_id'
 
 DOMAIN_NAME_REGEX = (r'^(?=^.{1,255}$)(?!.*\.\..*)(.{1,63}\.)'
                      r'+(.{0,63}\.?)|(?!\.)(?!.*\.\..*)(^.{1,63}$)'
@@ -278,6 +280,13 @@ required:
 - name
 - subnets
 '''.format(domain_name_regex=DOMAIN_NAME_REGEX)
+
+
+def get_project_id(connection):
+    """Returns current project id"""
+    project_id = connection.session.get_project_id(
+            connection.session.auth) or _DUMMY_PROJECT_ID
+    return project_id
 
 
 def _get_detailed_errors(error, depth, absolute_schema_path, absolute_schema,
