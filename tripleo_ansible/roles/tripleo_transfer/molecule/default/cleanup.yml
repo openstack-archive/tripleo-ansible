@@ -27,3 +27,5 @@
       loop:
         - "{{ test_src_dir }}"
         - "{{ test_dst_dir }}"
+        - "{{ test2_src_dir }}"
+        - "{{ test2_dst_dir }}"

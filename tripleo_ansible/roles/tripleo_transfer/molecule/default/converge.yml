@@ -41,6 +41,8 @@
       loop:
         - "{{ test_src_dir }}"
         - "{{ test_dst_dir }}"
+        - "{{ test2_src_dir }}"
+        - "{{ test2_dst_dir }}"
 
     - name: Create 1GB src test files with random content
       shell: >-
@@ -63,3 +65,19 @@
         tripleo_transfer_src_dir: "{{ test_src_dir }}"
         tripleo_transfer_dest_host: controller1
         tripleo_transfer_dest_dir: "{{ test_dst_dir }}"
+
+    - name: Create empty src test files
+      file:
+        state: touch
+        path: "{{ test2_src_dir }}/{{ item }}"
+      loop: "{{ test2_src_files + test2_exclude_src_files }}"
+
+    - include_role:
+        name: "tripleo_transfer"
+      vars:
+        tripleo_transfer_src_host: controller2
+        tripleo_transfer_src_dir: "{{ test2_src_dir }}"
+        tripleo_transfer_dest_host: controller1
+        tripleo_transfer_dest_dir: "{{ test2_dst_dir }}"
+        tripleo_transfer_exclude: "{{ test2_exclude_pattern }}"
+        tripleo_transfer_include: "{{ test2_include_pattern }}"
