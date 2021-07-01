@@ -32,13 +32,6 @@ version_added: "2.10"
 description:
     - Requests Ironic for nodes info.
 options:
-    ironic_url:
-      description:
-        - If noauth mode is utilized, this is required to be set to the
-          endpoint URL for the Ironic API.
-          Use with "auth" and "auth_type" settings set to None.
-      type: str
-      required: False
     node_uuids:
       description:
         - node_uuids
@@ -116,8 +109,6 @@ EXAMPLES = '''
 # Invoke node introspection
 
 - os_tripleo_baremetal_node_introspection:
-    cloud: undercloud
-    auth: password
     node_uuids:
       - uuid1
       - uuid2
@@ -338,17 +329,6 @@ def main():
         supports_check_mode=False,
         **module_kwargs
     )
-    auth_type = module.params.get('auth_type')
-    ironic_url = module.params.get('ironic_url')
-    if auth_type in (None, 'None'):
-        if not ironic_url:
-            module.fail_json(
-                msg="Authentication appears to be disabled,"
-                    " Please define an ironic_url parameter"
-            )
-        else:
-            module.params['auth'] = {'endpoint': ironic_url}
-
     _, cloud = openstack_cloud_from_module(module)
 
     introspector = IntrospectionManagement(

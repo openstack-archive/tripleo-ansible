@@ -332,7 +332,6 @@ baremetal_nodes:
 EXAMPLES = '''
 # Invoke node inspection
 - os_baremetal_clean_node:
-    cloud: undercloud
     node_uuid:
       - 0593c323-ad62-4ce9-b431-3c322827a428
     clean_steps:
@@ -340,7 +339,6 @@ EXAMPLES = '''
         step: erase_devices_metadata
 
 - os_baremetal_clean_node:
-    cloud: undercloud
     node_uuid:
       - 0593c323-ad62-4ce9-b431-3c322827a428
     raid_config:
@@ -355,7 +353,6 @@ EXAMPLES = '''
         step: create_configuration
 
 - os_baremetal_clean_node:
-    cloud: undercloud
     node_uuid:
       - 0593c323-ad62-4ce9-b431-3c322827a428
     clean_steps:
@@ -368,7 +365,6 @@ EXAMPLES = '''
               value: "Disabled"
 
 - os_baremetal_clean_node:
-    cloud: undercloud
     node_name:
       - baremetal-85-3
     clean_steps:
