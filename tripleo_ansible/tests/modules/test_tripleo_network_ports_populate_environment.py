@@ -44,8 +44,9 @@ class TestTripleoNetworkPortsPopulateEnvironment(tests_base.TestCase):
             'RoleB': ['ctlplane', 'foo', 'bar']
         }
         net_name_map = {'foo': 'Foo', 'bar': 'Bar', 'baz': 'Baz'}
+        templates = '/foo/tht_root'
         plugin.update_environment(env, node_port_map, role_net_map,
-                                  net_name_map)
+                                  net_name_map, templates)
         self.assertEqual(
             {'FooParam': 'foo',
              'BarParam': 'bar',
@@ -59,20 +60,16 @@ class TestTripleoNetworkPortsPopulateEnvironment(tests_base.TestCase):
         self.assertEqual(
             {'OS::Some::Existing::Resource': '/foo/bar/some_resource.yaml',
              'OS::TripleO::RoleA::Ports::BarPort':
-                 '/usr/share/openstack-tripleo-heat-templates/'
-                 'network/ports/deployed_bar.yaml',
+                 '/foo/tht_root/network/ports/deployed_bar.yaml',
              'OS::TripleO::RoleA::Ports::BazPort':
-                 '/usr/share/openstack-tripleo-heat-templates/'
-                 'network/ports/deployed_baz.yaml',
+                 '/foo/tht_root/network/ports/deployed_baz.yaml',
              'OS::TripleO::RoleA::Ports::FooPort':
-                 '/usr/share/openstack-tripleo-heat-templates/'
-                 'network/ports/deployed_foo.yaml',
+                 '/foo/tht_root/network/ports/deployed_foo.yaml',
              'OS::TripleO::RoleB::Ports::BarPort':
-                 '/usr/share/openstack-tripleo-heat-templates/'
-                 'network/ports/deployed_bar.yaml',
+                 '/foo/tht_root/network/ports/deployed_bar.yaml',
              'OS::TripleO::RoleB::Ports::FooPort':
-                 '/usr/share/openstack-tripleo-heat-templates/'
-                 'network/ports/deployed_foo.yaml'}, env['resource_registry'])
+                 '/foo/tht_root/network/ports/deployed_foo.yaml'},
+            env['resource_registry'])
 
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_get_net_name_map(self, mock_conn):

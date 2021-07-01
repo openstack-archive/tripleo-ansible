@@ -64,6 +64,11 @@ options:
     description:
       - Name of control plane network
     default: ctlplane
+  templates:
+    description:
+      - The path to tripleo-heat-templates root directory
+    type: path
+    default: /usr/share/openstack-tripleo-heat-templates
 '''
 
 RETURN = '''
@@ -117,7 +122,8 @@ def main():
             instance_uuids=instance_uuids,
             provisioner=provisioner,
             environment=module.params['environment'],
-            ctlplane_network=module.params['ctlplane_network']
+            ctlplane_network=module.params['ctlplane_network'],
+            templates=module.params['templates']
         )
         module.exit_json(
             changed=False,

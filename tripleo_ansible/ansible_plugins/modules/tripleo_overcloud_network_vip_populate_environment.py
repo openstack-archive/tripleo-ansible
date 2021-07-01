@@ -98,6 +98,12 @@ options:
           - Dns Name (Optional)
         type: str
         required: True
+  templates:
+    description:
+      - The path to tripleo-heat-templates root directory
+    type: path
+    default: /usr/share/openstack-tripleo-heat-templates
+
 author:
     - Harald Jensås <hjensas@redhat.com>
 '''
@@ -118,7 +124,6 @@ EXAMPLES = '''
     dest: /path/overcloud_vip_env.yaml
 '''
 
-DEFAULT_THT_DIR = '/usr/share/openstack-tripleo-heat-templates'
 REGISTRY_KEY_TPL = 'OS::TripleO::Network::Ports::{net_name}VipPort'
 PORT_PATH_TPL = 'network/ports/deployed_vip_{net_name_lower}.yaml'
 
@@ -166,7 +171,7 @@ def add_vip_to_env(conn, vip_port_map, port, net_name_lower):
                                       subnet.cidr.split('/')[1]])
 
 
-def populate_net_vip_env(conn, stack, net_maps, vip_data, env):
+def populate_net_vip_env(conn, stack, net_maps, vip_data, env, templates):
     low_up_map = get_net_name_map(conn)
 
     resource_reg = env['resource_registry'] = {}
@@ -186,8 +191,7 @@ def populate_net_vip_env(conn, stack, net_maps, vip_data, env):
 
         resource_reg[REGISTRY_KEY_TPL.format(
             net_name=low_up_map[net_name_lower])] = os.path.join(
-            DEFAULT_THT_DIR, PORT_PATH_TPL.format(
-                net_name_lower=net_name_lower))
+            templates, PORT_PATH_TPL.format(net_name_lower=net_name_lower))
 
         if net_name_lower == 'ctlplane':
             add_ctlplane_vip_to_env(conn, ctlplane_vip_data, port)
@@ -215,11 +219,13 @@ def run_module():
 
     stack = module.params['stack_name']
     vip_data = module.params['vip_data']
+    templates = module.params['templates']
 
     try:
         _, conn = openstack_cloud_from_module(module)
         net_maps = n_utils.create_name_id_maps(conn)
-        populate_net_vip_env(conn, stack, net_maps, vip_data, result['env'])
+        populate_net_vip_env(conn, stack, net_maps, vip_data, result['env'],
+                             templates)
 
         result['changed'] = True if result['env'] else False
         result['success'] = True if result['env'] else False
