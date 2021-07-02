@@ -26,6 +26,7 @@
     ssh_network: ctlplane
     python_interpreter: null
     ssh_private_key_file: /home/stack/.ssh/id_rsa
+    templates: /usr/share/openstack-tripleo-heat-templates
 
   pre_tasks:
     - fail:
@@ -146,6 +147,7 @@
       tripleo_baremetal_populate_environment:
         environment: "{{ baremetal_instances.environment }}"
         instances: "{{ baremetal_provisioned.instances + baremetal_existing.instances }}"
+        templates: "{{ templates }}"
       register: baremetal_environment
 
     - name: Populate environment with unmanaged nodes
@@ -161,6 +163,7 @@
         environment: "{{ unmanaged_environment.environment }}"
         role_net_map: "{{ baremetal_instances.role_net_map }}"
         node_port_map: "{{ instance_network_ports.node_port_map }}"
+        templates: "{{ templates }}"
       register: network_ports_environment
       when: manage_network_ports|default(false)
 
