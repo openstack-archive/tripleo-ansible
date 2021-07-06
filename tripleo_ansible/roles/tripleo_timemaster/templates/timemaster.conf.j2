@@ -12,7 +12,7 @@
 {% for domain, nic_list in ptp_dict.items() %}
 [ptp_domain {{ domain }}]
 interfaces {% for nic in nic_list %}
-{{ nic }}{% if not loop.last %},{% endif %}
+{{ nic }}{% if not loop.last %} {% endif %}
 {% endfor %}
 
 {% endfor %}
