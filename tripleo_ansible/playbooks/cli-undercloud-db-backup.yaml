@@ -21,8 +21,8 @@
     - name: Create DB Backup for the undercloud
       vars:
         tripleo_backup_and_restore_service_manager: false
-        tripleo_backup_and_restore_mysql_backup_file: "/home/stack/openstack-backup-mysql-{{ lookup('pipe', 'date +%F_%H_%M_%S') }}.sql"
-        tripleo_backup_and_restore_mysql_grants_file: "/home/stack/openstack-backup-mysql-grants-{{ lookup('pipe', 'date +%F_%H_%M_%S') }}.sql"
+        tripleo_backup_and_restore_mysql_backup_file: "{{ lookup('env', 'HOME') }}/openstack-backup-mysql-{{ lookup('pipe', 'date +%F_%H_%M_%S') }}.sql"
+        tripleo_backup_and_restore_mysql_grants_file: "{{ lookup('env', 'HOME') }}/openstack-backup-mysql-grants-{{ lookup('pipe', 'date +%F_%H_%M_%S') }}.sql"
       include_role:
         name: backup_and_restore
         tasks_from: db_backup.yml
