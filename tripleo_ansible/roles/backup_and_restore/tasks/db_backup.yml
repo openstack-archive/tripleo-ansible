@@ -58,6 +58,14 @@
   tags:
     - bar_create_recover_image
 
+- name: Ensure the node is back into the cluster
+  command: pcs cluster start
+  when:
+    - enabled_galera
+    - tripleo_backup_and_restore_enable_snapshots|bool
+  tags:
+    - bar_create_recover_image
+
 - name: Wait until pacemaker has Galera up&running
   shell: |
     set -o pipefail
@@ -68,8 +76,6 @@
   delay: 5
   when:
     - enabled_galera
-    - tripleo_backup_and_restore_service_manager|bool
-    - not tripleo_backup_and_restore_enable_snapshots|bool
   tags:
     - bar_create_recover_image
 
