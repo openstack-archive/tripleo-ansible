@@ -41,7 +41,8 @@
 - name: Service management
   import_tasks: service_manager_pause.yml
   when:
-    - tripleo_backup_and_restore_service_manager
+    - tripleo_backup_and_restore_service_manager|bool
+    - not tripleo_backup_and_restore_enable_snapshots|bool
 
 - name: Backup the database
   import_tasks: db_backup.yml
@@ -58,8 +59,10 @@
       import_tasks: service_manager_unpause.yml
       when:
         - tripleo_backup_and_restore_service_manager|bool
+        - not tripleo_backup_and_restore_enable_snapshots|bool
 
-- name: Service management
-  import_tasks: service_manager_unpause.yml
-  when:
-    - tripleo_backup_and_restore_service_manager
+    - name: Pacemaker management
+      import_tasks: pacemaker_unstandby.yml
+      when:
+        - pacemaker_enabled
+        - tripleo_backup_and_restore_enable_snapshots|bool
