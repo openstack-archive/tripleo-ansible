@@ -138,9 +138,8 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         mock_conn.network.find_network.return_value = None
         mock_conn.network.create_network.return_value = fake_network
         changed, network = plugin.create_or_update_network(
-            mock_conn, mock_module, net_spec, 'admin')
-        mock_conn.network.create_network.assert_called_once_with(
-            project_id='admin', **net_spec)
+            mock_conn, mock_module, net_spec)
+        mock_conn.network.create_network.assert_called_once_with(**net_spec)
         mock_conn.network.set_tags.assert_called_once_with(
             network, ['tripleo_foo=bar'])
         self.assertEqual(True, changed)
@@ -171,7 +170,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         )
         mock_conn.network.find_network.return_value = fake_network
         changed, network = plugin.create_or_update_network(
-            mock_conn, mock_module, net_spec, 'admin')
+            mock_conn, mock_module, net_spec)
         mock_conn.network.update_network.assert_called_once_with(
             'foo', **{'name': 'new_name'})
         mock_conn.network.set_tags.assert_called_once_with(
@@ -254,9 +253,9 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
                         'network_type': plugin.DEFAULT_NETWORK_TYPE}
         mock_conn.network.find_segment.return_value = None
         changed, segment = plugin.create_or_update_segment(
-            mock_conn, mock_module, segment_spec, project_id='admin')
+            mock_conn, mock_module, segment_spec)
         mock_conn.network.create_segment.assert_called_once_with(
-            project_id='admin', **segment_spec)
+            **segment_spec)
         self.assertEqual(True, changed)
 
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
@@ -456,7 +455,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             mock.call(
                 msg='Cannot update segment_id in existing subnet, Current '
                     'segment_id: {} Update segment_id: {}'.format(
-                        'segment_id', 'new_segment_id')
+                    'segment_id', 'new_segment_id')
             ),
         ])
         expected_spec = {
@@ -492,9 +491,8 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         }
         mock_conn.network.find_subnet.return_value = None
         changed = plugin.create_or_update_subnet(mock_conn, mock_module,
-                                                 subnet_spec, 'admin')
-        mock_conn.network.create_subnet.assert_called_once_with(
-            project_id='admin', **subnet_spec)
+                                                 subnet_spec)
+        mock_conn.network.create_subnet.assert_called_once_with(**subnet_spec)
         mock_conn.network.set_tags.assert_called_once_with(
             mock.ANY, ['tripleo_vlan_id=100'])
         self.assertEqual(True, changed)
@@ -535,7 +533,7 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
         )
         mock_conn.network.find_subnet.return_value = fake_subnet
         changed = plugin.create_or_update_subnet(mock_conn, mock_module,
-                                                 subnet_spec, 'admin')
+                                                 subnet_spec)
         mock_conn.network.find_subnet.ssert_called_once_with(
             'subnet_name', network_id='net_id')
         mock_conn.network.create_subnet.assert_not_called()
@@ -559,15 +557,13 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
                                     segment_id='segment_id')]
 
         changed = plugin.adopt_the_implicit_segment(
-            mock.ANY, mock.ANY, fake_segments, fake_subnets, fake_network,
-            project_id='admin')
+            mock.ANY, mock.ANY, fake_segments, fake_subnets, fake_network)
 
         mock_create_segment_spec.assert_called_once_with(
             fake_network.id, fake_network.name, fake_subnets[0].name,
             physical_network=fake_segments[0].physical_network)
         mock_create_or_update_segment.assert_called_once_with(
-            mock.ANY, mock.ANY, mock.ANY, segment_id=fake_segments[0].id,
-            project_id='admin')
+            mock.ANY, mock.ANY, mock.ANY, segment_id=fake_segments[0].id)
         self.assertTrue(changed)
 
     def test_implicit_segment_already_adopted(self):

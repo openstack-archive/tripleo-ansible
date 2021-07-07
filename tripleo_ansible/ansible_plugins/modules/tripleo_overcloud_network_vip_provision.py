@@ -152,8 +152,7 @@ def create_port_def(vip_spec, net_maps):
     return port_def
 
 
-def provision_vip_port(conn, stack, net_maps, vip_spec,
-                       managed_ports, project_id):
+def provision_vip_port(conn, stack, net_maps, vip_spec, managed_ports):
     port_def = create_port_def(vip_spec, net_maps)
 
     tags = ['tripleo_stack_name={}'.format(stack),
@@ -172,8 +171,7 @@ def provision_vip_port(conn, stack, net_maps, vip_spec,
                 conn.network.update_port(port.id, **port_def)
                 break
     except StopIteration:
-        port = conn.network.create_port(project_id=project_id,
-                                        **port_def)
+        port = conn.network.create_port(**port_def)
         conn.network.set_tags(port, tags)
         managed_ports.append(port.id)
 
@@ -223,8 +221,6 @@ def run_module():
 
     try:
         _, conn = openstack_cloud_from_module(module)
-
-        project_id = n_utils.get_project_id(conn)
         net_maps = n_utils.create_name_id_maps(conn)
         validate_vip_nets_in_net_map(vip_data, net_maps)
 
@@ -239,8 +235,7 @@ def run_module():
             for vip_spec in vip_data:
                 provision_jobs.append(p.submit(
                     provision_vip_port, conn, stack, net_maps, vip_spec,
-                    managed_ports,
-                    project_id))
+                    managed_ports))
 
         for job in futures.as_completed(provision_jobs):
             e = job.exception()
