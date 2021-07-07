@@ -27,9 +27,39 @@
   hosts: localhost
   connection: local
   any_errors_fatal: true
-  roles:
-    - role: "tripleo_transfer"
-      tripleo_transfer_src_host: controller2
-      tripleo_transfer_src_dir: /etc
-      tripleo_transfer_dest_host: controller1
-      tripleo_transfer_dest_dir: /opt/etc-target
+  tasks:
+    - name: Install openssl for file creation
+      package:
+        name: openssl
+        state: present
+      become: true
+
+    - name: Create test directories
+      file:
+        state: directory
+        path: "{{ item }}"
+      loop:
+        - "{{ test_src_dir }}"
+        - "{{ test_dst_dir }}"
+
+    - name: Create 1GB src test files with random content
+      shell: >-
+        openssl rand -out {{ item }} -base64 $(( 2**30 * 3/4 ))
+      args:
+        chdir: "{{ test_src_dir }}"
+        creates: "{{ item }}"
+      loop: "{{ test_src_files }}"
+
+    - name: Create empty dst test files with random content
+      file:
+        path: "{{ test_dst_dir }}/{{ item }}"
+        state: touch
+      loop: "{{ test_dst_files }}"
+
+    - include_role:
+        name: "tripleo_transfer"
+      vars:
+        tripleo_transfer_src_host: controller2
+        tripleo_transfer_src_dir: "{{ test_src_dir }}"
+        tripleo_transfer_dest_host: controller1
+        tripleo_transfer_dest_dir: "{{ test_dst_dir }}"
