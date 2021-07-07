@@ -19,45 +19,67 @@
     cpus: "{{ hw_data.numa_topology.cpus }}"
 
 - name: Get host dpdk combined cpus
+  when:
+    - host_cpus is defined
   set_fact:
     host_dpdk_combined_cpus: "{% if pmd_cpus is defined %}{{ pmd_cpus }},{{ host_cpus }}{% else %}{{ host_cpus }}{% endif %}"
 
 - name: Convert host dpdk combined cpus number list
+  when:
+    - host_dpdk_combined_cpus is defined
   set_fact:
-    host_dpdk_combined_cpus_list: "{{ host_dpdk_combined_cpus| number_list }}"
+    host_dpdk_combined_cpus_list: "{{ host_dpdk_combined_cpus | number_list }}"
 
 - name: Get cpu threads
   set_fact:
     cpu_threads: |-
-      {{ cpu_threads | default([]) }} + {{ item.thread_siblings | list}}
+      {{ cpu_threads | default([]) }} + {{ item.thread_siblings | list }}
   loop: "{{ cpus }}"
 
 - name: Get nova cpus list
   set_fact:
     nova_cpus_list: |-
-      {{ nova_cpus_list | default([]) }} + [{{ item }}]
-  when: "{{ item | string not in host_dpdk_combined_cpus_list.split(',') }}"
+      {{ (nova_cpus_list | default([])) + [item | string] }}
+  when:
+    - host_dpdk_combined_cpus_list is defined
+    - "{{ item | string not in host_dpdk_combined_cpus_list.split(',') }}"
+    - "{{ item | string not in (nova_cpus_list | default([])) }}"
   loop: "{{ cpu_threads }}"
 
 - name: Get nova cpus
+  when:
+    - nova_cpus_list is defined
   set_fact:
     nova_cpus: "{{ nova_cpus_list | join(',') }}"
 
 # concatinates OvsPmdCoreList range format and NovaVcpuPinSet in range format. it may not be in perfect range format.
 # example: concatinates '12-15,19' and 16-18' ranges '12-15,19,16-18'
 - name: Get isol cpus
+  when:
+    - nova_cpus is defined
   set_fact:
     isol_cpus: "{% if pmd_cpus is defined %}{{ pmd_cpus }},{{ nova_cpus }}{% else %}{{ nova_cpus }}{% endif %}"
 
+- debug:
+    msg: "{{ isol_cpus }}"
+  when:
+    - isol_cpus is defined
+
 - name: Convert isol cpus number list
+  when:
+    - isol_cpus is defined
   set_fact:
     isol_cpus_list: "{{ isol_cpus | number_list }}"
 
 - name: Convert nova cpus in range format
+  when:
+    - nova_cpus is defined
   set_fact:
-    nova_cpus_range_list: "{{ nova_cpus | range_list}}"
+    nova_cpus_range_list: "{{ nova_cpus | range_list }}"
 
 - name: Convert isol cpus in range format
+  when:
+    - isol_cpus is defined
   set_fact:
     isol_cpus_range_list: "{{ isol_cpus | range_list }}"
 
@@ -88,10 +110,18 @@
     iommu_info: "{% if intel_cpu_model %}intel_iommu=on iommu=pt{% elif amd_cpu_model %}amd_iommu=on iommu=pt{% else %}{% endif %}"
 
 - name: Get kernel args
+  when:
+    - isol_cpus_range_list is defined
   set_fact:
     kernel_args: "default_hugepagesz=1GB hugepagesz=1G hugepages={{ hugepages }} {{ iommu_info }} isolcpus={{ isol_cpus_range_list }}"
 
 - name: Get host parameters in dictionary format
+  when:
+    - nova_cpus_range_list is defined
+    - host_cpus is defined
+    - host_mem_default is defined
+    - kernel_args is defined
+    - isol_cpus_range_list is defined
   set_fact:
     host_parameters: "{{ (host_parameters | default({})) | combine({item.key: item.value}) }}"
   with_dict: {
@@ -103,6 +133,8 @@
   }
 
 - name: Update host parameters in derived parameters dictionary
+  when:
+    - host_parameters is defined
   set_fact:
     derived_parameters: "{{
       (derived_parameters |

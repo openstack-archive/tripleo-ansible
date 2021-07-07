@@ -17,10 +17,6 @@
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
-try:
-    from ansible.module_utils import tripleo_common_utils as tc
-except ImportError:
-    from tripleo_ansible.ansible_plugins.module_utils import tripleo_common_utils as tc
 from ansible.module_utils.openstack import openstack_full_argument_spec
 from ansible.module_utils.openstack import openstack_module_kwargs
 from ansible.module_utils.openstack import openstack_cloud_from_module
@@ -82,8 +78,6 @@ import os
 import re
 import yaml
 
-from tripleo_common import exception
-
 
 def _get_dpdk_core_list(inspect_data, numa_nodes_cores_count):
     dpdk_core_list = []
@@ -94,14 +88,14 @@ def _get_dpdk_core_list(inspect_data, numa_nodes_cores_count):
     # in introspection data.
     if not numa_cpus_info:
         msg = 'Introspection data does not have numa_topology.cpus'
-        raise tc.DeriveParamsError(msg)
+        return msg
 
     # Checks whether CPU physical cores count for each NUMA nodes is
     # not available
     if not numa_nodes_cores_count:
         msg = ('CPU physical cores count for each NUMA nodes '
                'is not available')
-        raise tc.DeriveParamsError(msg)
+        return msg
 
     numa_nodes_threads = {}
     # Creates list for all available threads in each NUMA node
@@ -122,7 +116,7 @@ def _get_dpdk_core_list(inspect_data, numa_nodes_cores_count):
                     cores_count -= 1
                     if cores_count == 0:
                         break
-    return ','.join([str(thread) for thread in dpdk_core_list])
+    return dpdk_core_list
 
 
 def main():
@@ -139,16 +133,17 @@ def main():
         **openstack_module_kwargs()
     )
     try:
-        result['dpdk_core_list'] = _get_dpdk_core_list(
+        dpdk_core_list = _get_dpdk_core_list(
             module.params["inspect_data"],
             module.params["numa_nodes_cores_count"]
         )
-    except tc.DeriveParamsError as dexp:
-        result['error'] = str(dexp)
-        result['msg'] = 'Error unable to determine PMD CPUS : {}'.format(
-            dexp
-        )
-        module.fail_json(**result)
+        if isinstance(dpdk_core_list, str):
+            result['error'] = dpdk_core_list
+            result['msg'] = 'Error unable to determine PMD CPUS : {}'.format(
+                dpdk_core_list)
+            module.fail_json(**result)
+        if isinstance(dpdk_core_list, list):
+            result['dpdk_core_list'] = dpdk_core_list
     except Exception as exp:
         result['error'] = str(exp)
         result['msg'] = 'Error unable to determine PMD CPUS : {}'.format(
@@ -156,6 +151,8 @@ def main():
         )
         module.fail_json(**result)
     else:
+        result['dpdk_core_list'] = ','.join([str(thread)
+                                             for thread in dpdk_core_list])
         result['success'] = True
         module.exit_json(**result)
 
