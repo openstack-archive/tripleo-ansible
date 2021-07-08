@@ -108,7 +108,7 @@
     -p{{ mysql_password.stdout }} -s -N \
     -e \"SELECT CONCAT('\\\"SHOW GRANTS FOR ''',user,'''@''',host,''';\\\"') \
     FROM mysql.user where (length(user) > 0 and user NOT LIKE 'root')\"  | xargs -n1 mysql \
-    -uroot -p{{ mysql_password.stdout }} -s -N -e | sed 's/$/;/' " > openstack-backup-mysql-grants.sql
+    -uroot -p{{ mysql_password.stdout }} -s -N -e | sed 's/$/;/' " > {{ tripleo_backup_and_restore_mysql_grants_file }}
   when: mysql_password.stderr is defined
   tags:
     - bar_create_recover_image
@@ -121,7 +121,7 @@
     -p{{ mysql_password.stdout }} -s -N \
     -e \"select distinct table_schema from information_schema.tables \
     where engine='innodb' and table_schema != 'mysql';\" | xargs mysqldump -uroot \
-    -p{{ mysql_password.stdout }}  --single-transaction --databases" > openstack-backup-mysql.sql
+    -p{{ mysql_password.stdout }}  --single-transaction --databases" > {{ tripleo_backup_and_restore_mysql_backup_file }}
   when: mysql_password.stderr is defined
   tags:
     - bar_create_recover_image
