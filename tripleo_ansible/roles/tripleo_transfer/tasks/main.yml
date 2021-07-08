@@ -67,15 +67,20 @@
           {{ hostvars[tripleo_transfer_dest_host].ansible_user |
           default(hostvars[tripleo_transfer_dest_host].ansible_ssh_user |
           default(hostvars[tripleo_transfer_dest_host].ansible_user_id)) }}
+        tripleo_transfer_include_parameters: >-
+          {{ tripleo_transfer_include is string |
+          ternary([tripleo_transfer_include], tripleo_transfer_include) |
+          map('regex_replace', '^(.*)$', "--include='\1'") | join(' ') }}
+        tripleo_transfer_exclude_parameters: >-
+          {{ tripleo_transfer_exclude is string |
+          ternary([tripleo_transfer_exclude], tripleo_transfer_exclude) |
+          map('regex_replace', '^(.*)$', "--exclude='\1'") | join(' ') }}
       shell: >-
         /usr/bin/rsync
         -v
-        --delay-updates
-        -F
-        --ignore-times
-        --compress
-        --archive
-        --delete
+        {{ tripleo_transfer_sync_options }}
+        {{ tripleo_transfer_include_parameters }}
+        {{ tripleo_transfer_exclude_parameters }}
         --rsync-path='sudo rsync'
         --rsh='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ tripleo_transfer_key_location }}'
         {{ tripleo_transfer_src_dir_safe }}
