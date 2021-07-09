@@ -97,3 +97,12 @@ tripleo_backup_and_restore_date_argument: '%Y%m%d%H%M'
 
 # Enable historical backups
 tripleo_backup_and_restore_historical: true
+
+# Cron programming, by default, run cron weekly at midnight on Sundays
+tripleo_backup_and_restore_cron: "0 0 * * 0"
+
+# The user that will run the backup command. If empty, root will run the backup command
+tripleo_backup_and_restore_cron_user: "stack"
+
+# Any extra parameters that will be added to the backup command when it is executed by cron
+tripleo_backup_and_restore_cron_extra: ""
