@@ -1,5 +1,6 @@
 ---
 tripleo_ceph_client_fsid: {{ tripleo_cephadm_fsid }}
+tripleo_ceph_client_cluster: {{ tripleo_cephadm_cluster }}
 external_cluster_mon_ips: "{{ external_cluster_mon_ips }}"
 keys:
 {% for ceph_key_cmd in tripleo_cephadm_client_keys.results %}
