@@ -58,6 +58,7 @@
 - name: Extract keys
   ceph_key:
     name: "{{ item.name }}"
+    cluster: "{{ tripleo_cephadm_cluster }}"
     state: info
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
