@@ -44,6 +44,7 @@
 - name: Extract key
   ceph_key:
     name: "{{ item.name }}"
+    cluster: "{{ tripleo_cephadm_cluster }}"
     output_format: plain
     state: info
   environment:
