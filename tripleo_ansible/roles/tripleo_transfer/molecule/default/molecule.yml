@@ -36,13 +36,27 @@ provisioner:
             ansible_host: 127.0.0.2
           controller2:
             ansible_host: 127.0.0.3
+        vars:
+          test_src_dir: "/tmp/src_files"
+          test_src_files:
+            - testfile1
+            - testfile2
+            - testfile3
+          test_dst_dir: "/tmp/dst_files"
+          test_dst_files:
+            - testfile4
+            - testfile5
+            - testfile6
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
 
 scenario:
   test_sequence:
+    - cleanup
     - converge
+    - verify
+    - cleanup
 
 verifier:
-  name: testinfra
+  name: ansible
