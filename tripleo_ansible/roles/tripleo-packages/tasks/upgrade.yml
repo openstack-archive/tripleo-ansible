@@ -51,7 +51,7 @@
   block:
     - name: run leapp upgrade (download packages)
       shell: >-
-        {% if upgrade_leapp_devel_skip_rhsm|default(false) %}LEAPP_DEVEL_SKIP_RHSM=1{% endif %}
+        {% if upgrade_leapp_devel_skip_rhsm|default(false) %}LEAPP_NO_RHSM=1{% endif %}
         leapp upgrade
         {% if upgrade_leapp_debug|default(true) %}--debug{% endif %}
       when:
