@@ -80,3 +80,11 @@
         - section: engine
           option: events_logger
           value: "\"{{ tripleo_container_events_logger_mechanism }}\""
+
+    - name: Enable podman.socket service
+      when:
+        - tripleo_podman_enable_socket | bool
+      systemd:
+        name: podman.socket
+        state: started
+        enabled: true
