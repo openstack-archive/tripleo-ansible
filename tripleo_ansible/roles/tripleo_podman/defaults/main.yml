@@ -27,6 +27,7 @@ tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
 tripleo_buildah_packages: "{{ _tripleo_buildah_packages | default([]) }}"
 tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
 tripleo_podman_tls_verify: true
+tripleo_podman_enable_socket: false
 tripleo_podman_unqualified_search_registries:
   - registry.redhat.io
   - registry.access.redhat.com
@@ -79,3 +80,4 @@ tripleo_podman_registries: []
 tripleo_container_default_pids_limit: 4096
 tripleo_container_events_logger_mechanism: journald
 tripleo_container_default_runtime: runc
+tripleo_container_default_infra_image: "registry.access.redhat.com/ubi8/pause"
