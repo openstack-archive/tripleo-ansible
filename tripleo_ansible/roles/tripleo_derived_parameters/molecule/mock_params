@@ -73,7 +73,6 @@ stack_data:
     OvercloudControlFlavor: baremetal
     PlacementWorkers: 1
     RootStackName: overcloud
-    SaharaWorkers: 1
     StackAction: CREATE
     SwiftWorkers: 1
     UndercloudHostsEntries:
@@ -368,8 +367,6 @@ stack_data:
         - OS::TripleO::Services::Rhsm
         - OS::TripleO::Services::Rsyslog
         - OS::TripleO::Services::RsyslogSidecar
-        - OS::TripleO::Services::SaharaApi
-        - OS::TripleO::Services::SaharaEngine
         - OS::TripleO::Services::Securetty
         - OS::TripleO::Services::Snmp
         - OS::TripleO::Services::Sshd
@@ -753,7 +750,6 @@ stack_data:
           QdrNetwork: internal_api
           RabbitmqNetwork: internal_api
           RedisNetwork: internal_api
-          SaharaApiNetwork: internal_api
           SnmpdNetwork: ctlplane
           SwiftProxyNetwork: storage
           SwiftStorageNetwork: storage_mgmt

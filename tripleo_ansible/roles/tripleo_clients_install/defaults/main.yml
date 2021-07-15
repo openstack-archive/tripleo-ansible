@@ -36,6 +36,5 @@ tripleo_clients_install_dict:
   novaclient: present
   openstackclient: present
   osc-placement: present
-  saharaclient: present
   swiftclient: present
   zaqarclient: present
