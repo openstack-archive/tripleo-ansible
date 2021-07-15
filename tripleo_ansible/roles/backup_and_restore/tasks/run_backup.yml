@@ -40,11 +40,18 @@
   tags:
     - bar_create_recover_image
 
+- name: Get date and time to add to the backup prefix
+  command: "date +\"{{tripleo_backup_and_restore_date_argument}}\""
+  register: bar_timestamp
+  when: tripleo_backup_and_restore_historical
+  tags:
+    - bar_create_recover_image
+
 - name: Modify on LOG_FILE on /etc/rear/local.conf
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^LOGFILE.*"
-    line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{ ansible_date_time.iso8601_basic_short }}.log"
+    line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{bar_timestamp.stdout}}.log"
   when:
     - tripleo_backup_and_restore_historical
   tags:
@@ -54,7 +61,7 @@
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^ISO_PREFIX.*"
-    line: ISO_PREFIX=$HOSTNAME-{{ ansible_date_time.iso8601_basic_short }}
+    line: ISO_PREFIX=$HOSTNAME-{{bar_timestamp.stdout}}
   when:
     - tripleo_backup_and_restore_historical
   tags:
@@ -64,7 +71,7 @@
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^BACKUP_PROG_ARCHIVE.*"
-    line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{ ansible_date_time.iso8601_basic_short }}
+    line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{bar_timestamp.stdout}}
   when:
     - tripleo_backup_and_restore_historical
   tags:
