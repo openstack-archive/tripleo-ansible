@@ -184,7 +184,7 @@
         instances: "{{ baremetal_instances.instances }}"
         hostname_role_map: "{{ baremetal_instances.hostname_role_map }}"
       register: inventory_network_config
-      when: manage_network_ports|default(false)
+      when: configure_networking|default(false)
 
     - name: Store inventory network config
       copy:
@@ -192,7 +192,7 @@
         content: "{{ inventory_network_config.config | default({}) | to_nice_yaml(indent=2) }}"
         force: true
         mode: '0664'
-      when: manage_network_ports|default(false)
+      when: configure_networking|default(false)
 
     - name: Generate ansible inventory
       tripleo_generate_ansible_inventory:
