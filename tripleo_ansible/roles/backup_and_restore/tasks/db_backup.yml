@@ -48,7 +48,7 @@
   tags:
     - bar_create_recover_image
 
-- name: Enable pacemaker if it is stopped
+- name: Ensure pacemaker is running
   command: pcs cluster start --all
   when:
     - enabled_galera
@@ -96,7 +96,7 @@
   tags:
     - bar_create_recover_image
 
-- name: Unpause mysql for backup if it is paused
+- name: Ensure mysql container is running
   command: "{{ tripleo_container_cli }} unpause {{ tripleo_backup_and_restore_mysql_container }}"
   when:
     - mysql_password.stderr is defined
