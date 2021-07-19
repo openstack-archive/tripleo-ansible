@@ -107,6 +107,19 @@
   tags:
     - bar_create_recover_image
 
+- name: Galera desync the MySQL node
+  shell: |
+    set -o pipefail
+    {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -p -u root \
+    -p{{ mysql_password.stdout }} --execute 'SET GLOBAL wsrep_desync = ON'"
+  when:
+    - mysql_password.stderr is defined
+    - enabled_galera
+    - tripleo_backup_and_restore_enable_snapshots|bool or not tripleo_backup_and_restore_service_manager|bool
+  tags:
+    - bar_create_recover_image
+  no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
+
 - name: MySQL Grants backup
   shell: |
     set -o pipefail
@@ -129,6 +142,19 @@
     where engine='innodb' and table_schema != 'mysql';\" | xargs mysqldump -uroot \
     -p{{ mysql_password.stdout }}  --single-transaction --databases" > {{ tripleo_backup_and_restore_mysql_backup_file }}
   when: mysql_password.stderr is defined
+  tags:
+    - bar_create_recover_image
+  no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
+
+- name: Galera sync the MySQL node
+  shell: |
+    set -o pipefail
+    {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -p -u root \
+    -p{{ mysql_password.stdout }} --execute 'SET GLOBAL wsrep_desync = OFF'"
+  when:
+    - mysql_password.stderr is defined
+    - enabled_galera
+    - tripleo_backup_and_restore_enable_snapshots|bool or not tripleo_backup_and_restore_service_manager|bool
   tags:
     - bar_create_recover_image
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
