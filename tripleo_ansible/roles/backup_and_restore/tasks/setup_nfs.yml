@@ -33,7 +33,6 @@
     - always
 
 - name: Install required packages for the NFS server
-  become: true
   package:
     name: "{{ tripleo_backup_and_restore_nfs_packages }}"
     state: present
@@ -41,7 +40,6 @@
     - bar_setup_nfs_server
 
 - name: Allow NFS connections port 111.
-  become: true
   iptables:
     action: insert
     rule_num: '1'
@@ -55,7 +53,6 @@
     - bar_setup_nfs_server
 
 - name: Allow NFS connections port 2049.
-  become: true
   iptables:
     action: insert
     rule_num: '1'
@@ -76,7 +73,6 @@
     - bar_setup_nfs_server
 
 - name: Open ports in firewalld
-  become: true
   block:
     - name: Allow NFS port 111 in the firewall
       firewalld:
@@ -101,7 +97,6 @@
     - bar_setup_nfs_server
 
 - name: Enable the NFS service in the NFS server
-  become: true
   systemd:
     name: nfs-server
     enabled: true
@@ -109,7 +104,6 @@
     - bar_setup_nfs_server
 
 - name: Create backup folder in the NFS server
-  become: true
   file:
     path: "{{ tripleo_backup_and_restore_nfs_storage_folder }}"
     state: directory
@@ -133,7 +127,6 @@
     - bar_setup_nfs_server
 
 - name: Reload the NFS service
-  become: true
   systemd:
     name: nfs-server
     state: reloaded

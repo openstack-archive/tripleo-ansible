@@ -42,7 +42,6 @@
   shell: |
     set -o pipefail
     {{ tripleo_container_cli }} exec ceph-mon-{{ ansible_facts['hostname'] }} bash -c "ceph auth export"
-  become: true
   register: bar_ceph_authentication_content
   tags:
     - bar_create_recover_image
