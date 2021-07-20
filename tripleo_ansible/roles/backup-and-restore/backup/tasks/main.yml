@@ -32,6 +32,14 @@
   tags:
     - always
 
+- name: Take this node out of pacemaker
+  command: pcs node standby
+  when:
+    - pacemaker_enabled
+    - tripleo_backup_and_restore_enable_snapshots|bool
+  tags:
+    - bar_create_recover_image
+
 - name: Create the node backup
   become: true
   command: rear {{ '-s ' if tripleo_backup_and_restore_rear_simulate else '' }}-d -v mkbackup

@@ -31,6 +31,10 @@ tripleo_backup_and_restore_mysql_backup_file: "openstack-backup-mysql.sql"
 # Default name for the Undercloud mysql DB grants file
 tripleo_backup_and_restore_mysql_grants_file: "openstack-backup-mysql-grants.sql"
 
+# If this is false, backup of the overcloud is taken by stopping it completely. Enable it to do a
+# backup stopping only one node at a time, maintaining the controller active during the backup duration.
+tripleo_backup_and_restore_enable_snapshots: true
+
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
 tripleo_backup_and_restore_debug: false
 # By default this should be the Undercloud node
