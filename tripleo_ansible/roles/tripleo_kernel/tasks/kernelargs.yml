@@ -18,6 +18,30 @@
   command: cat /proc/cmdline
   register: cmdline
 
+- name: TSX KernelArgs compute node reboot prevention
+  when:
+    - '"nova_libvirt" in groups'
+  block:
+    - name: Check if node has a nova.conf
+      stat:
+        path: /var/lib/config-data/puppet-generated/nova_libvirt/etc/nova/nova.conf
+      register: nova_conf_check
+
+    - name: Enabling defer_reboot when TSX was added or appended
+      when:
+      - nova_conf_check.stat.exists
+      - tripleo_kernel_args is regex("^[\s]*tsx=[^\s]+[\s]*$")
+      block:
+        - name: Warn operator about workload protection
+          debug:
+            msg: |
+              Automated reboot for this node has been defered because it is already provisionned.
+              Please schedule a manual reboot after this deployment is completed.
+
+        - name: Setting defer reboot fact
+          set_fact:
+            tripleo_kernel_defer_reboot: true
+
 - name: Check if the kernelargs entry is already present in the file
   replace:
     regexp: TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS
