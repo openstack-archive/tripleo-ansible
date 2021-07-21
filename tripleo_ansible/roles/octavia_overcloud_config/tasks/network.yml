@@ -101,3 +101,15 @@
     OS_USERNAME: "{{ auth_username }}"
     OS_PASSWORD: "{{ auth_password }}"
     OS_PROJECT_NAME: "{{ auth_project_name }}"
+
+- name: create security group rule for log offloading
+  openstack.cloud.security_group_rule:
+    security_group: "{{ lb_health_mgr_sec_grp_name }}"
+    protocol: udp
+    port_range_min: 514
+    port_range_max: 514
+    remote_ip_prefix: 0.0.0.0/0
+  environment:
+    OS_USERNAME: "{{ auth_username }}"
+    OS_PASSWORD: "{{ auth_password }}"
+    OS_PROJECT_NAME: "{{ auth_project_name }}"
