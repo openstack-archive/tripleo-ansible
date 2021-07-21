@@ -53,14 +53,14 @@
       when:
         - '"cni-podman0" not in ansible_facts["interfaces"]'
 
-    - name: configure insecure registries /etc/containers/registries.conf
-      ini_file:
-        path: /etc/containers/registries.conf
-        section: 'registries.insecure'
-        option: registries
-        value: "{{ tripleo_container_registry_insecure_registries }}"
-      when:
-        - (tripleo_container_registry_insecure_registries | length) > 0
+    - name: Write containers registries.conf
+      template:
+        src: registries.conf.j2
+        dest: /etc/containers/registries.conf
+        owner: root
+        group: root
+        setype: etc_t
+        mode: '0644'
 
     - name: Write containers.conf
       ini_file:

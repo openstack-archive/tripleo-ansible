@@ -15,7 +15,7 @@
 # under the License.
 
 
-# All variables intended for modification should place placed in this file.
+# All variables intended for modification should be placed in this file.
 
 tripleo_container_registry_insecure_registries: []
 tripleo_container_registry_login: false
@@ -52,3 +52,28 @@ tripleo_podman_default_network_config:
     - type: firewall
     - type: tuning
 tripleo_container_events_logger_mechanism: journald
+tripleo_podman_unqualified_search_registries:
+  - registry.redhat.io
+  - registry.access.redhat.com
+  - registry.fedoraproject.org
+  - registry.centos.org
+  - docker.io
+tripleo_podman_insecure_registries: "{{ tripleo_container_registry_insecure_registries }}"
+# tripleo_podman_registries requires a list of dictionaries
+# Example:
+# tripleo_podman_registries:
+#   - prefix: docker.io
+#     insecure: false
+#     location: docker.io
+#     mirrors:
+#       - location: 192.168.0.1:8787
+#         insecure: true
+#   - prefix: registry.redhat.io
+#     insecure: false
+#     location: registry.redhat.io
+#     mirrors:
+#       - location: 192.168.0.2:8787
+#         insecure: false
+#   - prefix: registry.fedoraproject.org
+#     blocked: true
+tripleo_podman_registries: []
