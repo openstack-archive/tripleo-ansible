@@ -41,7 +41,7 @@
     - bar_create_recover_image
 
 - name: Get date and time to add to the backup prefix
-  command: "date +\"{{tripleo_backup_and_restore_date_argument}}\""
+  command: "date +\"{{ tripleo_backup_and_restore_date_argument }}\""
   register: bar_timestamp
   when: tripleo_backup_and_restore_historical
   tags:
@@ -51,7 +51,7 @@
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^LOGFILE.*"
-    line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{bar_timestamp.stdout}}.log"
+    line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{ bar_timestamp.stdout }}.log"
   when:
     - tripleo_backup_and_restore_historical
   tags:
@@ -61,7 +61,7 @@
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^ISO_PREFIX.*"
-    line: ISO_PREFIX=$HOSTNAME-{{bar_timestamp.stdout}}
+    line: ISO_PREFIX=$HOSTNAME-{{ bar_timestamp.stdout }}
   when:
     - tripleo_backup_and_restore_historical
   tags:
@@ -71,7 +71,7 @@
   lineinfile:
     path: /etc/rear/local.conf
     regexp: "^BACKUP_PROG_ARCHIVE.*"
-    line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{bar_timestamp.stdout}}
+    line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{ bar_timestamp.stdout }}
   when:
     - tripleo_backup_and_restore_historical
   tags:
