@@ -77,7 +77,6 @@ This Ansible role allows to do the following tasks:
           include_role:
             name: tripleo_container_manage
           vars:
-            tripleo_container_manage_systemd_order: true
             tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
             tripleo_container_manage_config_id: "tripleo_step1"
 
@@ -104,9 +103,6 @@ Roles variables
 |                                                |                             | Healthchecks               |
 +------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_log_path              | /var/log/containers/stdouts | Containers stdouts path    |
-+------------------------------------------------+-----------------------------+----------------------------+
-| tripleo_container_manage_systemd_order         | false                       | Manage systemd shutdown    |
-|                                                |                             | ordering                   |
 +------------------------------------------------+-----------------------------+----------------------------+
 | tripleo_container_manage_config_overrides      | {}                          | Allows to override any     |
 |                                                |                             | container configuration    |
@@ -186,7 +182,6 @@ overrides the image setting in one-off.
               include_role:
                 name: tripleo_container_manage
               vars:
-                tripleo_container_manage_systemd_order: true
                 tripleo_container_manage_config_patterns: 'haproxy.json'
                 tripleo_container_manage_config: "/var/lib/tripleo-config/container-startup-config/step_1"
                 tripleo_container_manage_config_id: "tripleo_step1"
