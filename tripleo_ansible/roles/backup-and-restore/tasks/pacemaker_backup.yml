@@ -19,7 +19,6 @@
   command: |
     hiera -c "{{ tripleo_backup_and_restore_hiera_config_file }}" 'enabled_services'
   register: tripleo_backup_and_restore_enabled_services
-  become: true
   tags:
     - bar_create_recover_image
 
@@ -37,7 +36,6 @@
     - pacemaker_backup.tar.bz2
     - cib.xml
   when: pacemaker_enabled
-  become: true
   tags:
     - bar_create_recover_image
 
@@ -47,6 +45,5 @@
     pcs cluster cib cib.xml
     pcs config backup pacemaker_backup
   when: pacemaker_enabled
-  become: true
   tags:
     - bar_create_recover_image

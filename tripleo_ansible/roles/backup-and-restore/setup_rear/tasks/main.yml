@@ -33,7 +33,6 @@
     - always
 
 - name: Install required packages for ReaR
-  become: true
   package:
     name: "{{ tripleo_backup_and_restore_rear_packages }}"
     state: present
@@ -41,7 +40,6 @@
     - bar_setup_rear
 
 - name: Remove ReaR rpm default cron programming
-  become: true
   file:
     path: /etc/cron.d/rear
     state: absent
@@ -57,7 +55,6 @@
     - bar_setup_rear
 
 - name: Set bootstrap nodeid
-  become: true
   register: tripleo_backup_and_restore_bootstrap_nodeid
   command: |
     /bin/hiera -c {{ tripleo_backup_and_restore_hiera_config_file }}  'mysql_short_bootstrap_node_name'
@@ -65,7 +62,6 @@
     - bar_setup_rear
 
 - name: List enabled services by node
-  become: true
   register: tripleo_backup_and_restore_enabled_services
   command: |
     /bin/hiera -c {{ tripleo_backup_and_restore_hiera_config_file }} 'service_names'
@@ -93,7 +89,6 @@
     - bar_setup_rear
 
 - name: Generate ReaR config file
-  become: true
   template:
     src: local.conf.j2
     dest: /etc/rear/local.conf
@@ -105,7 +100,6 @@
     - bar_setup_rear
 
 - name: Generate ReaR rescue file
-  become: true
   template:
     src: rescue.conf.j2
     dest: /etc/rear/rescue.conf
@@ -117,7 +111,6 @@
     - bar_setup_rear
 
 - name: Load rear config
-  become: true
   slurp:
     src: /etc/rear/local.conf
   register: rear_config
