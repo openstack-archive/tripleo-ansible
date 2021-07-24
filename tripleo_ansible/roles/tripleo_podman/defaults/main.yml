@@ -27,6 +27,7 @@ tripleo_podman_packages: "{{ _tripleo_podman_packages | default([]) }}"
 tripleo_buildah_packages: "{{ _tripleo_buildah_packages | default([]) }}"
 tripleo_podman_purge_packages: "{{ _tripleo_podman_purge_packages | default([]) }}"
 tripleo_podman_tls_verify: true
+tripleo_podman_enable_socket: false
 tripleo_podman_unqualified_search_registries:
   - registry.redhat.io
   - registry.access.redhat.com
