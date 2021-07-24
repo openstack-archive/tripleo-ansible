@@ -28,7 +28,7 @@
     - ansible_facts.selinux.status == "enabled"
   sefcontext:
     target: "{{ collectd_conf_output_dir }}(/.*)?"
-    seytpe: container_file_t
+    setype: container_file_t
     state: present
 
 - name: create persistent directories
