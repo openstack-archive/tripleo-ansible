@@ -55,3 +55,4 @@ tripleo_cephadm_idmap_overrides: {}
 tripleo_cephadm_rbd_mirror_pool: ''
 tripleo_cephadm_rbd_mirror_remote_cluster: not-ceph
 tripleo_cephadm_rbd_mirror_remote_user: ''
+tripleo_cephadm_debug: false

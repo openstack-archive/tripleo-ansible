@@ -45,7 +45,7 @@
     - not (ceph_orch_status.stdout | from_json).available
 
 - name: Set container images used by the applied services
-  include_tasks: config_container_images.yaml
+  include_tasks: cephadm_config_set.yaml
 
 - name: Apply spec
   command: "{{ tripleo_cephadm_ceph_cli }} orch apply --in-file {{ tripleo_cephadm_container_spec }}"
