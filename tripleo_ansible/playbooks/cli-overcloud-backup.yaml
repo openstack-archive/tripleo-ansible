@@ -12,9 +12,9 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-- become: true
+- name: Backup ceph authentication
   hosts: ceph_mon
-  name: Backup ceph authentication
+  become: true
   tasks:
     - name: Backup ceph authentication role
       include_role:
@@ -23,9 +23,12 @@
       tags:
         - bar_create_recover_image
 
-- name: TripleO Controller backup.
+- name: TripleO Controller backup
   hosts: Controller
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
+  serial: "{{ tripleo_backup_and_restore_enable_snapshots|bool | ternary(1, groups['Controller']|length) }}"
+  vars_files:
+    ../roles/backup_and_restore/defaults/main.yml
   become: true
   roles:
     - role: backup_and_restore
