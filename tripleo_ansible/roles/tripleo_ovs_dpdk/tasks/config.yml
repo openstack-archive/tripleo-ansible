@@ -144,6 +144,24 @@
     key: userspace-tso-enable
   when: not tripleo_ovs_dpdk_enable_tso|bool
 
+- name: Enable vhost-postcopy-support
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: vhost-postcopy-support
+    value: "{{ tripleo_ovs_dpdk_vhost_postcopy_support }}"
+  when: tripleo_ovs_dpdk_vhost_postcopy_support|bool
+
+- name: Disable vhost-postcopy-support
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: vhost-postcopy-support
+  when: not tripleo_ovs_dpdk_vhost_postcopy_support|bool
+
 - name: Enable DPDK OVS PMD Auto Load Balance
   openvswitch_db:
     table: open_vswitch
