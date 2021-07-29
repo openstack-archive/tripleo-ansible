@@ -9,7 +9,9 @@ ExecStart=/usr/libexec/tripleo-start-podman-container {{ lookup('dict', containe
 {% else %}
 ExecStart=/usr/bin/podman start {{ lookup('dict', container_data_unit).key }}
 {% endif %}
-ExecReload=/usr/bin/podman kill --signal HUP {{ lookup('dict', container_data_unit).key }}
+{% if not (lookup('dict', container_data_unit).value.no_reload | default(false) | bool) %}
+ExecReload=/usr/bin/podman kill --signal {{ lookup('dict', container_data_unit).value.reload_signal | default('SIGHUP') | regex_replace('^SIG', '') }} {{ lookup('dict', container_data_unit).key }}
+{% endif %}
 {% if lookup('dict', container_data_unit).value.pre_stop_exec is defined %}
 ExecStop=-/usr/bin/podman exec {{ lookup('dict', container_data_unit).key }} {{ lookup('dict', container_data_unit).value.pre_stop_exec }}
 {% endif %}
