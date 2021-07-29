@@ -78,7 +78,7 @@
     - bar_create_recover_image
 
 - name: Create the node backup
-  command: rear {{ '-s ' if tripleo_backup_and_restore_rear_simulate else '' }}-d -v mkbackup
+  command: rear {{ (tripleo_backup_and_restore_rear_simulate | bool) | ternary('-s ', '') }}-d -v mkbackup
   register: tripleo_backup_and_restore_rear_output
   when: tripleo_backup_and_restore_rear_output is undefined
   tags:
