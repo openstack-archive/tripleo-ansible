@@ -7,6 +7,7 @@ log file /var/log/frr/frr.log {{ tripleo_frr_log_level }}
 log timestamp precision {{ tripleo_frr_log_timestamp_precision }}
 service integrated-vtysh-config
 line vty
+{{ tripleo_frr_conf_custom_globals }}
 
 router bgp {{ tripleo_frr_bgp_asn }}
   bgp router-id {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
@@ -14,6 +15,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
   bgp graceful-shutdown
   no bgp default ipv4-unicast
   no bgp ebgp-requires-policy
+  {{ tripleo_frr_conf_custom_router_bgp }}
 
   neighbor uplink peer-group
   neighbor uplink remote-as {{ tripleo_frr_bgp_uplinks_scope }}
@@ -78,6 +80,7 @@ route-map rm-only-default permit 10
   set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
 
 ip protocol bgp route-map rm-only-default
+{{ tripleo_frr_conf_custom_ipv4 }}
 {% endif %} {# tripleo_frr_bgp_ipv4 #}
 
 {% if tripleo_frr_bgp_ipv6 %}
@@ -89,6 +92,7 @@ route-map rm-only-default permit 11
   set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv6_src_network ~ '_ip'] }}
 
 ipv6 protocol bgp route-map rm-only-default
+{{ tripleo_frr_conf_custom_ipv6 }}
 {% endif %}
 
 {% if tripleo_frr_zebra_nht_resolve_via_default %}
