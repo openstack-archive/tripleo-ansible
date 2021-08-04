@@ -36,7 +36,7 @@
         - "{{ tripleo_transfer_dest_host }}"
 
     - name: generate ssh key-pair in source host
-      openssh_keypair:
+      community.crypto.openssh_keypair:
         path: "{{ tripleo_transfer_key_location }}"
       delegate_to: "{{ tripleo_transfer_src_host }}"
       become: "{{ tripleo_transfer_src_become }}"

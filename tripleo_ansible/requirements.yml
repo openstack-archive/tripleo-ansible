@@ -34,3 +34,4 @@ collections:
   - community.general
   - openstack.cloud
   - containers.podman
+  - community.crypto
