@@ -26,6 +26,8 @@
     ansible_ssh_user: tripleo-admin
     ansible_ssh_private_key_file: /home/stack/.ssh/id_rsa
     python_interpreter: null
+    config_type: null
+    preserve_config: true
 
   tasks:
     - name: Set output_dir
@@ -37,11 +39,23 @@
       set_fact:
         work_dir: "{{ output_dir ~ '/' ~ plan }}"
 
+    - name: Clean work_dir
+      file:
+        path: "{{ work_dir }}"
+        state: absent
+      when: not preserve_config | bool
+
+    - name: Create config dir if does not exist
+      file:
+        path: "{{ work_dir }}"
+        state: directory
+
     - name: Download config
       tripleo_config_download:
         plan: "{{ plan }}"
         work_dir: "{{ work_dir }}"
         download: true
+        config_type: "{{ config_type }}"
 
     - name: Generate ansible inventory
       tripleo_generate_ansible_inventory:
