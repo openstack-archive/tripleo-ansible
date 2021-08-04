@@ -17,12 +17,6 @@
 - name: Load vars
   import_tasks: load_vars.yaml
 
-- name: Remove docker containers
-  import_tasks: tripleo_docker_stop.yml
-
-- name: Purge Docker
-  import_tasks: tripleo_docker_purge.yml
-
 - name: Podman install
   import_tasks: tripleo_podman_install.yml
 

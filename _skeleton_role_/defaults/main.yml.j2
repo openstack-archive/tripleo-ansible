@@ -19,4 +19,5 @@
 
 # All variables within this role should have a prefix of "tripleo_{{ role_name | replace('tripleo_', '') }}"
 tripleo_{{ role_name | replace('tripleo_', '') }}_debug: {% raw %}"{{ (ansible_verbosity | int) >= 2 | bool }}"{% endraw %}
+
 tripleo_{{ role_name | replace('tripleo_', '') }}_hide_sensitive_logs: true
