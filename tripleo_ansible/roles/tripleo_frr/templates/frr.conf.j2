@@ -19,6 +19,9 @@ router bgp {{ tripleo_frr_bgp_asn }}
 
   neighbor uplink peer-group
   neighbor uplink remote-as {{ tripleo_frr_bgp_uplinks_scope }}
+{% if tripleo_frr_bgp_neighbor_password|length %}
+  neighbor uplink password {{ tripleo_frr_bgp_neighbor_password }}
+{% endif %}
   ! neighbor uplink capability extended-nexthop
 {% if tripleo_frr_bfd %}
   neighbor uplink bfd
