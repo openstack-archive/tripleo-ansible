@@ -41,3 +41,7 @@ tripleo_frr_log_timestamp_precision: 3
 tripleo_frr_watchfrr: true
 tripleo_frr_zebra: false
 tripleo_frr_zebra_nht_resolve_via_default: true
+tripleo_frr_conf_custom_globals: ''
+tripleo_frr_conf_custom_router_bgp: ''
+tripleo_frr_conf_custom_ipv4: ''
+tripleo_frr_conf_custom_ipv6: ''
