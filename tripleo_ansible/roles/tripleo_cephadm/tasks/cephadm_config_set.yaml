@@ -28,6 +28,13 @@
   changed_when: false
   become: true
 
+- name: enforce minimum ceph clients version
+  command: |
+    {{ tripleo_cephadm_ceph_cli }} osd set-require-min-compat-client \
+    {{ tripleo_cephadm_min_compat_client }}
+  changed_when: false
+  become: true
+
 - name: set container image base in ceph configuration
   command: |
     {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_base \
