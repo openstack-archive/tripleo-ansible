@@ -24,7 +24,6 @@
     tripleo_container_manage_healthcheck_disabled: true
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora.json'
-    tripleo_container_manage_systemd_order: true
   tasks:
     - include_role:
         name: tripleo_container_manage
@@ -63,7 +62,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: '*.json'
-    tripleo_container_manage_systemd_order: true
     tripleo_container_manage_valid_exit_code: [0]
   tasks:
     - include_role:
@@ -142,7 +140,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: '*.json'
-    tripleo_container_manage_systemd_order: true
   tasks:
     - name: Gather facts about fedora container before new run
       containers.podman.podman_container_info:
@@ -176,7 +173,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: '*.json'
-    tripleo_container_manage_systemd_order: true
   tasks:
     - name: Stop systemd service for tripleo_fedora in a manual stop
       systemd:
@@ -302,7 +298,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora_*.json'
-    tripleo_container_manage_systemd_order: true
   tasks:
     - name: Remove fedora container config
       file:
@@ -336,7 +331,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora_*.json'
-    tripleo_container_manage_systemd_order: true
   tasks:
     - name: Modify the fedora_bis container config
       copy:
@@ -379,7 +373,6 @@
     tripleo_container_manage_config: '/tmp/container-configs'
     tripleo_container_manage_debug: true
     tripleo_container_manage_config_patterns: 'fedora_*.json'
-    tripleo_container_manage_systemd_order: true
     tripleo_container_manage_config_overrides:
       fedora_bis:
         image: fedora:latest
