@@ -23,3 +23,4 @@ tripleo_kernel_args: ""
 tripleo_kernel_reboot_timeout: 3600
 tripleo_kernel_post_reboot_delay: 60
 tripleo_kernel_defer_reboot: false
+tripleo_kernel_reboot_protection: false
