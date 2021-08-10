@@ -20,6 +20,16 @@
 # All variables within this role should have a prefix of "tripleo_frr"
 
 tripleo_frr_bfd: false
+# Configures the detection multiplier to determine packet loss.
+# The remote transmission interval will be multiplied by this
+# value to determine the connection loss detection timer.
+tripleo_frr_bfd_detect_multiplier: 3
+# The minimum transmission interval (less jitter) that this
+# system wants to use to send BFD control packets. (milliseconds)
+tripleo_frr_bfd_transmit_interval: 300
+# Configures the minimum interval that this system is capable of
+# receiving control packets. (milliseconds)
+tripleo_frr_bfd_receive_interval: 300
 tripleo_frr_bgp: false
 tripleo_frr_bgp_ipv4: true
 tripleo_frr_bgp_ipv4_allowas_in: false
