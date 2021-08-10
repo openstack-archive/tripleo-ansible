@@ -1,8 +1,8 @@
 # {{ ansible_managed }}
 
 watchfrr_enable={{ 'yes' if tripleo_frr_watchfrr else 'no' }}
-{% if tripleo_frr_watchfrr %}
-watchfrr_options="-r '/usr/lib/frr/frr restart %s' -s '/usr/lib/frr/frr start %s' -k '/usr/lib/frr/frr stop %s'"
+{% if tripleo_frr_watchfrr and tripleo_frr_watchfrr_options != '' %}
+watchfrr_options="{{ tripleo_frr_watchfrr_options }}"
 {% endif %}
 #
 zebra={{ 'yes' if tripleo_frr_zebra else 'no' }}
