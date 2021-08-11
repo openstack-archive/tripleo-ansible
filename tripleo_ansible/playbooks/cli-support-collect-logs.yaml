@@ -140,4 +140,4 @@
 
     - name: Archive notice
       debug:
-        msg: "Log collection archive: {{ archive_file }}, stored here: {{ sos_destination }}"
+        msg: "Log collection archive: {{ archive_file }}, stored here: {{ sos_destination }}/{{ archive_file | basename }}"
