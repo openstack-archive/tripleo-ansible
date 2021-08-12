@@ -54,8 +54,8 @@ subnets:
     routes_ipv6:
       - destination: 2001:db8:b::/64
         nexthop: 2001:db8:a::1
-    ipv6_address_mode: null
-    ipv6_ra_mode: null
+    ipv6_address_mode: slaac
+    ipv6_ra_mode: slaac
     enable_dhcp: false
     physical_network: storage_subnet01
     network_type: flat
@@ -78,8 +78,8 @@ subnets:
     routes_ipv6:
       - destination: 2001:db8:a::/64
         nexthop: 2001:db8:b::1
-    ipv6_address_mode: null
-    ipv6_ra_mode: null
+    ipv6_address_mode: slaac
+    ipv6_ra_mode: slaac
     enable_dhcp: false
     physical_network: storage_subnet01
     network_type: flat
@@ -212,7 +212,7 @@ class TestNetworkDataV2(tests_base.TestCase):
         self.assertRegex(error_messages_dual,
                          (r"- subnets/additionalProperties/oneOf/dual_subnet"
                           r"/ipv6_address_mode/enum: 'invalid' is not one of "
-                          r"\[None, 'dhcpv6-stateful', 'dhcpv6-stateless'\]"
+                          r"\['slaac', 'dhcpv6-stateful', 'dhcpv6-stateless'\]"
                           r"\n"))
         self.assertRegex(error_messages_dual,
                          (r"- subnets/additionalProperties/oneOf/dual_subnet"
@@ -228,7 +228,7 @@ class TestNetworkDataV2(tests_base.TestCase):
         self.assertRegex(error_messages_dual,
                          (r"- subnets/additionalProperties/oneOf/dual_subnet"
                           r"/ipv6_ra_mode/enum: 'invalid' is not one of "
-                          r"\[None, 'dhcpv6-stateful', 'dhcpv6-stateless'\]\n"))
+                          r"\['slaac', 'dhcpv6-stateful', 'dhcpv6-stateless'\]\n"))
         self.assertRegex(error_messages_dual,
                          (r"- subnets/additionalProperties/oneOf/dual_subnet"
                           r"/ipv6_subnet/ip_subnet_version: invalid does not "
@@ -379,7 +379,7 @@ class TestNetworkDataV2(tests_base.TestCase):
         self.assertRegex(error_messages_ipv6,
                          (r"- subnets/additionalProperties/oneOf/ipv6_subnet"
                           r"/ipv6_address_mode/enum: 'invalid' is not one of "
-                          r"\[None, 'dhcpv6-stateful', 'dhcpv6-stateless'\]"
+                          r"\['slaac', 'dhcpv6-stateful', 'dhcpv6-stateless'\]"
                           r"\n"))
         self.assertRegex(error_messages_ipv6,
                          (r"- subnets/additionalProperties/oneOf/ipv6_subnet"
