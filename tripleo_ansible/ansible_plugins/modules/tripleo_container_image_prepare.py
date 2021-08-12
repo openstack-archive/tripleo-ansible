@@ -20,8 +20,8 @@ import logging
 import os
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.openstack import openstack_full_argument_spec
-from ansible.module_utils.openstack import openstack_module_kwargs
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_full_argument_spec
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_module_kwargs
 
 from tripleo_common import constants
 from tripleo_common.image import image_uploader
