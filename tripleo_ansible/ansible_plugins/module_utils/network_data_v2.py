@@ -155,12 +155,12 @@ definitions:
           $ref: "#/definitions/ipv6_route"
       ipv6_address_mode:
         enum:
-        - null
+        - slaac
         - dhcpv6-stateful
         - dhcpv6-stateless
       ipv6_ra_mode:
         enum:
-        - null
+        - slaac
         - dhcpv6-stateful
         - dhcpv6-stateless
       enable_dhcp:
@@ -217,12 +217,12 @@ definitions:
           $ref: "#/definitions/ipv6_route"
       ipv6_address_mode:
         enum:
-        - null
+        - slaac
         - dhcpv6-stateful
         - dhcpv6-stateless
       ipv6_ra_mode:
         enum:
-        - null
+        - slaac
         - dhcpv6-stateful
         - dhcpv6-stateless
       enable_dhcp:
