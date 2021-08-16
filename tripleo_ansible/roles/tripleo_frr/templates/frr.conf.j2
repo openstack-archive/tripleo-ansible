@@ -20,6 +20,7 @@ router bgp {{ tripleo_frr_bgp_asn }}
   ! neighbor uplink capability extended-nexthop
 {% if tripleo_frr_bfd %}
   neighbor uplink bfd
+  neighbor uplink bfd profile tripleo
 {% endif %}
 {% for iface in tripleo_frr_bgp_uplinks_mapped %}
   neighbor {{ iface }} interface peer-group uplink
@@ -95,4 +96,12 @@ ipv6 protocol bgp route-map rm-only-default
 
 {% if tripleo_frr_zebra_nht_resolve_via_default %}
 ip nht resolve-via-default
+{% endif %}
+
+{% if tripleo_frr_bfd %}
+bfd
+  profile tripleo
+    detect-multiplier {{ tripleo_frr_bfd_detect_multiplier }}
+    transmit-interval {{ tripleo_frr_bfd_transmit_interval }}
+    receive-interval {{ tripleo_frr_bfd_receive_interval }}
 {% endif %}
