@@ -211,6 +211,13 @@ class ActionModule(ActionBase):
             ARTIFACTS_ANCHOR,
             os.path.basename(filename)
         )
+        self._run_module(
+            module_name='file',
+            module_args=dict(
+                path=os.path.dirname(package_path),
+                state='directory'
+            )
+        )
         self._transfer_files(filename=filename, destination=package_path)
         results = self._low_level_execute_command(
             "tar xvz -C / -f {}".format(package_path),
