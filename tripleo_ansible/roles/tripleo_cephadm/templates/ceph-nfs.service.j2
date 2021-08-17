@@ -13,6 +13,7 @@ ExecStartPre=-/usr/bin/mkdir -p /var/log/ceph /var/log/ganesha
 ExecStartPre=-/usr/bin/{{ container_cli }} rm ceph-nfs-%i
 ExecStartPre=/usr/bin/mkdir -p /etc/ceph /etc/ganesha /var/lib/nfs/ganesha /var/log/ganesha
 ExecStart=/usr/bin/{{ container_cli }} run --rm --net=host \
+  --pids-limit={{ 0 if container_cli == 'podman' else -1 }} \
   -d --log-driver journald --conmon-pidfile /%t/%n-pid --cidfile /%t/%n-cid \
   -v /var/lib/ceph:/var/lib/ceph:z \
   -v {{ tripleo_ceph_client_config_home }}:/etc/ceph:z \
