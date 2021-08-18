@@ -51,6 +51,7 @@ tripleo_frr_log_level: informational
 tripleo_frr_log_timestamp_precision: 3
 tripleo_frr_version: 7.0
 tripleo_frr_watchfrr: true
+tripleo_frr_watchfrr_options: ''
 tripleo_frr_zebra: false
 tripleo_frr_zebra_nht_resolve_via_default: true
 tripleo_frr_conf_custom_globals: ''
