@@ -20,7 +20,6 @@
   gather_facts: "{{ (tripleo_target_host is defined) | ternary(true, false) }}"
   any_errors_fatal: true
   vars:
-    BlacklistedIpAddresses: []
     distribute_private_key: false
   handlers:
     - name: Remove mistral tmp file
@@ -34,29 +33,6 @@
           The ssh_servers option was undefined.
       when:
         - ssh_servers is undefined
-
-    - name: Cloud name block
-      when:
-        - tripleo_cloud_name is defined
-      block:
-        - name: Run blacklist IP check
-          shell: >-
-            openstack stack output show {{ tripleo_cloud_name }} BlacklistedIpAddresses -f yaml
-          register: blacklist_cmd
-          changed_when: false
-          async: 1000
-          poll: 0
-
-        - name: Block on async blacklist check
-          async_status:
-            jid: "{{ blacklist_cmd.ansible_job_id }}"
-          register: blacklist_cmd_job_result
-          until: blacklist_cmd_job_result.finished
-          retries: 30
-
-        - name: Set BlacklistedIpAddresses fact
-          set_fact:
-            BlacklistedIpAddresses: "{{ (blacklist_cmd_job_result.stdout | from_yaml)['output_value'] }}"
 
     - name: Set local connection user facts
       set_fact:
@@ -178,7 +154,7 @@
         ansible_user: "{{ ssh_user | default(ansible_user) }}"
         ansible_ssh_private_key_file: "{{ node_key_fact }}"
       changed_when: false
-      loop: '{{ set_ssh_servers | difference(((BlacklistedIpAddresses | length) < 1) | ternary([], BlacklistedIpAddresses)) }}'
+      loop: '{{ set_ssh_servers }}'
 
 
 - name: Run Create admin
