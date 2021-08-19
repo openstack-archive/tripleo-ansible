@@ -65,8 +65,7 @@ class TestTripleoGenerateInventoryNetworkConfig(tests_base.TestCase):
                         'networks_skip_config': [],
                         'neutron_physical_bridge_name': 'br-ex',
                         'neutron_public_interface_name': 'nic1',
-                        'tripleo_network_config_network_deployment_actions':
-                            ['CREATE'],
+                        'tripleo_network_config_update': False,
                         'tripleo_network_config_os_net_config_mappings': {},
                         'tripleo_network_config_template': '/foo/template.j2'}
                 },
@@ -82,8 +81,7 @@ class TestTripleoGenerateInventoryNetworkConfig(tests_base.TestCase):
                         'networks_skip_config': [],
                         'neutron_physical_bridge_name': 'br-ex',
                         'neutron_public_interface_name': 'nic1',
-                        'tripleo_network_config_network_deployment_actions':
-                            ['CREATE'],
+                        'tripleo_network_config_update': False,
                         'tripleo_network_config_template':
                             'templates/net_config_bridge.j2'}},
                 'vars': {

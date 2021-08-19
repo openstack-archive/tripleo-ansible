@@ -85,12 +85,12 @@ options:
               - Which interface to add to the public bridge
             type: string
             default: nic1
-          network_deployment_actions:
+          network_config_update:
             description:
               - When to apply network configuration changes, allowed values
-                are CREATE and UPDATE.
-            type: list
-            default: ['CREATE']
+                are True or False.
+            type: boolean
+            default: False
           networks_skip_config:
             description:
               - List of networks that should be skipped when configuring node
@@ -123,7 +123,7 @@ Controller:
        template: templates/multiple_nics/multiple_nics.j2
        physical_bridge_name: br-ex
        public_interface_name: nic1
-       network_deployment_actions: ['CREATE']
+       network_config_update: False
        net_config_data_lookup: {}
        bond_interface_ovs_options: bond_mode=balance-slb
   vars:
@@ -134,14 +134,14 @@ Compute:
        template: templates/multiple_nics/multiple_nics.j2
        physical_bridge_name: br-ex
        public_interface_name: nic1
-       network_deployment_actions: ['CREATE']
+       network_config_update: False
        net_config_data_lookup: {}
        bond_interface_ovs_options: bond_mode=balance-slb
     overcloud-compute-1:
        template: templates/multiple_nics/multiple_nics.j2
        physical_bridge_name: br-ex
        public_interface_name: nic1
-       network_deployment_actions: ['CREATE']
+       network_config_update: False
        net_config_data_lookup: {}
        bond_interface_ovs_options: bond_mode=balance-slb
   vars:
@@ -157,7 +157,7 @@ EXAMPLES = '''
           template: templates/multiple_nics/multiple_nics.j2
           physical_bridge_name: br-ex
           public_interface_name: nic1
-          network_deployment_actions: ['CREATE']
+          network_config_update: False
           net_config_data_lookup: {}
           bond_interface_ovs_options: bond_mode=balance-slb
       - hostname: overcloud-novacompute-0
@@ -165,7 +165,7 @@ EXAMPLES = '''
           template: templates/multiple_nics/multiple_nics.j2
           physical_bridge_name: br-ex
           public_interface_name: nic1
-          network_deployment_actions: ['CREATE']
+          network_config_update: False
           net_config_data_lookup: {}
           bond_interface_ovs_options: bond_mode=balance-slb
       - hostname: overcloud-novacompute-1
@@ -173,7 +173,7 @@ EXAMPLES = '''
           template: templates/multiple_nics/multiple_nics.j2
           physical_bridge_name: br-ex
           public_interface_name: nic1
-          network_deployment_actions: ['CREATE']
+          network_config_update: False
           net_config_data_lookup: {}
           bond_interface_ovs_options: bond_mode=balance-slb
     hostname_role_map:
@@ -196,8 +196,7 @@ def translate_opts_for_tripleo_network_config_role(network_config):
         template='tripleo_network_config_template',
         physical_bridge_name='neutron_physical_bridge_name',
         public_interface_name='neutron_public_interface_name',
-        network_deployment_actions=('tripleo_network_config_'
-                                    'network_deployment_actions'),
+        network_config_update=('tripleo_network_config_update'),
         net_config_data_lookup='tripleo_network_config_os_net_config_mappings',
     )
 
