@@ -43,26 +43,30 @@
       when:
         - (not (key_file_result.stat.exists | bool)) or (not (key_file_result.stat.readable | bool))
 
-    - name: Set final key fact
+    - name: Set ssh key path fact
       set_fact:
         amp_ssh_key_path_final: "{{ amp_ssh_key_path }}"
   when:
     - amp_ssh_key_path is defined
     - (amp_ssh_key_path | length) > 0
 
-- name: defaulting to public key from undercloud default keypair
+- name: Generate ssh public key for Octavia
   block:
-    - name: create temp pub key file
-      tempfile: state=file
-      register: ssh_key_tmp_file
+    - name: Create ssh key dir
+      file:
+        path: "{{ ssh_key_dir }}"
+        state: directory
 
-    - name: copy ssh public key content to temp file
-      copy: content="{{ amp_ssh_key_data }}" dest="{{ ssh_key_tmp_file.path }}"
+    - name: Generate ssh key for Octavia
+      openssh_keypair:
+        path: "{{ ssh_key_dir }}/octavia_id_rsa"
+      no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
 
-    - name: Set final key fact
+    - name: Set ssh key path fact
       set_fact:
-        amp_ssh_key_path_final: "{{ ssh_key_tmp_file.path }}"
-  no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
+        amp_ssh_key_path_final: "{{ ssh_key_dir }}/octavia_id_rsa.pub"
+  vars:
+    ssh_key_dir: "{{ amp_ssh_key_dir|default('/etc/octavia/ssh/') }}"
   when:
     - amp_ssh_key_path is not defined or ((amp_ssh_key_path | length) < 1)
 
@@ -73,14 +77,42 @@
   no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   register: ssh_keygen_results
 
+- name: get existing public key fingerprint
+  shell: |
+    openstack keypair show -f value -c fingerprint {{ amp_ssh_key_name }}
+  ignore_errors: true
+  no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
+  environment:
+    OS_USERNAME: "{{ auth_username }}"
+    OS_PASSWORD: "{{ auth_password }}"
+    OS_PROJECT_NAME: "{{ auth_project_name }}"
+  register: os_keypair_results
+
+# os_keypair doesn't allow updating a keypair, we need to remove the previous
+# keypair in case we need to update it.
+- name: delete previous Octavia ssh key
+  openstack.cloud.keypair:
+    state: absent
+    name: "{{ amp_ssh_key_name }}"
+    auth:
+      username: "{{ auth_username }}"
+      password: "{{ auth_password }}"
+      project_name: "{{ auth_project_name }}"
+  no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
+  when:
+    - os_keypair_results.stdout != ''
+    - os_keypair_results.stdout != ssh_keygen_results.stdout
+
 - name: Create keypair
   openstack.cloud.keypair:
     state: present
     name: "{{ amp_ssh_key_name }}"
     public_key_file: "{{ amp_ssh_key_path_final }}"
+    auth:
+      username: "{{ auth_username }}"
+      password: "{{ auth_password }}"
+      project_name: "{{ auth_project_name }}"
   no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   register: keypair_fingerprint
-  environment:
-    OS_USERNAME: "{{ auth_username }}"
-    OS_PASSWORD: "{{ auth_password }}"
-    OS_PROJECT_NAME: "{{ auth_project_name }}"
+  when:
+    - os_keypair_results.stdout == '' or os_keypair_results.stdout != ssh_keygen_results.stdout
