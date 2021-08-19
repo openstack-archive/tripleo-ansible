@@ -7,3 +7,4 @@ ceph_osd_spec:
   data_devices:
     all: true
 ceph_spec_fqdn: false
+tripleo_cephadm_deployed_ceph: false

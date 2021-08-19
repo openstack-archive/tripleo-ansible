@@ -14,10 +14,56 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Ensure ceph_working_dir is defined
+  block:
+    - name: Set ceph_working_dir based on stack_name
+      set_fact:
+        ceph_working_dir: "{{ lookup('env', 'HOME') }}/overcloud-deploy/{{ stack_name }}"
+      when:
+        - stack_name is defined
+    - name: Set ceph_working_dir based on playbook_dir
+      set_fact:
+        ceph_working_dir: "{{ playbook_dir }}/cephadm"
+      when:
+        - stack_name is undefined
+  when:
+    - ceph_working_dir is undefined
+
+- name: Ensure cephadm_admin_hosts list is defined
+  set_fact:
+    cephadm_admin_hosts:
+      - ceph_mon
+      - ceph_mgr
+  when:
+    - (cephadm_admin_hosts is not defined or
+       not (cephadm_admin_hosts | length > 0))
+
+- name: Ensure cephadm_non_admin_hosts list is defined
+  set_fact:
+    cephadm_non_admin_hosts:
+      - ceph_osd
+      - ceph_rgw
+      - ceph_mds
+      - ceph_nfs
+      - ceph_rbdmirror
+  when:
+    - (cephadm_non_admin_hosts is not defined or
+       not (cephadm_non_admin_hosts | length > 0))
+
+- name: Populate cephadm_admin_limit_file
+  copy:
+    dest: "{{ ceph_working_dir }}/cephadm_admin_limit.txt"
+    content: "undercloud\n{% for host in cephadm_admin_hosts %}{{ host }}\n{% endfor %}"
+
+- name: Populate cephadm_non_admin_limit_file
+  copy:
+    dest: "{{ ceph_working_dir }}/cephadm_non_admin_limit.txt"
+    content: "undercloud\n{% for host in cephadm_non_admin_hosts %}{{ host }}\n{% endfor %}"
+
 - name: Prepare call to ceph-admin-user-playbook
   set_fact:
     cephadm_ssh_list:
-      - ANSIBLE_LOG_PATH="{{ playbook_dir }}/cephadm/cephadm_enable_user_key.log"
+      - "ANSIBLE_LOG_PATH={{ ceph_working_dir }}/cephadm_enable_user_key.log"
       - ANSIBLE_HOST_KEY_CHECKING=false
       - ansible-playbook
       - '-i'
@@ -27,10 +73,10 @@
       - '-e tripleo_admin_user=ceph-admin'
     cephadm_public_private_ssh_list:
       - '-e distribute_private_key=true'
-      - '--limit undercloud,ceph_mon,ceph_mgr'
+      - "--limit @{{ ceph_working_dir }}/cephadm_admin_limit.txt"
     cephadm_public_ssh_list:
       - '-e distribute_private_key=false'
-      - '--limit undercloud,ceph_osd,ceph_rgw,ceph_mds,ceph_nfs,ceph_rbdmirror'
+      - "--limit @{{ ceph_working_dir }}/cephadm_non_admin_limit.txt"
 
 - name: Run ceph-admin-user-playbook for public and private keys
   shell: "{{ (cephadm_ssh_list + cephadm_public_private_ssh_list)|join(' ') }}"

@@ -40,7 +40,7 @@
       when:
         - not public_key_stat.stat.exists
 
-- hosts: overcloud
+- hosts: allovercloud
   gather_facts: false
   become: true
   pre_tasks:

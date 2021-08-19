@@ -100,6 +100,7 @@
         osd_spec: "{{ ceph_osd_spec }}"
       when:
         - tripleo_cephadm_dynamic_spec
+        - not tripleo_cephadm_deployed_ceph
 
 - name: generate ansible cephadm-extra-vars for running tripleo_cephadm role
   copy:
@@ -117,3 +118,7 @@
       tripleo_cephadm_spec_ansible_host: "{{ tripleo_run_cephadm_spec_path }}"
       tripleo_cephadm_internal_tls_enabled: "{{ enable_internal_tls }}"
       tripleo_cephadm_num_osd_expected: "{{ groups['ceph_osd'] | default([]) | length }}"
+      tripleo_cephadm_deployed_ceph: {{ tripleo_cephadm_deployed_ceph | default(false) }}
+      tripleo_cephadm_wait_for_mons: "{{ false if tripleo_cephadm_deployed_ceph else true }}"
+      tripleo_cephadm_wait_for_osds: "{{ false if tripleo_cephadm_deployed_ceph else true }}"
+      tripleo_cephadm_predeployed: "{{ false if tripleo_cephadm_deployed_ceph else true }}"
