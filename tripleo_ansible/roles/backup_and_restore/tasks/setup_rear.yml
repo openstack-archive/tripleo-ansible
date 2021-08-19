@@ -77,7 +77,7 @@
       - "{{ (tripleo_backup_and_restore_bootstrap_nodeid.stdout != tripleo_backup_and_restore_hostname.stdout and
             tripleo_backup_and_restore_enabled_services.stdout is search('pacemaker') and
             tripleo_backup_and_restore_enabled_services.stdout is search('mysql') and
-            tripleo_backup_and_restore_exclude_paths_controller_non_bootrapnode|bool) |
+            tripleo_backup_and_restore_exclude_paths_controller_non_bootstrapnode|bool) |
         ternary(tripleo_backup_and_restore_exclude_paths_controller, []) }}"
   tags:
     - bar_setup_rear
