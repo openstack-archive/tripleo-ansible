@@ -52,11 +52,7 @@ _NETWORK_CONFIG_SCHEMA = {
         'template': {'type': 'string'},
         'physical_bridge_name': {'type': 'string'},
         'public_interface_name': {'type': 'string'},
-        'network_deployment_actions': {
-            'type': 'array',
-            'items': {'type': 'string',
-                      'enum': ['CREATE', 'UPDATE']}
-        },
+        'network_config_update': {'type': 'boolean'},
         'net_config_data_lookup': {'type': 'object'},
         'default_route_network': {
             'type': 'array',

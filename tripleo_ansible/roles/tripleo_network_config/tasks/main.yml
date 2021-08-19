@@ -108,8 +108,7 @@
 
   # The conditions here are when we want to apply the
   # NetworkConfig. They are:
-  # - If the stack_action is CREATE
-  # - Or UPDATE is in the network_deployment_actions
+  # - If tripleo_network_config_update is True
   # - Or the previous run of NetworkConfig failed.
   # - Or it has never run
   # This will match the prior behavior of when a Heat
@@ -117,8 +116,7 @@
   # It also ensures the script does exist as a sine qua non
   # condition
   when:
-    - (tripleo_network_config_action == "CREATE") or
-      ("UPDATE" in tripleo_network_config_network_deployment_actions) or
+    - (tripleo_network_config_update) or
       (os_net_config_returncode_stat.stat.exists and
       ((os_net_config_returncode_slurp.content | b64decode | int) != 0)) or
        (not os_net_config_returncode_stat.stat.exists)
