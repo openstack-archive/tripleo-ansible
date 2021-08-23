@@ -144,23 +144,37 @@
     key: userspace-tso-enable
   when: not tripleo_ovs_dpdk_enable_tso|bool
 
-- name: Enable vhost-postcopy-support
-  openvswitch_db:
-    table: open_vswitch
-    record: .
-    col: other_config
-    key: vhost-postcopy-support
-    value: "{{ tripleo_ovs_dpdk_vhost_postcopy_support }}"
+- name: Enable postcopy support
   when: tripleo_ovs_dpdk_vhost_postcopy_support|bool
+  block:
+    - name: Enable vhost-postcopy-support
+      openvswitch_db:
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: vhost-postcopy-support
+        value: "{{ tripleo_ovs_dpdk_vhost_postcopy_support }}"
+    - name: Disable mlockall in ovs
+      replace:
+        path: '/etc/sysconfig/openvswitch'
+        regexp: '^OPTIONS.*'
+        replace: 'OPTIONS="{{ tripleo_ovs_dpdk_vhost_postcopy_ovs_options }}"'
 
-- name: Disable vhost-postcopy-support
-  openvswitch_db:
-    state: absent
-    table: open_vswitch
-    record: .
-    col: other_config
-    key: vhost-postcopy-support
+- name: Disable postcopy support
   when: not tripleo_ovs_dpdk_vhost_postcopy_support|bool
+  block:
+    - name: Disable vhost-postcopy-support
+      openvswitch_db:
+        state: absent
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: vhost-postcopy-support
+    - name: Return ovs OPTIONS to default
+      replace:
+        path: '/etc/sysconfig/openvswitch'
+        regexp: '^OPTIONS.*'
+        replace: 'OPTIONS=""'
 
 - name: Enable DPDK OVS PMD Auto Load Balance
   openvswitch_db:
