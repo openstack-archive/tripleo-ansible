@@ -7,6 +7,7 @@ service integrated-vtysh-config
 line vty
 
 router bgp {{ tripleo_frr_bgp_asn }}
+  bgp router-id {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
   bgp log-neighbor-changes
   bgp graceful-shutdown
 
@@ -64,4 +65,8 @@ route-map rm-only-default permit 11
   set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv6_src_network ~ '_ip'] }}
 
 ipv6 protocol bgp route-map rm-only-default
+{% endif %}
+
+{% if tripleo_frr_zebra_nht_resolve_via_default %}
+ip nht resolve-via-default
 {% endif %}
