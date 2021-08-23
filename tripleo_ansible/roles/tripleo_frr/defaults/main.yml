@@ -30,9 +30,11 @@ tripleo_frr_bgp_ipv6_src_network: ctlplane
 tripleo_frr_bgp_neighbor_ttl_security_hops: 1
 tripleo_frr_bgp_uplinks_scope: internal
 tripleo_frr_config_basedir: "/var/lib/config-data/ansible-generated/frr"
+tripleo_frr_defaults: traditional
 tripleo_frr_hostname: "{{ ansible_facts['hostname'] }}"
 tripleo_frr_log_level: informational
 tripleo_frr_log_timestamp_precision: 3
+tripleo_frr_version: 7.0
 tripleo_frr_watchfrr: true
 tripleo_frr_zebra: false
 tripleo_frr_zebra_nht_resolve_via_default: true
