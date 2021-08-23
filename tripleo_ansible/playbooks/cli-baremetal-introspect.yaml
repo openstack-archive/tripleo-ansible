@@ -94,30 +94,28 @@
         max_retries: "{{ max_retries }}"
         node_timeout: "{{ node_timeout }}"
         retry_timeout: "{{ retry_timeout }}"
+        log_level: info
       register: baremetal_introspection_result
       failed_when: false
 
-    - name: Nodes that passed introspection
+    - name: Introspection log
       debug:
-        msg: >-
-          {% if baremetal_introspection_result.passed_nodes != [] %}
-          {{ baremetal_introspection_result.passed_nodes | join(' ') }}{% else %}
-          No nodes completed introspection successfully!{% endif %}
-      when: baremetal_introspection_result.passed_nodes is defined
+        var: baremetal_introspection_result.logging
 
-    - name: Nodes that failed introspection
+    - name: Node introspection summary
       debug:
-        msg: >-
-          {% if baremetal_introspection_result.failed_nodes != [] %}
-          {{ baremetal_introspection_result.failed_nodes | join(' ') }}{% else %}
-          All nodes completed introspection successfully!{% endif %}
-      failed_when: baremetal_introspection_result.failed_nodes != []
-      when: baremetal_introspection_result.failed_nodes is defined
+        msg: |-
+          Passed: [{{ baremetal_introspection_result.passed_nodes | join(', ') }}]
+          Failed: [{{ baremetal_introspection_result.failed_nodes | join(', ') }}]
+          {% if baremetal_introspection_result.passed_nodes == [] %}
+          No nodes passed introspection
+          {% elif baremetal_introspection_result.failed_nodes == [] %}
+          All nodes completed introspection successfully!
+          {% endif %}
 
     - name: Node introspection failed and no results are provided
       fail:
         msg: >-
-          Nodes failed introspection and no info was provided
+          Nodes failed introspection
       when:
-        - baremetal_introspection_result.failed_nodes is not defined
-        - baremetal_introspection_result.passed_nodes is not defined
+        - baremetal_introspection_result.failed_nodes != []
