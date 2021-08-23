@@ -33,3 +33,4 @@ tripleo_ovs_dpdk_pmd_load_threshold: ""
 tripleo_ovs_dpdk_pmd_improvement_threshold: ""
 tripleo_ovs_dpdk_pmd_rebal_interval: ""
 tripleo_ovs_dpdk_vhost_postcopy_support: false
+tripleo_ovs_dpdk_vhost_postcopy_ovs_options: "--mlockall=no"
