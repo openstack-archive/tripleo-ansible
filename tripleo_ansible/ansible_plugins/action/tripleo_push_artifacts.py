@@ -257,7 +257,7 @@ class ActionModule(ActionBase):
         # parse args
         download_artifacts = self._task.args.get('artifact_urls', list())
         local_artifacts = self._task.args.get('artifact_paths', list())
-        if not local_artifacts or not download_artifacts:
+        if not local_artifacts and not download_artifacts:
             raise AnsibleActionFail(
                 'Neither artifact_paths or artifact_urls has any value.'
                 ' Check configuration and try again.'
