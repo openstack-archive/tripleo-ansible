@@ -293,14 +293,17 @@ def create_subnet_spec(net_id, name, subnet_data,
             'name': name,
             'network_id': net_id,
             'enable_dhcp': subnet_data.get('enable_dhcp', False),
-            'ipv6_address_mode': subnet_data.get('ipv6_address_mode', None),
-            'ipv6_ra_mode': subnet_data.get('ipv6_ra_mode', None),
             'gateway_ip': subnet_data.get('gateway_ipv6', None),
             'cidr': subnet_data['ipv6_subnet'],
             'allocation_pools': subnet_data.get('ipv6_allocation_pools', []),
             'host_routes': subnet_data.get('routes_ipv6', []),
             'tags': tags,
         }
+        if 'ipv6_address_mode' in subnet_data:
+            subnet_v6_spec[
+                'ipv6_address_mode'] = subnet_data['ipv6_address_mode']
+        if 'ipv6_ra_mode' in subnet_data:
+            subnet_v6_spec['ipv6_ra_mode'] = subnet_data['ipv6_ra_mode']
 
     return subnet_v4_spec, subnet_v6_spec
 
