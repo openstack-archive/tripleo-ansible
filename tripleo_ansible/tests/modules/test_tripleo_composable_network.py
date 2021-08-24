@@ -348,8 +348,6 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'cidr': '2001:db8:a::/64',
             'allocation_pools': [],
             'host_routes': [],
-            'ipv6_address_mode': None,
-            'ipv6_ra_mode': None,
             'tags': ['tripleo_vlan_id=100'],
         }
         subnet_v4_spec, subnet_v6_spec = plugin.create_subnet_spec(
@@ -405,8 +403,6 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'host_routes': [
                 {'destination': '2001:db8:b::/64', 'nexthop': '2001:db8:a::1'}
             ],
-            'ipv6_address_mode': None,
-            'ipv6_ra_mode': None,
             'tags': ['tripleo_vlan_id=100'],
         }
         subnet_v4_spec, subnet_v6_spec = plugin.create_subnet_spec(
@@ -444,8 +440,6 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             network_id='net_id',
             segment_id='segment_id',
             is_dhcp_enabled=False,
-            ipv6_address_mode=None,
-            ipv6_ra_mode=None,
 
         )
         result = plugin.validate_subnet_update(
