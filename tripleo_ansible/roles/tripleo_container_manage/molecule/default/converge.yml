@@ -184,6 +184,8 @@
         state: stopped
         enabled: false
         daemon_reload: true
+      # https://github.com/ansible/ansible/pull/68136
+      ignore_errors: "{{ ansible_check_mode }}"
     - include_role:
         name: tripleo_container_manage
   post_tasks:

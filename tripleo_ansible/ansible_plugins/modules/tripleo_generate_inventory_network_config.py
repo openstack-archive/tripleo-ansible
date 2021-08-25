@@ -20,7 +20,7 @@ import traceback
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.openstack import openstack_full_argument_spec
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_full_argument_spec
 
 
 ANSIBLE_METADATA = {

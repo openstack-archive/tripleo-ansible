@@ -15,9 +15,9 @@
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils import tripleo_common_utils as tc
-from ansible.module_utils.openstack import openstack_full_argument_spec
-from ansible.module_utils.openstack import openstack_module_kwargs
-from ansible.module_utils.openstack import openstack_cloud_from_module
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_full_argument_spec
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_module_kwargs
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import openstack_cloud_from_module
 
 
 DOCUMENTATION = """
