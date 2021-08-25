@@ -82,6 +82,7 @@
              | combine(cephfs_metadata|default({}))
              | combine(ceph_nfs_vars|default({}))
              | combine(cephfs_data|default({}))
+             | combine(ceph_pools|default({}))
              | to_nice_yaml }}"
 
 - name: Configure boostrap host info for cephadm
