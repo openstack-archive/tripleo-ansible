@@ -427,6 +427,7 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_metrics_qdr
+    pre-run: zuul.d/playbooks/enable-fips.yml
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_module_load/(?!meta).*
