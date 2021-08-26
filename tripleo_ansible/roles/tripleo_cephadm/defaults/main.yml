@@ -62,3 +62,5 @@ tripleo_cephadm_debug: false
 tripleo_cephadm_min_compat_client: mimic
 tripleo_cephadm_deployed_ceph: false
 tripleo_cephadm_deployed_ceph_tht_path: "/home/stack/deployed_ceph.yaml"
+tripleo_cephadm_backend: ''
+tripleo_cephadm_action: disable
