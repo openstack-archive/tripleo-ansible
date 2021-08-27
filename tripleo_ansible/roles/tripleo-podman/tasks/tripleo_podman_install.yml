@@ -44,12 +44,23 @@
     # don't update the network config if the network is already running
     # meaning cni-podman0 is running somewhere
     - name: Update default network configuration if possible
-      copy:
-        dest: /etc/cni/net.d/87-podman-bridge.conflist
-        content: "{{ tripleo_podman_default_network_config | to_json }}"
-        mode: '0644'
-        owner: root
-        group: root
+      block:
+        - name: Make sure /etc/cni/net.d folder exists
+          file:
+            path: /etc/cni/net.d
+            state: directory
+            recurse: true
+            mode: 0755
+            owner: root
+            group: root
+
+        - name: Update default network configuration if possible
+          copy:
+            dest: /etc/cni/net.d/87-podman-bridge.conflist
+            content: "{{ tripleo_podman_default_network_config | to_json }}"
+            mode: '0644'
+            owner: root
+            group: root
       when:
         - '"cni-podman0" not in ansible_facts["interfaces"]'
 
