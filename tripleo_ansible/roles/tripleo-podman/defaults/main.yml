@@ -77,3 +77,4 @@ tripleo_podman_insecure_registries: "{{ tripleo_container_registry_insecure_regi
 #   - prefix: registry.fedoraproject.org
 #     blocked: true
 tripleo_podman_registries: []
+tripleo_container_default_runtime: runc
