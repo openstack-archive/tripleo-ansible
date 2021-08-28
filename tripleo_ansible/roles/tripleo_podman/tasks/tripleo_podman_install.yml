@@ -91,3 +91,6 @@
         - section: engine
           option: events_logger
           value: "\"{{ tripleo_container_events_logger_mechanism }}\""
+        - section: engine
+          option: runtime
+          value:  "\"{{ tripleo_container_default_runtime }}\""
