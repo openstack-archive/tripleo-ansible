@@ -78,3 +78,4 @@ tripleo_podman_default_network_config:
 tripleo_podman_registries: []
 tripleo_container_default_pids_limit: 4096
 tripleo_container_events_logger_mechanism: journald
+tripleo_container_default_runtime: runc
