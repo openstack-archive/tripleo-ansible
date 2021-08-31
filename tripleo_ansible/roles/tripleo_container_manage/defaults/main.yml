@@ -37,4 +37,3 @@ tripleo_container_manage_exec_retries: 120
 tripleo_container_manage_healthcheck_disabled: false
 tripleo_container_manage_log_path: '/var/log/containers/stdouts'
 tripleo_container_manage_systemd_teardown: true
-tripleo_container_manage_valid_exit_code: []
