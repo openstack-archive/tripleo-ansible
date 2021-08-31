@@ -32,15 +32,50 @@
   tags:
     - always
 
-- name: Ensure cephmon container is running
-  command: "{{ tripleo_container_cli }} unpause ceph-mon-{{ ansible_facts['hostname'] }}"
-  failed_when: false
+- name: Stat cephadm file
+  stat:
+    path: "{{ tripleo_backup_and_restore_cephadm_path }}"
+  register: stat_cephadm
+  become: true
+  ignore_errors: true
   tags:
     - bar_create_recover_image
 
-- name: Export ceph authentication
-  shell: |
-    set -o pipefail
-    {{ tripleo_container_cli }} exec ceph-mon-{{ ansible_facts['hostname'] }} bash -c "ceph auth export" > {{ tripleo_backup_and_restore_ceph_auth_file }}
+- name: List Ceph daemon instances on this host
+  shell: "{{ tripleo_backup_and_restore_cephadm_path }} ls --no-detail"
+  register: cephadm_ls
+  become: true
+  when: stat_cephadm.stat.exists
   tags:
     - bar_create_recover_image
+
+- name: Ceph installed with ceph ansible
+  when:
+    - cephadm_ls.stdout is not defined or cephadm_ls.stdout == "[]"
+  tags: bar_create_recover_image
+  block:
+    - name: Ensure cephmon container is running
+      command: "{{ tripleo_container_cli }} unpause ceph-mon-{{ inventory_hostname }}"
+      failed_when: false
+
+    - name: Export ceph authentication
+      shell: |
+        set -o pipefail
+        {{ tripleo_container_cli }} exec ceph-mon-{{ inventory_hostname }} bash -c "ceph auth export"
+      register: bar_ceph_authentication_content
+
+- name: Ceph installed with cephadm
+  when:
+    - cephadm_ls.stdout is defined
+    - cephadm_ls.stdout != '[]'
+  tags: bar_create_recover_image
+  block:
+    - name: Export ceph authentication
+      command: cephadm shell -- ceph auth export
+      register: bar_ceph_authentication_content
+
+- name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
+  copy:
+    dest: "{{ tripleo_backup_and_restore_ceph_auth_file }}"
+    content: |
+        {{ bar_ceph_authentication_content.stdout }}

@@ -52,6 +52,12 @@
 
 - name: Perform backup
   block:
+    - name: Stop ceph services
+      import_tasks: ceph_stop.yml
+      when:
+        - tripleo_backup_and_restore_ceph_mon_role in groups
+        - inventory_hostname in groups[tripleo_backup_and_restore_ceph_mon_role]
+
     - name: Create recovery images with ReaR
       import_tasks: ../backup/tasks/main.yml
   always:
@@ -66,3 +72,9 @@
       when:
         - pacemaker_enabled
         - tripleo_backup_and_restore_enable_snapshots|bool
+
+    - name: Start ceph services
+      import_tasks: ceph_start.yml
+      when:
+        - tripleo_backup_and_restore_ceph_mon_role in groups
+        - inventory_hostname in groups[tripleo_backup_and_restore_ceph_mon_role]
