@@ -10,10 +10,10 @@ ExecStart=/usr/libexec/tripleo-start-podman-container {{ lookup('dict', containe
 ExecStart=/usr/bin/podman start {{ lookup('dict', container_data_unit).key }}
 {% endif %}
 ExecReload=/usr/bin/podman kill --signal HUP {{ lookup('dict', container_data_unit).key }}
-ExecStop=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(10) | int }} {{ lookup('dict', container_data_unit).key }}
-ExecStopPost=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(10) | int }} {{ lookup('dict', container_data_unit).key }}
+ExecStop=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int }} {{ lookup('dict', container_data_unit).key }}
+ExecStopPost=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int }} {{ lookup('dict', container_data_unit).key }}
 SuccessExitStatus=137 142 143
-KillMode=none
+TimeoutStopSec={{ 2*lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int }}
 Type=forking
 PIDFile=/var/run/{{ lookup('dict', container_data_unit).key }}.pid
 {% if lookup('dict', container_data_unit).value.systemd_exec_flags is defined %}
