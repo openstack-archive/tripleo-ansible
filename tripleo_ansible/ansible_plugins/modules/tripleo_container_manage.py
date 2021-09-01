@@ -287,7 +287,7 @@ class TripleoContainerManage:
                 'managed_by': 'tripleo_ansible',
                 'config_data': config
             },
-            'conmon_pidfile': f"/var/run/{name}.pid",
+            'conmon_pidfile': f"/run/{name}.pid",
             'debug': self.debug,
             'log_driver': 'k8s-file',
             'log_opt': {"path": f"{self.log_base_path}/{name}.log"},
