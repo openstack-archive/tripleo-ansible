@@ -34,4 +34,4 @@
   become: true
   changed_when: false
   vars:
-    tripleo_ceph_dashboard_net: "{{ service_net_map['ceph_dashboard_network'] + '_ip' }}"
+    tripleo_ceph_dashboard_net: "{{ service_net_map['ceph_grafana_network'] + '_ip' }}"
