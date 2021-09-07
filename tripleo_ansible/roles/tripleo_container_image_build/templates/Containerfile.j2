@@ -23,6 +23,7 @@ LABEL {{ key }}={{ value | to_json }}
 {% for key, value in tcib_envs.items() %}
 ENV {{ key }}={{ value | to_json }}
 {% endfor %}
+USER root
 {% for item in tcib_onbuilds %}
 ONBUILD {{ item }}
 {% endfor %}
