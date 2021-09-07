@@ -123,7 +123,8 @@
     {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -uroot \
     -p{{ mysql_password.stdout }} -s -N \
     -e \"SELECT CONCAT('\\\"SHOW GRANTS FOR ''',user,'''@''',host,''';\\\"') \
-    FROM mysql.user where (length(user) > 0 and user NOT LIKE 'root')\"  | xargs -n1 mysql \
+    FROM mysql.user where (length(user) > 0 and user NOT LIKE 'root' and \
+    (Host = 'localhost' or Host='%' or IS_IPV4(Host) or IS_IPV6(Host)))\"  | xargs -n1 mysql \
     -uroot -p{{ mysql_password.stdout }} -s -N -e | sed 's/$/;/' " > {{ tripleo_backup_and_restore_mysql_grants_file }}
   when: mysql_password.stderr is defined
   tags:
