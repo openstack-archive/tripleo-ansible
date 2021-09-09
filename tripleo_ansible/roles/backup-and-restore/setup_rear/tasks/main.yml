@@ -32,10 +32,26 @@
   tags:
     - always
 
+- name: Check if EFI directory exists
+  stat:
+    path: /sys/firmware/efi
+  register: efi_dir
+  tags:
+    - bar_setup_rear
+    - bar_create_recover_image
+
 - name: Install required packages for ReaR
   package:
     name: "{{ tripleo_backup_and_restore_rear_packages }}"
     state: present
+  tags:
+    - bar_setup_rear
+
+- name: Install required packages if the OS is booting with UEFI
+  package:
+    name: "{{ tripleo_backup_and_restore_uefi_packages }}"
+    state: present
+  when: efi_dir.stat.exists
   tags:
     - bar_setup_rear
 
@@ -107,6 +123,15 @@
     group: root
     mode: '0644'
     backup: true
+  tags:
+    - bar_setup_rear
+
+- name: Set USING_UEFI_BOOTLOADER parameter
+  lineinfile:
+    path: /etc/rear/local.conf
+    regexp: "USING_UEFI_BOOTLOADER"
+    line: "{{ efi_dir.stat.exists | ternary('USING_UEFI_BOOTLOADER=1', 'USING_UEFI_BOOTLOADER=0') }}"
+    create: false
   tags:
     - bar_setup_rear
 
