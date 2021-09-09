@@ -56,7 +56,6 @@ tripleo_backup_and_restore_hiera_config_file: "/etc/puppet/hiera.yaml"
 # double quoted as it will be interpreted by BASH.
 tripleo_backup_and_restore_local_config:
   ISO_DEFAULT: '"automatic"'
-  USING_UEFI_BOOTLOADER: 0
   OUTPUT: ISO
   BACKUP: NETFS
   BACKUP_PROG_COMPRESS_OPTIONS: '( --gzip)'
@@ -106,3 +105,9 @@ tripleo_backup_and_restore_ceph_mon_role: "ceph_mon"
 
 # The cephadm path
 tripleo_backup_and_restore_cephadm_path: "/usr/sbin/cephadm"
+
+# The partition (/dev/whatever) that contain the /boot and /boot/efi contents
+# but that are not mounted. These variables should only contain the last part
+# of the partition (the whatever), i.e: sda2, sda1, vda2, sdb3, sdc1...
+tripleo_backup_and_restore_boot_mount: replaceme
+tripleo_backup_and_restore_boot_efi_mount: replaceme
