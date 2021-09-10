@@ -48,8 +48,8 @@ def test_positive_pmd(host):
 
 def test_positive_socket_mem(host):
     other_config = get_config(host)
-    val = other_config['dpdk-socket-mem'].replace('"', '')
-    assert val == "1024,1024"
+    assert 'dpdk-socket-mem' not in other_config
+    assert 'dpdk-socket-limit' not in other_config
 
 
 def test_positive_lcore(host):
