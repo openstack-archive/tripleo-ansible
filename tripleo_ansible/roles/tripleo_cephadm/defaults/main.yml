@@ -64,3 +64,4 @@ tripleo_cephadm_deployed_ceph: false
 tripleo_cephadm_deployed_ceph_tht_path: "/home/stack/deployed_ceph.yaml"
 tripleo_cephadm_backend: ''
 tripleo_cephadm_action: disable
+tripleo_cephadm_rbd_trash_interval: 15
