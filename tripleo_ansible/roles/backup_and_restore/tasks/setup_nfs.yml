@@ -105,7 +105,7 @@
 
 - name: Create backup folder in the NFS server
   file:
-    path: "{{ tripleo_backup_and_restore_nfs_storage_folder }}"
+    path: "{{ tripleo_backup_and_restore_shared_storage_folder }}"
     state: directory
     mode: '0777'
   tags:
@@ -123,8 +123,8 @@
 
 - name: Get the lines
   set_fact:
-    bar_exportfs_lines: "{% for net in tripleo_backup_and_restore_nfs_clients_nets %}\
-      {{ tripleo_backup_and_restore_nfs_storage_folder }} {{ net }}(rw,sync,no_root_squash,no_subtree_check)\n{% endfor %}"
+    bar_exportfs_lines: "{% for net in tripleo_backup_and_restore_clients_nets %}\
+      {{ tripleo_backup_and_restore_shared_storage_folder }} {{ net }}(rw,sync,no_root_squash,no_subtree_check)\n{% endfor %}"
   tags:
     - bar_setup_nfs_server
 
