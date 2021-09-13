@@ -42,6 +42,7 @@ tripleo_backup_and_restore_mysql_grants_file: "openstack-backup-mysql-grants.sql
 tripleo_backup_and_restore_nfs_server: 192.168.24.1
 tripleo_backup_and_restore_nfs_storage_folder: /ctl_plane_backups
 tripleo_backup_and_restore_nfs_clients_nets: ['192.168.24.0/24', '10.0.0.0/24', '172.16.0.0/24']
+tripleo_backup_and_restore_shared_storage_subfolders: []
 tripleo_backup_and_restore_rear_simulate: false
 tripleo_backup_and_restore_using_uefi_bootloader: 0
 tripleo_backup_and_restore_exclude_paths_common: ['/data/*', '/tmp/*', '{{ tripleo_backup_and_restore_nfs_storage_folder }}/*']
