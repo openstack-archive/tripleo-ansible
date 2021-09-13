@@ -13,3 +13,6 @@ BACKUP_URL={{ tripleo_backup_and_restore_backup_url }}
 {% for item in (tripleo_backup_and_restore_local_config | dict2items) %}
 {{ item.key }}={{ item.value }}
 {% endfor %}
+{% if tripleo_backup_and_restore_network_preparation_commands != '()' %}
+NETWORKING_PREPARATION_COMMANDS={{ tripleo_backup_and_restore_network_preparation_commands }}
+{% endif %}
