@@ -71,6 +71,7 @@ class TestTripleoGenerateInventoryNetworkConfig(tests_base.TestCase):
                         'tripleo_network_config_template': '/foo/template.j2'}
                 },
                 'vars': {
+                    'tripleo_network_config_hide_sensitive_logs': False,
                     'tripleo_network_config_with_ansible': True}
             },
             'RoleB': {
@@ -86,6 +87,7 @@ class TestTripleoGenerateInventoryNetworkConfig(tests_base.TestCase):
                         'tripleo_network_config_template':
                             'templates/net_config_bridge.j2'}},
                 'vars': {
+                    'tripleo_network_config_hide_sensitive_logs': False,
                     'tripleo_network_config_with_ansible': True}
             }
         }

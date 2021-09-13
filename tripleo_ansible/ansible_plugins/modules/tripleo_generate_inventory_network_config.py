@@ -221,6 +221,7 @@ def generate_ansible_inventory_network_config(result, module_opts, instances,
         inventory[role].setdefault('hosts', dict())
         role_vars = inventory[role].setdefault('vars', dict())
         role_vars.setdefault('tripleo_network_config_with_ansible', True)
+        role_vars['tripleo_network_config_hide_sensitive_logs'] = False
 
     for instance in instances:
         if not instance.get('provisioned', True):
