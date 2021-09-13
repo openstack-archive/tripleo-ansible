@@ -82,9 +82,9 @@
   tags:
     - bar_setup_rear
 
-- name: Check NFS server IP
-  command: ping -c 1 '{{ tripleo_backup_and_restore_nfs_server }}'
-  when: not (tripleo_backup_and_restore_skip_nfs_test | bool)
+- name: Check backup server IP
+  command: ping -c 1 '{{ tripleo_backup_and_restore_server }}'
+  when: not (tripleo_backup_and_restore_skip_server_test | bool)
   tags:
     - bar_setup_rear
 
