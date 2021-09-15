@@ -57,7 +57,7 @@
 - name: Mount nfs shared directory
   mount:
     path: "{{ tripleo_backup_and_restore_temporary_dir.path }}"
-    src: "{{ tripleo_backup_and_restore_nfs_server }}:{{ tripleo_backup_and_restore_nfs_storage_folder }}"
+    src: "{{ tripleo_backup_and_restore_server }}:{{ tripleo_backup_and_restore_shared_storage_folder }}"
     fstype: nfs
     opts: rw,noatime
     state: mounted
@@ -82,7 +82,7 @@
 - name: Delete the mount point from /etc/fstab
   mount:
     path: "{{ tripleo_backup_and_restore_temporary_dir.path }}"
-    src: "{{ tripleo_backup_and_restore_nfs_server }}:{{ tripleo_backup_and_restore_nfs_storage_folder }}"
+    src: "{{ tripleo_backup_and_restore_server }}:{{ tripleo_backup_and_restore_shared_storage_folder }}"
     fstype: nfs
     opts: rw,noatime
     state: absent

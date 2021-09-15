@@ -39,12 +39,12 @@ tripleo_backup_and_restore_mysql_grants_file: "openstack-backup-mysql-grants.sql
 
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
 # By default this should be the Undercloud node
-tripleo_backup_and_restore_nfs_server: 192.168.24.1
-tripleo_backup_and_restore_nfs_storage_folder: /ctl_plane_backups
-tripleo_backup_and_restore_nfs_clients_nets: ['192.168.24.0/24', '10.0.0.0/24', '172.16.0.0/24']
+tripleo_backup_and_restore_server: 192.168.24.1
+tripleo_backup_and_restore_shared_storage_folder: /ctl_plane_backups
+tripleo_backup_and_restore_clients_nets: ['192.168.24.0/24', '10.0.0.0/24', '172.16.0.0/24']
 tripleo_backup_and_restore_rear_simulate: false
 tripleo_backup_and_restore_using_uefi_bootloader: 0
-tripleo_backup_and_restore_exclude_paths_common: ['/data/*', '/tmp/*', '{{ tripleo_backup_and_restore_nfs_storage_folder }}/*']
+tripleo_backup_and_restore_exclude_paths_common: ['/data/*', '/tmp/*', '{{ tripleo_backup_and_restore_shared_storage_folder }}/*']
 tripleo_backup_and_restore_exclude_paths_controller_non_bootstrapnode: false
 tripleo_backup_and_restore_exclude_paths_controller: ['/var/lib/mysql/*']
 tripleo_backup_and_restore_exclude_paths_compute: ['/var/lib/nova/instances/*']
@@ -68,8 +68,8 @@ tripleo_backup_and_restore_local_config:
 # double quoted as it will be interpreted by BASH.
 tripleo_backup_and_restore_rescue_config: {}
 
-tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
-tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_nfs_server }}/ctl_plane_backups"
+tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_server }}/ctl_plane_backups"
+tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_server }}/ctl_plane_backups"
 
 # Ceph authentication backup file
 tripleo_backup_and_restore_ceph_auth_file: "ceph_auth_export.bak"
@@ -86,8 +86,8 @@ tripleo_backup_and_restore_firewalld_zone: "libvirt"
 # The ReaR rpm installs a cronjob at 1:30 each day by default. This variable deactivate that behaviour.
 tripleo_backup_and_restore_remove_default_cronjob: true
 
-# Skip the ping test to the NFS server on rear setup
-tripleo_backup_and_restore_skip_nfs_test: false
+# Skip the ping test to the server on rear setup
+tripleo_backup_and_restore_skip_server_test: false
 
 # How many seconds do we want to wait fir pcs cluster stop to finish
 tripleo_backup_and_restore_pcs_timeout: 3600
