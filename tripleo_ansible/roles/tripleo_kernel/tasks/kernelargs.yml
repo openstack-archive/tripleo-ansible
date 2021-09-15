@@ -104,7 +104,7 @@
   when:
     - cmdline.stdout_lines is defined
     - tripleo_kernel_args|string
-    - tripleo_kernel_args not in cmdline.stdout_lines[0]
+    - tripleo_kernel_args not in cmdline.stdout
 
 # Apply DPDK workarounds before reboot
 - name: Apply DPDK workarounds
