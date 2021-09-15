@@ -119,7 +119,7 @@
 
 - name: Extract OUTPUT_URL from rear config
   set_fact:
-    output_url: "{{ rear_config.content | b64decode | regex_findall('OUTPUT_URL=(.+)') | first }}"
+    output_url: "{{ ('OUTPUT_URL' in tripleo_backup_and_restore_local_config.keys())| ternary(tripleo_backup_and_restore_local_config['OUTPUT_URL'],'') }}"
   tags:
     - bar_setup_rear
 
