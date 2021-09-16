@@ -31,7 +31,6 @@ tripleo_clients_install_dict:
   ironicclient: present
   keystoneclient: present
   manilaclient: present
-  mistralclient: present
   neutronclient: present
   novaclient: present
   openstackclient: present
