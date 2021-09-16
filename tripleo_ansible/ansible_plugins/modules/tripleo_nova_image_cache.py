@@ -69,6 +69,8 @@ EXAMPLES = '''
 
 '''
 
+FIPS_COMPLIANT_HASHES = {'sha1', 'sha224', 'sha256', 'sha384', 'sha512'}
+
 
 def main():
 
@@ -118,7 +120,16 @@ def main():
                 module.fail_json(
                     msg="Image not found in glance: %s" % image_id)
 
-            md5 = hashlib.md5()
+            if not hasattr(image, 'hash_value'):
+                module.fail_json(
+                    msg="Image does not have a hash_value: %s" % image_id)
+
+            hash_algo = image.hash_algo
+            if image.hash_algo not in FIPS_COMPLIANT_HASHES:
+                module.fail_json(
+                    msg="The image hash algorithm in not supported")
+
+            hasher = hashlib.new(hash_algo)
             if prefetched_path:
                 result['actions'].append({
                     'name': 'Verify pre-fetched image checksum'
@@ -128,14 +139,14 @@ def main():
                         chunk = prefetched_image_file.read(chunk_size)
                         if not chunk:
                             break
-                        md5.update(chunk)
-                prefetched_checksum = md5.hexdigest()
+                        hasher.update(chunk)
+                prefetched_checksum = hasher.hexdigest()
                 if prefetched_checksum == image.checksum:
                     result['actions'].append({
                         'name': 'Verify pre-fetched image',
                         'result': True,
-                        'expected_md5': image.checksum,
-                        'actual_md5': prefetched_checksum
+                        'expected_checksum': image.checksum,
+                        'actual_checksum': prefetched_checksum
                     })
                     # FIXME: chown to the container nova uid (42436)
                     # until we can run within the container
@@ -146,8 +157,8 @@ def main():
                     result['actions'].append({
                         'name': 'Verify pre-fetched image',
                         'result': False,
-                        'expected_md5': image.checksum,
-                        'actual_md5': prefetched_checksum
+                        'expected_checksum': image.checksum,
+                        'actual_checksum': prefetched_checksum
                     })
                     if not scp_continue:
                         module.fail_json(
@@ -162,7 +173,7 @@ def main():
                         dir=cache_dir,
                         delete=False) as temp_cache_file:
                     try:
-                        md5 = hashlib.md5()
+                        hasher = hashlib.new(hash_algo)
                         image_stream = cloud.image.download_image(
                             image,
                             stream=True
@@ -170,27 +181,27 @@ def main():
                         try:
                             for chunk in image_stream.iter_content(
                                     chunk_size=chunk_size):
-                                md5.update(chunk)
+                                hasher.update(chunk)
                                 temp_cache_file.write(chunk)
                         finally:
                             image_stream.close()
                             temp_cache_file.close()
 
-                        download_checksum = md5.hexdigest()
+                        download_checksum = hasher.hexdigest()
                         if download_checksum != image.checksum:
                             result['actions'].append({
                                 'name': 'Verify downloaded image',
                                 'result': False,
-                                'expected_md5': image.checksum,
-                                'actual_md5': download_checksum
+                                'expected_checksum': image.checksum,
+                                'actual_checksum': download_checksum
                             })
                             module.fail_json(
                                 msg="Image data does not match checksum")
                         result['actions'].append({
                             'name': 'Verify downloaded image',
                             'result': True,
-                            'expected_md5': image.checksum,
-                            'actual_md5': download_checksum
+                            'expected_checksum': image.checksum,
+                            'actual_checksum': download_checksum
                         })
 
                         # FIXME: chown to the container nova uid (42436)
