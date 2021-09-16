@@ -36,4 +36,3 @@ tripleo_clients_install_dict:
   openstackclient: present
   osc-placement: present
   swiftclient: present
-  zaqarclient: present
