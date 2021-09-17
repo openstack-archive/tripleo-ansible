@@ -16,6 +16,7 @@
 
 
 galaxy_info:
+  namespace: openstack
   author: OpenStack
   description: TripleO OpenStack Role -- backup_and_restore
   company: Red Hat

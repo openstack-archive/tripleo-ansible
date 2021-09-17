@@ -184,35 +184,35 @@
       - tripleo-ansible-centos-8-role-addition
 - job:
     files:
-    - ^tripleo_ansible/roles/aide/.*
+    - ^tripleo_ansible/roles/aide/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-aide
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: aide
 - job:
     files:
-    - ^tripleo_ansible/roles/backup_and_restore/.*
+    - ^tripleo_ansible/roles/backup_and_restore/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-backup_and_restore
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: backup_and_restore
 - job:
     files:
-    - ^tripleo_ansible/roles/designate_bind_config/.*
+    - ^tripleo_ansible/roles/designate_bind_config/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-designate_bind_config
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: designate_bind_config
 - job:
     files:
-    - ^tripleo_ansible/roles/login_defs/.*
+    - ^tripleo_ansible/roles/login_defs/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-login_defs
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: login_defs
 - job:
     files:
-    - ^tripleo_ansible/roles/test_deps/.*
+    - ^tripleo_ansible/roles/test_deps/(?!meta).*
     - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-8-molecule-test_deps
     parent: tripleo-ansible-centos-8-base
@@ -221,28 +221,28 @@
 - job:
     files:
     - ^tripleo_ansible/ansible_plugins/action/package.py
-    - ^tripleo_ansible/roles/test_package_action/.*
+    - ^tripleo_ansible/roles/test_package_action/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-test_package_action
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: test_package_action
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_bootstrap/.*
+    - ^tripleo_ansible/roles/tripleo_bootstrap/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_bootstrap
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_bootstrap
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_cellv2/.*
+    - ^tripleo_ansible/roles/tripleo_cellv2/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_cellv2
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_cellv2
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ceph_client/.*
+    - ^tripleo_ansible/roles/tripleo_ceph_client/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ceph_client
     parent: tripleo-ansible-centos-8-base
     vars:
@@ -250,7 +250,7 @@
       tripleo_role_name: tripleo_ceph_client
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ceph_distribute_keys/.*
+    - ^tripleo_ansible/roles/tripleo_ceph_distribute_keys/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ceph_distribute_keys
     parent: tripleo-ansible-centos-8-base
     vars:
@@ -258,7 +258,7 @@
       tripleo_role_name: tripleo_ceph_distribute_keys
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_cephadm/.*
+    - ^tripleo_ansible/roles/tripleo_cephadm/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_cephadm
     parent: tripleo-ansible-centos-8-base
     vars:
@@ -266,35 +266,35 @@
       tripleo_role_name: tripleo_cephadm
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_clients_install/.*
+    - ^tripleo_ansible/roles/tripleo_clients_install/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_clients_install
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_clients_install
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_collectd/.*
+    - ^tripleo_ansible/roles/tripleo_collectd/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_collectd
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_collectd
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_config/.*
+    - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_config
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_config
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_image_build/.*
+    - ^tripleo_ansible/roles/tripleo_container_image_build/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_container_image_build
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_image_build
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_image_prepare/.*
+    - ^tripleo_ansible/roles/tripleo_container_image_prepare/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
     parent: tripleo-ansible-centos-8-base
     vars:
@@ -303,7 +303,7 @@
       tripleo_role_name: tripleo_container_image_prepare
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_manage/.*
+    - ^tripleo_ansible/roles/tripleo_container_manage/(?!meta).*
     - ^tripleo_ansible/roles/tripleo_container_rm/.*
     - ^tripleo_ansible/ansible_plugins/action/container_status.py$
     - ^tripleo_ansible/ansible_plugins/action/container_systemd.py$
@@ -317,119 +317,119 @@
       tripleo_role_name: tripleo_container_manage
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_rm/.*
+    - ^tripleo_ansible/roles/tripleo_container_rm/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_container_rm
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_rm
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_stop/.*
+    - ^tripleo_ansible/roles/tripleo_container_stop/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_container_stop
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_stop
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_container_tag/.*
+    - ^tripleo_ansible/roles/tripleo_container_tag/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_container_tag
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_tag
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_create_admin/.*
+    - ^tripleo_ansible/roles/tripleo_create_admin/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_create_admin
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_create_admin
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_derived_parameters/.*
+    - ^tripleo_ansible/roles/tripleo_derived_parameters/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_derived_parameters
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_derived_parameters
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_firewall/.*
+    - ^tripleo_ansible/roles/tripleo_firewall/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_firewall
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_firewall
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ha_wrapper/.*
+    - ^tripleo_ansible/roles/tripleo_ha_wrapper/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ha_wrapper
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_ha_wrapper
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_hieradata/.*
+    - ^tripleo_ansible/roles/tripleo_hieradata/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_hieradata
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_hieradata
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_hosts_entries/.*
+    - ^tripleo_ansible/roles/tripleo_hosts_entries/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_hosts_entries
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_image_serve/.*
+    - ^tripleo_ansible/roles/tripleo_image_serve/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_image_serve
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_image_serve
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_kernel/.*
+    - ^tripleo_ansible/roles/tripleo_kernel/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_kernel
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_kernel
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_keystone_resources/.*
+    - ^tripleo_ansible/roles/tripleo_keystone_resources/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_keystone_resources
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_lvmfilter/.*
+    - ^tripleo_ansible/roles/tripleo_lvmfilter/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_lvmfilter
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_metrics_qdr/.*
+    - ^tripleo_ansible/roles/tripleo_metrics_qdr/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_metrics_qdr
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_module_load/.*
+    - ^tripleo_ansible/roles/tripleo_module_load/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_module_load
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_module_load
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_multipathd/.*
+    - ^tripleo_ansible/roles/tripleo_multipathd/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_multipathd
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_multipathd
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_network_config/.*
+    - ^tripleo_ansible/roles/tripleo_network_config/(?!meta).*
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
     name: tripleo-ansible-centos-8-molecule-tripleo_network_config
     parent: tripleo-ansible-centos-8-base
@@ -437,14 +437,14 @@
       tripleo_role_name: tripleo_network_config
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_nodes_validation/.*
+    - ^tripleo_ansible/roles/tripleo_nodes_validation/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_nodes_validation
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_nodes_validation
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_nova_image_cache/.*
+    - ^tripleo_ansible/roles/tripleo_nova_image_cache/(?!meta).*
     - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
     name: tripleo-ansible-centos-8-molecule-tripleo_nova_image_cache
@@ -453,77 +453,77 @@
       tripleo_role_name: tripleo_nova_image_cache
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_nvdimm/.*
+    - ^tripleo_ansible/roles/tripleo_nvdimm/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_nvdimm
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_nvdimm
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ovn_cluster/.*
+    - ^tripleo_ansible/roles/tripleo_ovn_cluster/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ovn_cluster
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_ovn_cluster
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ovs_dpdk/.*
+    - ^tripleo_ansible/roles/tripleo_ovs_dpdk/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ovs_dpdk
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_ovs_dpdk
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_packages/.*
+    - ^tripleo_ansible/roles/tripleo_packages/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_packages
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_packages
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_persist/.*
+    - ^tripleo_ansible/roles/tripleo_persist/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_persist
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_persist
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_podman/.*
+    - ^tripleo_ansible/roles/tripleo_podman/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_podman
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_podman
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_provision_mcelog/.*
+    - ^tripleo_ansible/roles/tripleo_provision_mcelog/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_provision_mcelog
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_provision_mcelog
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ptp/.*
+    - ^tripleo_ansible/roles/tripleo_ptp/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ptp
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_ptp
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_puppet_cache/.*
+    - ^tripleo_ansible/roles/tripleo_puppet_cache/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_puppet_cache
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_puppet_cache
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_redhat_enforce/.*
+    - ^tripleo_ansible/roles/tripleo_redhat_enforce/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_redhat_enforce
     parent: tripleo-ansible-centos-8-base
     vars:
       tox_envlist: mol-tripleo_redhat_enforce
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_run_cephadm/.*
+    - ^tripleo_ansible/roles/tripleo_run_cephadm/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_run_cephadm
     parent: tripleo-ansible-centos-8-base
     vars:
@@ -531,77 +531,77 @@
       tripleo_role_name: tripleo_run_cephadm
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_securetty/.*
+    - ^tripleo_ansible/roles/tripleo_securetty/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_securetty
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_securetty
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_ssh_known_hosts/.*
+    - ^tripleo_ansible/roles/tripleo_ssh_known_hosts/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_ssh_known_hosts
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_ssh_known_hosts
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_sshd/.*
+    - ^tripleo_ansible/roles/tripleo_sshd/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_sshd
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_sshd
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_systemd_wrapper/.*
+    - ^tripleo_ansible/roles/tripleo_systemd_wrapper/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_systemd_wrapper
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_systemd_wrapper
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_timezone/.*
+    - ^tripleo_ansible/roles/tripleo_timezone/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_timezone
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_timezone
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_transfer/.*
+    - ^tripleo_ansible/roles/tripleo_transfer/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_transfer
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_transfer
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_unbound/.*
+    - ^tripleo_ansible/roles/tripleo_unbound/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_unbound
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_unbound
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_update_trusted_cas/.*
+    - ^tripleo_ansible/roles/tripleo_update_trusted_cas/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_update_trusted_cas
     parent: tripleo-ansible-centos-8-base
     vars:
       tox_envlist: mol-tripleo_update_trusted_cas
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_upgrade_hiera/.*
+    - ^tripleo_ansible/roles/tripleo_upgrade_hiera/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_upgrade_hiera
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_upgrade_hiera
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_validations_package/.*
+    - ^tripleo_ansible/roles/tripleo_validations_package/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_validations_package
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_validations_package
 - job:
     files:
-    - ^tripleo_ansible/roles/tuned/.*
+    - ^tripleo_ansible/roles/tuned/(?!meta).*
     - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-8-molecule-tuned
     parent: tripleo-ansible-centos-8-base
@@ -619,5 +619,6 @@
     nodeset: centos-8
     parent: tox
     timeout: 1800
+    voting: false
     vars:
       tox_envlist: role-addition
