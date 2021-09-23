@@ -191,7 +191,7 @@ def validate_network_update(module, network, net_spec):
     return net_spec
 
 
-def create_or_update_network(conn, module, net_spec, project_id=None):
+def create_or_update_network(conn, module, net_spec):
     changed = False
 
     # Need to use set_tags for the tags ...
@@ -199,8 +199,7 @@ def create_or_update_network(conn, module, net_spec, project_id=None):
 
     network = conn.network.find_network(net_spec['name'])
     if not network:
-        network = conn.network.create_network(project_id=project_id,
-                                              **net_spec)
+        network = conn.network.create_network(**net_spec)
         changed = True
     else:
         net_spec = validate_network_update(module, network, net_spec)
@@ -247,8 +246,7 @@ def validate_segment_update(module, segment, segment_spec):
     return segment_spec
 
 
-def create_or_update_segment(conn, module, segment_spec,
-                             segment_id=None, project_id=None):
+def create_or_update_segment(conn, module, segment_spec, segment_id=None):
     changed = False
 
     if segment_id:
@@ -258,8 +256,7 @@ def create_or_update_segment(conn, module, segment_spec,
             segment_spec['name'], network_id=segment_spec['network_id'])
 
     if not segment:
-        segment = conn.network.create_segment(project_id=project_id,
-                                              **segment_spec)
+        segment = conn.network.create_segment(**segment_spec)
         changed = True
     else:
         segment_spec = validate_segment_update(module, segment, segment_spec)
@@ -352,7 +349,7 @@ def validate_subnet_update(module, subnet, subnet_spec):
     return subnet_spec
 
 
-def create_or_update_subnet(conn, module, subnet_spec, project_id=None):
+def create_or_update_subnet(conn, module, subnet_spec):
     changed = False
     # Need to use set_tags for the tags ...
     tags = subnet_spec.pop('tags')
@@ -361,8 +358,7 @@ def create_or_update_subnet(conn, module, subnet_spec, project_id=None):
                                       ip_version=subnet_spec['ip_version'],
                                       network_id=subnet_spec['network_id'])
     if not subnet:
-        subnet = conn.network.create_subnet(project_id=project_id,
-                                            **subnet_spec)
+        subnet = conn.network.create_subnet(**subnet_spec)
         changed = True
     else:
         subnet_spec = validate_subnet_update(module, subnet, subnet_spec)
@@ -377,8 +373,7 @@ def create_or_update_subnet(conn, module, subnet_spec, project_id=None):
     return changed
 
 
-def adopt_the_implicit_segment(conn, module, segments, subnets, network,
-                               project_id=None):
+def adopt_the_implicit_segment(conn, module, segments, subnets, network):
     changed = False
     # Check for implicit segment
     implicit_segment = [s for s in segments if s['name'] is None]
@@ -399,8 +394,7 @@ def adopt_the_implicit_segment(conn, module, segments, subnets, network,
             network.id, network.name, subnet_associated.name,
             physical_network=implicit_segment.physical_network)
         create_or_update_segment(conn, module, segment_spec,
-                                 segment_id=implicit_segment.id,
-                                 project_id=project_id)
+                                 segment_id=implicit_segment.id)
         changed = True
 
         return changed
@@ -440,13 +434,11 @@ def run_module():
     try:
         _, conn = openstack_cloud_from_module(module)
 
-        project_id = network_data_v2.get_project_id(conn)
         ipv6_enabled = net_data.get('ipv6', False)
         # Create or update the network
         net_spec = create_net_spec(
             net_data, get_overcloud_domain_name(conn, default_network), idx)
-        changed, network = create_or_update_network(conn, module,
-                                                    net_spec, project_id)
+        changed, network = create_or_update_network(conn, module, net_spec)
         result['changed'] = changed if changed else result['changed']
 
         # Get current segments and subnets on the network
@@ -454,7 +446,7 @@ def run_module():
         subnets = list(conn.network.subnets(network_id=network.id))
 
         changed = adopt_the_implicit_segment(conn, module, segments,
-                                             subnets, network, project_id)
+                                             subnets, network)
         result['changed'] = changed if changed else result['changed']
         for subnet_name, subnet_data in net_data.get('subnets', {}).items():
             segment_spec = create_segment_spec(
@@ -464,19 +456,17 @@ def run_module():
                 network.id, subnet_name, subnet_data, ipv6_enabled)
 
             changed, segment = create_or_update_segment(
-                conn, module, segment_spec, project_id=project_id)
+                conn, module, segment_spec)
             result['changed'] = changed if changed else result['changed']
 
             if subnet_v4_spec:
                 subnet_v4_spec.update({'segment_id': segment.id})
-                changed = create_or_update_subnet(conn, module, subnet_v4_spec,
-                                                  project_id)
+                changed = create_or_update_subnet(conn, module, subnet_v4_spec)
                 result['changed'] = changed if changed else result['changed']
 
             if subnet_v6_spec:
                 subnet_v6_spec.update({'segment_id': segment.id})
-                changed = create_or_update_subnet(conn, module, subnet_v6_spec,
-                                                  project_id)
+                changed = create_or_update_subnet(conn, module, subnet_v6_spec)
                 result['changed'] = changed if changed else result['changed']
 
         result['success'] = True

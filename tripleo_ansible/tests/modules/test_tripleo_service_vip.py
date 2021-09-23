@@ -12,6 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import mock
 import openstack
 
@@ -53,7 +54,7 @@ class TestTripleoServiceVip(tests_base.TestCase):
                                      service='test', fixed_ips=fixed_ips)
         mock_conn.network.create_port.assert_called_once_with(
             name='test_virtual_ip', network_id='net_id',
-            fixed_ips=[{'subnet_id': 'subnet_id'}], project_id=mock.ANY)
+            fixed_ips=[{'subnet_id': 'subnet_id'}])
         mock_conn.network.update_port.assert_not_called()
         mock_conn.network.set_tags.assert_called_once_with(
             fake_port, [mock.ANY, mock.ANY])
@@ -146,7 +147,6 @@ class TestTripleoServiceVip(tests_base.TestCase):
         module = mock.Mock()
         fixed_ips = [{'ip_address': '10.0.0.10', 'subnet_id': 'subnet_id'}]
         mock_ocfm.return_value = None, mock_conn
-        mock_conn.identity.find_service.return_value = True
         mock_port = mock.Mock()
         mock_use_neutron.return_value = mock_port
         plugin.create_service_vip(module, 'overcloud', 'service', 'network',
@@ -160,7 +160,6 @@ class TestTripleoServiceVip(tests_base.TestCase):
     def test_delete_service_vip(self, mock_ocfm, mock_conn):
         module = mock.Mock()
         mock_ocfm.return_value = None, mock_conn
-        mock_conn.identity.find_service.return_value = True
         mock_port1 = mock.Mock(id=123,
                                tags=['tripleo_stack_name=overcloud',
                                      'tripleo_service_vip=ovn_dbs'])
@@ -175,7 +174,6 @@ class TestTripleoServiceVip(tests_base.TestCase):
     def test_delete_service_vip_with_service(self, mock_ocfm, mock_conn):
         module = mock.Mock()
         mock_ocfm.return_value = None, mock_conn
-        mock_conn.identity.find_service.return_value = True
         mock_port = mock.Mock(id=123,
                               tags=['tripleo_stack_name=overcloud',
                                     'tripleo_service_vip=redis'])
@@ -193,7 +191,6 @@ class TestTripleoServiceVip(tests_base.TestCase):
         fixed_ips = [{'ip_address': '10.0.0.10', 'subnet_id': 'subnet_id',
                       'use_neutron': False}]
         mock_ocfm.return_value = None, mock_conn
-        mock_conn.identity.find_service.return_value = True
         mock_port = mock.Mock()
         mock_use_fake.return_value = mock_port
         plugin.create_service_vip(module, 'overcloud', 'service', 'network',

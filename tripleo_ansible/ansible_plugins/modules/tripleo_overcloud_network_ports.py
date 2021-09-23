@@ -295,7 +295,7 @@ def create_ports(result, conn, port_defs, inst_ports, tags, net_maps,
     result['changed'] = True
 
 
-def generate_port_defs(net_maps, instance, inst_ports, project_id=None):
+def generate_port_defs(net_maps, instance, inst_ports):
     hostname = instance['hostname']
     create_port_defs = []
     update_port_defs = []
@@ -332,8 +332,6 @@ def generate_port_defs(net_maps, instance, inst_ports, project_id=None):
 
         port_def = dict(name=port_name, dns_name=hostname, network_id=net_id,
                         fixed_ips=fixed_ips)
-        if project_id:
-            port_def['project_id'] = project_id
 
         if port_name not in existing_port_names:
             create_port_defs.append(port_def)
@@ -362,7 +360,7 @@ def delete_removed_nets(result, conn, instance, net_maps, inst_ports):
 
 
 def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
-                     ironic_uuid, role, project_id=None):
+                     ironic_uuid, role):
     hostname = instance['hostname']
     network_config = instance.get('network_config', {})
     tags = ['tripleo_stack_name={}'.format(stack),
@@ -383,8 +381,8 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
     delete_removed_nets(result, conn, instance, net_maps, inst_ports)
     pre_provisioned_ports(result, conn, net_maps, instance, inst_ports, tags)
 
-    create_port_defs, update_port_defs = generate_port_defs(
-        net_maps, instance, inst_ports, project_id)
+    create_port_defs, update_port_defs = generate_port_defs(net_maps, instance,
+                                                            inst_ports)
 
     if create_port_defs:
         create_ports(result, conn, create_port_defs, inst_ports, tags,
@@ -448,8 +446,7 @@ def validate_instance_nets_in_net_map(instances, net_maps):
 
 
 def manage_instances_ports(result, conn, stack, instances, concurrency, state,
-                           uuid_by_hostname, hostname_role_map, net_maps,
-                           project_id=None):
+                           uuid_by_hostname, hostname_role_map, net_maps):
     if not instances:
         return
 
@@ -476,8 +473,7 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
                              net_maps,
                              ports_by_node,
                              ironic_uuid,
-                             role,
-                             project_id)
+                             role)
                 )
             elif state == 'absent':
                 provision_jobs.append(
@@ -593,7 +589,6 @@ def run_module():
     try:
         _, conn = openstack_cloud_from_module(module)
 
-        project_id = n_utils.get_project_id(conn)
         net_maps = n_utils.create_name_id_maps(conn)
 
         if state == 'present' and uuid_by_hostname:
@@ -603,7 +598,7 @@ def run_module():
 
         manage_instances_ports(result, conn, stack, instances, concurrency,
                                state, uuid_by_hostname, hostname_role_map,
-                               net_maps, project_id)
+                               net_maps)
         result['success'] = True
         module.exit_json(**result)
     except Exception as err:

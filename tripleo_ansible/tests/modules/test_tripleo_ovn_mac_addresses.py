@@ -14,6 +14,7 @@
 # under the License.
 #
 
+import copy
 import mock
 import openstack
 
@@ -55,13 +56,11 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
         mock_conn.network.find_network.return_value = None
         mock_conn.network.create_network.return_value = FAKE_NETWORK
 
-        net_id = plugin.create_ovn_mac_address_network(
-            result, mock_conn, 'admin')
+        net_id = plugin.create_ovn_mac_address_network(result, mock_conn)
 
         mock_conn.network.create_network.assert_called_with(
             name=plugin.NET_NAME,
-            description=plugin.NET_DESCRIPTION,
-            project_id='admin')
+            description=plugin.NET_DESCRIPTION)
         self.assertTrue(result['changed'])
         self.assertEqual(FAKE_NETWORK.id, net_id)
 
@@ -69,8 +68,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
         result = dict(changed=False)
         mock_conn.network.find_network.return_value = FAKE_NETWORK
 
-        net_id = plugin.create_ovn_mac_address_network(
-            result, mock_conn, 'admin')
+        net_id = plugin.create_ovn_mac_address_network(result, mock_conn)
 
         mock_conn.network.create_network.assert_not_called()
         self.assertFalse(result['changed'])
@@ -104,16 +102,14 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
         mock_port_exists.return_value = False
         plugin.create_ovn_mac_address_ports(result, mock_conn,
                                             FAKE_NETWORK.id, tags,
-                                            physnets, server, 'admin')
+                                            physnets, server)
         mock_conn.network.create_port.assert_has_calls(
             [mock.call(network_id=FAKE_NETWORK.id,
                        name=server + '_ovn_physnet_net-a',
-                       dns_name=server,
-                       project_id='admin'),
+                       dns_name=server),
              mock.call(network_id=FAKE_NETWORK.id,
                        name=server + '_ovn_physnet_net-b',
-                       dns_name=server,
-                       project_id='admin')])
+                       dns_name=server)])
         mock_conn.network.set_tags.assert_has_calls(
             [mock.call(mock.ANY, tags + ['tripleo_ovn_physnet=net-a']),
              mock.call(mock.ANY, tags + ['tripleo_ovn_physnet=net-b'])])
@@ -129,7 +125,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
         mock_port_exists.return_value = True
         plugin.create_ovn_mac_address_ports(result, mock_conn,
                                             FAKE_NETWORK.id, tags,
-                                            physnets, server, 'admin')
+                                            physnets, server)
         mock_conn.network.create_port.assert_not_called()
         mock_conn.network.set_tags.assert_not_called()
 

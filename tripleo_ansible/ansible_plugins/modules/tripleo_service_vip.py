@@ -134,8 +134,7 @@ def create_or_update_port(conn, net, stack=None, service=None,
 
     tags = {'tripleo_stack_name={}'.format(stack),
             'tripleo_service_vip={}'.format(service)}
-    port_def = dict(name=service + VIRTUAL_IP_NAME_SUFFIX,
-                    network_id=net.id,)
+    port_def = dict(name=service + VIRTUAL_IP_NAME_SUFFIX, network_id=net.id)
 
     try:
         port = next(conn.network.ports(tags=list(tags), network_id=net.id))
@@ -163,10 +162,7 @@ def create_or_update_port(conn, net, stack=None, service=None,
         fixed_ips_def.append(ip_def)
 
     if not port:
-
-        project_id = network_data_v2.get_project_id(conn)
-        port = conn.network.create_port(project_id=project_id,
-                                        **port_def)
+        port = conn.network.create_port(**port_def)
     else:
         # TODO: Check if port needs update
         port = conn.network.update_port(port, **port_def)
