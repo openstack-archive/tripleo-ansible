@@ -619,6 +619,6 @@
     nodeset: centos-8
     parent: tox
     timeout: 1800
-    voting: false
+    voting: true
     vars:
       tox_envlist: role-addition
