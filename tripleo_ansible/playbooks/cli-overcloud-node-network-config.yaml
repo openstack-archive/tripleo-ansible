@@ -31,14 +31,13 @@
   roles:
     - role: tripleo_network_config
       vars:
-        # The conditions in tripleo_network_config role for when we want to
-        # apply the NetworkConfig are:
-        # 1. If the stack_action is CREATE
-        # 2. Or UPDATE is in the network_deployment_actions
-        # 3. Or the previous run of NetworkConfig failed.
-        # 4. Or it has never run
-        #
-        # Since we don't have stack_action in this case. Set the network
-        # config action to UPDATE here so that we only apply network
-        # configuration if 2, 3 or 4 evalueates to TRUE.
-        tripleo_network_config_action: UPDATE
+        # The conditions here are when we want to apply the
+        # NetworkConfig. They are:
+        # - If tripleo_network_config_update is True
+        # - Or the previous run of NetworkConfig failed.
+        # - Or it has never run
+        # This will match the prior behavior of when a Heat
+        # SoftwareDeployment was used.
+        # It also ensures the script does exist as a sine qua non
+        # condition
+        tripleo_network_config_update: True

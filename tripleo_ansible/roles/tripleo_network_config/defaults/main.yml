@@ -18,7 +18,7 @@
 # All variables intended for modification should be placed in this file.
 
 # All variables within this role should have a prefix of "tripleo_network_config"
-tripleo_network_config_action: CREATE
+tripleo_network_config_update: False
 tripleo_network_config_async_poll: 3
 tripleo_network_config_async_timeout: 300
 tripleo_network_config_bridge_name: br-ex
@@ -26,7 +26,6 @@ tripleo_network_config_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_network_config_hide_sensitive_logs: true
 tripleo_network_config_interface_name: nic1
 tripleo_network_config_manage_service: true
-tripleo_network_config_network_deployment_actions: []
 tripleo_network_config_os_net_config_mappings: {}
 tripleo_network_config_safe_defaults: true
 tripleo_network_config_with_ansible: false
