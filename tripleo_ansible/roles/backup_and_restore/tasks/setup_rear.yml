@@ -141,3 +141,64 @@
   when: sftp_backup
   tags:
     - bar_setup_rear
+
+- name: Is this machine a ceph node?
+  stat:
+    path: /var/lib/ceph
+  register: varlibceph_dir
+  tags:
+    - bar_setup_rear
+
+- name: Get the directory where /var/lib/ceph is mounted on
+  shell: |
+    set -o pipefail
+    df /var/lib/ceph | grep -v Filesystem | awk '{print $6}'
+  register: tripleo_backup_and_restore_ceph_dir
+  when: varlibceph_dir.stat.exists
+  tags:
+    - bar_setup_rear
+
+- name: Get the device where /var/lib/ceph is mounted on
+  shell: |
+    set -o pipefail
+    df /var/lib/ceph | grep -v Filesystem | awk '{print $1}'
+  register: tripleo_backup_and_restore_ceph_device
+  when: varlibceph_dir.stat.exists
+  tags:
+    - bar_setup_rear
+
+- name: Get the filesystem format of the device where /var/lib/ceph is mounted on
+  shell: |
+    set -o pipefail
+    grep {{ tripleo_backup_and_restore_ceph_device.stdout }} /etc/mtab | grep '{{ tripleo_backup_and_restore_ceph_dir.stdout }} ' | awk '{print $3}'
+  register: tripleo_backup_and_restore_ceph_device_format
+  when: varlibceph_dir.stat.exists
+  tags:
+    - bar_setup_rear
+
+- name: Program a script that will trigger during restore backuping /var/lib/ceph if it exists just before restore
+  copy:
+    dest: /usr/share/rear/setup/default/011_backup_ceph.sh
+    content: |
+      echo "Taking a fresh ceph data backup if this controller has co-located cephs"
+      mount -t {{ tripleo_backup_and_restore_ceph_device_format.stdout }} {{ tripleo_backup_and_restore_ceph_device.stdout }} /mnt/local
+      cd /mnt/local
+      [ -d "var/lib/ceph" ] && tar cvfz /tmp/ceph.tar.gz var/lib/ceph --xattrs --xattrs-include='*.*' --acls
+      cd /
+      umount {{ tripleo_backup_and_restore_ceph_device.stdout }}
+  when: varlibceph_dir.stat.exists
+  tags:
+    - bar_setup_rear
+
+- name: Program a script that will trigger during restoration to restore /var/lib/ceph backup after a full recovery
+  copy:
+    dest: /usr/share/rear/wrapup/default/501_restore_ceph.sh
+    content: |
+      echo "Restoring ceph backup if it exists"
+      if [ -f "/tmp/ceph.tar.gz" ]; then
+        rm -rf /mnt/local/var/lib/ceph/*
+        tar xvC /mnt/local -f /tmp/ceph.tar.gz var/lib/ceph --xattrs --xattrs-include='*.*'
+      fi
+  when: varlibceph_dir.stat.exists
+  tags:
+    - bar_setup_rear
