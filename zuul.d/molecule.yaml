@@ -305,7 +305,6 @@
     files:
     - ^tripleo_ansible/roles/tripleo_container_manage/(?!meta).*
     - ^tripleo_ansible/roles/tripleo_container_rm/.*
-    - ^tripleo_ansible/ansible_plugins/action/container_status.py$
     - ^tripleo_ansible/ansible_plugins/action/container_systemd.py$
     - ^tripleo_ansible/ansible_plugins/filter/helpers.py$
     - ^tripleo_ansible/ansible_plugins/modules/container_config_data.py$
