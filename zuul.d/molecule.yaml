@@ -276,8 +276,10 @@
     - ^tripleo_ansible/roles/tripleo_collectd/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_collectd
     parent: tripleo-ansible-centos-8-base
+    timeout: 7200
     vars:
       tripleo_role_name: tripleo_collectd
+    pre-run: zuul.d/playbooks/enable-fips.yml
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*

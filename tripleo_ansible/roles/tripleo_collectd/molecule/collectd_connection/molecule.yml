@@ -12,7 +12,6 @@ platforms:
     image: ubi8/ubi-init
     registry:
       url: registry.access.redhat.com
-    dockerfile: ../common/Dockerfile
     pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
@@ -37,7 +36,6 @@ platforms:
     image: ubi8/ubi-init
     registry:
       url: registry.access.redhat.com
-    dockerfile: ../common/Dockerfile
     pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
