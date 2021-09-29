@@ -121,3 +121,18 @@ tripleo_backup_and_restore_ceph_mon_role: "ceph_mon"
 
 # The cephadm path
 tripleo_backup_and_restore_cephadm_path: "/usr/sbin/cephadm"
+
+# The name of the node to restore
+tripleo_backup_and_restore_overcloud_restore_name: undercloud
+
+# Ironic images path
+tripleo_backup_and_restore_ironic_images_path: "/var/lib/ironic/images"
+
+# Restore retries
+tripleo_backup_and_restore_restore_retries: 300
+
+# Restore delay
+tripleo_backup_and_restore_restore_delay: 10
+
+# Ironic subdirectory where the kernel and initrd are uploaded
+backup_and_restore_history_path: ""
