@@ -44,15 +44,15 @@
                          | unique }}"
     - name: build lvm2 allow list
       set_fact:
-        lvm2_allow_list: "{{ allowed_devices
-                         | map('regex_replace', '(.+)', 'a|\\1|') }}"
+        lvm2_allow_list: "\"{{ allowed_devices | map('regex_replace', '(.+)', 'a|\\1|')
+                         | join('\",\"') }}\""
     - name: build lvm2 deny list
       set_fact:
-        lvm2_deny_list: "{{ tripleo_tripleo_lvmfilter_devices_denylist | default([])
-                        | map('regex_replace', '(.+)', 'r|\\1|') }}"
+        lvm2_deny_list: "\"{{ tripleo_tripleo_lvmfilter_devices_denylist | default([])
+                        | map('regex_replace', '(.+)', 'r|\\1|') | join('\",\"') }}\""
     - name: build lvm2 filter
       set_fact:
-        lvm2_filter: "\"{{ (lvm2_allow_list + lvm2_deny_list) | join('\",\"') }}\""
+        lvm2_filter: "{{ lvm2_allow_list + ',' + lvm2_deny_list }}"
     - name: regenerate lvm config
       become: true
       command: >
