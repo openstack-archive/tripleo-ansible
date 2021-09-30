@@ -109,6 +109,10 @@
     set -o pipefail
     {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -p -u root \
     -p{{ mysql_password.stdout }} --execute 'SET GLOBAL wsrep_desync = ON'"
+  register: desync_output
+  retries: 300
+  delay: 5
+  until: desync_output.stderr == ""
   when:
     - mysql_password.stderr is defined
     - enabled_galera
