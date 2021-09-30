@@ -38,10 +38,9 @@
               Automated reboot for this node has been defered because it is already provisionned.
               Please schedule a manual reboot after this deployment is completed.
 
-        - name: Setting defer reboot fact
+        - name: Setting workload protection fact
           set_fact:
-            tripleo_kernel_defer_reboot: true
-            tripleo_kernel_reboot_protection: true
+            _workload_protection: true
 
 - name: Check if the kernelargs entry is already present in the file
   replace:
@@ -126,7 +125,7 @@
   when:
     - reboot_required is defined and reboot_required
     - not tripleo_kernel_defer_reboot|bool
-    - not tripleo_kernel_reboot_protection|bool
+    - not _workload_protection|default(false)|bool
   block:
     - name: Reboot tasks
       include_tasks: reboot.yaml
