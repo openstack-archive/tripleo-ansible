@@ -38,6 +38,8 @@
   shell: "{{ tripleo_cephadm_bin }} ls --no-detail"
   register: cephadm_ls
   become: true
+  tags:
+    - cephadm_bootstrap
 
 - name: Ensure tripleo_cephadm_fsid variable is set if none was provided
   block:
@@ -45,6 +47,7 @@
       set_fact:
         tripleo_cephadm_fsid_list: "{{ cephadm_ls.stdout | from_json | map(attribute='fsid') | sort | unique }}"
       when:
+        - cephadm_ls is defined
         - cephadm_ls.stdout is defined
         - cephadm_ls.stdout != '[]'
     - name: Fail if >1 FSID was discovered
@@ -104,7 +107,7 @@
   action: config_template
   args:
     src: "ceph.conf.j2"
-    dest: "{{ tripleo_cephadm_bootstrap_conf }}"
+    dest: "{{ tripleo_cephadm_assimilate_conf }}"
     owner: "{{ tripleo_cephadm_uid }}"
     group: "{{ tripleo_cephadm_uid }}"
     mode: "0644"

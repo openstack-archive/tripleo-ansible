@@ -17,7 +17,8 @@ tripleo_cephadm_registry_url: ''
 tripleo_cephadm_keyring_prefix: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.client"
 tripleo_cephadm_admin_keyring: "{{ tripleo_cephadm_keyring_prefix }}.admin.keyring"
 tripleo_cephadm_conf: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.conf"
-tripleo_cephadm_bootstrap_conf: "/home/{{ tripleo_cephadm_ssh_user }}/bootstrap_{{ tripleo_cephadm_cluster }}.conf"
+tripleo_cephadm_assimilate_conf: "/home/{{ tripleo_cephadm_ssh_user }}/assimilate_{{ tripleo_cephadm_cluster }}.conf"
+tripleo_cephadm_assimilate_conf_container: "/home/assimilate_{{ tripleo_cephadm_cluster }}.conf"
 # path on ansible host (i.e. undercloud) of the ceph spec
 tripleo_cephadm_spec_ansible_host: "{{ playbook_dir }}/ceph_spec.yaml"
 # path on bootstrap node of ceph spec (scp'd from above var)
@@ -65,3 +66,4 @@ tripleo_cephadm_deployed_ceph_tht_path: "/home/stack/deployed_ceph.yaml"
 tripleo_cephadm_backend: ''
 tripleo_cephadm_action: disable
 tripleo_cephadm_rbd_trash_interval: 15
+tripleo_cephadm_apply_ceph_conf_overrides_on_update: false
