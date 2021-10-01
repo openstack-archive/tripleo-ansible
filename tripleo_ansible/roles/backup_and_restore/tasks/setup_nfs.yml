@@ -111,6 +111,16 @@
   tags:
     - bar_setup_nfs_server
 
+- name: Create backup subfolders in the NFS server
+  file:
+    path: "{{ tripleo_backup_and_restore_shared_storage_folder }}/{{ item }}"
+    state: directory
+    mode: '0777'
+  with_items:
+    - "{{ tripleo_backup_and_restore_shared_storage_subfolders }}"
+  tags:
+    - bar_setup_nfs_server
+
 - name: Get the lines
   set_fact:
     bar_exportfs_lines: "{% for net in tripleo_backup_and_restore_nfs_clients_nets %}\
