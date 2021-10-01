@@ -3,3 +3,5 @@ parameter_defaults:
   CephClusterFSID: {{ tripleo_cephadm_fsid }}
   CephDynamicSpec: false
   DeployedCeph: true
+  # Recommendation: set the following to false after overcloud is deployed
+  ApplyCephConfigOverridesOnUpdate: true

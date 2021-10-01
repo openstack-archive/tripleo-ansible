@@ -25,6 +25,7 @@
       --interactive
       {% endif %}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
+      --volume {{ tripleo_cephadm_assimilate_conf }}:{{ tripleo_cephadm_assimilate_conf_container }}:z
       {% if mount_spec|default(false) %}
       --volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z
       {% endif %}
