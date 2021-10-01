@@ -62,6 +62,14 @@ tripleo_backup_and_restore_local_config:
   BACKUP_PROG_COMPRESS_OPTIONS: '( --gzip)'
   BACKUP_PROG_COMPRESS_SUFFIX: '".gz"'
 
+# This var is used to define the commands to be run for preparing the network
+# during the restoration phase. Because ReaR does not support ovs, it is required
+# to setup the network for connecting to the backup node.
+# This is configured on /etc/rear/local.conf
+# as an example
+# ('ip l a br-ex type bridge' 'ip l s ens3 up' 'ip l s br-ex up' 'ip l s ens3 master br-ex' 'dhclient br-ex')
+tripleo_backup_and_restore_network_preparation_commands: "()"
+
 # This var is a dictionary of the configuration of the /etc/rear/rescue.conf
 # The key:value will be interpreted as key=value on the configuration file.
 # To set that the value is a string, it needs to be single quoted followed by
