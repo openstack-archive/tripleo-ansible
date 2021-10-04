@@ -51,13 +51,19 @@
             get_checksum: false
           register: overcloud_full_stat
 
+        - name: stat overcloud-hardened-uefi-full.raw
+          stat:
+            path: /var/lib/ironic/images/overcloud-hardened-uefi-full.raw
+            get_checksum: false
+          register: overcloud_hardened_uefi_full_stat
+
         - name: stat overcloud-full.initrd
           stat:
             path: /var/lib/ironic/images/overcloud-full.initrd
             get_checksum: false
           register: overcloud_full_initrd_stat
 
-        - name: Set file based default image
+        - name: Set partition file based default image
           set_fact:
             default_image:
               href: file:///var/lib/ironic/images/overcloud-full.raw
@@ -66,20 +72,22 @@
           when:
             - overcloud_full_stat.stat.exists|bool
             - overcloud_full_initrd_stat.stat.exists|bool
+            - not overcloud_hardened_uefi_full_stat.stat.exists|bool
 
         - name: Set whole-disk file based default image
           set_fact:
             default_image:
-              href: file:///var/lib/ironic/images/overcloud-full.raw
+              href: file:///var/lib/ironic/images/overcloud-hardened-uefi-full.raw
           when:
-            - overcloud_full_stat.stat.exists|bool
-            - not overcloud_full_initrd_stat.stat.exists|bool
+            - overcloud_hardened_uefi_full_stat.stat.exists|bool
 
         - name: Set glance based default image
           set_fact:
             default_image:
               href: overcloud-full
-          when: not overcloud_full_stat.stat.exists|bool
+          when:
+            - not overcloud_full_stat.stat.exists|bool
+            - not overcloud_hardened_uefi_full_stat.stat.exists|bool
 
     - name: Expand roles
       tripleo_baremetal_expand_roles:
