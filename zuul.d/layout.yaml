@@ -24,34 +24,12 @@
           - ^README.rst
           - ^requirements.txt
           - ^tripleo_ansible/ansible_plugins/.*
-      - tripleo-ci-centos-8-containers-undercloud-minion: &undercloud_minion
-          vars:
-            consumer_job: true
-            remove_tags:
-              - build
-          dependencies:
-            - tripleo-ci-centos-8-content-provider
-          files:
-          - ^tripleo_ansible/.*
-          irrelevant-files:
-          - .*.md$
-          - .*.rst$
-          - .*.txt$
-          - ^_skeleton_role_/.*
-          - ^scripts/.*
-          - ^tox.ini$
-          - ^tripleo_ansible/playbooks/docker-vfs-setup.yml$
-          - ^tripleo_ansible/.*molecule.*
-          - ^tripleo_ansible/roles/.*/meta.*
-          - ^tripleo_ansible/roles/test_deps/.*
-          - ^zuul.d/.*
 
     gate:
       jobs:
       - tripleo-ci-centos-8-content-provider
       - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
-      - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
     post:
       jobs:
       - publish-openstack-python-branch-tarball
