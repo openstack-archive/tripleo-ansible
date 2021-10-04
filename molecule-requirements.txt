@@ -8,7 +8,7 @@ pytest-cov
 pytest-html
 pytest-xdist
 mock
-molecule>=3.3.4
+molecule>=3.3.4,<3.5
 molecule-podman>=1.0.0a1
 ruamel.yaml
 testinfra
