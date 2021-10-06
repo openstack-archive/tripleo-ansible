@@ -61,6 +61,9 @@ tripleo_backup_and_restore_local_config:
   BACKUP: NETFS
   BACKUP_PROG_COMPRESS_OPTIONS: '( --gzip)'
   BACKUP_PROG_COMPRESS_SUFFIX: '".gz"'
+  OUTPUT_URL: "{{ tripleo_backup_and_restore_output_url }}"
+  ISO_PREFIX: "{{ tripleo_backup_and_restore_hostname.stdout }}"
+  BACKUP_URL: "{{ tripleo_backup_and_restore_backup_url }}"
 
 # This var is used to define the commands to be run for preparing the network
 # during the restoration phase. Because ReaR does not support ovs, it is required
