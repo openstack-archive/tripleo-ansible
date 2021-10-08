@@ -2,11 +2,7 @@
 {% set _ = vip_data.__setitem__('controller_virtual_ip', control_virtual_ip) %}
 {% set _ = vip_data.__setitem__('keystone_admin_api_vip', (net_vip_map[service_net_map['keystone_admin_api_network']])) %}
 {% set _ = vip_data.__setitem__('keystone_public_api_vip', (net_vip_map[service_net_map['keystone_public_api_network']])) %}
-{% if 'External' in enabled_networks %}
-{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
-{% else %}
-{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map.ctlplane)) %}
-{% endif %}
+{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
 {% if 'InternalApi' in enabled_networks %}
 {# the internal_api_virtual_ip is needed for contrail only #}
 {%   set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[networks['InternalApi']['name_lower']])) %}
@@ -30,13 +26,8 @@
 {%   endif %}
 {% endfor %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
-{% if 'External' in enabled_networks %}
-{%   set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
-{%   set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map[networks['External']['name_lower']])) %}
-{% else %}
-{%   set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map.ctlplane)) %}
-{%   set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map.ctlplane)) %}
-{% endif %}
+{% set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
+{% set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
 {% set _ = vip_data.__setitem__('tripleo::haproxy::controller_virtual_ip', (net_vip_map.ctlplane)) %}
 {% set _ = vip_data.__setitem__('tripleo::keepalived::controller_virtual_ip', (net_vip_map.ctlplane)) %}
 {% if service_vip_vars.redis is defined %}
