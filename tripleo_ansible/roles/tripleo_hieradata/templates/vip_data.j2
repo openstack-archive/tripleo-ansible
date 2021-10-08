@@ -2,11 +2,9 @@
 {% set _ = vip_data.__setitem__('controller_virtual_ip', control_virtual_ip) %}
 {% set _ = vip_data.__setitem__('keystone_admin_api_vip', (net_vip_map[service_net_map['keystone_admin_api_network']])) %}
 {% set _ = vip_data.__setitem__('keystone_public_api_vip', (net_vip_map[service_net_map['keystone_public_api_network']])) %}
-{%   set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
-{% if 'InternalApi' in enabled_networks %}
+{% set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
 {# the internal_api_virtual_ip is needed for contrail only #}
-{%   set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[networks['InternalApi']['name_lower']])) %}
-{% endif %}
+{% set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[service_net_map['internal_api_network']])) %}
 {% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
 {% set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
 {% set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[service_net_map['ganesha_network']])) %}
