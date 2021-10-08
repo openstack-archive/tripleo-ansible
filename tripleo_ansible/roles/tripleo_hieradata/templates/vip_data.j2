@@ -1,3 +1,13 @@
+{# Exclude networks in network_virtual_ips based on service_net_map #}
+{# External virtual ip is currently being handled separately as public_virtual_ip. #}
+{# Likewise, optional StorageNFS virtual ip is handled separately as ganesha_vip. #}
+{% set _network_virtual_ips = {} %}
+{% for key, value in network_virtual_ips.items() %}
+{%   if key not in [service_net_map['public_network'],
+                    service_net_map['ganesha_network']] %}
+{%     set _ = _network_virtual_ips.update({key: value}) %}
+{%   endif %}
+{% endfor %}
 {% set vip_data = {} %}
 {% set _ = vip_data.__setitem__('controller_virtual_ip', control_virtual_ip) %}
 {% set _ = vip_data.__setitem__('keystone_admin_api_vip', (net_vip_map[service_net_map['keystone_admin_api_network']])) %}
@@ -5,7 +15,7 @@
 {% set _ = vip_data.__setitem__('public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
 {# the internal_api_virtual_ip is needed for contrail only #}
 {% set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[service_net_map['internal_api_network']])) %}
-{% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
+{% set _ = vip_data.__setitem__('network_virtual_ips', _network_virtual_ips) %}
 {% set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
 {% set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[service_net_map['ganesha_network']])) %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
