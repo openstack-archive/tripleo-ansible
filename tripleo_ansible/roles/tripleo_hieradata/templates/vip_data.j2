@@ -12,15 +12,8 @@
 {% if 'ceph_grafana' in enabled_services %}
 {%     set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
 {% endif %}
+{% set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[service_net_map['ganesha_network']])) %}
 {% for network in enabled_networks %}
-{%   if network == 'StorageNFS' %}
-{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['StorageNFS']['name_lower']])) %}
-{%   endif %}
-{% if not vip_data.ganesha_vip is defined %}
-{%   if 'External' in enabled_networks %}
-{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['External']['name_lower']])) %}
-{%   endif %}
-{% endif %}
 {%   if network == 'StorageDashboard' %}
 {%     set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[networks['StorageDashboard']['name_lower']])) %}
 {%   endif %}
