@@ -12,16 +12,7 @@
 {%   set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[networks['InternalApi']['name_lower']])) %}
 {% endif %}
 {% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
-{% for network in enabled_networks %}
-{%   if network == 'StorageNFS' %}
-{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['StorageNFS']['name_lower']])) %}
-{%   endif %}
-{% if not vip_data.ganesha_vip is defined %}
-{%   if 'External' in enabled_networks %}
-{%     set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[networks['External']['name_lower']])) %}
-{%   endif %}
-{% endif %}
-{% endfor %}
+{% set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[service_net_map['ganesha_network']])) %}
 {% set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
 {% if 'External' in enabled_networks %}
