@@ -58,9 +58,21 @@
     setype: container_file_t
   register: _unbound_config_result
 
+- name: Create the TripleO Unbound forwarders configuration file
+  become: true
+  ansible.builtin.template:
+    src: tripleo-forwarder-unbound.conf.j2
+    dest: "{{ tripleo_unbound_config_basedir }}/tripleo-forwarder-unbound.conf"
+    mode: '0640'
+    selevel: s0
+    setype: container_file_t
+  when:
+    - tripleo_unbound_forward_resolvers is defined and tripleo_unbound_forward_resolvers != ""
+  register: _unbound_fwd_config_result
+
 - name: Restart Unbound
   when:
-    - _unbound_config_result.changed
+    - _unbound_config_result.changed or _unbound_fwd_config_result.changed
   block:
     - name: check if tripleo_unbound systemd service is active
       become: true
