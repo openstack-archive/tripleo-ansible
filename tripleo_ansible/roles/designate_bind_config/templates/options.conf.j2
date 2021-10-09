@@ -1,0 +1,21 @@
+options {
+	allow-new-zones yes;
+	directory "/var/named-persistent";
+
+	{% if external_ip|default(ctlplane_ip)|ipv4 %}
+	listen-on port 53 { {{ external_ip|default(ctlplane_ip) }};  };
+	{% elif external_ip|default(ctlplane_ip)|ipv6 %}
+	listen-on-v6 port 53 { {{ external_ip|default(ctlplane_ip) }}; };
+	{% endif %}
+
+	{% if bind_lmdb_mapsize is defined %}
+	lmdb-mapsize {{ bind_lmdb_mapsize }};
+	{% endif %}
+
+	minimal-responses yes;
+	multi-master yes;
+	querylog no;
+	recursion no;
+	version none;
+	allow-query-cache { none; };
+};
