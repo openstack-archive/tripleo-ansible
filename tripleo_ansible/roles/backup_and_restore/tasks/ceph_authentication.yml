@@ -64,6 +64,12 @@
         {{ tripleo_container_cli }} exec ceph-mon-{{ inventory_hostname }} bash -c "ceph auth export"
       register: bar_ceph_authentication_content
 
+    - name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
+      copy:
+        dest: "{{ tripleo_backup_and_restore_ceph_auth_file }}"
+        content: |
+            {{ bar_ceph_authentication_content.stdout }}
+
 - name: Ceph installed with cephadm
   when:
     - cephadm_ls.stdout is defined
@@ -74,8 +80,8 @@
       command: cephadm shell -- ceph auth export
       register: bar_ceph_authentication_content
 
-- name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
-  copy:
-    dest: "{{ tripleo_backup_and_restore_ceph_auth_file }}"
-    content: |
-        {{ bar_ceph_authentication_content.stdout }}
+    - name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
+      copy:
+        dest: "{{ tripleo_backup_and_restore_ceph_auth_file }}"
+        content: |
+            {{ bar_ceph_authentication_content.stdout }}
