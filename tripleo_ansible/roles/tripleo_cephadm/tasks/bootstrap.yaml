@@ -34,8 +34,8 @@
 
 - name: Stat pre ceph conf file in case we should bootrap with it
   stat:
-    path: "{{ tripleo_cephadm_bootstrap_conf }}"
-  register: tripleo_cephadm_bootstrap_conf_stat
+    path: "{{ tripleo_cephadm_assimilate_conf }}"
+  register: tripleo_cephadm_assimilate_conf_stat
   become: true
 
 # cephadm_ls should be registered by pre.yaml
@@ -59,7 +59,7 @@
         {% if tripleo_cephadm_registry_username|length > 0 %}--registry-username {{ tripleo_cephadm_registry_username }} \{% endif %}
         {% if tripleo_cephadm_registry_password|length > 0 %}--registry-password {{ tripleo_cephadm_registry_password }} \{% endif %}
         {% if tripleo_cephadm_spec_on_bootstrap %}--apply-spec {{ tripleo_cephadm_spec }} \{% endif %}
-        {% if tripleo_cephadm_bootstrap_conf_stat.stat.exists %}--config {{ tripleo_cephadm_bootstrap_conf }} \{% endif %}
+        {% if tripleo_cephadm_assimilate_conf_stat.stat.exists %}--config {{ tripleo_cephadm_assimilate_conf }} \{% endif %}
         --skip-monitoring-stack --skip-dashboard \
         --mon-ip {{ tripleo_cephadm_first_mon_ip }}
       register: cephadm_bootstrap
@@ -69,6 +69,7 @@
         msg: "{{ cephadm_bootstrap }}"
       when: tripleo_cephadm_verbose
   when:
+    - cephadm_ls is defined
     - cephadm_ls.stdout == '[]'
   tags:
     - cephadm_bootstrap
@@ -79,4 +80,5 @@
       'cephadm bootstrap' was not run because 'cephadm ls'
       indicates that Ceph containers are already running.
   when:
+    - cephadm_ls is defined
     - cephadm_ls.stdout != '[]'

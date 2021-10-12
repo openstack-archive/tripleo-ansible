@@ -28,6 +28,13 @@
       when:
         - not tripleo_cephadm_deployed_ceph
 
+    - name: Apply ceph_conf_overrides on update
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: apply_ceph_conf_overrides
+      when:
+        - tripleo_cephadm_apply_ceph_conf_overrides_on_update
+
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm

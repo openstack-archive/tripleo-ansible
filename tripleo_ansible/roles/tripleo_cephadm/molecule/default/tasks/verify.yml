@@ -25,15 +25,15 @@
 
 - name: Stat pre ceph conf file
   stat:
-    path: "{{ tripleo_cephadm_bootstrap_conf }}"
-  register: tripleo_cephadm_bootstrap_conf_stat
+    path: "{{ tripleo_cephadm_assimilate_conf }}"
+  register: tripleo_cephadm_assimilate_conf_stat
   become: true
 
 - name: Fail if pre ceph conf file is missing
   fail:
-    msg: "{{ tripleo_cephadm_bootstrap_conf }} does not exist according to stat"
+    msg: "{{ tripleo_cephadm_assimilate_conf }} does not exist according to stat"
   when:
-    - tripleo_cephadm_bootstrap_conf_stat.stat.exists is not defined
+    - tripleo_cephadm_assimilate_conf_stat.stat.exists is not defined
 
 - name: Stat spec file on bootstrap node
   stat:
