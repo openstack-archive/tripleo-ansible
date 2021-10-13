@@ -210,6 +210,7 @@ provisioner:
             heat_api_cloudwatch_network: ctlplane
             heat_api_network: ctlplane
             horizon_network: ctlplane
+            internal_api_network: ctlplane
             ironic_api_network: ctlplane
             ironic_inspector_network: ctlplane
             ironic_network: ctlplane
