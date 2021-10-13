@@ -6,12 +6,12 @@ openstacksdk
 pytest
 pytest-cov
 pytest-html
+pytest-testinfra
 pytest-xdist
 mock
 molecule>=3.3.4
 molecule-podman>=1.0.0a1
 ruamel.yaml
-testinfra
 netaddr
 jinja2
 
