@@ -191,6 +191,7 @@ provisioner:
             barbican_api_network: ctlplane
             bindnetwork: ctlplane
             ceph_cluster_network: ctlplane
+            ceph_dashboard_network: ctlplane
             ceph_grafana_network: ctlplane
             ceph_mon_network: ctlplane
             ceph_rgw_network: ctlplane
