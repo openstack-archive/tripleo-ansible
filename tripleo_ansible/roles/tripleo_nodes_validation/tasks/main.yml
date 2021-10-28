@@ -32,6 +32,19 @@
     - ansible_facts.default_ipv4 is defined
     - ansible_facts.default_ipv4.gateway is defined
 
+# Ping test the gateway IPs before nodes, see RHBZ#1875962
+- name: Check all networks Gateway availability
+  command: "{{ (':' in gateway_ip) | ternary('ping6', 'ping') }} -w 10 -c 1 {{ gateway_ip }}"
+  retries: 10
+  delay: 60
+  loop_control:
+    loop_var: gateway_ip
+  loop: "{{ tripleo_nodes_validation_ping_test_gateway_ips }}"
+  changed_when: false
+  when:
+    - tripleo_nodes_validation_validate_gateway_icmp|bool
+    - tripleo_nodes_validation_ping_test_gateway_ips | length > 0
+
 - name: Check Controllers availability
   command: "{{ (':' in controller) | ternary('ping6', 'ping') }} -w 10 -c 1 {{ controller }}"
   retries: 10
