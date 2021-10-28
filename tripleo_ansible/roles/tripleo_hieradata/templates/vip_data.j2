@@ -8,16 +8,8 @@
 {%   set _ = vip_data.__setitem__('internal_api_virtual_ip', (net_vip_map[networks['InternalApi']['name_lower']])) %}
 {% endif %}
 {% set _ = vip_data.__setitem__('network_virtual_ips', network_virtual_ips) %}
-{# when ceph monitoring stack is enabled the frontend vip is explicitly set according to CephDashboardNetwork #}
-{% if 'ceph_grafana' in enabled_services %}
-{%     set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
-{% endif %}
+{% set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[service_net_map['ceph_dashboard_network']])) %}
 {% set _ = vip_data.__setitem__('ganesha_vip', (net_vip_map[service_net_map['ganesha_network']])) %}
-{% for network in enabled_networks %}
-{%   if network == 'StorageDashboard' %}
-{%     set _ = vip_data.__setitem__('ceph_dashboard_vip', (net_vip_map[networks['StorageDashboard']['name_lower']])) %}
-{%   endif %}
-{% endfor %}
 {# public_virtual_ip and controller_virtual_ip are needed in both HAproxy & keepalived. #}
 {% set _ = vip_data.__setitem__('tripleo::haproxy::public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
 {% set _ = vip_data.__setitem__('tripleo::keepalived::public_virtual_ip', (net_vip_map[service_net_map['public_network']])) %}
