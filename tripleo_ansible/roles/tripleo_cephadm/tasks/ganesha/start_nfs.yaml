@@ -25,7 +25,7 @@
         mode: "0644"
 
     - name: reload dbus configuration
-      command: "killall -SIGHUP dbus-daemon"
+      command: "killall -r -SIGHUP dbus-*"
   when: tripleo_cephadm_ceph_nfs_dynamic_exports | bool
   delegate_to: "{{ nfs_node }}"
 
