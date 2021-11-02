@@ -76,23 +76,15 @@
   tags:
     - bar_create_recover_image
 
-- name: Modify ISO_PREFIX on /etc/rear/local.conf
-  lineinfile:
+- name: Configuring /etc/rear/local.conf
+  replace:
     path: /etc/rear/local.conf
-    regexp: "^ISO_PREFIX.*"
-    line: ISO_PREFIX=$HOSTNAME-{{ bar_timestamp.stdout }}
-  when:
-    - tripleo_backup_and_restore_historical
-  tags:
-    - bar_create_recover_image
-
-- name: Modify BACKUP_PROG_ARCHIVE on /etc/rear/local.conf
-  lineinfile:
-    path: /etc/rear/local.conf
-    regexp: "^BACKUP_PROG_ARCHIVE.*"
-    line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{ bar_timestamp.stdout }}
-  when:
-    - tripleo_backup_and_restore_historical
+    regexp: "^{{ item }}.*"
+    replace: "{{ item }}=$HOSTNAME-{{ bar_timestamp.stdout }}"
+  loop:
+    - ISO_PREFIX
+    - BACKUP_PROG_ARCHIVE
+    - OUTPUT_PREFIX_PXE
   tags:
     - bar_create_recover_image
 
