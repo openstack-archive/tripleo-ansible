@@ -25,3 +25,4 @@ tripleo_nodes_validation_tripleo_role_name: true
 tripleo_nodes_validation_validate_controllers_icmp: true
 tripleo_nodes_validation_validate_fqdn: false
 tripleo_nodes_validation_validate_gateway_icmp: true
+tripleo_nodes_validation_ping_test_gateway_ips: []
