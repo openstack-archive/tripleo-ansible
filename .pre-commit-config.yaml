@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: ansible-lint
         additional_dependencies:
-          - 'ansible<2.10'
+          - 'ansible-core<2.12'
           - yamllint
   - repo: https://github.com/openstack-dev/bashate.git
     rev: 2.0.0
