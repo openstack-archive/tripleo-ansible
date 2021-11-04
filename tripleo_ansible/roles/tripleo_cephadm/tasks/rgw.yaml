@@ -29,6 +29,14 @@
       with_items: "{{ groups['ceph_rgw'] }}"
       when: not tripleo_cephadm_fqdn | bool
 
+    - name: Get certificate from remote node if needed
+      become: true
+      when:
+        - tripleo_cephadm_internal_tls_enabled | bool
+      register: slurp_cert
+      ansible.builtin.slurp:
+        src: "{{ radosgw_frontend_ssl_certificate | default('/etc/pki/tls/certs/ceph_rgw.crt')}}"
+
     - name: Create the RGW Daemon spec definition
       become: true
       ceph_mkspec:
@@ -48,11 +56,6 @@
         CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
       vars:
-        rgw_frontend_cert: |-
-          {% set fcert_lookup = '' %}
-          {% if tripleo_cephadm_internal_tls_enabled | bool %}
-          {%   set fcert_lookup = lookup('file', radosgw_frontend_ssl_certificate) %}
-          {% endif %}
-          {{ fcert_lookup }}
+        rgw_frontend_cert: "{{ slurp_cert.get('content', '') | b64decode }}"
   when:
     - tripleo_enabled_services | intersect(['ceph_rgw'])
