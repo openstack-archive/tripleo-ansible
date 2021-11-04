@@ -24,7 +24,7 @@
 tripleo_backup_and_restore_rear_packages:
   - rear
   - syslinux
-  - genisoimage
+  - xorriso
   - nfs-utils
   - lftp
 tripleo_backup_and_restore_nfs_packages:
