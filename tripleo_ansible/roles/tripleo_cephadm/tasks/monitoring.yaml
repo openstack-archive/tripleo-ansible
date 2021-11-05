@@ -45,6 +45,7 @@
         CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
 
     - name: Config ssl cert(s) and key(s) for the exposed components
+      become: true
       block:
         - name: Get ceph_cli
           include_tasks: ceph_cli.yaml
