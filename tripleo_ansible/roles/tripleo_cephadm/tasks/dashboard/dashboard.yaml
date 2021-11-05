@@ -19,6 +19,7 @@
   vars:
     mount_spec: true
     sensitive_data: true
+    mount_certs: "{{ (tripleo_cephadm_dashboard_protocol == 'https' and tripleo_cephadm_dashboard_crt | length > 0 and tripleo_cephadm_dashboard_key | length > 0) | bool }}"
 
 - name: Configure the Ceph Dashboard port
   become: true
