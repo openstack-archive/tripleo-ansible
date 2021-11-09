@@ -58,8 +58,9 @@
         state: directory
 
     - name: Generate ssh key for Octavia
-      openssh_keypair:
-        path: "{{ ssh_key_dir }}/octavia_id_rsa"
+      shell: "ssh-keygen -q -t rsa -N '' -f {{ ssh_key_dir }}/octavia_id_rsa"
+      args:
+        creates: "{{ ssh_key_dir }}/octavia_id_rsa"
       no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
 
     - name: Set ssh key path fact
