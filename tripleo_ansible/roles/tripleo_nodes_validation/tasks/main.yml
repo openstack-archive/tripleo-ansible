@@ -33,10 +33,13 @@
     - ansible_facts.default_ipv4.gateway is defined
 
 - name: Check Controllers availability
-  include_tasks: ping.yml
+  command: "{{ (':' in controller) | ternary('ping6', 'ping') }} -w 10 -c 1 {{ controller }}"
+  retries: 10
+  delay: 60
   loop_control:
     loop_var: controller
   loop: "{{ tripleo_nodes_validation_ping_test_ips }}"
+  changed_when: false
   when:
     - tripleo_nodes_validation_validate_controllers_icmp|bool
     - tripleo_nodes_validation_ping_test_ips | length > 0
