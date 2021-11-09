@@ -94,6 +94,9 @@
         - section: engine
           option: runtime
           value:  "\"{{ tripleo_container_default_runtime }}\""
+        - section: engine
+          option: infra_image
+          value:  "\"{{ tripleo_container_default_infra_image }}\""
 
     - name: Enable podman.socket service
       when:
