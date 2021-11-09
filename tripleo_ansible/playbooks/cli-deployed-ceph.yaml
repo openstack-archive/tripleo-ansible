@@ -117,47 +117,35 @@
   vars:
     tripleo_cephadm_spec_on_bootstrap: false
     tripleo_cephadm_spec_ansible_host: "{{ ceph_spec_path }}"
-    storage_network_name: Storage
-    storage_mgmt_network_name: StorageMgmt
+    tripleo_cephadm_bootstrap_host: "{{ inventory_hostname_short }}"
   pre_tasks:
-    - name: ensure ceph_spec_path is defined
+    - name: Ensure ceph_spec_path is defined
       set_fact:
         ceph_spec_path: "{{ working_dir }}/generated_ceph_spec.yaml"
       when:
         - ceph_spec_path is undefined
 
-    - name: Ensure storage networks are in the inventory
+    - name: Ensure public_network and cluster_network are defined
       fail:
         msg: >
-          Both {{ storage_network_name }} and {{ storage_mgmt_network_name }}
-          should be in {{ networks }} but are not. If desired, override the
-          network name variables, e.g. -e storage_network_name=ctlplane
-          -e storage_mgmt_network_name=ctlplane
+          The following four variables must be passed to this playbook
+          public_network ({{ public_network }}) |
+          public_network_name ({{ public_network_name }}) |
+          cluster_network ({{ cluster_network }}) |
+          cluster_network_name ({{ cluster_network_name }})
       when:
-        - storage_network_name not in networks or
-          storage_mgmt_network_name not in networks
-      vars:
-        networks: "{{ hostvars[inventory_hostname_short]['networks_all']
-                   | union(['ctlplane']) | list | unique }}"
+        - (public_network is undefined or public_network | length == 0) or
+          (public_network_name is undefined or public_network_name | length == 0) or
+          (cluster_network is undefined or cluster_network | length == 0) or
+          (cluster_network_name is undefined or cluster_network_name | length == 0)
 
-    - name: Set Network Facts
+    - name: Set IP address of first monitor
       set_fact:
-        tripleo_cephadm_bootstrap_host: "{{ inventory_hostname_short }}"
-        tripleo_cephadm_first_mon_ip: "{{ hv[netmap[storage_network_name] + '_ip'] }}"
-        storage_mgmt_network_ip: "{{ hv[netmap[storage_mgmt_network_name] + '_ip'] }}"
-        storage_network_cidr: "{{ hv[netmap[storage_network_name] + '_cidr'] }}"
-        storage_mgmt_network_cidr: "{{ hv[netmap[storage_mgmt_network_name] + '_cidr' ]}}"
+        tripleo_cephadm_first_mon_ip: "{{ hv[public_network_name + '_ip'] }}"
       vars:
         hv: "{{ hostvars[inventory_hostname_short] }}"
-        netmap: "{{ hostvars[inventory_hostname_short]['networks_lower'] }}"
-
-    - name: Set public and cluster networks
-      set_fact:
-        public_network: "{{ public | ansible.netcommon.ipaddr('network/prefix') }}"
-        cluster_network: "{{ private | ansible.netcommon.ipaddr('network/prefix') }}"
-      vars:
-        public: "{{ tripleo_cephadm_first_mon_ip }}/{{ storage_network_cidr }}"
-        private: "{{ storage_mgmt_network_ip }}/{{ storage_mgmt_network_cidr }}"
+      when:
+        - tripleo_cephadm_first_mon_ip is undefined
 
   tasks:
     - name: Satisfy Ceph prerequisites

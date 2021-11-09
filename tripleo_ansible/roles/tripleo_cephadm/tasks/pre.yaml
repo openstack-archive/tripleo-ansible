@@ -103,7 +103,30 @@
   become: true
   when: tripleo_cephadm_spec_stat_host.stat.exists
 
-- name: generate pre ceph.conf configuration file for initial bootstrap
+- name: was a tripleo_cephadm_bootstrap_conf passed?
+  when:
+    - tripleo_cephadm_bootstrap_conf is defined
+    - tripleo_cephadm_bootstrap_conf | length > 0
+  block:
+    - name: stat tripleo_cephadm_bootstrap_conf file
+      stat:
+        path: "{{ tripleo_cephadm_bootstrap_conf }}"
+      register: stat_bootstrap_conf
+      become: true
+      delegate_to: localhost
+      ignore_errors: true
+
+    - name: push it to tripleo_cephadm_assimilate_conf on bootstrap node
+      copy:
+        src: "{{ tripleo_cephadm_bootstrap_conf }}"
+        dest: "{{ tripleo_cephadm_assimilate_conf }}"
+        owner: "{{ tripleo_cephadm_ssh_user }}"
+        group: "{{ tripleo_cephadm_ssh_user }}"
+        mode: '0644'
+      become: true
+      when: stat_bootstrap_conf.stat.exists
+
+- name: generate tripleo_cephadm_assimilate_conf on bootstrap node
   action: config_template
   args:
     src: "ceph.conf.j2"
@@ -114,3 +137,6 @@
     config_overrides: "{{ tripleo_cephadm_conf_overrides }}"
     config_type: ini
   become: true
+  when:
+    - tripleo_cephadm_bootstrap_conf is not defined or
+      tripleo_cephadm_bootstrap_conf | length == 0
