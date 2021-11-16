@@ -36,20 +36,28 @@
         - "{{ tripleo_transfer_dest_host }}"
 
     - name: generate ssh key-pair in source host
-      community.crypto.openssh_keypair:
-        path: "{{ tripleo_transfer_key_location }}"
+      shell: "ssh-keygen -t rsa -q -N '' -f {{ tripleo_transfer_key_location }}"
+      args:
+        creates: "{{ tripleo_transfer_key_location }}"
+      delegate_to: "{{ tripleo_transfer_src_host }}"
+      become: "{{ tripleo_transfer_src_become }}"
+      register: keypair_generation
+
+    - name: register public key
+      command: "cat {{ tripleo_transfer_key_location }}.pub"
       delegate_to: "{{ tripleo_transfer_src_host }}"
       become: "{{ tripleo_transfer_src_become }}"
       register: keypair_gen
+      when: keypair_generation is succeeded
 
     - name: set authorized-keys in destination host
       authorized_key:
         comment: "Added by tripleo-transfer"
         user: "{{ ansible_user|default(ansible_ssh_user|default(hostvars[tripleo_transfer_dest_host].ansible_user_id)) }}"
         state: present
-        key: "{{ keypair_gen.public_key }}"
+        key: "{{ keypair_gen.stdout }}"
       delegate_to: "{{ tripleo_transfer_dest_host }}"
-      when: keypair_gen is succeeded
+      when: keypair_generation is succeeded
 
     - import_tasks: flag.yml
       when:
