@@ -1,0 +1,69 @@
+---
+network_config:
+- type: interface
+  name: nic1
+  mtu: 1350
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_subnet_cidr }}
+{% if 'ExternalCloud1' not in role_networks %}
+  routes:
+  - default: true
+    next_hop: {{ ctlplane_gateway_ip }}
+{% endif %}
+{% if 'ExternalCloud1' in role_networks or 'external_bridge' in role_tags %}
+- type: ovs_bridge
+  name: br-ex
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  domain: {{ dns_search_domains }}
+  use_dhcp: false
+  members:
+  - type: interface
+    name: nic2
+    mtu: 1350
+    primary: true
+{% endif %}
+{% if 'ExternalCloud1' in role_networks %}
+  routes:
+  - ip_netmask: 0.0.0.0/0
+    next_hop: {{ external_cloud_1_gateway_ip | default('10.0.0.1') }}
+  addresses:
+  - ip_netmask: {{ external_cloud_1_ip }}/{{ external_cloud_1_cidr }}
+{% endif %}
+{% if 'InternalApiCloud1' in role_networks %}
+- type: interface
+  name: nic3
+  mtu: 1350
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ internal_api_cloud_1_ip }}/{{ internal_api_cloud_1_cidr }}
+{% endif %}
+{% if 'StorageCloud1' in role_networks %}
+- type: interface
+  name: nic4
+  mtu: 1350
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ storage_cloud_1_ip }}/{{ storage_cloud_1_cidr }}
+{% endif %}
+{% if 'StorageMgmtCloud1' in role_networks %}
+- type: interface
+  name: nic5
+  mtu: 1350
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ storage_mgmt_cloud_1_ip }}/{{ storage_mgmt_cloud_1_cidr }}
+{% endif %}
+{% if 'TenantCloud1' in role_networks %}
+- type: ovs_bridge
+  name: br-tenant
+  dns_servers: {{ ctlplane_dns_nameservers }}
+  use_dhcp: false
+  addresses:
+  - ip_netmask: {{ tenant_cloud_1_ip }}/{{ tenant_cloud_1_cidr }}
+  members:
+  - type: interface
+    name: nic6
+    mtu: 1350
+    primary: true
+{% endif %}
