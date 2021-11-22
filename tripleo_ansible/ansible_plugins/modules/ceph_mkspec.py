@@ -64,7 +64,7 @@ options:
           - The Ceph daemon that is going to be applied
         required: true
         type: str
-        choices: ['host', 'mon', 'osd', 'mds', 'rgw', 'nfs', 'node-exporter', 'prometheus', 'alertmanager', 'grafana', 'rbd-mirror']
+        choices: ['host', 'mon', 'osd', 'mds', 'rgw', 'nfs', 'node-exporter', 'prometheus', 'alertmanager', 'grafana', 'rbd-mirror', 'ingress']
     service_id:
         description:
           - The ID associated to the Ceph daemon
@@ -149,6 +149,7 @@ EXAMPLES = '''
     labels:
       - "controller"
     apply: true
+
 - name: create the Ceph RGW daemon spec
   ceph_spec:
     service_type: rgw
@@ -161,6 +162,22 @@ EXAMPLES = '''
     labels:
       - "controller"
     apply: true
+
+- name: create the Ceph RGW ingress daemon spec
+  ceph_spec:
+    service_type: ingress
+    service_id: rgw.default
+    service_name: ingress.rgw.default
+    render_path: '/home/ceph-admin/specs'
+    labels:
+      - "controller"
+    spec:
+      backend_service: rgw.default
+      frontend_port: 8080
+      monitor_port: 8081
+      virtual_ip: 1.2.3.4/24"
+    apply: true
+
 '''
 
 RETURN = '''#  '''

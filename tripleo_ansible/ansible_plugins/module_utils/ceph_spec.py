@@ -18,12 +18,8 @@ import ipaddress
 import json
 import sys
 
-# NOTES/TODO(s):
-# 1. multilevel spec_keys validation
-# 2. Allow count != 0 for daemons
-
 ALLOWED_DAEMONS = ['host', 'mon', 'mgr', 'mds', 'nfs', 'osd', 'rgw', 'grafana',
-                   'crash', 'prometheus', 'alertmanager', 'node-exporter']
+                   'crash', 'prometheus', 'alertmanager', 'node-exporter', 'ingress']
 
 ALLOWED_HOST_PLACEMENT_MODE = ['hosts', 'host_pattern', 'label']
 
@@ -48,6 +44,14 @@ ALLOWED_SPEC_KEYS = {
     'nfs': [
         'namespace',
         'pool'
+    ],
+    'ingress': [
+        'backend_service',
+        'frontend_port',
+        'monitor_port',
+        'virtual_ip',
+        'virtual_interface_networks',
+        'ssl_cert'
     ],
 }
 
