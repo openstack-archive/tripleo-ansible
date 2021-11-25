@@ -56,7 +56,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -111,7 +110,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
     name: tripleo-ansible-molecule-jobs
     periodic-weekly:
       jobs:
@@ -552,14 +550,3 @@
     timeout: 1800
     vars:
       tox_envlist: role-addition
-- job:
-    files:
-    - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_configs.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_config_scripts.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_dnf_stream.py
-    - ^tripleo_ansible/ansible_plugins/strategy/.*
-    - ^tox.ini
-    name: tripleo-ansible-centos-8-molecule-tripleo-modules
-    parent: tripleo-ansible-centos-8-base
