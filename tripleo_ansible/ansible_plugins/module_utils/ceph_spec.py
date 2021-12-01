@@ -27,6 +27,9 @@ ALLOWED_DAEMONS = ['host', 'mon', 'mgr', 'mds', 'nfs', 'osd', 'rgw', 'grafana',
 
 ALLOWED_HOST_PLACEMENT_MODE = ['hosts', 'host_pattern', 'label']
 
+CRUSH_ALLOWED_LOCATION = ['osd', 'host', 'chassis', 'rack', 'row', 'pdu', 'pod',
+                          'room', 'datacenter', 'zone', 'region', 'root']
+
 ALLOWED_EXTRA_KEYS = {
     'osd': [
         'data_devices',
@@ -105,7 +108,9 @@ class CephHostSpec(object):
     def __init__(self, daemon_type: str,
                  daemon_addr: str,
                  daemon_hostname: str,
-                 labels: list):
+                 labels: list,
+                 location: dict = None,
+                 ):
 
         self.daemon_type = daemon_type
         self.daemon_addr = daemon_addr
@@ -114,8 +119,21 @@ class CephHostSpec(object):
         assert isinstance(labels, list)
         self.labels = list(set(labels))
 
+        # init crush location parameters
+        if location and isinstance(location, dict):
+            self.location = location
+        else:
+            self.location = {}
+
+    def is_valid_crush_location(self):
+        for k in self.location.keys():
+            if k not in CRUSH_ALLOWED_LOCATION:
+                return False
+        return True
+
     def make_daemon_spec(self):
         lb = {}
+        crloc = {}
 
         spec_template = {
             'service_type': self.daemon_type,
@@ -126,7 +144,13 @@ class CephHostSpec(object):
         if len(self.labels) > 0:
             lb = {'labels': self.labels}
 
-        spec_template = {**spec_template, **lb}
+        if self.location:
+            if self.is_valid_crush_location():
+                crloc = {'location': self.location}
+            else:
+                raise Exception("Fatal: the spec should be composed by only allowed keywords")
+
+        spec_template = {**spec_template, **lb, **crloc}
         return spec_template
 
 

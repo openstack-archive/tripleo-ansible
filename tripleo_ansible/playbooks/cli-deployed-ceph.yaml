@@ -60,6 +60,7 @@
         deployed_metalsmith: "{{ baremetal_deployed_path }}"
         tripleo_roles: "{{ tripleo_roles_path }}"
         osd_spec: "{{ osd_spec }}"
+        crush_hierarchy: "{{ ceph_crush_hierarchy | default({}) }}"
       when:
         - dynamic_ceph_spec | bool
 

@@ -66,6 +66,10 @@ options:
         description: When true, the "hostname" and "hosts" in the generated Ceph spec will have their fully qualified domain name. This paramter defaults to false and only has an effect when tripleo_ansible_inventory is used.
         required: False
         type: bool
+    crush_hierarchy:
+        description: The crush hierarchy, expressed as a dict, maps the relevant OSD nodes to a user defined crush hierarchy.
+        required: False
+        type: dict
 author:
     - John Fulton (fultonj)
 '''
@@ -85,6 +89,13 @@ EXAMPLES = '''
   ceph_spec_bootstrap:
     new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
     tripleo_ansible_inventory: ~/config-download/overcloud/tripleo-ansible-inventory.yaml
+    crush_hierarchy:
+      ceph_osd-0:
+        rack: r1
+      ceph_osd-1:
+        rack: r1
+      ceph_osd-2:
+        rack: r1
     fqdn: true
     osd_spec:
       data_devices:
@@ -312,7 +323,7 @@ def get_label_map(hosts_to_ips, roles_to_svcs, roles_to_hosts, ceph_service_type
     return label_map
 
 
-def get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec={}):
+def get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec={}, cr={}):
     """Build specs from hosts map, label_map, and ceph_service_types list
        Create a ceph_spec object for each host or service
        Returns a list of dictionaries.
@@ -321,7 +332,7 @@ def get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec={}):
     # Create host entries
     for host, ip in hosts_to_ips.items():
         if len(label_map[host]) > 0:
-            spec = ceph_spec.CephHostSpec('host', ip, host, label_map[host])
+            spec = ceph_spec.CephHostSpec('host', ip, host, label_map[host], location=cr.get(host, None))
             specs.append(spec.make_daemon_spec())
 
     # Create service entries for supported services in SERVICE_MAP
@@ -394,6 +405,7 @@ def main():
     tripleo_roles = module.params.get('tripleo_roles')
     osd_spec = module.params.get('osd_spec')
     fqdn = module.params.get('fqdn')
+    crush = module.params.get('crush_hierarchy')
 
     # Set defaults
     if ceph_service_types is None:
@@ -406,6 +418,8 @@ def main():
         osd_spec = {}
     if fqdn is None:
         fqdn = False
+    if crush is None:
+        crush = {}
 
     # Validate inputs
     # 0. Are they using metalsmith xor an inventory as their method?
@@ -472,7 +486,7 @@ def main():
         label_map = get_label_map(hosts_to_ips, roles_to_svcs,
                                   roles_to_hosts, ceph_service_types)
         # Build specs as list of ceph_spec objects from data structures
-        specs = get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec)
+        specs = get_specs(hosts_to_ips, label_map, ceph_service_types, osd_spec, crush)
         # Render specs list to file
         render(specs, new_ceph_spec)
 
