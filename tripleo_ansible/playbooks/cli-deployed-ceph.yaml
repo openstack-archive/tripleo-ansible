@@ -54,13 +54,22 @@
         - osd_spec_path is defined
         - osd_spec_path | length > 0
 
+    - name: Override crush hierarchy if a custom crush path is provided
+      set_fact:
+        crush_hierarchy: "{{ crush_spec_content | from_yaml }}"
+      vars:
+        crush_spec_content: "{{ lookup('file', crush_hierarchy_path) }}"
+      when:
+        - crush_hierarchy_path is defined
+        - crush_hierarchy_path | length > 0
+
     - name: Create Ceph spec based on baremetal_deployed_path and tripleo_roles
       ceph_spec_bootstrap:
         new_ceph_spec: "{{ ceph_spec_path }}"
         deployed_metalsmith: "{{ baremetal_deployed_path }}"
         tripleo_roles: "{{ tripleo_roles_path }}"
         osd_spec: "{{ osd_spec }}"
-        crush_hierarchy: "{{ ceph_crush_hierarchy | default({}) }}"
+        crush_hierarchy: "{{ crush_hierarchy | default({}) }}"
       when:
         - dynamic_ceph_spec | bool
 
