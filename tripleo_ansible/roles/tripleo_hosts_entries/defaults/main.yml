@@ -22,4 +22,4 @@ tripleo_hosts_entries_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_hosts_entries_hosts_path: /etc/hosts
 tripleo_hosts_entries_undercloud_hosts_entries: ""
 tripleo_hosts_entries_extra_hosts_entries: ""
-tripleo_hosts_entries_vip_hosts_entries: ""
+tripleo_hosts_entries_overcloud_hosts_entries: "{{ hosts_entry }}"
