@@ -26,6 +26,7 @@
       - '/usr/share/ansible/tripleo-playbooks/disable_cephadm.yml'
       - '-e @{{ playbook_dir }}/cephadm/cephadm-extra-vars-heat.yml'
       - '-e @{{ playbook_dir }}/global_vars.yaml'
+      - '--limit ceph_mon[0]'
 
 - name: Run disable_cephadm
   shell: "{{ (cephadm_disable_cephadm_command)|join(' ') }}"
