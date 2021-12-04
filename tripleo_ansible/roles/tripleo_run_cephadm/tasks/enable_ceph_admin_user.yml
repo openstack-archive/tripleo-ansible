@@ -70,7 +70,7 @@
       - '{{ inventory_file }}'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
       - '/usr/share/ansible/tripleo-playbooks/ceph-admin-user-playbook.yml'
-      - '-e tripleo_admin_user=ceph-admin'
+      - "-e tripleo_admin_user={{ tripleo_cephadm_ssh_user|default('ceph-admin') }}"
     cephadm_public_private_ssh_list:
       - '-e distribute_private_key=true'
       - "--limit @{{ ceph_working_dir }}/cephadm_admin_limit.txt"
