@@ -22,6 +22,25 @@ Listen {{ tripleo_container_registry_port }}
         Header set Docker-Distribution-Api-Version registry/2.0
     </Directory>
 
+    # LP#1953198 / rhbz#2026654
+    <LocationMatch "^/v2/.*/.*/manifests/(?!sha256:).*$">
+        Options FollowSymLinks
+        AllowOverride None
+        AddHandler type-map .type-map
+        RewriteEngine On
+        ReWriteCond %{REQUEST_URI} !(\.json|\.type-map)$
+        RewriteRule ^(.*) $1.type-map [PT,L]
+    </LocationMatch>
+
+    <LocationMatch "^/v2/.*/manifests/(?!sha256:).*$">
+        Options FollowSymLinks
+        AllowOverride None
+        AddHandler type-map .type-map
+        RewriteEngine On
+        ReWriteCond %{REQUEST_URI} !(\.json|\.type-map)$
+        RewriteRule ^(.*) $1.type-map [PT,L]
+    </LocationMatch>
+
     <LocationMatch "^/v2/.*/.*/blobs/sha256:.*$">
         SetEnvIf Request_URI "sha256:(.*)$" digest=sha256:$1
         Header set Docker-Content-Digest "%{digest}e"
