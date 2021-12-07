@@ -5,6 +5,8 @@
 
 - include_tasks: quotas.yml
 
+- include_tasks: flavor.yml
+
 - import_tasks: check_existing_certs.yml
   when:
     - generate_certs | bool
