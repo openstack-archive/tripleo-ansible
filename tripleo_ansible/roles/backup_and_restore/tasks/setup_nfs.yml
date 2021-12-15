@@ -133,6 +133,7 @@
     path: /etc/exports
     block: "{{bar_exportfs_lines}}"
     backup: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ tripleo_backup_and_restore_shared_storage_folder }}"
   tags:
     - bar_setup_nfs_server
 
