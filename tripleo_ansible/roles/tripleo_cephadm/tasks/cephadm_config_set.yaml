@@ -34,6 +34,9 @@
     {{ tripleo_cephadm_min_compat_client }}
   changed_when: false
   become: true
+  when:
+    - tripleo_cephadm_min_compat_client is defined
+    - tripleo_cephadm_min_compat_client | length > 0
 
 - name: set container image base in ceph configuration
   command: |

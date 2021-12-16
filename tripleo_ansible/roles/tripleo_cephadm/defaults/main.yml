@@ -60,7 +60,7 @@ tripleo_cephadm_rbd_mirror_pool: ''
 tripleo_cephadm_rbd_mirror_remote_cluster: not-ceph
 tripleo_cephadm_rbd_mirror_remote_user: ''
 tripleo_cephadm_debug: false
-tripleo_cephadm_min_compat_client: mimic
+tripleo_cephadm_min_compat_client: ''
 tripleo_cephadm_deployed_ceph: false
 tripleo_cephadm_deployed_ceph_tht_path: "/home/stack/deployed_ceph.yaml"
 tripleo_cephadm_backend: ''
