@@ -1,0 +1,2 @@
+lb_mgmt_prefix: "lb-mgmt"
+lb_health_mgr_sec_grp_name: "lb-health-mgr-sec-grp"
