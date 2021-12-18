@@ -16,9 +16,10 @@
 # TODO: check the orchestrator is up
 
 - name: Pause cephadm
-  hosts: ceph_mon[0]
+  hosts: allovercloud
   tasks:
     - name: Pause cephadm
+      run_once: true
       import_role:
         name: tripleo_cephadm
         tasks_from: toggle_cephadm
