@@ -119,6 +119,8 @@
         tasks_from: enable_ceph_admin_user.yml
       vars:
         ceph_working_dir: "{{ working_dir }}"
+      tags:
+        - cephadm_ssh_user
 
 
 - name: Bootstrap Ceph and apply spec
