@@ -3,7 +3,7 @@
     templates:
     - tripleo-ansible-molecule-jobs
     - release-notes-jobs-python3
-    - openstack-python3-xena-jobs
+    - openstack-python3-yoga-jobs
     - tripleo-multinode-container-minimal-pipeline
     - tripleo-standalone-scenarios-pipeline
     - tripleo-undercloud-jobs-pipeline
