@@ -14,6 +14,9 @@
 #    under the License.
 """Test the methods of the ceph_spec_bootstrap module"""
 
+import io
+import socket
+import tempfile
 import yaml
 
 from tripleo_ansible.ansible_plugins.modules import ceph_spec_bootstrap
@@ -167,3 +170,61 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
         self.assertEqual(len(specs), len(expected))
         self.assertEqual(specs, expected)
+
+    def test_standalone_spec(self):
+        hostname = socket.gethostname()
+        expected = []
+        expected.append(yaml.safe_load('''
+        addr: 192.168.122.252
+        hostname: %s
+        labels:
+        - mon
+        - _admin
+        - osd
+        - mgr
+        service_type: host
+        ''' % hostname))
+
+        expected.append(yaml.safe_load('''
+        placement:
+          hosts:
+          - %s
+        service_id: mon
+        service_name: mon
+        service_type: mon
+        ''' % hostname))
+
+        expected.append(yaml.safe_load('''
+        placement:
+          hosts:
+          - %s
+        service_id: mgr
+        service_name: mgr
+        service_type: mgr
+        ''' % hostname))
+
+        expected.append(yaml.safe_load('''
+        data_devices:
+          all: true
+        placement:
+          hosts:
+          - %s
+        service_id: default_drive_group
+        service_name: osd.default_drive_group
+        service_type: osd
+        ''' % hostname))
+
+        expected_spec = tempfile.NamedTemporaryFile()
+        for spec in expected:
+            with open(expected_spec.name, 'a') as f:
+                f.write('---\n')
+                f.write(yaml.safe_dump(spec))
+
+        my_spec = tempfile.NamedTemporaryFile()
+        ceph_spec_bootstrap.ceph_spec_standalone(my_spec.name,
+                                                 mon_ip='192.168.122.252')
+        self.assertCountEqual(
+            list(io.open(expected_spec.name)),
+            list(io.open(my_spec.name)))
+        expected_spec.close()
+        my_spec.close()
