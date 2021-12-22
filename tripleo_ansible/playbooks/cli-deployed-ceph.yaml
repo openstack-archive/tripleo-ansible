@@ -26,15 +26,21 @@
     cephadm_admin_hosts: []
     cephadm_non_admin_hosts: []
   pre_tasks:
-    - fail:
-        msg: baremetal_deployed_path is a required input
+    - name: Ensure required inputs if using dynamic_ceph_spec
       when:
-        - baremetal_deployed_path is undefined
-    - fail:
-        msg: deployed_ceph_tht_path is a required input
-      when:
-        - deployed_ceph_tht_path is undefined
-    - fail:
+        - dynamic_ceph_spec | bool
+      block:
+        - fail:
+            msg: baremetal_deployed_path is a required input
+          when:
+            - baremetal_deployed_path is undefined
+        - fail:
+            msg: deployed_ceph_tht_path is a required input
+          when:
+            - deployed_ceph_tht_path is undefined
+
+    - name: Ensure working_dir is provided
+      fail:
         msg: working_dir is a required input
       when:
         - working_dir is undefined
