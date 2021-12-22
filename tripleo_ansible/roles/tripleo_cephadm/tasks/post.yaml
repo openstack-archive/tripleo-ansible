@@ -39,6 +39,7 @@
     - name: Deployed daemons
       debug:
         msg: "{{ ceph_orch_ls.stdout_lines }}"
+      when: tripleo_cephadm_verbose
     - name: Print the status of the deployed Ceph cluster
       command: "{{ tripleo_cephadm_ceph_cli }} -s"
       become: true
