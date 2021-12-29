@@ -14,5 +14,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+_tripleo_podman_packages:
+  - podman
+
+_tripleo_buildah_packages:
+  - buildah
 
 tripleo_container_default_runtime: crun
