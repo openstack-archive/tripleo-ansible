@@ -20,7 +20,8 @@
 # found within the "vars/" path. If no OS files are found the task will skip.
 
 - name: Fail if tripleo_delegate_to is undefined
-  fail: msg="tripleo_delegate_to is a mandatory variable"
+  fail: msg="tripleo_delegate_to is a mandatory variable for
+              tripleo-container-stop on {{ tripleo_containers_to_stop }}"
   when:
     - not ((tripleo_delegate_to is defined) and (tripleo_delegate_to | length > 0))
 
