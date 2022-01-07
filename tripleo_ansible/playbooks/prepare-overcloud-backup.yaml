@@ -14,7 +14,7 @@
 #   under the License.
 
 - name: TripleO Controller ReaR installation and configuration.
-  hosts: Controller
+  hosts: '{{ tripleo_controller_group_name }}'
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
   become: true
   roles:
