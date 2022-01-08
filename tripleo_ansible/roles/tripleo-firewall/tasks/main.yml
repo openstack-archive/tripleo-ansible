@@ -58,9 +58,22 @@
         tripleo_rules: "{{ firewall_rules_sorted }}"
       register: _iptables_result
 
+    # If the iptables file is still empty at this point, we need to run iptables-save.
+    # We can assume that if the iptables file is empty, the ip6tables file is probably
+    # empty as well. So let's use this to run the Firewall save block in such a case.
+    # bz: https://bugzilla.redhat.com/show_bug.cgi?id=2033570
+    - name: Check for empty ruleset
+      lineinfile:
+        name: /etc/sysconfig/iptables
+        line: "# empty ruleset created by deployed-server bootstrap"
+        state: absent
+      check_mode: true
+      register: _empty_ruleset
+
 - name: Firewall save block
   when:
-    - _iptables_result.changed
+    - _iptables_result.changed or
+      _empty_ruleset.changed
   become: true
   block:
     - name: Save firewall rules ipv4
