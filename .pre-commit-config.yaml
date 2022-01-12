@@ -24,7 +24,7 @@ repos:
         #                  All of these ignore codes should be resolved in
         #                  future PRs.
   - repo: https://github.com/ansible-community/ansible-lint
-    rev: v5.0.7
+    rev: v5.3.2
     hooks:
       - id: ansible-lint
         additional_dependencies:
