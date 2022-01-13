@@ -20,6 +20,7 @@ test_deps_yaml_packages:
   - python3-pyyaml
 test_deps_selinux_packages:
   - python3-libselinux
+  - python3-policycoreutils
 test_deps_tripleo_packages:
   - python3-tripleoclient
   - python3-openstacksdk

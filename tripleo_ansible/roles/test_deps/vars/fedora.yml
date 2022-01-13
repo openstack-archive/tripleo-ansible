@@ -18,7 +18,9 @@
 test_deps_repo: https://trunk.rdoproject.org/fedora/current
 test_deps_selinux_packages:
   - python3-libselinux
+  - python3-policycoreutils
   - python2-libselinux
+  - python2-policycoreutils
 test_deps_tripleo_packages:
   - python3-tripleoclient
   - python3-openstacksdk

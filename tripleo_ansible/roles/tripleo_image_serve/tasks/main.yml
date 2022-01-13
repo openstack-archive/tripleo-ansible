@@ -14,6 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather SELinux fact if needed
+  when:
+    - ansible_facts.selinux is undefined
+  setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "selinux"
 
 - name: ensure apache is installed
   package:
@@ -51,6 +59,16 @@
     src: image-serve.conf.j2
     dest: /etc/httpd/conf.d/image-serve.conf
   register: tripleo_image_serve_config_result
+
+- name: Allow httpd on image-serve port
+  when:
+    - ansible_facts.selinux.status == "enabled"
+  community.general.seport:
+    ports:
+      - "{{ tripleo_container_registry_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
 
 - name: Image-Serve | restart httpd
   systemd:
