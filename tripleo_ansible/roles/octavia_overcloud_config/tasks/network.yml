@@ -23,7 +23,7 @@
     if [[ $(openstack subnet show {{ lb_mgmt_subnet_name }} > /dev/null; echo $?) -eq 1 ]]; then
       openstack subnet create {{ lb_mgmt_subnet_name }} \
         --allocation-pool=start={{ lb_mgmt_subnet_pool_start }},end={{ lb_mgmt_subnet_pool_end }} \
-        --gateway={{ lb_mgmt_subnet_gateway }} \
+        --gateway none \
         --network {{ lb_mgmt_net_id }} \
         --subnet-range {{ lb_mgmt_subnet_cidr }}
     fi
