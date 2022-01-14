@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 Listen {{ tripleo_container_registry_port }}
-<VirtualHost {{ tripleo_container_registry_host }}:{{ tripleo_container_registry_port }}>
+<VirtualHost *:{{ tripleo_container_registry_port }}>
     DocumentRoot {{ tripleo_image_data_dir }}
     ErrorLog "/var/log/httpd/image_serve_error.log"
     ServerSignature Off
