@@ -620,7 +620,7 @@
     - ^zuul.d/playbooks/.*
     - ^zuul.d/molecule.yaml
     name: tripleo-ansible-centos-8-role-addition
-    nodeset: centos-8
+    nodeset: centos-8-stream
     parent: tox
     timeout: 1800
     voting: true
