@@ -16,7 +16,7 @@
           irrelevant-files:
           - ^tox.ini$
       - openstack-tox-linters: &tripleo-linters
-          nodeset: centos-8
+          nodeset: centos-8-stream
       - openstack-tox-docs: &tripleo-docs
           files:
           - ^doc/.*
