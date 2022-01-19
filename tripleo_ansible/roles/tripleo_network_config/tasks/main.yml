@@ -54,6 +54,11 @@
   when: os_net_config_returncode_stat.stat.exists
   register: os_net_config_returncode_slurp
 
+- name: Ensure we get cloud-init
+  stat:
+    path: /etc/cloud/cloud.cfg.d
+  register: cloud_init_exists
+
 - name: NetworkConfig
   become: true
   block:
@@ -93,6 +98,19 @@
         dest: /var/lib/tripleo-config/os-net-config.returncode
       when:
         - NetworkConfig_result.rc is defined
+
+    # LP Bug: https://bugs.launchpad.net/tripleo/+bug/1958332
+    - name: Disable cloud-init network config
+      copy:
+        content: |
+          network:
+            config: disabled
+        dest: /etc/cloud/cloud.cfg.d/99-tripleo-disable-network-config.cfg
+      when:
+        - NetworkConfig_result.rc is defined
+        - NetworkConfig_result.rc == 0
+        - cloud_init_exists.stat.exists
+        - cloud_init_exists.stat.isdir
 
     # os-net-config currently relies on the legacy network
     # so we need to ensure it's enabled on boot. This should
