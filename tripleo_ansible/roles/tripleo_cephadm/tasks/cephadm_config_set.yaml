@@ -78,3 +78,22 @@
         {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_prometheus \
         {{ tripleo_cephadm_prometheus_container_image }}
       changed_when: false
+
+- name: set ingress container images in ceph mgr configuration
+  when:
+    - tripleo_cephadm_haproxy_container_image is defined
+    - tripleo_cephadm_keepalived_container_image is defined
+    - not (tripleo_cephadm_default_container | default(false))
+  become: true
+  block:
+    - name: set haproxy container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_haproxy \
+        {{ tripleo_cephadm_haproxy_container_image }}
+      changed_when: false
+
+    - name: set keepalived container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/container_image_keepalived \
+        {{ tripleo_cephadm_keepalived_container_image }}
+      changed_when: false

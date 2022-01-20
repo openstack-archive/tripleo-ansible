@@ -119,11 +119,26 @@
       when:
         - not cephadm_admin_hosts | length > 0
 
-    - name: Add hosts with mon label to new ceph_mon inventory group for next play
+    - name: Add hosts with mon label to ceph_mon inventory group for next play
       add_host:
         name: "{{ item }}"
         groups: ceph_mon
       loop: "{{ cephadm_admin_hosts }}"
+
+    - name: Add mds and nfs labels
+      block:
+        - name: Add hosts with mds label to ceph_mds inventory group for next play
+          add_host:
+            name: "{{ item }}"
+            groups: ceph_mds
+          loop: "{{ cephadm_admin_hosts }}"
+
+        - name: Add hosts with nfs label to ceph_nfs inventory group for next play
+          add_host:
+            name: "{{ item }}"
+            groups: ceph_nfs
+          loop: "{{ cephadm_admin_hosts }}"
+      when: tripleo_cephadm_daemon_ceph_nfs | default(False)
 
     - name: Prepare cephadm user and keys
       include_role:
@@ -196,6 +211,33 @@
         tasks_from: apply_spec
       when:
         - not tripleo_cephadm_spec_on_bootstrap
+
+    - name: Config MDS and Ganesha daemons
+      when: tripleo_cephadm_daemon_ceph_nfs | default(False)
+      block:
+        - fail:
+            msg: Vips are required to configure HA services
+          when:
+            - tripleo_cephadm_ha_services_path is not defined
+        - name: Config MDS
+          import_role:
+            name: tripleo_cephadm
+            tasks_from: mds
+          vars:
+            cephfs_data_pool:
+                name: "{{ cephfs_data | default('manila_data') }}"
+                application: cephfs
+            cephfs_metadata_pool:
+                application: cephfs
+                name: "{{ cephfs_metadata | default('manila_metadata') }}"
+        - name: Config Ganesha
+          include_role:
+            name: tripleo_cephadm
+            tasks_from: ceph_nfs
+          vars:
+            tripleo_cephadm_ceph_nfs_address_block: "{{ public_network }}"
+          when:
+            - groups['ceph_nfs'] | default([]) | length > 0
 
     - name: Show the Ceph cluster status
       import_role:

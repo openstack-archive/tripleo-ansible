@@ -26,10 +26,12 @@
         - openssh
   tasks:
     - name: Ensure ceph-admin group exists
+      become: true
       group:
         name: ceph-admin
         state: present
     - name: Ensure ceph-admin user exists
+      become: true
       user:
         name: ceph-admin
         comment: ceph-admin
