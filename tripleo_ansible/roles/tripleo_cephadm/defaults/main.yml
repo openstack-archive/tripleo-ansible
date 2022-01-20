@@ -69,3 +69,5 @@ tripleo_cephadm_rbd_trash_interval: 15
 tripleo_cephadm_apply_ceph_conf_overrides_on_update: false
 tripleo_cephadm_standalone: false
 tripleo_cephadm_single_host_defaults: false
+tripleo_cephadm_ha_services_path: "/home/stack/ceph_services.yaml"
+tripleo_cephadm_vip_path: "/home/stack/ceph_vips.yaml"

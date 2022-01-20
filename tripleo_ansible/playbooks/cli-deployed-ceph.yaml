@@ -182,6 +182,14 @@
         name: tripleo_cephadm
         tasks_from: bootstrap
 
+    - name: Prepare Ceph VIPs
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: ceph_vip
+      delegate_to: localhost
+      when:
+        - tripleo_cephadm_ha_services_path is defined
+
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm
