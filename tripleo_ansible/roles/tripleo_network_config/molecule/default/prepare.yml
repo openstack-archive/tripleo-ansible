@@ -22,7 +22,7 @@
         name: test_deps
       vars:
         test_deps_setup_tripleo: true
-        test_deps_setup_stream: false
+        test_deps_setup_stream: true
     - name: Ensure legacy scripts installed
       package:
         name: network-scripts
