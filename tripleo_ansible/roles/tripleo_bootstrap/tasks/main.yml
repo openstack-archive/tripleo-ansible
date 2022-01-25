@@ -91,7 +91,15 @@
         option: dns
         value: none
         backup: true
-
+    - name: Set 'rc-manager=unmanaged' in /etc/NetworkManager/NetworkManager.conf
+      ini_file:
+        path: /etc/NetworkManager/NetworkManager.conf
+        state: present
+        no_extra_spaces: true
+        section: main
+        option: rc-manager
+        value: unmanaged
+        backup: true
     - name: Reload NetworkManager
       service:
         name: NetworkManager
