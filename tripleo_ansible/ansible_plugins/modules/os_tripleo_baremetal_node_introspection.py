@@ -262,8 +262,8 @@ def prepare_for_attempt(cloud, node, node_timeout, retry_timeout):
             node = cloud.baremetal.set_node_provision_state(
                 node, 'abort', wait=True, timeout=node_timeout)
         except Exception as e:
-            LOG.warn("Abort introspection of node %s failed: %s",
-                     node.id, str(e))
+            LOG.warning("Abort introspection of node %s failed: %s",
+                        node.id, str(e))
 
     if node.power_state != 'power off':
         # Attempt to power off the node
@@ -273,8 +273,8 @@ def prepare_for_attempt(cloud, node, node_timeout, retry_timeout):
                 node, 'power off', wait=True, timeout=node_timeout
             )
         except Exception as e:
-            LOG.warn("Power off of node %s failed: %s",
-                     node.id, str(e))
+            LOG.warning("Power off of node %s failed: %s",
+                        node.id, str(e))
 
     if node.reservation:
         # Wait until node is unlocked
@@ -282,8 +282,8 @@ def prepare_for_attempt(cloud, node, node_timeout, retry_timeout):
             node = cloud.baremetal.wait_for_node_reservation(
                 node, timeout=retry_timeout)
         except Exception as e:
-            LOG.warn("Waiting for node unlock %s failed: %s",
-                     node.id, str(e))
+            LOG.warning("Waiting for node unlock %s failed: %s",
+                        node.id, str(e))
     return node
 
 
