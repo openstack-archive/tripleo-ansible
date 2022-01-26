@@ -5,11 +5,11 @@ driver:
 log: true
 
 platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
+  - name: centos
+    hostname: centos
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     dockerfile: Dockerfile
     pkg_extras: python*setuptools
     volumes:
@@ -33,16 +33,16 @@ provisioner:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
         vars:
           # use a tmp hosts path since /etc/hosts isn't writeable in the
           # molecule test containers
           tripleo_hosts_entries_hosts_path: /tmp/hosts
           tripleo_hosts_entries_overcloud_hosts_entries:
-            - 192.168.24.1 ubi8.localdomain ubi8
-            - 192.168.24.1 ubi8.ctlplane.localdomain ubi8.ctlplane
-            - 172.17.0.1 ubi8.internalapi.localdomain ubi8.internalapi
+            - 192.168.24.1 centos.localdomain centos
+            - 192.168.24.1 centos.ctlplane.localdomain centos.ctlplane
+            - 172.17.0.1 centos.internalapi.localdomain centos.internalapi
           tripleo_hosts_entries_undercloud_hosts_entries: []
           tripleo_hosts_entries_extra_hosts_entries: []
           tripleo_stack_name: overcloud
@@ -50,7 +50,7 @@ provisioner:
         children:
           allovercloud:
             hosts:
-              ubi8:
+              centos:
                 hostname_resolve_network: ctlplane
                 ctlplane_ip: 192.168.24.1
                 internal_api_ip: 172.17.0.1
