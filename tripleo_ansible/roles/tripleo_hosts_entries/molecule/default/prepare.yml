@@ -22,8 +22,17 @@
     - name: Create temp host file
       copy:
         content: |
-          HEAT_HOSTS_START - Do not edit manually within this section!
-          0.0.0.0 test test.domain.local
-          0.0.0.1 test test.domain.local
-          HEAT_HOSTS_END
+            # START_HOST_ENTRIES_FOR_STACK: undercloud
+            192.168.24.1 tripleo-director.localdomain tripleo-director
+            192.168.24.1 tripleo-director.external.localdomain
+            192.168.24.1 tripleo-director.ctlplane.localdomain
+            # END_HOST_ENTRIES_FOR_STACK: undercloud
+            # START_HOST_ENTRIES_FOR_STACK: overcloud
+            192.168.24.1 tripleo-director.ctlplane.localdomain
+            192.168.24.18  overcloud.ctlplane.localdomain
+            172.16.1.90  overcloud.storage.localdomain
+            172.16.3.53  overcloud.storagemgmt.localdomain
+            172.16.2.132  overcloud.internalapi.localdomain
+            172.20.10.25  openstack.example.net
+            # END_HOST_ENTRIES_FOR_STACK: overcloud
         dest: "{{ tripleo_hosts_entries_hosts_path }}"
