@@ -80,8 +80,8 @@ tripleo_backup_and_restore_network_preparation_commands: "()"
 # double quoted as it will be interpreted by BASH.
 tripleo_backup_and_restore_rescue_config: {}
 
-tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_server }}/ctl_plane_backups"
-tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_server }}/ctl_plane_backups"
+tripleo_backup_and_restore_output_url: "nfs://{{ tripleo_backup_and_restore_server }}{{ tripleo_backup_and_restore_shared_storage_folder }}"
+tripleo_backup_and_restore_backup_url: "nfs://{{ tripleo_backup_and_restore_server }}{{ tripleo_backup_and_restore_shared_storage_folder }}"
 
 # Ceph authentication backup file
 tripleo_backup_and_restore_ceph_auth_file: "ceph_auth_export.bak"
