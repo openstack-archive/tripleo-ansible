@@ -29,7 +29,7 @@
 
     - name: "Set-up tripleo-repos"
       command: |
-        tripleo-repos --no-stream -b master current-tripleo
+        tripleo-repos -b master current-tripleo
 
     - name: "Install collectd plugin packages"
       package:
