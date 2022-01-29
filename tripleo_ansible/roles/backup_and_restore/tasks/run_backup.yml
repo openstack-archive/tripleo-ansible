@@ -40,6 +40,25 @@
   tags:
     - bar_create_recover_image
 
+- name: Check if /boot/efi is mounted when the OS uses UEFI
+  set_fact:
+    boot_efi_mount: "{{ ansible_facts['mounts'] | selectattr('mount', 'equalto', '/boot/efi') | list | length > 0 }}"
+  when: efi_dir.stat.exists
+  tags:
+    - bar_create_recover_image
+
+- name: Manually mount /boot/efi if it is not mounted
+  shell: |
+    set -o pipefail
+    mkdir /boot/efi_stack
+    mount /dev/{{ tripleo_backup_and_restore_boot_efi_mount }} /boot/efi_stack
+    dd if=/dev/{{ tripleo_backup_and_restore_boot_mount }} of=/boot/{{ tripleo_backup_and_restore_boot_mount }}
+  when:
+    - efi_dir.stat.exists
+    - not boot_efi_mount
+  tags:
+    - bar_create_recover_image
+
 - name: Get date and time to add to the backup prefix
   command: "date +\"{{ tripleo_backup_and_restore_date_argument }}\""
   register: bar_timestamp
