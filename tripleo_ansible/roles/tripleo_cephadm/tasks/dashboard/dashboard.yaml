@@ -94,7 +94,7 @@
       command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-password -i -"
       args:
         stdin: "{{ tripleo_cephadm_grafana_admin_password }}"
-        stdin_add_newline: no
+        stdin_add_newline: false
     - name: disable ssl verification for grafana
       command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-ssl-verify False"
       changed_when: false

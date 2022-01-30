@@ -20,4 +20,4 @@
     path: /etc/cron.d/undercloud-backup
     regexp: "bash -c"
     line: "{{ tripleo_backup_and_restore_cron }} {{ tripleo_backup_and_restore_cron_user }} bash -c 'source /home/stack/stackrc && /usr/bin/openstack undercloud backup {{ tripleo_backup_and_restore_cron_extra }}  > /tmp/undercloud-backup.log'"
-    create: yes
+    create: true

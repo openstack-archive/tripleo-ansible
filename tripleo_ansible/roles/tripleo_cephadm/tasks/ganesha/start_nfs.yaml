@@ -89,9 +89,9 @@
       systemd:
         name: ceph-nfs@{{ tripleo_cephadm_ceph_nfs_service_suffix | default(ansible_facts['hostname']) }}
         state: started
-        enabled: yes
-        masked: no
-        daemon_reload: yes
+        enabled: true
+        masked: false
+        daemon_reload: true
       when:
         - tripleo_cephadm_ceph_nfs_enable_service | bool
 
@@ -99,7 +99,7 @@
       systemd:
         name: nfs-ganesha
         state: started
-        enabled: yes
-        masked: no
+        enabled: true
+        masked: false
       when:
         - tripleo_cephadm_ceph_nfs_enable_service | bool

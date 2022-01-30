@@ -131,7 +131,7 @@
     path: /etc/rear/local.conf
     regexp: "USING_UEFI_BOOTLOADER"
     line: "{{ efi_dir.stat.exists | ternary('USING_UEFI_BOOTLOADER=1', 'USING_UEFI_BOOTLOADER=0') }}"
-    create: no
+    create: false
   tags:
     - bar_setup_rear
 

@@ -84,8 +84,8 @@ EXAMPLES = """
             mode: "0700"
         seboolean:
           "virt_sandbox_use_netlink":
-            persistent: yes
-            state: yes
+            persistent: true
+            state: true
         sefcontext:
           "/var/tmp/foo(/.*)?":
             setype: container_file_t

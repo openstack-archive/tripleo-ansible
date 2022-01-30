@@ -1,13 +1,13 @@
 ---
 - hosts: undercloud
-  gather_facts: no
+  gather_facts: false
   environment:
     OS_CLOUD: "{{ stack }}"
   roles:
   - octavia_overcloud_dcn_config
 
 - hosts: octavia_health_manager,octavia_worker,octavia_housekeeping
-  gather_facts: no
+  gather_facts: false
   vars:
     # Get variables defined for the undercloud in the inventory
     username: "{{ hostvars['undercloud'].username }}"

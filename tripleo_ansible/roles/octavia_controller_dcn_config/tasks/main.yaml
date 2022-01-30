@@ -11,7 +11,7 @@
     openstack router show -c interfaces_info -f json {{ lb_mgmt_prefix }}-router
   delegate_to: undercloud
   changed_when: false
-  run_once: yes
+  run_once: true
   register: router_interfaces
 
 - name: Set facts for router gateway
@@ -26,7 +26,7 @@
     openstack subnet show -c cidr -f value {{ lb_mgmt_prefix }}-{{ item }}-subnet
   delegate_to: undercloud
   changed_when: false
-  run_once: yes
+  run_once: true
   register: cidrs
   loop: "{{ octavia_availability_zones | difference([octavia_controller_availability_zone]) }}"
 
@@ -37,10 +37,10 @@
       {% for cidr in cidrs.results %}
       {{ cidr.stdout }} via {{ gateway }}
       {% endfor %}
-  become: yes
+  become: true
 
 - name: Set o-hm0 up
   shell: |
     ifdown o-hm0
     ifup o-hm0
-  become: yes
+  become: true
