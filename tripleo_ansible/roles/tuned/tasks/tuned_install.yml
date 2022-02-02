@@ -14,6 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Check tuned package is installed
+  command: "rpm -q --whatprovides {{ tuned_system_packages }}"
+  args:
+    warn: false
+  register: rpm_query_result
+  failed_when: false
 
 - name: Install tuned
   become: true
@@ -21,6 +27,8 @@
     name: "{{ tuned_system_packages }}"
     state: present
   register: _tuned_install_result
+  when:
+    - rpm_query_result.rc | default(1) > 0
 
 - name: Restart tuned
   become: true
