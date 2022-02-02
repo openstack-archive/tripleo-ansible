@@ -70,16 +70,18 @@
   when:
     - amp_ssh_key_path is not defined or ((amp_ssh_key_path | length) < 1)
 
-- name: get the desired public key fingerprint
+- name: get the desired sha-256 public key fingerprint
   shell: |
     set -o pipefail
-    ssh-keygen -E md5 -lf {{ amp_ssh_key_path_final }} | awk '{ print $2 }' | cut -c 5-
+    ssh-keygen -E sha256 -lf {{ amp_ssh_key_path_final }} | awk '{ print $2 }'
   no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   register: ssh_keygen_results
 
-- name: get existing public key fingerprint
+- name: get existing public key sha-256 fingerprint
   shell: |
-    openstack keypair show -f value -c fingerprint {{ amp_ssh_key_name }}
+    set -o pipefail
+    openstack keypair show --public-key {{ amp_ssh_key_name }} | \
+    ssh-keygen -E sha256 -lf - | awk '{ print $2 }'
   ignore_errors: true
   no_log: "{{ octavia_undercloud_config_hide_sensitive_logs | bool }}"
   environment:

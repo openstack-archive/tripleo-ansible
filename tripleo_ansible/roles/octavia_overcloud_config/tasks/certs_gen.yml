@@ -35,8 +35,8 @@
 - name: Generating certificate authority private key
   become: true
   shell: |
-    openssl genrsa -passout env:CA_PASSPHRASE -aes256 \
-        -out {{ openssl_temp_dir }}/private/cakey.pem 2048
+    openssl genpkey -algorithm RSA -pass env:CA_PASSPHRASE -aes-256-cbc \
+        -out {{ openssl_temp_dir }}/private/cakey.pem
   environment:
     CA_PASSPHRASE: "{{ ca_passphrase }}"
   when:
