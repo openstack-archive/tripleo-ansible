@@ -42,7 +42,7 @@
     - set_fact:
         result_file_list: "{{ _fs_data | json_query('files[*].path') }}"
         test_dst_files: "{{ test_dst_files | map('regex_replace', '(.*)', test_dst_dir ~ '/\\1') }}"
-        test2_excluded_files: "{{ test2_excluded_files | map('regex_replace', '(.*)', test2_dst_dir ~ '/\\1') }}"
+        test2_excluded_files: "{{ test2_exclude_src_files | map('regex_replace', '(.*)', test2_dst_dir ~ '/\\1') }}"
 
     - name: Verify that the dst file are not there any more
       assert:
