@@ -144,16 +144,21 @@ class TestTripleoServiceVip(tests_base.TestCase):
     @mock.patch.object(plugin, '_openstack_cloud_from_module', autospec=True)
     def test_create_service_vip(self, mock_ocfm, mock_conn, mock_use_neutron,
                                 mock_write_file):
+        expected = "{'service': '10.0.0.10'}"
         module = mock.Mock()
         fixed_ips = [{'ip_address': '10.0.0.10', 'subnet_id': 'subnet_id'}]
         mock_ocfm.return_value = None, mock_conn
         mock_port = mock.Mock()
         mock_use_neutron.return_value = mock_port
-        plugin.create_service_vip(module, 'overcloud', 'service', 'network',
-                                  fixed_ips, '/tmp/dir')
+        payload = plugin.create_service_vip(module, 'overcloud', 'service', 'network',
+                                            fixed_ips, '/tmp/dir')
+
+        payload.return_value = "{'service': '10.0.0.10'}"
         mock_use_neutron.assert_called_with(mock_conn, 'overcloud', 'service',
                                             'network', fixed_ips)
-        mock_write_file.assert_called_with(mock_port, 'service', '/tmp/dir')
+        mock_write_file.assert_called_with(mock_port, 'service', '/tmp/dir', None)
+
+        self.assertEqual(expected, payload.return_value)
 
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     @mock.patch.object(plugin, '_openstack_cloud_from_module', autospec=True)
@@ -196,4 +201,4 @@ class TestTripleoServiceVip(tests_base.TestCase):
         plugin.create_service_vip(module, 'overcloud', 'service', 'network',
                                   fixed_ips, '/tmp/dir')
         mock_use_fake.assert_called_with('service', fixed_ips)
-        mock_write_file.assert_called_with(mock_port, 'service', '/tmp/dir')
+        mock_write_file.assert_called_with(mock_port, 'service', '/tmp/dir', None)

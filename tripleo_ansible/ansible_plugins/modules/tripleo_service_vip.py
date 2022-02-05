@@ -50,6 +50,11 @@ options:
       - The path to the directory of the playbook that was passed to the
         ansible-playbook command line.
     type: str
+  render_path:
+    description:
+      - The output path to the file that will be produced by executing this
+        module.
+    type: str
   stack_name:
     description:
       - Name of the overcloud stack which will be deployed on these instances
@@ -197,16 +202,18 @@ def validate_service_vip_vars_file(service_vip_var_file):
                 service_vip_var_file))
 
 
-def write_vars_file(port, service, playbook_dir):
+def write_vars_file(port, service, playbook_dir, out=None):
     ips = [x['ip_address'] for x in port.fixed_ips]
     if len(ips) == 1:
         ips = ips[0]
 
-    playbook_dir_path = os.path.abspath(playbook_dir)
-    network_data_v2.validate_playbook_dir(playbook_dir)
-
-    service_vip_var_file = os.path.join(playbook_dir_path,
-                                        'service_vip_vars.yaml')
+    if out is not None:
+        service_vip_var_file = os.path.abspath(out)
+    else:
+        playbook_dir_path = os.path.abspath(playbook_dir)
+        network_data_v2.validate_playbook_dir(playbook_dir)
+        service_vip_var_file = os.path.join(playbook_dir_path,
+                                            'service_vip_vars.yaml')
 
     if not os.path.exists(service_vip_var_file):
         data = dict()
@@ -218,6 +225,8 @@ def write_vars_file(port, service, playbook_dir):
     data.update({service: ips})
     with open(service_vip_var_file, 'w') as f:
         f.write(yaml.safe_dump(data, default_flow_style=False))
+
+    return data
 
 
 def use_neutron(conn, stack, service, network, fixed_ips):
@@ -273,7 +282,7 @@ def delete_service_vip(module, stack, service='all'):
 
 
 def create_service_vip(module, stack, service, network, fixed_ips,
-                       playbook_dir):
+                       playbook_dir, out=None):
     _use_neutron = True
     for fixed_ip in fixed_ips:
         if ('use_neutron', False) in fixed_ip.items():
@@ -286,7 +295,7 @@ def create_service_vip(module, stack, service, network, fixed_ips,
     else:
         port = use_fake(service, fixed_ips)
 
-    write_vars_file(port, service, playbook_dir)
+    return write_vars_file(port, service, playbook_dir, out)
 
 
 def run_module():
@@ -310,7 +319,14 @@ def run_module():
     state = module.params.get('state')
     service = module.params.get('service_name') or 'all'
 
+    out = module.params.get('render_path', None)
+    playbook_dir = module.params.get('playbook_dir', None)
+
     try:
+
+        if out is None and playbook_dir is None:
+            raise Exception("Provide a playbook_dir or an output path file.")
+
         if state == 'present' and service == 'all':
             raise Exception("Provide service_name for service_vip creation.")
 
@@ -319,16 +335,17 @@ def run_module():
         else:
             network = module.params['network']
             fixed_ips = module.params.get('fixed_ips', [])
-            playbook_dir = module.params['playbook_dir']
-            create_service_vip(module, stack, service, network, fixed_ips,
-                               playbook_dir)
+            data = create_service_vip(module, stack, service, network, fixed_ips,
+                                      playbook_dir, out)
         result['changed'] = True
         result['success'] = True
+        result['data'] = data
         module.exit_json(**result)
     except Exception as err:
         result['error'] = str(err)
         result['msg'] = ('ERROR: Failed creating/deleting service virtual IP!'
                          ' {}'.format(err))
+        result['data'] = {}
         module.fail_json(**result)
 
 
