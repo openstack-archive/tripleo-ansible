@@ -62,7 +62,7 @@
 - name: Get date and time to add to the backup prefix
   command: "date +\"{{ tripleo_backup_and_restore_date_argument }}\""
   register: bar_timestamp
-  when: tripleo_backup_and_restore_historical
+  when: tripleo_backup_and_restore_historical | bool
   tags:
     - bar_create_recover_image
 
@@ -72,7 +72,7 @@
     regexp: "^LOGFILE.*"
     line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{ bar_timestamp.stdout }}.log"
   when:
-    - tripleo_backup_and_restore_historical
+    - tripleo_backup_and_restore_historical | bool
   tags:
     - bar_create_recover_image
 
@@ -82,7 +82,7 @@
     regexp: "^ISO_PREFIX.*"
     line: ISO_PREFIX=$HOSTNAME-{{ bar_timestamp.stdout }}
   when:
-    - tripleo_backup_and_restore_historical
+    - tripleo_backup_and_restore_historical | bool
   tags:
     - bar_create_recover_image
 
@@ -92,7 +92,7 @@
     regexp: "^BACKUP_PROG_ARCHIVE.*"
     line: BACKUP_PROG_ARCHIVE=$HOSTNAME-{{ bar_timestamp.stdout }}
   when:
-    - tripleo_backup_and_restore_historical
+    - tripleo_backup_and_restore_historical | bool
   tags:
     - bar_create_recover_image
 
