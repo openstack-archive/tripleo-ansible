@@ -93,8 +93,6 @@ class ContainerStartupManager:
         # Generate the container configs per step
         for step, step_config in self.config_data.items():
             step_dir = os.path.join(self.config_base_dir, step)
-            # Note: it'll cleanup old configs before creating new ones.
-            # TODO(emilien) add idempotency so we only remove the needed files
             self._recreate_dir(step_dir)
             for container, container_config in step_config.items():
                 container_config_path = os.path.join(self.config_base_dir,
@@ -108,7 +106,6 @@ class ContainerStartupManager:
 
         :param path: string
         """
-        shutil.rmtree(path, ignore_errors=True)
         os.makedirs(path)
 
     def _create_config(self, path, config):
@@ -130,6 +127,10 @@ class ContainerStartupManager:
                                              pattern))
         for config in old_configs:
             os.remove(config)
+
+        step_dirs = glob.glob(self.config_base_dir + '/step_*')
+        for step_dir in step_dirs:
+            shutil.rmtree(step_dir, ignore_errors=True)
 
 
 def main():
