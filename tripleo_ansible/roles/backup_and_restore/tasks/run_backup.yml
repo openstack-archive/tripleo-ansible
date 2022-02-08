@@ -59,32 +59,28 @@
   tags:
     - bar_create_recover_image
 
-- name: Get date and time to add to the backup prefix
-  command: "date +\"{{ tripleo_backup_and_restore_date_argument }}\""
-  register: bar_timestamp
+- name: Tasks in case historical backups are activated
+  block:
+    - name: Get date and time to add to the backup prefix
+      command: "date +\"{{ tripleo_backup_and_restore_date_argument }}\""
+      register: bar_timestamp
+
+    - name: Modify on LOG_FILE on /etc/rear/local.conf
+      lineinfile:
+        path: /etc/rear/local.conf
+        regexp: "^LOGFILE.*"
+        line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{ bar_timestamp.stdout }}.log"
+
+    - name: Configuring /etc/rear/local.conf
+      replace:
+        path: /etc/rear/local.conf
+        regexp: "^{{ item }}.*"
+        replace: "{{ item }}=$HOSTNAME-{{ bar_timestamp.stdout }}"
+      loop:
+        - ISO_PREFIX
+        - BACKUP_PROG_ARCHIVE
+        - OUTPUT_PREFIX_PXE
   when: tripleo_backup_and_restore_historical | bool
-  tags:
-    - bar_create_recover_image
-
-- name: Modify on LOG_FILE on /etc/rear/local.conf
-  lineinfile:
-    path: /etc/rear/local.conf
-    regexp: "^LOGFILE.*"
-    line: LOGFILE="$LOG_DIR/rear-$HOSTNAME-{{ bar_timestamp.stdout }}.log"
-  when:
-    - tripleo_backup_and_restore_historical | bool
-  tags:
-    - bar_create_recover_image
-
-- name: Configuring /etc/rear/local.conf
-  replace:
-    path: /etc/rear/local.conf
-    regexp: "^{{ item }}.*"
-    replace: "{{ item }}=$HOSTNAME-{{ bar_timestamp.stdout }}"
-  loop:
-    - ISO_PREFIX
-    - BACKUP_PROG_ARCHIVE
-    - OUTPUT_PREFIX_PXE
   tags:
     - bar_create_recover_image
 
