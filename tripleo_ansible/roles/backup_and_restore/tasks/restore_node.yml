@@ -71,6 +71,7 @@
       --instance-info kernel=file://{{ tripleo_backup_and_restore_ironic_images_path }}/{{ restore_kernel }} \
       --instance-info ramdisk=file://{{ tripleo_backup_and_restore_ironic_images_path }}/{{ restore_initrd }} \
       --instance-info kernel_append_params="unattended" \
+      --instance-info ramdisk_kernel_arguments="unattended" \
       --deploy-interface ramdisk \
       {{ node_name }}
   tags:
