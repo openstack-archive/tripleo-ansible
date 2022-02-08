@@ -321,10 +321,11 @@ def run_module():
 
     out = module.params.get('render_path', None)
     playbook_dir = module.params.get('playbook_dir', None)
+    data = dict()
 
     try:
 
-        if out is None and playbook_dir is None:
+        if out is None and playbook_dir is None and state != 'absent':
             raise Exception("Provide a playbook_dir or an output path file.")
 
         if state == 'present' and service == 'all':
