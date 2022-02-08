@@ -26,14 +26,9 @@
     tuned_isolated_cores: ''
   pre_tasks:
     - name: Wait for provisioned nodes to boot
-      wait_for:
+      wait_for_connection:
         timeout: 600
-        port: 22
-        host: '{{ ansible_host }}'
-        search_regex: OpenSSH
         delay: 10
-        msg: Timeout waiting for provisioned nodes to become available
-      connection: local
   tasks:
     - name: Kernel args block
       become: true
