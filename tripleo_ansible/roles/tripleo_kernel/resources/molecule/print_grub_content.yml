@@ -1,0 +1,10 @@
+- name: Debug - getting content of /etc/default/grub
+  command: cat /etc/default/grub
+  register: grub_content
+- name: Debug - printing content of /etc/default/grub
+  debug:
+    var: grub_content
+- name: Debug - Scenario name
+  debug:
+    msg: |
+      {{ molecule_yml.scenario.name }}

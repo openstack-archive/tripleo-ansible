@@ -19,14 +19,3 @@
   hosts: all
   roles:
     - role: test_deps
-
-- name: Save environment
-  hosts: all
-  tasks:
-    - name: Backup the default grub file
-      become: true
-      copy:
-        src: /etc/default/grub
-        dest: "/etc/default/grub.{{ molecule_yml.scenario.name }}"
-        mode: preserve
-        remote_src: true
