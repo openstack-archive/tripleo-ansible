@@ -17,25 +17,31 @@
 - name: Converge
   hosts: all
   become: true
-  vars:
-    tripleo_kernel_args: "test=1"
   pre_tasks:
+   - name: Importing test_vars
+     include_vars: test_vars.yml
    - name: Backing up /etc/default/grub
      import_tasks: ../../resources/molecule/backup_grub.yml
   tasks:
-    - name: create kernelargs entry with the older name
-      lineinfile:
-        dest: /etc/default/grub
-        regexp: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
-        insertafter: '^GRUB_CMDLINE_LINUX.*'
-        line: 'TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" {{ tripleo_kernel_args }} "'
-    - name: create append entry with older name
-      lineinfile:
-        dest: /etc/default/grub
-        line: 'GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX:+$GRUB_CMDLINE_LINUX }${TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS}"'
-        insertafter: '^TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS.*'
     - include_role:
         name: "tripleo_kernel"
         tasks_from: kernelargs.yml
       vars:
         tripleo_kernel_defer_reboot: true
+        cmdline:
+          stdout: "{{ _mocked_cmdline_original }}"
+          stdout_lines: ["{{ _mocked_cmdline_original }}"]
+    - include_role:
+        name: "tripleo_kernel"
+        tasks_from: kernelargs.yml
+      vars:
+        tripleo_kernel_hugepages:
+          "2048":
+            count: "10"
+          4096:
+            count: "12"
+            default: true
+        tripleo_kernel_defer_reboot: true
+        cmdline:
+          stdout: "{{ _mocked_cmdline_updated }}"
+          stdout_lines: ["{{ _mocked_cmdline_updated }}"]
