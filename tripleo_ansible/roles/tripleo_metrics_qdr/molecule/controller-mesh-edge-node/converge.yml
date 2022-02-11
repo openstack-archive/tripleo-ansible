@@ -2,7 +2,7 @@
 - import_playbook: ../common/converge.yml
 
 - name: Converge controller-mesh edge node config
-  hosts: all
+  hosts: centos
   tasks:
     - name: Invoke tripleo_metrics_qdr for edge node
       include_role:

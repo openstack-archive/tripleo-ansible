@@ -2,7 +2,7 @@
 - import_playbook: ../common/converge.yml
 
 - name: Converge edge-only config
-  hosts: all
+  hosts: centos
   tasks:
     - name: Invoke tripleo_metrics_qdr for edge-only
       include_role:

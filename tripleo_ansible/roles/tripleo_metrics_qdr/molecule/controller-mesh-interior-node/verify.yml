@@ -2,7 +2,7 @@
 - import_playbook: ../common/verify.yml
 
 - name: Check log for correct config of controller-mesh interior nodes
-  hosts: all
+  hosts: centos
   tasks:
   - assert:
       that:

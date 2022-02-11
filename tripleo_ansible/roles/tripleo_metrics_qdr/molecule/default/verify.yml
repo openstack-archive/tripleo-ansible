@@ -3,7 +3,7 @@
 
 
 - name: Check log for correct config
-  hosts: all
+  hosts: centos
   tasks:
   - assert:
       that:

@@ -1,6 +1,6 @@
 ---
 - name: Dump the config file and start the QDR
-  hosts: all
+  hosts: centos
   tasks:
     - name: Check for qdrouterd.conf
       find:
@@ -37,7 +37,7 @@
             name: functional_tests
             tasks_from: test_qdr
           vars:
-            qdr_container_name: 'ubi8'
+            qdr_container_name: 'centos'
             container_bin: podman
 
       rescue:
@@ -53,7 +53,7 @@
       name: Functional tests passed
 
 - name: Process qdr log
-  hosts: all
+  hosts: centos
   tasks:
     - name: Slurp the file
       slurp:
@@ -74,7 +74,7 @@
       when: qdrlog_content.find('ERROR (error)') != -1
 
 - name: Check log for correct config of common QDR functionality
-  hosts: all
+  hosts: centos
   tasks:
     - assert:
         that:

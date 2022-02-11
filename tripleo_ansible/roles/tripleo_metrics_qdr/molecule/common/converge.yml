@@ -1,6 +1,6 @@
 ---
 - name: Create host dirs for QDR
-  hosts: all
+  hosts: centos
   tasks:
     - name: Set defaults for testing
       set_fact:
