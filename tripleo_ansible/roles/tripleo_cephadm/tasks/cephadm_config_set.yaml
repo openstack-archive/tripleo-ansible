@@ -27,6 +27,8 @@
     {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
   changed_when: false
   become: true
+  when:
+    - not (tripleo_cephadm_default_container | default(false))
 
 - name: enforce minimum ceph clients version
   command: |
@@ -44,9 +46,13 @@
     {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}
   changed_when: false
   become: true
+  when:
+    - not (tripleo_cephadm_default_container | default(false))
 
 - name: set dashboard container image in ceph mgr configuration
-  when: tripleo_cephadm_dashboard_enabled | bool
+  when:
+    - tripleo_cephadm_dashboard_enabled | bool
+    - not (tripleo_cephadm_default_container | default(false))
   become: true
   block:
     - name: set alertmanager container image in ceph configuration
