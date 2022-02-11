@@ -37,7 +37,7 @@
             name: functional_tests
             tasks_from: test_qdr
           vars:
-            qdr_container_name: 'ubi8'
+            qdr_container_name: 'centos'
             container_bin: podman
 
       rescue:
