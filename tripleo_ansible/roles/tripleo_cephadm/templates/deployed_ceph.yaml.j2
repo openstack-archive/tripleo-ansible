@@ -6,5 +6,6 @@ parameter_defaults:
   {% if tripleo_cephadm_standalone -%}
   CephSpecFqdn: true
   {% endif -%}
+  CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}
   # Recommendation: set the following to false after overcloud is deployed
   ApplyCephConfigOverridesOnUpdate: true
