@@ -9,9 +9,9 @@ driver:
 platforms:
   - name: collectd-test
     hostname: collectd-test
-    image: ubi8/ubi-init
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
@@ -33,9 +33,9 @@ platforms:
         ipv4_address: "192.168.42.1"
   - name: collectd-server
     hostname: collectd-server
-    image: ubi8/ubi-init
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
