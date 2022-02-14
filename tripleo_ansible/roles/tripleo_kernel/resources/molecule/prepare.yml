@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,3 +19,14 @@
   hosts: all
   roles:
     - role: test_deps
+
+- name: Save environment
+  hosts: all
+  tasks:
+    - name: Backup the default grub file
+      become: true
+      copy:
+        src: /etc/default/grub
+        dest: "/etc/default/grub.{{ molecule_yml.scenario.name }}"
+        mode: preserve
+        remote_src: true
