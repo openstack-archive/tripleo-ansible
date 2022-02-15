@@ -18,6 +18,7 @@
 # All variables intended for modification should be placed in this file.
 tripleo_backup_and_restore_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
 tripleo_backup_and_restore_debug: "{{ ((ansible_verbosity | int) >= 2) | bool }}"
+tripleo_controller_group_name: "{{ controller_group_name | default('Controller') }}"
 
 # Set the container command line entry-point
 tripleo_container_cli: "{{ container_cli | default('podman') }}"
