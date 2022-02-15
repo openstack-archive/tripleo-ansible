@@ -71,3 +71,4 @@ tripleo_cephadm_standalone: false
 tripleo_cephadm_single_host_defaults: false
 tripleo_cephadm_ha_services_path: "/home/stack/ceph_services.yaml"
 tripleo_cephadm_vip_path: "/home/stack/ceph_vips.yaml"
+tripleo_cephadm_default_container: false
