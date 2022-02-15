@@ -36,6 +36,7 @@ tripleo_backup_and_restore_mysql_grants_file: "openstack-backup-mysql-grants.sql
 tripleo_backup_and_restore_enable_snapshots: true
 
 # All variables within this role should have a prefix of "tripleo_backup_and_restore"
+tripleo_backup_and_restore_hide_sensitive_logs: "{{ hide_sensitive_logs | default(true) }}"
 tripleo_backup_and_restore_debug: false
 # By default this should be the Undercloud node
 tripleo_backup_and_restore_server: 192.168.24.1
