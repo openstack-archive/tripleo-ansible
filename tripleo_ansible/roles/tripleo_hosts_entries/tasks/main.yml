@@ -35,19 +35,6 @@
   tags:
     - tripleo_hosts_entries
 
-- name: Remove old Heat hosts configuration (if present)
-  become: true
-  blockinfile:
-    state: absent
-    path: "{{ tripleo_hosts_entries_tmp_hosts.path }}"
-    block: ""
-    marker: "# {mark}"
-    marker_begin: "HEAT_HOSTS_START - Do not edit manually within this section!"
-    marker_end: "HEAT_HOSTS_END"
-  register: tripleo_hosts_entries_heat_marker
-  tags:
-    - tripleo_hosts_entries
-
 - name: Render out the hosts entries
   run_once: true
   set_fact:
@@ -79,7 +66,7 @@
   become: true
   # cp preserves the inode of the existing file tripleo_hosts_entries_hosts_path
   command: cp "{{ tripleo_hosts_entries_tmp_hosts.path }}" "{{ tripleo_hosts_entries_hosts_path }}"
-  when: tripleo_hosts_entries_heat_marker.changed or tripleo_hosts_entries_new_entries.changed
+  when: tripleo_hosts_entries_new_entries.changed
   tags:
     - tripleo_hosts_entries
 
