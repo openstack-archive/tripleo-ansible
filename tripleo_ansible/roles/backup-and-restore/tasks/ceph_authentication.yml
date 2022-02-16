@@ -61,7 +61,8 @@
     - name: Export ceph authentication
       shell: |
         set -o pipefail
-        {{ tripleo_container_cli }} exec ceph-mon-{{ inventory_hostname }} bash -c "ceph auth export"
+        {{ tripleo_container_cli }} exec ceph-mon-{{ inventory_hostname }} \
+        bash -c "ceph --cluster {{ tripleo_backup_and_restore_ceph_cluster | default('ceph') }} auth export"
       register: bar_ceph_authentication_content
 
     - name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
@@ -77,7 +78,8 @@
   tags: bar_create_recover_image
   block:
     - name: Export ceph authentication
-      command: cephadm shell -- ceph auth export
+      command: |
+        cephadm shell -k {{  tripleo_backup_and_restore_ceph_admin_keyring }} -- ceph auth export
       register: bar_ceph_authentication_content
 
     - name: Save ceph authentication at {{ tripleo_backup_and_restore_ceph_auth_file }}
