@@ -5,18 +5,17 @@ driver:
 log: true
 
 platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
+  - name: centos
+    hostname: centos
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     pkg_extras: python*setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/dnf/vars:/etc/dnf/vars
-      # Had to comment this out to fix a problem installing rdo-release-victoria
-      # see common/prepare.yml
-      # - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      # Had to comment this out or I get "No URLs in mirrorlist"
+      #- /etc/dnf/vars:/etc/dnf/vars
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
@@ -30,7 +29,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
         vars:
           ansible_user: root
