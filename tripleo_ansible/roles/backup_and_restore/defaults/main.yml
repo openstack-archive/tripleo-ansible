@@ -145,3 +145,7 @@ tripleo_backup_and_restore_restore_delay: 10
 
 # Ironic ubdirectory where the kernel and initrd are uploaded
 backup_and_restore_history_path: ""
+
+# Ceph cluster name
+tripleo_backup_and_restore_ceph_cluster: "ceph"
+tripleo_backup_and_restore_ceph_admin_keyring: "/etc/ceph/{{ tripleo_backup_and_restore_ceph_cluster }}.client.admin.keyring"
