@@ -31,10 +31,12 @@
 - name: Network availability validation block
   block:
   - name: Check IP responsiveness
-    command: "{{ _ping_cmd }} -w 10 -c 1 {{ controller }}"
+    command: "{{ _ping_cmd }} -w 10 -c 5 {{ controller }}"
     retries: 10
     delay: 60
     changed_when: false
+    register: ping_result
+    until: ping_result.rc == 0
 
   - name: Validate packet with {{ _mtu }} MTU size can reach controller from {{ _nic }}
     command: "{{ _ping_cmd }} -w 10 -s {{ _mtu }} -c 1 {{ controller }}"
