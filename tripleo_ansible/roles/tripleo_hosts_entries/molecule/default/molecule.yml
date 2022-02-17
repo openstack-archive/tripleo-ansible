@@ -5,11 +5,11 @@ driver:
 log: true
 
 platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
+  - name: centos
+    hostname: centos
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     dockerfile: Dockerfile
     pkg_extras: python*setuptools
     volumes:
@@ -33,7 +33,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
         vars:
           # use a tmp hosts path since /etc/hosts isn't writeable in the
@@ -60,7 +60,7 @@ provisioner:
         children:
           allovercloud:
             hosts:
-              ubi8:
+              centos:
                 hostname_resolve_network: ctlplane
                 ctlplane_ip: 192.168.24.1
                 internal_api_ip: 172.17.0.1

@@ -4,4 +4,3 @@
 
 - src: git+http://github.com/infrawatch/collectd-config-ansible-role
   name: collectd_config
-  version: plugin/python

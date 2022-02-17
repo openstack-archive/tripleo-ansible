@@ -5,11 +5,11 @@ driver:
 log: true
 
 platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
+  - name: centos
+    hostname: centos
+    image: centos/centos:stream8
     registry:
-      url: registry.access.redhat.com
+      url: quay.io
     dockerfile: Dockerfile
     pkg_extras: python*setuptools
     volumes:
@@ -31,7 +31,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
   log: true
   env:
