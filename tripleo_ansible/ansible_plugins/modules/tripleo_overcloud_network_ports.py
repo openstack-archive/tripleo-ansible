@@ -316,7 +316,12 @@ def generate_port_defs(net_maps, instance, inst_ports):
             fixed_ips = [{'ip_address': net['fixed_ip']}]
         else:
             if net.get('subnet'):
-                subnet_id = subnet_name_map[net['subnet']]
+                try:
+                    subnet_id = subnet_name_map[net['subnet']]
+                except KeyError:
+                    raise Exception(
+                        'Subnet {subnet} not found on network {net_name}'
+                        .format(subnet=net['subnet'], net_name=net_name))
             elif len(net_maps['by_name'][net_name]['subnets']) == 1:
                 subnet_id = next(iter(subnet_name_map.values()))
             else:
