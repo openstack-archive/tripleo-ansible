@@ -24,3 +24,4 @@ tripleo_multipathd_enable: true
 tripleo_multipathd_find_multipaths: true
 tripleo_multipathd_skip_kpartx: true
 tripleo_multipathd_user_friendly_names: false
+tripleo_boot_from_multipath_device: false
