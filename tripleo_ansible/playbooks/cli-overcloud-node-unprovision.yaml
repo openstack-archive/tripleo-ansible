@@ -56,7 +56,7 @@
     - name: Write unprovision confirmation
       copy:
         dest: "{{ unprovision_confirm }}"
-        content: "{{ baremetal_existing.instances | to_json }}"
+        content: "{{ {'instances':baremetal_existing.instances, 'pre_provisioned':baremetal_existing.pre_provisioned} | to_json }}"
       when: prompt|bool and unprovision_confirm is defined
 
     - name: Unprovision instances
