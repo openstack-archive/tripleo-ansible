@@ -59,8 +59,6 @@
       when:
         - osd_spec_path is defined
         - osd_spec_path | length > 0
-      tags:
-        - ceph_spec
 
     - name: Override crush hierarchy if a custom crush path is provided
       set_fact:
@@ -70,8 +68,6 @@
       when:
         - crush_hierarchy_path is defined
         - crush_hierarchy_path | length > 0
-      tags:
-        - ceph_spec
 
     - name: Create Ceph spec based on baremetal_deployed_path and tripleo_roles
       ceph_spec_bootstrap:
@@ -82,8 +78,6 @@
         crush_hierarchy: "{{ crush_hierarchy | default({}) }}"
       when:
         - dynamic_ceph_spec | bool
-      tags:
-        - ceph_spec
 
     - name: Get list of hosts which need ceph-admin user
       vars:

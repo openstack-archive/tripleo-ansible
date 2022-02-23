@@ -19,7 +19,10 @@ import re
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule
-from tripleo_common.utils import ceph_spec
+try:
+    from ansible.module_utils import ceph_spec
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import ceph_spec
 
 
 ANSIBLE_METADATA = {
