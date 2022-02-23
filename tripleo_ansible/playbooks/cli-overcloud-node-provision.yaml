@@ -27,6 +27,7 @@
     python_interpreter: null
     ssh_private_key_file: /home/stack/.ssh/id_rsa
     templates: /usr/share/openstack-tripleo-heat-templates
+    overwrite: false
 
   pre_tasks:
     - fail:
@@ -41,6 +42,14 @@
         msg: baremetal_deployed_path is a required input
       when:
         - baremetal_deployed_path is undefined
+    - name: Check if baremetal deployment file already exist
+      stat:
+        path: "{{ baremetal_deployed_path }}"
+      register: stat_baremetal_deployed_path_file
+    - fail:
+        msg: "Output file {{ baremetal_deployed_path }} already exists"
+      when:
+        - stat_baremetal_deployed_path_file.stat.exists and not overwrite|bool
 
   tasks:
     - name: Detect default overcloud-full image
