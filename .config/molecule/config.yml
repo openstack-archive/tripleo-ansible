@@ -23,9 +23,6 @@ platforms:
 
 provisioner:
   name: ansible
-  playbooks:
-    prepare: "${MOLECULE_SCENARIO_DIRECTORY}/../../resources/molecule/prepare.yml"
-    cleanup: "${MOLECULE_SCENARIO_DIRECTORY}/../../resources/molecule/cleanup.yml"
   config_options:
     defaults:
       fact_caching: jsonfile
