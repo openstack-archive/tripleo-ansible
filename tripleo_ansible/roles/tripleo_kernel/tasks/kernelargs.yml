@@ -30,7 +30,7 @@
     - name: Enabling defer_reboot when TSX was added or appended
       when:
       - nova_conf_check.stat.exists
-      - tripleo_kernel_args is regex("^[\s]*tsx=[^\s]+[\s]*$")
+      - tripleo_kernel_args is regex("^[\s]*tsx=[\S]+[\s]*$")
       block:
         - name: Warn operator about workload protection
           debug:
@@ -41,6 +41,78 @@
         - name: Setting workload protection fact
           set_fact:
             _workload_protection: true
+
+- name: TripleO Hugepages configuration
+  vars:
+    _converted_hugepages: {}
+    _nonconfig_hugepages: {}
+    _hugepages_modification: false
+  when: tripleo_kernel_hugepages | length
+  block:
+    - name: Rewrite tripleo_kernel_hugepages to use integers as keys
+      set_fact:
+        _tripleo_kernel_hugepages: "{{ _tripleo_kernel_hugepages | default({}) | combine({ hp.key | int: hp.value }) }}"
+      loop: "{{ tripleo_kernel_hugepages | dict2items }}"
+      loop_control:
+        loop_var: hp
+
+    - name: Parsing running hugepage configuration from /proc/cmdline
+      when: >
+        "default_hugepagesz" in cmdline.stdout
+      import_tasks: hugepages_parsing.yaml
+      vars:
+        cmdline_text: "{{ cmdline.stdout }}"
+
+    - name: Validating hugepage config from /proc/cmdline against TripleO parameter
+      import_tasks: hugepages_validations.yaml
+
+    - name: Rewrite kernel args
+      when: _hugepages_modification
+      block:
+        - name: Warn about possible modifications
+          debug:
+            msg: |
+              TripleO hugepage modification differs from how the host is actually having.
+              Current default pagesize: {{ _configured_default_size | default("None configured") }}
+              TripleO default pagesize: {{ _tripleo_default_hugepages }}
+              Desired default pagesize: {{ _desired_default_hugepages }}
+
+              From TripleO Hugepages configuration:
+              {% for pagesize, config in _tripleo_kernel_hugepages.items() %}
+              - {{ pagesize }}
+                expected: {{ config.count }} pages
+                default: {{ config.default | default(false) }}
+                current: {{ _converted_hugepages.get(pagesize | int, 0) }}
+              {% endfor %}
+              {% if _nonconfig_hugepages | length %}
+              There's also some hugepages on the host that are not part of the TripleO configuration
+              {% for pagesize, config in _nonconfig_hugepages.items() %}
+              - {{ pagesize }}: {{ config }} pages
+              {% endfor %}
+              {% endif %}
+
+        - name: Remove hugepage settings from kernelargs
+          set_fact:
+            _kernel_args: >-
+              {{ tripleo_kernel_args | regex_replace('[\s]*(default_)*hugepages[z]*=[\S]+[\s]*', ' ') }}
+              default_hugepagesz={{ _desired_default_hugepages }}
+              {% for hp, values in _tripleo_kernel_hugepages.items() -%}
+              hugepagesz={{ hp }} hugepages={{ values.count }}
+              {% endfor -%}
+              {% if not tripleo_kernel_hugepages_remove | bool -%}
+              {% for hp, values in _nonconfig_hugepages.items() -%}
+              hugepagesz={{ hp }} hugepages={{ values }}
+              {% endfor -%}
+              {% endif -%}
+
+        - name: Cleaning up whitespaces
+          set_fact:
+            tripleo_kernel_args: >-
+              {{ _kernel_args |
+                 regex_replace('[\s]+default_hugepagesz=', ' default_hugepagesz=') |
+                 regex_replace('[\s]+', ' ') |
+                 regex_replace('[\s]+$', '')
+              }}
 
 - name: Check if the kernelargs entry is already present in the file
   replace:

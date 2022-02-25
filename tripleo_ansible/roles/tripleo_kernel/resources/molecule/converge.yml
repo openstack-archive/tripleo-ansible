@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,17 +14,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-- name: Verify
+- name: Converge
   hosts: all
   become: true
-  gather_facts: false
+  pre_tasks:
+    - name: Importing test_vars
+      include_vars: "{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/test_vars.yml"
+    - name: Backing up /etc/default/grub
+      import_tasks: ../../resources/molecule/backup_grub.yml
   tasks:
-    - name: Check if the kernel args is applied to the grub file
-      lineinfile:
-        name: /etc/default/grub
-        line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" test=1 "'
-        state: present
-      check_mode: true
-      register: grub
-      failed_when: (grub is changed) or (grub is failed)
+    - include_role:
+        name: "tripleo_kernel"
+        tasks_from: kernelargs.yml
+      vars:
+        tripleo_kernel_defer_reboot: true
+        cmdline:
+          stdout: "{{ _mocked_cmdline }}"
+          stdout_lines: ["{{ _mocked_cmdline }}"]

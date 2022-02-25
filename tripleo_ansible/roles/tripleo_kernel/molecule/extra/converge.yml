@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,6 +17,9 @@
 
 - name: Converge
   hosts: all
+  pre_tasks:
+   - name: Backing up /etc/default/grub
+     import_tasks: ../../resources/molecule/backup_grub.yml
   roles:
     - role: "tripleo_kernel"
       tripleo_kernel_extra_modules:

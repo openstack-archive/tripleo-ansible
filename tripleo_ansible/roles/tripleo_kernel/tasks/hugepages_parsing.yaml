@@ -1,0 +1,23 @@
+- name: Find hugepages in cmdline
+  set_fact:
+    hugepages: >-
+      {{ cmdline_text | regex_findall('hugepagesz=([\S]+)[\s]+hugepages=([0-9]+)') }}
+    _configured_default_size: >-
+      {% set _default_size = cmdline_text | regex_findall('default_hugepagesz=([\S]+)', '\1') | default([]) | first -%}
+      {% if not _default_size is regex("^[0-9]+$") -%}
+      {% set _default_size = (_default_size |  human_to_bytes) / 1024 -%}
+      {% endif -%}
+      {{ _default_size | int }}
+
+- name: Finding human-readable hugepages in cmdline
+  set_fact:
+    _converted_hugepages: >-
+      {% set _tmp_dict = {} -%}
+      {% for hp in hugepages -%}
+      {%   if hp[0] is regex("^[0-9]+$") -%}
+      {%     set _ = _tmp_dict.update({ hp[0] | int: hp[1] | int }) -%}
+      {%   else -%}
+      {%     set _ = _tmp_dict.update({ ((hp[0] | replace('B', '') | human_to_bytes) / 1024) | int: hp[1] | int }) -%}
+      {%   endif -%}
+      {% endfor -%}
+      {{ _tmp_dict }}
