@@ -10,11 +10,12 @@
     - tripleo-upgrades-wallaby-pipeline
     check:
       jobs:
-      - tripleo-ci-centos-8-content-provider:
+      - tripleo-ci-centos-8-content-provider: &provider_deps_irrelevant
           dependencies:
             - openstack-tox-linters
           irrelevant-files:
           - ^tox.ini$
+      - tripleo-ci-centos-9-content-provider: *provider_deps_irrelevant
       - openstack-tox-linters: &tripleo-linters
           nodeset: centos-8-stream
       - openstack-tox-docs: &tripleo-docs
@@ -28,6 +29,7 @@
     gate:
       jobs:
       - tripleo-ci-centos-8-content-provider
+      - tripleo-ci-centos-9-content-provider
       - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
     post:
