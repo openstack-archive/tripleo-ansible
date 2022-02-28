@@ -252,14 +252,11 @@ class AnsibleAutoPluginDirective(Directive):
         molecule_path = os.path.join(role, 'molecule')
         if os.path.exists(molecule_path):
             for test in os.listdir(molecule_path):
+                test_path = os.path.join(molecule_path, test)
                 molecule_section = self._section_block(
                     title='Scenario: {}'.format(test)
                 )
-                molecule_file = os.path.join(
-                    molecule_path,
-                    test,
-                    'molecule.yml'
-                )
+                molecule_file = os.path.join(test_path, 'molecule.yml')
                 if not os.path.exists(molecule_file):
                     continue
 
@@ -295,18 +292,18 @@ class AnsibleAutoPluginDirective(Directive):
                                 section_title='Molecule Inventory'
                             )
                         )
-
-                molecule_playbook_path = os.path.join(
-                    molecule_path,
-                    test,
-                    'converge.yml'
+                os.environ["MOLECULE_SCENARIO_DIRECTORY"] = test_path
+                converge_playbook_path = os.path.join(test_path, 'converge.yml')
+                molecule_playbook_path = os.path.expandvars(
+                    provisioner_data.get('playbooks', {})
+                    .get('converge', converge_playbook_path)
                 )
                 if not os.path.exists(molecule_playbook_path):
                     molecule_playbook_path = os.path.join(
-                        molecule_path,
-                        test,
-                        'playbook.yml'
+                        test_path, 'playbook.yml'
                     )
+                if not os.path.exists(molecule_playbook_path):
+                    continue
                 with open(molecule_playbook_path) as f:
                     molecule_playbook = DOCYAML.load(f.read())
                 molecule_section.append(
