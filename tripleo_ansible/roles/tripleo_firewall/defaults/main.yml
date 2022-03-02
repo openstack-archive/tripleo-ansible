@@ -31,6 +31,20 @@
 #     ensure: 'absent'
 tripleo_firewall_rules: {}
 
+tripleo_firewall_frontend_enabled: false
+
+tripleo_firewall_frontend_rules: {}
+
+tripleo_firewall_ssl_frontend_enabled: false
+
+tripleo_firewall_ssl_frontend_rules: {}
+
+tripleo_firewall_edge_frontend_enabled: false
+
+tripleo_firewall_edge_frontend_rules: {}
+
+tripleo_firewall_edge_ssl_frontend_rules: {}
+
 tripleo_firewall_default_rules:
   '000 accept related established rules':
     proto: all
