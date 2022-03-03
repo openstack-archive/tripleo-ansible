@@ -9,3 +9,4 @@ parameter_defaults:
   CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}
   # Recommendation: set the following to false after overcloud is deployed
   ApplyCephConfigOverridesOnUpdate: true
+  ContainerCephDaemonImage: {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag | string }}
