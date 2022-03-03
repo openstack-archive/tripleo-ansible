@@ -72,3 +72,6 @@ tripleo_cephadm_single_host_defaults: false
 tripleo_cephadm_ha_services_path: "/home/stack/ceph_services.yaml"
 tripleo_cephadm_vip_path: "/home/stack/ceph_vips.yaml"
 tripleo_cephadm_default_container: false
+tripleo_cephadm_nfs_ingress_frontend_port: 2049
+tripleo_cephadm_nfs_ingress_monitor_port: 8999
+tripleo_cephadm_ceph_vips: {}

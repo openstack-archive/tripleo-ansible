@@ -75,9 +75,9 @@
       register: services_fixed
   when: ceph_vip_map.get('fixed')
 
-- name: SET data
+- name: set ceph services vip data
   set_fact:
-    ceph_vips: |
+    tripleo_cephadm_ceph_vips: |
       {% if ceph_vip_map.get('fixed') %}
       {%   set _len = (services_fixed.results | length | int) -1 %}
       {{ services_fixed.results[_len].data }}
