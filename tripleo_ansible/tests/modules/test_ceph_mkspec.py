@@ -21,7 +21,11 @@ try:
 except ImportError:
     from tripleo_ansible.ansible_plugins.module_utils.ca_common import generate_ceph_cmd
 
-from tripleo_common.utils import ceph_spec
+try:
+    from ansible.module_utils import ceph_spec
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import ceph_spec
+
 from tripleo_ansible.tests import base as tests_base
 
 

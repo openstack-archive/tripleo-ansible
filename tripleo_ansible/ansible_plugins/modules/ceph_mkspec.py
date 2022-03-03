@@ -20,8 +20,10 @@ try:
 except ImportError:
     from tripleo_ansible.ansible_plugins.module_utils.ca_common import is_containerized, \
         exec_command, generate_ceph_cmd, exit_module
-
-from tripleo_common.utils import ceph_spec
+try:
+    from ansible.module_utils import ceph_spec
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import ceph_spec
 
 import datetime
 import json
