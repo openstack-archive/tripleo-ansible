@@ -16,6 +16,7 @@
 
 import os
 import re
+import socket
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule
@@ -70,6 +71,14 @@ options:
         description: The crush hierarchy, expressed as a dict, maps the relevant OSD nodes to a user defined crush hierarchy.
         required: False
         type: dict
+    standalone:
+        description: Create a spec file for a standalone deployment. Used for single server development or testing environments.
+        required: False
+        type: bool
+    mon_ip:
+        description: The desired IP address of the first Ceph monitor. Required when standalone is true, otherwise ignored.
+        required: False
+        type: str
 author:
     - John Fulton (fultonj)
 '''
@@ -120,6 +129,12 @@ EXAMPLES = '''
         rotational: 1
       db_devices:
         rotational: 0
+
+- name: Create Ceph spec for standalone deployment
+  ceph_spec_bootstrap:
+    new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
+    mon_ip: "{{ tripleo_cephadm_first_mon_ip }}"
+    standalone: True
 '''
 
 RETURN = '''
@@ -380,6 +395,24 @@ def flatten(t):
     return [item for sublist in t for item in sublist]
 
 
+def ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec={}):
+    """Write ceph_spec_path file for a standalone ceph host
+    :param new_ceph_spec: the path to a ceph_spec.yaml file
+    :param mon_ip: the ip address of the ceph monitor
+    :param (osd_spec): dict describing the OSDs
+    :return dictionary of ceph specs
+    """
+    hostname = socket.gethostname()
+    hosts_to_ips = dict()
+    hosts_to_ips[hostname] = mon_ip
+    svcs = ['osd', 'mon', 'mgr']
+    label_map = dict()
+    label_map[hostname] = svcs + ['_admin']
+    specs = get_specs(hosts_to_ips, label_map, svcs, osd_spec)
+    render(specs, new_ceph_spec)
+    return specs
+
+
 def main():
     """Main method of Ansible module
     """
@@ -406,6 +439,8 @@ def main():
     osd_spec = module.params.get('osd_spec')
     fqdn = module.params.get('fqdn')
     crush = module.params.get('crush_hierarchy')
+    standalone = module.params.get('standalone')
+    mon_ip = module.params.get('mon_ip')
 
     # Set defaults
     if ceph_service_types is None:
@@ -420,8 +455,16 @@ def main():
         fqdn = False
     if crush is None:
         crush = {}
+    if standalone is None:
+        standalone = False
+    if mon_ip is None:
+        mon_ip = ""
 
-    # Validate inputs
+    # Handle standalone scenario and exit module early ...
+    if standalone:
+        result['specs'] = ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec)
+        module.exit_json(**result)
+    # ... otherwise validate the inputs to build a multinode spec
     # 0. Are they using metalsmith xor an inventory as their method?
     method = ""
     required_files = []
