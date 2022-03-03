@@ -2,7 +2,7 @@
 - import_playbook: ../common/verify.yml
 
 - name: "Verify collectd exec plugin"
-  hosts: all
+  hosts: collectd-test
   tasks:
     - name: "Check that the exec plugin config file exists"
       stat:

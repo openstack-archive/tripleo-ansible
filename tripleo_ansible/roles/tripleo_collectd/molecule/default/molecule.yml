@@ -8,11 +8,11 @@ platforms:
     image: centos/centos:stream8
     registry:
       url: quay.io
-    pkg_extras: python*setuptools libselinux-python* policycoreutils-python-utils
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /etc/dnf/vars:/etc/dnf/vars
+      # Had to comment this out or I get "No URLs in mirrorlist"
+      #- /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"

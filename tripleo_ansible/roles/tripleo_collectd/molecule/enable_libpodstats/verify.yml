@@ -18,7 +18,7 @@
 - import_playbook: ../common/verify.yml
 
 - name: "Verify collectd libpodstats plugin"
-  hosts: all
+  hosts: collectd-test
   tasks:
     - name: Check that the libpodstats conf file exists
       stat:
@@ -41,7 +41,7 @@
         src: /etc/collectd.conf
       register: output
       failed_when:
-        - not "TypesDB \"/etc/collectd.d/types.db.libpodstats\"" in output.content | b64decode
+        - not "TypesDB \"/etc/collectd.d//types.db.libpodstats\"" in output.content | b64decode
 
     - name: "Check that the contents of types.db.libpodstats are as expected"
       slurp:

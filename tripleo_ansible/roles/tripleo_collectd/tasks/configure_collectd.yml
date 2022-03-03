@@ -222,5 +222,5 @@
 - name: "Update config file path"
   replace:
     path: "{{ collectd_conf_output_dir }}/../collectd.conf"
-    regexp: "^(.*){{ collectd_conf_output_dir }}/(.*)$"
+    regexp: "^(.*){{ collectd_conf_output_dir }}(.*)$"
     replace: '\1/etc/collectd.d/\2'

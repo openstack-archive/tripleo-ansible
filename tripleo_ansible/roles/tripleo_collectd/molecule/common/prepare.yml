@@ -16,11 +16,15 @@
 
 
 - name: Prepare
-  hosts: all
+  hosts:
+    - collectd-test
+    - collectd-server
   tasks:
     - name: "Enable delorean repos"
       command: |
         dnf config-manager --add-repo https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
+      args:
+        warn: false
 
     - name: "Install tripleo-repos"
       package:
@@ -51,6 +55,11 @@
           # libpodstats
           - collectd-libpod-stats
         state: present
+
+    - name: "Install pkill"
+      package:
+        name:
+          - procps-ng
 
     - name: "Create a directory for the log file"
       file:
