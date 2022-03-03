@@ -16,7 +16,7 @@
 
 
 - name: Converge
-  hosts: all
+  hosts: collectd-test
   tasks:
     - name: "Set up expected THT vars"
       set_fact:

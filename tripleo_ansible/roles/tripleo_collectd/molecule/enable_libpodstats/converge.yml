@@ -16,7 +16,7 @@
 
 
 - name: Converge
-  hosts: all
+  hosts: collectd-test
   tasks:
     - set_fact:
         tripleo_role_name: "SomeRole"

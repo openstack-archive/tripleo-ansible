@@ -16,7 +16,7 @@
 
 
 - name: "Common Verify tasks"
-  hosts: all
+  hosts: collectd-test
   tasks:
     - name: Check for files in conf output dir
       find:
