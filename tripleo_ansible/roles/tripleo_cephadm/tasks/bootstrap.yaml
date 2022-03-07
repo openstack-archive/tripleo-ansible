@@ -45,7 +45,7 @@
     - name: Run cephadm bootstrap
       shell: |
         {{ tripleo_cephadm_bin }} \
-        {% if not tripleo_cephadm_default_container %}--image {{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }} \{% endif %}
+        {% if not tripleo_cephadm_default_container %}--image {{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag|string }} \{% endif %}
         bootstrap \
         --skip-firewalld \
         --ssh-private-key /home/{{ tripleo_cephadm_ssh_user }}/.ssh/id_rsa \
