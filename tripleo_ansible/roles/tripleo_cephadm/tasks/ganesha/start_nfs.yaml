@@ -15,6 +15,7 @@
 # under the License.
 
 - name: dbus related tasks
+  become: true
   block:
     - name: create dbus service file
       copy:
@@ -30,6 +31,7 @@
   delegate_to: "{{ nfs_node }}"
 
 - name: Render config files
+  become: true
   delegate_to: "{{ nfs_node }}"
   block:
     - name: Make sure /etc/ganesha exists
