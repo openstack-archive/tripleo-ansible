@@ -2,10 +2,10 @@
 - name: Verify
   hosts: all
   tasks:
-    - name: Ensure we deactivated GSSAPI
+    - name: Ensure we activated GSSAPI
       lineinfile:
         path: /etc/ssh/sshd_config
-        line: "GSSAPIAuthentication no"
+        line: "GSSAPIAuthentication yes"
         state: present
       register: gssapi
       failed_when:

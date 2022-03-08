@@ -28,7 +28,7 @@ tripleo_sshd_banner_enabled: false
 
 # SSH configuration options
 tripleo_sshd_password_authentication: 'no'
-tripleo_sshd_gssapi_authentication: 'yes'
+tripleo_sshd_gssapi_authentication: 'no'
 
 tripleo_sshd_server_options:
   HostKey:

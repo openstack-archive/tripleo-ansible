@@ -19,4 +19,4 @@
   hosts: all
   roles:
     - name: tripleo_sshd
-      tripleo_sshd_gssapi_authentication: "no"
+      tripleo_sshd_gssapi_authentication: "yes"
