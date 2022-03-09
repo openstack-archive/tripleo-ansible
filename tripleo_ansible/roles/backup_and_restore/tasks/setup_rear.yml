@@ -135,6 +135,16 @@
   tags:
     - bar_setup_rear
 
+- name: Delete the encrypt key line if encrypted backup is disabled
+  lineinfile:
+    path: /etc/rear/local.conf
+    regexp: "BACKUP_PROG_CRYPT_KEY"
+    state: absent
+  when:
+    - not (tripleo_backup_and_restore_local_config["BACKUP_PROG_CRYPT_ENABLED"] | bool)
+  tags:
+    - bar_setup_rear
+
 - name: Load rear config
   slurp:
     src: /etc/rear/local.conf
