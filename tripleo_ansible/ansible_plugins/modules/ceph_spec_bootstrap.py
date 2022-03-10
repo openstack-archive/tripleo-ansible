@@ -477,19 +477,19 @@ def main():
         module.exit_json(**result)
     # ... otherwise validate the inputs to build a multinode spec
     # 0. Are they using metalsmith or an inventory as their method?
-
     if not method:
-        if not (deployed_metalsmith and tripleo_ansible_inventory):
-            error = ("The tripleo_ansible_inventory or "
-                     "deployed_metalsmith parameter is required.")
-            errors.append(error)
+        if not (deployed_metalsmith or tripleo_ansible_inventory):
+            result['msg'] = ("The tripleo_ansible_inventory or "
+                             "deployed_metalsmith parameter is required.")
             result['failed'] = True
+            module.exit_json(**result)
         if not deployed_metalsmith and tripleo_ansible_inventory:
             method = 'tripleo_ansible_inventory'
         elif deployed_metalsmith and not tripleo_ansible_inventory:
             method = 'deployed_metalsmith'
         else:
             method = "both"
+    result['method'] = method
 
     # determine required files based on method
     required_files = []
