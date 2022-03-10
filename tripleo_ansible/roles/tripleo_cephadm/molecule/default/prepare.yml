@@ -43,4 +43,5 @@
         new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
         deployed_metalsmith: mock/mock_deployed_metal.yaml
         tripleo_roles: mock/mock_overcloud_roles.yaml
+        method: 'deployed_metalsmith'
       delegate_to: localhost
