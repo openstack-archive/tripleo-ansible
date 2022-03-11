@@ -622,6 +622,8 @@
     name: tripleo-ansible-centos-8-role-addition
     nodeset: centos-8-stream
     parent: tox
+    run:
+    - zuul.d/playbooks/run-tox.yml
     timeout: 1800
     voting: true
     vars:

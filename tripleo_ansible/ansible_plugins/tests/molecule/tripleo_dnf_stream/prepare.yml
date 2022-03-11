@@ -15,7 +15,7 @@
 # under the License.
 
 - name: Prepare
-  hosts: all
+  hosts: ubi8
   roles:
     - role: test_deps
   tasks:

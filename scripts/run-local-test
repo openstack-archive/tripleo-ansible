@@ -27,6 +27,10 @@ export ROLE_NAME="${ROLE_NAME:-$1}"
 export TRIPLEO_JOB_ANSIBLE_ARGS=${TRIPLEO_JOB_ANSIBLE_ARGS:-""}
 export TOX_CONSTRAINTS_FILE=${TOX_CONSTRAINTS_FILE:-"https://releases.openstack.org/constraints/upper/master"}
 
+# NOTE(cloudnull): Disable ansible compat check, caters to the case where
+#                  system ansible may be installed.
+export ANSIBLE_SKIP_CONFLICT_CHECK=1
+
 ## Functions -----------------------------------------------------------------
 
 function run_pip {
