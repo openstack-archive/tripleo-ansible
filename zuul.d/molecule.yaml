@@ -262,6 +262,8 @@
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_cephadm/(?!meta).*
+    - ^tripleo_ansible/ansible_plugins/modules/ceph_(?!meta).*
+    - ^tripleo_ansible/ansible_plugins/module_utils/ceph_spec.py
     name: tripleo-ansible-centos-8-molecule-tripleo_cephadm
     parent: tripleo-ansible-centos-8-base
     vars:
