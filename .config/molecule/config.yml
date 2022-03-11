@@ -27,12 +27,6 @@ provisioner:
     defaults:
       fact_caching: jsonfile
       fact_caching_connection: /tmp/molecule/facts
-  inventory:
-    hosts:
-      all:
-        hosts:
-          instance:
-            ansible_host: localhost
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
