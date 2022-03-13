@@ -15,6 +15,7 @@
 # under the License.
 
 - name: create keyring directory
+  become: true
   file:
     name: /var/lib/ceph/bootstrap-rgw/
     state: directory
@@ -24,6 +25,7 @@
   delegate_to: "{{ nfs_node }}"
 
 - name: copy ceph key(s) if needed
+  become: true
   copy:
     dest: "{{ item.item.path }}"
     content: "{{ item.stdout + '\n' }}"
