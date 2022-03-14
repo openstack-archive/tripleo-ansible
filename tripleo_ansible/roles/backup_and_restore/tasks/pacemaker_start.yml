@@ -20,11 +20,29 @@
   tags:
     - bar_create_recover_image
 
+- name: Read Services running on the host
+  command: hiera -c '{{ tripleo_backup_and_restore_hiera_config_file }}' 'service_names'
+  register: bar_services_enabled
+  tags:
+    - bar_create_recover_image
+
+- name: Read the servives out as json
+  set_fact:
+    bar_services_enabled_json: "{{ bar_services_enabled.stdout | from_json }}"
+  when:
+    - bar_services_enabled is defined
+    - bar_services_enabled != ''
+  tags:
+    - bar_create_recover_image
+
 - name: Wait until pacemaker has Galera up&running
   shell: ss -tunlp | grep ":3306 " | sed -e 's/.*\///'
   register: mysql_result
   retries: 300
   until: mysql_result is search('mysqld')
   delay: 5
+  when:
+    - bar_services_enabled is defined
+    - "'mysql' in bar_services_enabled_json"
   tags:
     - bar_create_recover_image
