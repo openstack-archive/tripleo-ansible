@@ -214,6 +214,7 @@
       tripleo_role_name: login_defs
 - job:
     files:
+    - ^.config/molecule/config.yml
     - ^tripleo_ansible/roles/test_deps/(?!meta).*
     - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-8-molecule-test_deps
@@ -613,6 +614,7 @@
       tripleo_role_name: tuned
 - job:
     files:
+    - ^.config/molecule/config.yml
     - ^_skeleton_role_/.*
     - ^role-addition.yml
     - ^tox.ini
