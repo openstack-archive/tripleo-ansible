@@ -45,7 +45,8 @@
 
 - name: "(Re)start collectd service"
   hosts:
-    - all
+    - collectd-test
+    - collectd-server
   tasks:
     - name: "Kill running collectd process"
       command:
