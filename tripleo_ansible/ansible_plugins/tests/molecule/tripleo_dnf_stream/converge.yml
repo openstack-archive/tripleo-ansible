@@ -1,6 +1,6 @@
 ---
 - name: Converge
-  hosts: all
+  hosts: ubi8
   become: true
   tasks:
     - name: List available modules at test start for debugging purposes
