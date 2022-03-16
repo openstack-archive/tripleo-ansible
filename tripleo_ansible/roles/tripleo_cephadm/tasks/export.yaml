@@ -24,7 +24,9 @@
 
 - name: Wait for the expected number of monitors to be running
   include_tasks: wait_for_expected_num_mons.yaml
-  when: tripleo_cephadm_wait_for_mons
+  when:
+    - not tripleo_cephadm_deployed_ceph
+    - tripleo_cephadm_wait_for_mons | bool
 
 - name: Run ceph mon dump to get all monitors
   command: "{{ tripleo_cephadm_ceph_cli }} mon dump --format json"
