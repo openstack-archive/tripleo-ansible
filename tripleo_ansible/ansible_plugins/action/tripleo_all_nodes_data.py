@@ -214,8 +214,6 @@ class ActionModule(ActionBase):
 
         DISPLAY.vv("Computing data for top level vars")
         all_nodes['deploy_identifier'] = task_vars['deploy_identifier']
-        all_nodes['stack_action'] = task_vars['stack_action']
-        all_nodes['stack_update_type'] = task_vars['stack_update_type']
         all_nodes['container_cli'] = task_vars['container_cli']
 
         # controller_node_<ips/names>
