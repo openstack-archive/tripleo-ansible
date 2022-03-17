@@ -246,8 +246,6 @@ provisioner:
             swift_storage_network: ctlplane
             tacker_api_network: ctlplane
             zaqar_api_network: ctlplane
-          stack_action: CREATE
-          stack_update_type: ''
           tripleo_role_name: Standalone
           validate_controllers_icmp: true
           validate_fqdn: false
