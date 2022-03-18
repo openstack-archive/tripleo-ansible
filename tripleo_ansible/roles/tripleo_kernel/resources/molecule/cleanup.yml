@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,7 +15,13 @@
 # under the License.
 
 
-- name: Prepare
+- name: Restore environment
   hosts: all
-  roles:
-    - role: test_deps
+  tasks:
+    - name: Restore the default grub file
+      become: true
+      copy:
+        src: "/etc/default/grub.{{ molecule_yml.scenario.name }}"
+        dest: /etc/default/grub
+        mode: preserve
+        remote_src: true
