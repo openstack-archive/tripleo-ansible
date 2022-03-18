@@ -1,5 +1,10 @@
 ---
-# inherits tripleo_kernel/molecule.yml
+# inherits .config/molecule/config.yml
+provisioner:
+  playbooks:
+    prepare: "${MOLECULE_SCENARIO_DIRECTORY}/../../resources/molecule/prepare.yml"
+    cleanup: "${MOLECULE_SCENARIO_DIRECTORY}/../../resources/molecule/cleanup.yml"
+
 scenario:
   name: extra
   test_sequence:
