@@ -143,13 +143,3 @@
   failed_when: false
   tags:
     - skip_ansible_lint
-
-- name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
-  become: true
-  ignore_errors: "{{ (((ansible_facts['os_family'] | lower) ~ '-' ~ ansible_facts['distribution_major_version']) == 'redhat-7') | bool }}"
-  copy:
-    dest: "{{ item }}"
-    content: "# empty ruleset created by deployed-server bootstrap"
-  loop:
-    - /etc/sysconfig/iptables
-    - /etc/sysconfig/ip6tables
