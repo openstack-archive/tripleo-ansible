@@ -60,8 +60,6 @@
 {%   endif %}
 {% endif %}
 {% set _ = all_nodes.__setitem__('deploy_identifier', deploy_identifier) %}
-{% set _ = all_nodes.__setitem__('stack_action', stack_action) %}
-{% set _ = all_nodes.__setitem__('stack_update_type', stack_update_type) %}
 {% set _ = all_nodes.__setitem__('container_cli', container_cli) %}
 {% set _ = all_nodes.__setitem__('controller_node_ips', (groups[primary_role_name] | default([]) | map('extract', hostvars, 'ctlplane_ip') | list | join(','))) %}
 {% set _ = all_nodes.__setitem__('controller_node_names', (groups[primary_role_name] | default([]) | map('extract', hostvars, 'inventory_hostname') | list | join(','))) %}
