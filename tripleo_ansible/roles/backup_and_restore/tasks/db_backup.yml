@@ -80,7 +80,7 @@
 - name: Get the mysql container id when galera is enabled
   shell: |
     set -o pipefail
-    {{ tripleo_container_cli }} ps -a | grep galera | awk '{print $1}'
+    {{ tripleo_container_cli }} ps -q --filter='name=galera'
   when: enabled_galera
   register: galera_container_id
   tags:
