@@ -61,7 +61,7 @@
 
 - name: setting fact for management network netmask
   set_fact:
-    mgmt_port_netmask: "{{ mgmt_subnet_cidr | ipaddr('netmask') }}"
+    mgmt_port_netmask: "{{ mgmt_subnet_cidr | ansible.netcommon.ipaddr('netmask') }}"
 
 - name: get MTU for management port
   shell: |
