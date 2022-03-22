@@ -26,6 +26,8 @@
         --gateway none \
         --network {{ lb_mgmt_net_id }} \
         --subnet-range {{ lb_mgmt_subnet_cidr }}
+    else
+      openstack subnet set --gateway none {{ lb_mgmt_subnet_name }}
     fi
   register: lb_mgmt_subnet_result
   changed_when: (lb_mgmt_subnet_result.stdout | length) > 0
