@@ -1,0 +1,52 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Importing test_vars
+      include_vars: "{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/test_vars.yml"
+  tasks:
+    - name: Grub config validation
+      block:
+        - name: Check if the kernel args is applied to the grub file
+          lineinfile:
+            path: /etc/default/grub
+            line: "{{ expected_line }}"
+            state: present
+          check_mode: true
+          register: grub
+          failed_when: (grub is changed) or (grub is failed)
+        - name: Checking reboot_required
+          fail:
+            msg: |
+              reboot_required is defined and reboot_required is enabled
+          when:
+            - reboot_required is defined and reboot_required
+      rescue:
+        - name: Output /etc/default/grub
+          import_tasks: ../../resources/molecule/print_grub_content.yml
+        - name: Grub config validation failed
+          fail:
+            msg: |
+              reboot_required is defined and reboot_required is enabled: {{ reboot_required | default(false) }}
+              Grub config validation failed. Expected:
+              {{ expected_line }}
+              Validation task returned:
+              {{ grub }}

@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,14 +14,28 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 - name: Converge
   hosts: all
   become: true
+  pre_tasks:
+   - name: Importing test_vars
+     include_vars: test_vars.yml
+   - name: Backing up /etc/default/grub
+     import_tasks: ../../resources/molecule/backup_grub.yml
   tasks:
     - include_role:
         name: "tripleo_kernel"
         tasks_from: kernelargs.yml
       vars:
-        tripleo_kernel_args: "test=1"
         tripleo_kernel_defer_reboot: true
+        cmdline:
+          stdout: "{{ _mocked_cmdline_original }}"
+          stdout_lines: ["{{ _mocked_cmdline_original }}"]
+    - include_role:
+        name: "tripleo_kernel"
+        tasks_from: kernelargs.yml
+      vars:
+        tripleo_kernel_defer_reboot: true
+        cmdline:
+          stdout: "{{ _mocked_cmdline_updated }}"
+          stdout_lines: ["{{ _mocked_cmdline_updated }}"]
