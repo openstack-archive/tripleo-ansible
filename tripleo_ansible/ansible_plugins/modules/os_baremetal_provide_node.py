@@ -397,10 +397,12 @@ def parallel_nodes_providing(conn, module):
     result = {}
     nodes_wait = nodes[:]
     for node in nodes:
-        wait_for_unlocked(client, node, node_timeout)
-        if wait_for_bridge_mappings:
-            wait_for_bridge_mapping(conn, node)
         try:
+            wait_for_unlocked(client, node, node_timeout)
+
+            if wait_for_bridge_mappings:
+                wait_for_bridge_mapping(conn, node)
+
             client.set_node_provision_state(
                 node,
                 "provide",
@@ -418,6 +420,7 @@ def parallel_nodes_providing(conn, module):
                     nodes_wait,
                     msg="Failed providing nodes because of: %s" % str(e),
                     result=result, client=client)
+
     try:
         client.wait_for_nodes_provision_state(
             nodes=nodes_wait,
