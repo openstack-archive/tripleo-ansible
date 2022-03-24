@@ -23,11 +23,13 @@
     filter: 'ansible_default_ipv4'
 
 - name: Check Default IPv4 Gateway availability
-  command: "ping -w 10 -c 1 {{ ansible_facts.default_ipv4.gateway }}"
+  command: "ping -w 10 -c 5 {{ ansible_facts.default_ipv4.gateway }}"
   retries: 10
   delay: 60
   changed_when: false
   check_mode: false
+  register: ping_result
+  until: ping_result.rc == 0
   when:
     - tripleo_nodes_validation_validate_gateway_icmp|bool
     - ansible_facts.default_ipv4 is defined
@@ -35,7 +37,7 @@
 
 # Ping test the gateway IPs before nodes, see RHBZ#1875962
 - name: Check all networks Gateway availability
-  command: "{{ (':' in gateway_ip) | ternary('ping6', 'ping') }} -w 10 -c 1 {{ gateway_ip }}"
+  command: "{{ (':' in gateway_ip) | ternary('ping6', 'ping') }} -w 10 -c 5 {{ gateway_ip }}"
   retries: 10
   delay: 60
   loop_control:
@@ -43,6 +45,8 @@
   loop: "{{ tripleo_nodes_validation_ping_test_gateway_ips }}"
   changed_when: false
   check_mode: false
+  register: ping_gw_result
+  until: ping_gw_result.rc == 0
   when:
     - tripleo_nodes_validation_validate_gateway_icmp|bool
     - tripleo_nodes_validation_ping_test_gateway_ips | length > 0
