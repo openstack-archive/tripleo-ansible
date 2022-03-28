@@ -290,6 +290,7 @@ class TripleoContainerManage:
             'conmon_pidfile': f"/run/{name}.pid",
             'debug': self.debug,
             'log_driver': 'k8s-file',
+            'log_level': 'info',
             'log_opt': {"path": f"{self.log_base_path}/{name}.log"},
         }
         opts.update(config)
