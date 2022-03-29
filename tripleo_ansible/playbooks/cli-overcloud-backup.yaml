@@ -25,6 +25,8 @@
 
 - name: Check Controller group
   hosts: localhost
+  vars_files:
+    ../roles/backup_and_restore/defaults/main.yml
   tasks:
     - assert:
         that:
