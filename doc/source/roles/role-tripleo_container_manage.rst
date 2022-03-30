@@ -178,7 +178,7 @@ overrides the image setting in one-off.
                 tripleo_container_manage_clean_orphans: false
                 tripleo_container_manage_config_overrides:
                   haproxy:
-                    image: docker.io/tripleomaster/centos-binary-haproxy:hotfix
+                    image: quay.io/tripleomastercentos9/centos-binary-haproxy:hotfix
 
 If Ansible is run in check mode, no container will be removed nor created,
 however at the end of the playbook a list of commands will be displayed to show

@@ -8693,7 +8693,7 @@ stack_data:
       ContainerImageRegistryCredentials:
         type: Json
         description: "Mapping of image registry hosts to login credentials. Must be\
-          \ in the following example format\n\n  docker.io:\n    username: pa55word\n\
+          \ in the following example format\n\n  quay.io:\n    username: pa55word\n\
           \  '192.0.2.1:8787':\n    registry_username: password\n"
         noEcho: 'true'
         label: ContainerImageRegistryCredentials
@@ -8758,7 +8758,7 @@ stack_data:
         name: NeutronMechanismDrivers
       DockerRegistryMirror:
         type: String
-        description: Optional. Mirror to use for registry docker.io
+        description: Optional. Mirror to use for registry quay.io
         noEcho: 'false'
         label: DockerRegistryMirror
         default: ''
