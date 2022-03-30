@@ -19,6 +19,8 @@
   vars:
     tripleo_cephadm_wait_for_mons: false
     tripleo_ceph_client_vars: ceph_client.yaml
+    tripleo_cephadm_fsid_list:
+      - "cc7adc82-32eb-531e-b173-54047020ea3c"
   tasks:
     - name: Satisfy Ceph prerequisites
       import_role:
