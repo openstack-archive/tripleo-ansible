@@ -55,8 +55,8 @@
 - name: Show results of spec apply
   debug:
     msg: "{{ tripleo_cephadm_apply_spec_out }}"
-  when: tripleo_cephadm_verbose
+  when: tripleo_cephadm_verbose | bool
 
 - name: Wait for the expected number of osds to be running
   include_tasks: wait_for_expected_num_osds.yaml
-  when: tripleo_cephadm_wait_for_osds
+  when: tripleo_cephadm_wait_for_osds | bool

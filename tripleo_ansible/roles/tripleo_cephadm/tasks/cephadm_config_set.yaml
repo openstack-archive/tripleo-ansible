@@ -19,7 +19,7 @@
     {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/log_to_cluster_level debug
   changed_when: false
   become: true
-  when: tripleo_cephadm_debug
+  when: tripleo_cephadm_debug | bool
 
 - name: set default container image in ceph configuration
   command: |
@@ -28,7 +28,7 @@
   changed_when: false
   become: true
   when:
-    - not (tripleo_cephadm_default_container | default(false))
+    - not (tripleo_cephadm_default_container | default(false) | bool)
 
 - name: enforce minimum ceph clients version
   command: |
@@ -47,12 +47,12 @@
   changed_when: false
   become: true
   when:
-    - not (tripleo_cephadm_default_container | default(false))
+    - not (tripleo_cephadm_default_container | default(false) | bool)
 
 - name: set dashboard container image in ceph mgr configuration
   when:
     - tripleo_cephadm_dashboard_enabled | bool
-    - not (tripleo_cephadm_default_container | default(false))
+    - not (tripleo_cephadm_default_container | default(false) | bool)
   become: true
   block:
     - name: set alertmanager container image in ceph configuration
@@ -83,7 +83,7 @@
   when:
     - tripleo_cephadm_haproxy_container_image is defined
     - tripleo_cephadm_keepalived_container_image is defined
-    - not (tripleo_cephadm_default_container | default(false))
+    - not (tripleo_cephadm_default_container | default(false) | bool)
   become: true
   block:
     - name: set haproxy container image in ceph configuration

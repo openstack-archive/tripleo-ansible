@@ -17,7 +17,7 @@
 - name: Add spec to necessary file list when using spec to bootstrap
   set_fact:
     tripleo_cephadm_bootstrap_files: "{{ tripleo_cephadm_bootstrap_files + [ tripleo_cephadm_spec ] }}"
-  when: tripleo_cephadm_spec_on_bootstrap
+  when: tripleo_cephadm_spec_on_bootstrap | bool
 
 - name: Stat necessary files to bootstrap with cephadm
   stat:
@@ -69,7 +69,7 @@
     - name: Show results of bootstrap
       debug:
         msg: "{{ cephadm_bootstrap }}"
-      when: tripleo_cephadm_verbose
+      when: tripleo_cephadm_verbose | bool
   when:
     - cephadm_ls is defined
     - cephadm_ls.stdout == '[]'
