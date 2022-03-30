@@ -124,7 +124,7 @@ class CallbackModule(CallbackBase):
         k = (host, uuid)
         # the task never started, insert shrug emoji here.
         if k not in self.stats:
-            self._display.warning('{} missing from stats'.format(k))
+            self._display.vvvv('{} missing from stats'.format(k))
             return
         total_time = time.time() - self.stats[k]['start']
         self.stats[k]['total_time'] = total_time
