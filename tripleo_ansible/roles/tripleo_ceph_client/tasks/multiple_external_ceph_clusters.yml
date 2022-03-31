@@ -24,3 +24,4 @@
         tripleo_ceph_client_mon_ips: []
         tripleo_ceph_client_cluster: "{{ multiple.cluster }}"
         tripleo_ceph_client_keys: "{{ multiple.get('keys',[]) }}"
+        tripleo_ceph_client_config_overrides: "{{ multiple.get('ceph_conf_overrides',{}) }}"
