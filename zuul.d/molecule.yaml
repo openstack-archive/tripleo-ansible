@@ -8,6 +8,7 @@
       - tripleo-ansible-centos-8-molecule-backup_and_restore
       - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
+      - tripleo-ansible-centos-8-molecule-snapshot_and_revert
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
@@ -70,6 +71,7 @@
       - tripleo-ansible-centos-8-molecule-backup_and_restore
       - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
+      - tripleo-ansible-centos-8-molecule-snapshot_and_revert
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
@@ -133,6 +135,7 @@
       - tripleo-ansible-centos-8-molecule-backup_and_restore
       - tripleo-ansible-centos-8-molecule-designate_bind_config
       - tripleo-ansible-centos-8-molecule-login_defs
+      - tripleo-ansible-centos-8-molecule-snapshot_and_revert
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
@@ -212,6 +215,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: login_defs
+- job:
+    files:
+    - ^tripleo_ansible/roles/snapshot_and_revert/(?!meta).*
+    name: tripleo-ansible-centos-8-molecule-snapshot_and_revert
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: snapshot_and_revert
 - job:
     files:
     - ^.config/molecule/config.yml
