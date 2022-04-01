@@ -1,0 +1,20 @@
+image: "{{ tripleo_keystone_image }}"
+net: host
+user: root
+privileged: false
+detach: false
+volumes:
+  {% set keystone_volumes = [] %}
+  {%- set keystone_volumes =
+        keystone_volumes +
+        tripleo_keystone_common_volumes +
+        tripleo_keystone_volumes +
+        tripleo_keystone_logging_volumes +
+        tripleo_keystone_internal_tls_volumes -%}
+  {%- if tripleo_keystone_enable_internal_tls -%}
+  {%-   set keystone_volumes =
+          keystone_volumes + tripleo_keystone_internal_tls_ca_file -%}
+  {%- endif -%}
+  {{ keystone_volumes }}
+environment: {{ tripleo_keystone_db_sync_environment | combine(tripleo_keystone_logging_environment | default({}, true)) }}
+command: ['/usr/bin/bootstrap_host_exec', 'keystone', '/usr/local/bin/kolla_start']
