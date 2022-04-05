@@ -65,6 +65,8 @@ tripleo_backup_and_restore_local_config:
   OUTPUT_URL: "{{ tripleo_backup_and_restore_output_url }}"
   ISO_PREFIX: "{{ tripleo_backup_and_restore_hostname.stdout }}"
   BACKUP_URL: "{{ tripleo_backup_and_restore_backup_url }}"
+  BACKUP_PROG_CRYPT_ENABLED: "{{ tripleo_backup_and_restore_crypt_backup_enabled | default(false) }}"
+  BACKUP_PROG_CRYPT_KEY: "{{ tripleo_backup_and_restore_crypt_backup_password | default('REPLACE_ME') }}"
 
 # This var is used to define the commands to be run for preparing the network
 # during the restoration phase. Because ReaR does not support ovs, it is required
