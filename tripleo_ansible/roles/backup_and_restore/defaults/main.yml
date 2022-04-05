@@ -127,12 +127,6 @@ tripleo_backup_and_restore_ceph_mon_role: "ceph_mon"
 # The cephadm path
 tripleo_backup_and_restore_cephadm_path: "/usr/sbin/cephadm"
 
-# The partition (/dev/whatever) that contain the /boot and /boot/efi contents
-# but that are not mounted. These variables should only contain the last part
-# of the partition (the whatever), i.e: sda2, sda1, vda2, sdb3, sdc1...
-tripleo_backup_and_restore_boot_mount: replaceme
-tripleo_backup_and_restore_boot_efi_mount: replaceme
-
 # The name of the node to restore
 tripleo_backup_and_restore_overcloud_restore_name: undercloud
 
