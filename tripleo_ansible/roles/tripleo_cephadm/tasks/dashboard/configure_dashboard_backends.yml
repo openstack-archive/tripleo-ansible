@@ -24,7 +24,7 @@
 - name: Check the resulting mgr container instance
   debug:
     msg: "{{ ceph_mgr.stdout | regex_replace('^ceph-?(.*)-mgr.', '') }}"
-  when: tripleo_cephadm_verbose
+  when: tripleo_cephadm_verbose | bool
 
 - name: config the current dashboard backend
   command: |

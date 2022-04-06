@@ -26,22 +26,22 @@
         name: tripleo_cephadm
         tasks_from: bootstrap
       when:
-        - not tripleo_cephadm_deployed_ceph
+        - not tripleo_cephadm_deployed_ceph | bool
 
     - name: Apply ceph_conf_overrides on update
       import_role:
         name: tripleo_cephadm
         tasks_from: apply_ceph_conf_overrides
       when:
-        - tripleo_cephadm_apply_ceph_conf_overrides_on_update
+        - tripleo_cephadm_apply_ceph_conf_overrides_on_update | bool
 
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm
         tasks_from: apply_spec
       when:
-        - not tripleo_cephadm_spec_on_bootstrap
-        - not tripleo_cephadm_deployed_ceph
+        - not tripleo_cephadm_spec_on_bootstrap | bool
+        - not tripleo_cephadm_deployed_ceph | bool
 
     - name: Set crush rules if provided
       import_role:
