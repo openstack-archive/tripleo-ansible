@@ -27,6 +27,7 @@ tripleo_backup_and_restore_rear_packages:
   - xorriso
   - nfs-utils
   - lftp
+  - grub2-tools-extra
 tripleo_backup_and_restore_nfs_packages:
   - nfs-utils
 tripleo_backup_and_restore_uefi_packages:
