@@ -47,6 +47,14 @@
   tags:
     - always
 
+# There is not Stack UPDATE any longer so we need to figure out if a resource
+# is being created or updated on our own before-hand.
+- name: "Detect if resource is being created or already exists"
+  shell: |
+    pcs resource config "{{ tripleo_ha_wrapper_bundle_name }}"
+  register: pcs_resource_exists
+  failed_when: false
+
 - name: "Run init bundle puppet on the host for {{ tripleo_ha_wrapper_service_name }}"
   shell: |
     puppet apply {{ (tripleo_ha_wrapper_puppet_debug | default(false) | bool) | ternary('--debug --verbose', '') }} --detailed-exitcodes \
@@ -55,6 +63,11 @@
   register: puppet_run
   changed_when: puppet_run.rc == 2
   failed_when: puppet_run.rc != 2 and puppet_run.rc != 0
+
+- name: "Check if {{ tripleo_ha_wrapper_config_basedir }}/{{ tripleo_ha_wrapper_puppet_config_volume }} exists"
+  stat:
+    path: "{{ tripleo_ha_wrapper_config_basedir }}/{{ tripleo_ha_wrapper_puppet_config_volume }}.md5sum"
+  register: config_volume_md5
 
 - name: Run pacemaker restart if the config file for the service changed
   tripleo_diff_exec:
@@ -66,3 +79,6 @@
     state_file_suffix: "{{ tripleo_ha_wrapper_config_suffix }}"
     environment:
       TRIPLEO_MINOR_UPDATE: "{{ tripleo_ha_wrapper_minor_update|default('') | string }}"
+      TRIPLEO_HA_WRAPPER_RESOURCE_EXISTS: "{{ (pcs_resource_exists.rc == 0) | string }}"
+  when:
+    - (config_volume_md5.stat.exists | bool)
