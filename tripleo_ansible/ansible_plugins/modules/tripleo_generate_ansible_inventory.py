@@ -15,6 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import os
+import traceback
 import yaml
 
 from ansible.module_utils import tripleo_common_utils as tc
@@ -138,9 +139,9 @@ def run_module():
         result['success'] = True
         result['changed'] = True
     except Exception as err:
-        result['error'] = str(err)
-        result['msg'] = ("Error generating inventory for %s: %s" % (
-            plan, err))
+        result['error'] = traceback.format_exc()
+        result['msg'] = ("Error generating inventory for %s: %s - %s" % (
+            plan, err, str(err)))
         module.fail_json(**result)
 
     # in the event of a successful module execution, you will want to
