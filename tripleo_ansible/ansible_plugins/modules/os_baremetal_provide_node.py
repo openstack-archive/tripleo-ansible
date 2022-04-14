@@ -330,7 +330,7 @@ EXAMPLES = '''
 
 '''
 import yaml
-from openstack.exceptions import ResourceFailure, ResourceTimeout
+from openstack.exceptions import ResourceNotFound, ResourceFailure, ResourceTimeout
 from openstack.utils import iterate_timeout
 
 from ansible.module_utils.basic import AnsibleModule
@@ -378,12 +378,18 @@ def wait_for_unlocked(client, node, timeout):
 
 def wait_for_bridge_mapping(conn, node):
     client = conn.network
+
+    # (bshephar) We need to use the node UUID rather than the name when we
+    # check for the Neutron agents:
+    # https://bugs.launchpad.net/tripleo/+bug/1966155
+    node_id = conn.baremetal.find_node(node, ignore_missing=False).id
+
     timeout_msg = ('Timeout waiting for node %s to have bridge_mappings '
                    'set in the ironic-neutron-agent entry' % node)
     # default agent polling period is 30s, so wait 60s
     timeout = 60
     for count in iterate_timeout(timeout, timeout_msg):
-        agents = list(client.agents(host=node, binary='ironic-neutron-agent'))
+        agents = list(client.agents(host=node_id, binary='ironic-neutron-agent'))
         if agents:
             if agents[0].configuration.get('bridge_mappings'):
                 return
