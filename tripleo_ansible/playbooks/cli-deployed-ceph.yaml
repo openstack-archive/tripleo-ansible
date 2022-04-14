@@ -214,6 +214,32 @@
       when:
         - not tripleo_cephadm_spec_on_bootstrap
 
+    - name: Create ceph pools if tripleo_cephadm_pools was set
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: pools
+      when:
+        - tripleo_cephadm_pools is defined
+        - tripleo_cephadm_pools | length > 0
+
+    - name: Create Keys if tripleo_cephadm_keys was set
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: keys
+      when:
+        - tripleo_cephadm_keys is defined
+        - tripleo_cephadm_keys | length > 0
+
+    - name: Export configuration for tripleo_ceph_client
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: export
+      when:
+        - tripleo_cephadm_pools is defined
+        - tripleo_cephadm_pools | length > 0
+        - tripleo_cephadm_keys is defined
+        - tripleo_cephadm_keys | length > 0
+
     - name: Config MDS and Ganesha daemons
       when: tripleo_cephadm_daemon_ceph_nfs | default(False)
       block:

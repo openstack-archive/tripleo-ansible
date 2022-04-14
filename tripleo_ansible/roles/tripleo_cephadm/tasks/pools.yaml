@@ -42,7 +42,7 @@
 
 - name: Configure the RBD trash purge scheduler
   when:
-    - tripleo_enabled_services | intersect(['cinder_volume'])
+    - tripleo_enabled_services | default([]) | intersect(['cinder_volume'])
   block:
     - name: Get the RBD ceph_cli
       include_tasks: ceph_cli.yaml
