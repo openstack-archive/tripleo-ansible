@@ -4,6 +4,7 @@ parameter_defaults:
   CephDynamicSpec: false
   DeployedCeph: true
   CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}
+  ContainerCephDaemonImage: {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag | string }}
+  CephClusterName: {{ tripleo_cephadm_cluster }}
   # Recommendation: set the following to false after overcloud is deployed
   ApplyCephConfigOverridesOnUpdate: true
-  ContainerCephDaemonImage: {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag | string }}
