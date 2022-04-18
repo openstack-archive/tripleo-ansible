@@ -327,7 +327,7 @@ class ActionModule(ActionBase):
                 )
             )
             fatal = self._run_module(
-                name='iptables',
+                name='ansible.builtin.iptables',
                 args=iptables_rule,
                 task_vars=task_vars
             )
