@@ -62,6 +62,7 @@
         {% if tripleo_cephadm_assimilate_conf_stat.stat.exists %}--config {{ tripleo_cephadm_assimilate_conf }} \{% endif %}
         {% if tripleo_cephadm_single_host_defaults %}--single-host-defaults \{% endif %}
         --skip-monitoring-stack --skip-dashboard \
+        {% if tripleo_cephadm_extra_args|length > 0 %}{{ tripleo_cephadm_extra_args }} \{% endif %}
         --mon-ip {{ tripleo_cephadm_first_mon_ip }}
       register: cephadm_bootstrap
       become: true

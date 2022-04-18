@@ -69,3 +69,4 @@ tripleo_cephadm_rbd_trash_interval: 15
 tripleo_cephadm_apply_ceph_conf_overrides_on_update: false
 tripleo_cephadm_default_container: false
 tripleo_cephadm_single_host_defaults: false
+tripleo_cephadm_extra_args: ""
