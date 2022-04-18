@@ -121,7 +121,18 @@
     - bar_create_recover_image
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
 
-- name: MySQL Grants backup
+- name: MySQL BBDDs backup
+  shell: |
+    set -o pipefail
+    {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysqldump -uroot -p{{ mysql_password.stdout }} --opt --all-databases" > {{ tripleo_backup_and_restore_mysql_backup_file }}
+  when:
+    - mysql_password.stderr is defined
+    - not enabled_galera
+  tags:
+    - bar_create_recover_image
+  no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
+
+- name: Galera Grants backup
   shell: |
     set -o pipefail
     {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -uroot \
@@ -130,12 +141,14 @@
     FROM mysql.user where (length(user) > 0 and \
     (Host = 'localhost' or Host='%' or IS_IPV4(Host) or IS_IPV6(Host)))\"  | xargs -n1 mysql \
     -uroot -p{{ mysql_password.stdout }} -s -N -e | sed 's/$/;/' " > {{ tripleo_backup_and_restore_mysql_grants_file }}
-  when: mysql_password.stderr is defined
+  when:
+    - mysql_password.stderr is defined
+    - enabled_galera
   tags:
     - bar_create_recover_image
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
 
-- name: MySQL BBDDs backup
+- name: Galera BBDDs backup
   shell: |
     set -o pipefail
     {{ tripleo_container_cli }} exec {{ tripleo_backup_and_restore_mysql_container }} bash -c "mysql -uroot \
@@ -143,7 +156,9 @@
     -e \"select distinct table_schema from information_schema.tables \
     where engine='innodb' and table_schema != 'mysql';\" | xargs mysqldump -uroot \
     -p{{ mysql_password.stdout }}  --single-transaction --databases" > {{ tripleo_backup_and_restore_mysql_backup_file }}
-  when: mysql_password.stderr is defined
+  when:
+    - mysql_password.stderr is defined
+    - enabled_galera
   tags:
     - bar_create_recover_image
   no_log: "{{ tripleo_backup_and_restore_hide_sensitive_logs | bool }}"
