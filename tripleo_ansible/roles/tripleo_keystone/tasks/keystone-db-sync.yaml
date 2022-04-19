@@ -15,37 +15,12 @@
 # under the License.
 
 
-# "tripleo_keystone" will search for and load any operating system variable file
-
-# found within the "vars/" path. If no OS files are found the task will skip.
-- name: Gather variables for each operating system
-  include_vars: "{{ item }}"
-  with_first_found:
-    - skip: true
-      files:
-        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
-        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
-        - "{{ ansible_facts['distribution'] | lower }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}.yml"
-  tags:
-    - always
-
-- name: Create /var/lib/tripleo-config/container-startup-config/keystone-db-sync
-  file:
-    path: /var/lib/tripleo-config/container-startup-config/keystone-db-sync
-    state: directory
-
-- name: Render keystone_db_sync container definition
-  copy:
-    content: "{{ lookup('template', 'keystone_db_sync.yaml.j2') | from_yaml }}"
-    dest: /var/lib/tripleo-config/container-startup-config/keystone-db-sync/keystone_db_sync.json
-
-- name: Run keystone_db_sync container
+- name: Manage keystone-db-sync containers
   include_role:
-    name: tripleo_container_manage
+    name: tripleo_container_standalone
   vars:
-    tripleo_container_manage_config: '/var/lib/tripleo-config/container-startup-config/keystone-db-sync'
-    tripleo_container_manage_config_patterns: '*.json'
-    tripleo_container_manage_config_id: keystone-db-sync
+    tripleo_container_standalone_service: keystone-db-sync
+    tripleo_container_standalone_container_defs:
+      keystone_db_sync: "{{ lookup('template', 'keystone_db_sync.yaml.j2') | from_yaml }}"
+    tripleo_container_standalone_kolla_config_files:
+      keystone: "{{ lookup('file', 'files/keystone.yaml') | from_yaml }}"
