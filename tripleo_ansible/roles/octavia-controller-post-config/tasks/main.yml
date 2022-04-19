@@ -71,7 +71,7 @@
 
 - name: retrieve current ip list
   set_fact:
-    current_ip_list: "{{ config_contents.stdout }}"
+    current_ip_list: "{{ config_contents.stdout | trim }}"
 
 # This isn't perfect as they execution order will make them not match, but we can avoid a restart
 # if things have stayed the same.
