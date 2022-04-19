@@ -14,20 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# Exclude ansible until https://github.com/ansible/ansible/issues/56636
-# is available
-- name: Update all packages
-  when:
-    - not skip_package_update|bool
-  ansible.builtin.dnf:
-    name: '*'
-    state: latest
-    exclude: ansible
-# This is failsafe unless openvswitch package does something
-# to the systemd service state.
-- name: Ensure openvswitch is running after update
+- name: Special treatment for OpenvSwitch
+  tripleo_ovs_upgrade:
+  register: ovs_upgrade
+- name: Always ensure the openvswitch service is enabled and running after upgrades
   ansible.builtin.systemd:
     name: openvswitch
     enabled: true
     state: started
-  ignore_errors: true
+  when:
+    - ovs_upgrade.changed|bool

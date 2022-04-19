@@ -86,3 +86,7 @@ tripleo_packages_exclude_from_update:
   - ansible
 
 tripleo_release: "{{ release | default('queens') }}"
+
+dnf_module_list: []
+skip_rhel_enforcement: false
+skip_package_update: false
