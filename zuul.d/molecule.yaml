@@ -10,6 +10,7 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
+      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -32,6 +33,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
+      - tripleo-ansible-centos-8-molecule-tripleo_keystone
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
@@ -63,7 +65,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
     gate:
       jobs:
       - tripleo-ansible-centos-8-molecule-aide
@@ -72,6 +73,7 @@
       - tripleo-ansible-centos-8-molecule-login_defs
       - tripleo-ansible-centos-8-molecule-test_deps
       - tripleo-ansible-centos-8-molecule-test_package_action
+      - tripleo-ansible-centos-8-molecule-tripleo-modules
       - tripleo-ansible-centos-8-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-8-molecule-tripleo_cellv2
       - tripleo-ansible-centos-8-molecule-tripleo_ceph_client
@@ -94,6 +96,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
+      - tripleo-ansible-centos-8-molecule-tripleo_keystone
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
@@ -125,7 +128,6 @@
       - tripleo-ansible-centos-8-molecule-tripleo_validations_package
       - tripleo-ansible-centos-8-molecule-tuned
       - tripleo-ansible-centos-8-role-addition
-      - tripleo-ansible-centos-8-molecule-tripleo-modules
     name: tripleo-ansible-molecule-jobs
     periodic-weekly:
       jobs:
@@ -156,6 +158,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-8-molecule-tripleo_image_serve
       - tripleo-ansible-centos-8-molecule-tripleo_kernel
+      - tripleo-ansible-centos-8-molecule-tripleo_keystone
       - tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
       - tripleo-ansible-centos-8-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-8-molecule-tripleo_module_load
@@ -231,6 +234,17 @@
       tripleo_role_name: test_package_action
 - job:
     files:
+    - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_configs.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_config_scripts.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
+    - ^tripleo_ansible/ansible_plugins/modules/tripleo_dnf_stream.py
+    - ^tripleo_ansible/ansible_plugins/strategy/.*
+    - ^tox.ini
+    name: tripleo-ansible-centos-8-molecule-tripleo-modules
+    parent: tripleo-ansible-centos-8-base
+- job:
+    files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_bootstrap
     parent: tripleo-ansible-centos-8-base
@@ -281,10 +295,10 @@
     - ^tripleo_ansible/roles/tripleo_collectd/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_collectd
     parent: tripleo-ansible-centos-8-base
+    pre-run: zuul.d/playbooks/enable-fips.yml
     timeout: 7200
     vars:
       tripleo_role_name: tripleo_collectd
-    pre-run: zuul.d/playbooks/enable-fips.yml
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
@@ -400,6 +414,13 @@
       tripleo_role_name: tripleo_kernel
 - job:
     files:
+    - ^tripleo_ansible/roles/tripleo_keystone/(?!meta).*
+    name: tripleo-ansible-centos-8-molecule-tripleo_keystone
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_keystone
+- job:
+    files:
     - ^tripleo_ansible/roles/tripleo_keystone_resources/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_keystone_resources
     parent: tripleo-ansible-centos-8-base
@@ -417,9 +438,9 @@
     - ^tripleo_ansible/roles/tripleo_metrics_qdr/(?!meta).*
     name: tripleo-ansible-centos-8-molecule-tripleo_metrics_qdr
     parent: tripleo-ansible-centos-8-base
+    pre-run: zuul.d/playbooks/enable-fips.yml
     vars:
       tripleo_role_name: tripleo_metrics_qdr
-    pre-run: zuul.d/playbooks/enable-fips.yml
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_module_load/(?!meta).*
@@ -629,17 +650,6 @@
     run:
     - zuul.d/playbooks/run-tox.yml
     timeout: 1800
-    voting: true
     vars:
       tox_envlist: role-addition
-- job:
-    files:
-    - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_configs.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_config_scripts.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
-    - ^tripleo_ansible/ansible_plugins/modules/tripleo_dnf_stream.py
-    - ^tripleo_ansible/ansible_plugins/strategy/.*
-    - ^tox.ini
-    name: tripleo-ansible-centos-8-molecule-tripleo-modules
-    parent: tripleo-ansible-centos-8-base
+    voting: true
