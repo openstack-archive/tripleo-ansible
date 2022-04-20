@@ -33,7 +33,7 @@ tripleo_podman_unqualified_search_registries:
   - registry.access.redhat.com
   - registry.fedoraproject.org
   - registry.centos.org
-  - docker.io
+  - quay.io
 tripleo_podman_insecure_registries: "{{ tripleo_container_registry_insecure_registries }}"
 # this is the default network configuration except the range has been moved
 # from 10.88.0.0/16 to 10.255.255.0/24 to try and prevent a conflict in an
@@ -62,9 +62,9 @@ tripleo_podman_default_network_config:
 # tripleo_podman_registries requires a list of dictionaries
 # Example:
 # tripleo_podman_registries:
-#   - prefix: docker.io
+#   - prefix: quay.io
 #     insecure: false
-#     location: docker.io
+#     location: quay.io
 #     mirrors:
 #       - location: 192.168.0.1:8787
 #         insecure: true

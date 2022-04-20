@@ -56,12 +56,12 @@ EXAMPLES = """
     config_data:
       step_1:
         haproxy:
-          image: docker.io/haproxy
+          image: quay.io/haproxy
         memcached:
-          image: docker.io/memcached
+          image: quay.io/memcached
       step_2:
         mysql:
-          image: docker.io/mysql
+          image: quay.io/mysql
 """
 
 
