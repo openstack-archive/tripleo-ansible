@@ -23,7 +23,7 @@
       {{ hostvars[item]['internal_api_ip'] }}
       {{ hostvars[item]['internal_api_hostname'] }}
       {{ hostvars[item]['internal_api_hostname'].split('.')[:2] | join('.') }}
-    insertafter: "# HEAT_HOSTS_END"
+    insertafter: "# END_HOST_ENTRIES_FOR_STACK:.*"
     state: present
   when:
     - hostvars[item]['internal_api_ip'] is defined
@@ -45,7 +45,7 @@
     line: >-
       {{ hostvars[item]['internal_api_vip'] }}
       {{ cell_domain_name | ternary(tripleo_cellv2_cell_name ~ '.' ~ cell_domain_name, tripleo_cellv2_cell_name) }}
-    insertafter: "# HEAT_HOSTS_END"
+    insertafter: "# END_HOST_ENTRIES_FOR_STACK:.*"
     state: present
   when:
     - hostvars[item]['internal_api_vip'] is defined
