@@ -296,8 +296,7 @@ class ContainerPuppetManager:
                 if k == 'puppet_tags':
                     continue
                 if k == 'step_config':
-                    step_config = 'include ::tripleo::packages\n' + v
-                    cdata['environment']['STEP_CONFIG'] = step_config
+                    cdata['environment']['STEP_CONFIG'] = v
                     continue
                 if k == 'config_image':
                     cdata['image'] = v
