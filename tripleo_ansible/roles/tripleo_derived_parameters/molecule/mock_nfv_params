@@ -4786,25 +4786,6 @@ stack_data:
           - ContainerImageRegistryLogin
           - ContainerImageRegistryCredentials
           - SystemdDropInDependencies
-      a910c139-c47d-466e-95f4-051f4c6eb824:
-        name: SshdBase
-        id: a910c139-c47d-466e-95f4-051f4c6eb824
-        type: https://192.168.50.2:13808/v1/AUTH_d315499323fe4ae689b1ac19092f3a53/overcloud/deployment/sshd/sshd-baremetal-puppet.yaml
-        description: 'Configure sshd_config
-
-          '
-        parameters:
-          - ServiceData
-          - ServiceNetMap
-          - DefaultPasswords
-          - RoleName
-          - RoleParameters
-          - EndpointMap
-          - BannerText
-          - MessageOfTheDay
-          - SshServerOptions
-          - PasswordAuthentication
-          - SshFirewallAllowAll
       172cf589-0466-45b8-84d7-d57ed2fcb269:
         name: ContainersCommon
         id: 172cf589-0466-45b8-84d7-d57ed2fcb269
@@ -4845,7 +4826,6 @@ stack_data:
           - MigrationSshPort
           - NovaNfsEnabled
         resources:
-          - a910c139-c47d-466e-95f4-051f4c6eb824
           - 172cf589-0466-45b8-84d7-d57ed2fcb269
       dd012af6-d5b7-482b-9133-4211f5143e0a:
         name: '37'
