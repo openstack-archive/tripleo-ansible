@@ -17,7 +17,7 @@
 - name: Overcloud Node Set Kernel Args
   hosts: allovercloud
   any_errors_fatal: true
-  gather_facts: true
+  gather_facts: false
   vars:
     kernel_args: ''
     reboot_wait_timeout: 900
@@ -35,6 +35,8 @@
         msg: Timeout waiting for provisioned nodes to become available
       connection: local
   tasks:
+    - name: gather facts
+      setup:
     - name: Kernel args block
       become: true
       block:
