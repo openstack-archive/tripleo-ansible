@@ -4,12 +4,12 @@
     set -o pipefail
     port_id="$(openstack port show octavia-health-manager-{{ node_hostname }}-listen-port -f value -c id 2> /dev/null)"
     if [[ -z "${port_id}" ]]; then
-      neutron port-create {{ lb_mgmt_net_name }} --binding:host_id={{ node_hostname }} \
-                                                 --security-group {{ lb_health_mgr_sec_grp_name }} \
-                                                 --device-owner Octavia:health-mgr \
-                                                 --name octavia-health-manager-{{ node_hostname }}-listen-port \
-                                                 -f value \
-                                                 -c id
+      openstack port create --network {{ lb_mgmt_net_name }} \
+        --host {{node_hostname}} \
+        --security-group {{ lb_health_mgr_sec_grp_name }} \
+        --device-owner Octavia:health-mgr \
+        octavia-health-manager-{{ node_hostname }}-listen-port \
+        -f value -c id
     fi
   register: out_mgmt_port
   changed_when: (out_mgmt_port.stdout | length) > 0
