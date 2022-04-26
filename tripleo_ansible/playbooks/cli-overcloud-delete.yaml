@@ -59,6 +59,7 @@
         path: "{{ config_download_path }}/{{ stack_name }}"
         state: absent
     - name: Remove the deploy stack
+      become: true
       file:
         path: "{{ overcloud_deploy_path }}/{{ stack_name }}"
         state: absent
