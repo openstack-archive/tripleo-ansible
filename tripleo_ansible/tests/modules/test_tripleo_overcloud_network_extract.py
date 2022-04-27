@@ -78,6 +78,27 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
             conn_mock, '132f871f-eaec-4fed-9475-0d54465e0f00')
         self.assertEqual(expected, result)
 
+    @mock.patch.object(plugin, 'is_vip_network', autospec=True,
+                       return_value=False)
+    @mock.patch.object(openstack.connection, 'Connection', autospec=True)
+    def test_dns_not_set_get_network_info(self, conn_mock, is_vip_net_mock):
+        fake_network = stubs.FakeNeutronNetwork(
+            id='132f871f-eaec-4fed-9475-0d54465e0f00',
+            name='public',
+            dns_domain=None,
+            mtu=1500,
+            is_shared=False,
+            is_admin_state_up=False,
+            tags=['tripleo_net_idx=3',
+                  'tripleo_service_net_map_replace=external']
+        )
+        conn_mock.network.get_network.return_value = fake_network
+        expected = (3, {'name_lower': 'public',
+                        'service_net_map_replace': 'external'})
+        result = plugin.get_network_info(
+            conn_mock, '132f871f-eaec-4fed-9475-0d54465e0f00')
+        self.assertEqual(expected, result)
+
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_get_subnet_info_ipv4(self, conn_mock):
         fake_subnet = stubs.FakeNeutronSubnet(
