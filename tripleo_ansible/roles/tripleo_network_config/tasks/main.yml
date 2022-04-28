@@ -80,6 +80,7 @@
       copy:
         content: "{{ os_net_config_mappings_result.mapping | to_nice_yaml }}"
         dest: /etc/os-net-config/mapping.yaml
+        mode: 0644
       when: os_net_config_mappings_result.changed|bool
 
     - name: Manage NetworkConfig with tripleo_os_net_config module

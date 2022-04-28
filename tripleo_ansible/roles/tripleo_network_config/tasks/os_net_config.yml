@@ -30,7 +30,7 @@
       copy:
         content: "{{tripleo_network_config_override | to_yaml}}"
         dest: "{{ nic_config_file }}"
-        mode: 0600
+        mode: 0644
         backup: true
       when:
         - tripleo_network_config_override.keys()|length > 0
@@ -39,7 +39,7 @@
       template:
         src: "{{ tripleo_network_config_script_path }}"
         dest: "{{ nic_config_file }}"
-        mode: 0600
+        mode: 0644
         backup: true
       when:
         - not tripleo_network_config_with_ansible|bool
@@ -49,7 +49,7 @@
       template:
         src: "{{ tripleo_network_config_template }}"
         dest: "{{ nic_config_file }}"
-        mode: 0600
+        mode: 0644
         backup: true
       when:
         - tripleo_network_config_with_ansible|bool
