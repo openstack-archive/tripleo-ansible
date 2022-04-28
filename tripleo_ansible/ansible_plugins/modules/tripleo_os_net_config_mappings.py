@@ -98,7 +98,7 @@ def _get_interfaces():
     eth_addr = [
         # cast to lower case for MAC address match
         open('/sys/class/net/{}/address'.format(x)).read().strip().lower()
-        for x in os.listdir('/sys/class/net/')]
+        for x in os.listdir('/sys/class/net/') if os.path.isdir(os.path.join('/sys/class/net/',x))]
     eth_addr = list(filter(None, eth_addr))
 
     return eth_addr
