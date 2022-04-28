@@ -106,11 +106,17 @@ def update_vip_data(conn, network, vip_ports, vip_data):
         return
 
     subnet = conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])
-    vip_data.append(dict(name=vip.name,
-                         network=network.name,
-                         subnet=subnet.name,
-                         ip_address=vip.fixed_ips[0]['ip_address'],
-                         dns_name=vip.dns_name))
+    if (vip.dns_name is not None):
+        vip_data.append(dict(name=vip.name,
+                        network=network.name,
+                        subnet=subnet.name,
+                        ip_address=vip.fixed_ips[0]['ip_address'],
+                        dns_name=vip.dns_name))
+    else:
+        vip_data.append(dict(name=vip.name,
+                        network=network.name,
+                        subnet=subnet.name,
+                        ip_address=vip.fixed_ips[0]['ip_address']))
 
 
 def find_net_vips(conn, net_resrcs, vip_data):
