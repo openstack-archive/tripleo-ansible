@@ -11,16 +11,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import os
 import subprocess
 
 import pytest
+import yaml
+
+
+def set_proper_molecule_config(role_path):
+    mol_config_file = "config.yml"
+    if os.path.exists(os.path.join(role_path, 'molecule', 'default/molecule.yml')):
+        molecule_path = os.path.join(role_path, 'molecule', 'default/molecule.yml')
+        with open(molecule_path) as content:
+            data = yaml.safe_load(content)
+        if 'driver' in data.keys() and data['driver']['name'] == 'podman':
+            mol_config_file = "config_podman.yml"
+
+    root_path = os.path.dirname(os.path.abspath(__file__)).split('/tests')[0]
+    mol_config = os.path.join(root_path, '.config/molecule', mol_config_file)
+    return mol_config
 
 
 def test_molecule(pytestconfig):
     cmd = ['python', '-m', 'molecule']
     scenario = pytestconfig.getoption("scenario")
     ansible_args = pytestconfig.getoption("ansible_args")
+    cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
 
     if ansible_args:
         cmd.append('converge')
@@ -40,6 +56,7 @@ def test_molecule(pytestconfig):
     finally:
         if ansible_args:
             cmd = ['python', '-m', 'molecule', 'destroy']
+            cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
             if scenario:
                 cmd.extend(['--scenario-name', scenario])
             subprocess.call(cmd)

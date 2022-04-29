@@ -2,35 +2,13 @@
 driver:
   name: podman
 
-log: true
-
-platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
-    registry:
-      url: registry.access.redhat.com
-    dockerfile: Dockerfile
-    pkg_extras: python*setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /opt/yum.repos.d:/etc/yum.repos.d:rw
-      - /etc/dnf/vars:/etc/dnf/vars
-    privileged: true
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    ulimits: &ulimit
-      - host
-
 provisioner:
   name: ansible
   inventory:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
         vars:
           all_nodes_extra_map_data: {}
@@ -254,7 +232,7 @@ provisioner:
           validate_ntp: true
       Standalone:
         hosts:
-          ubi8: {}
+          centos: {}
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

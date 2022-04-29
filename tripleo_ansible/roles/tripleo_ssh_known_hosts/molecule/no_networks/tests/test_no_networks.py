@@ -25,7 +25,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 def test_ssh_host_keys(host):
     expected = [
-        '[ubi8]* ssh-rsa AAAATEST',
+        '[centos]* ssh-rsa AAAATEST',
     ]
     known_hosts = host.file("/etc/ssh/ssh_known_hosts").content_string
     for line in expected:

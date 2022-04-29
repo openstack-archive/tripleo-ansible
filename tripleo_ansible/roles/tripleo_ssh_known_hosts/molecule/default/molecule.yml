@@ -2,46 +2,24 @@
 driver:
   name: podman
 
-log: true
-
-platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi:8.2
-    registry:
-      url: registry.access.redhat.com
-    dockerfile: Dockerfile
-    pkg_extras: python*setuptools
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /opt/yum.repos.d:/etc/yum.repos.d:rw
-      - /etc/dnf/vars:/etc/dnf/vars
-    privileged: true
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    ulimits: &ulimit
-      - host
-
 provisioner:
   name: ansible
   inventory:
     hosts:
       all:
         hosts:
-          ubi8:
+          centos:
             ansible_python_interpreter: /usr/bin/python3
         children:
           allovercloud:
             hosts:
-              ubi8:
+              centos:
                 ctlplane_ip: 10.0.0.1
-                ctlplane_hostname: ubi8.ctlplane.localdomain
+                ctlplane_hostname: centos.ctlplane.localdomain
                 internal_api_ip: 10.0.1.1
-                internal_api_hostname: ubi8.internalapi.localdomain
+                internal_api_hostname: centos.internalapi.localdomain
                 management_ip: 10.0.0.1  # no management_hostname
-                canonical_hostname: ubi8.localdomain
+                canonical_hostname: centos.localdomain
                 tripleo_role_networks: [ctlplane, internal_api, management]
   log: true
   env:
