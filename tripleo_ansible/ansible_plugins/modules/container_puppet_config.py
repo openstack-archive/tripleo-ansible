@@ -514,8 +514,12 @@ class ContainerPuppetManager:
                 if config_hash == old_config_hash:
                     # config doesn't need an update
                     continue
-                self.module.warn('Config change detected for {}, new '
-                                 'hash: {}'.format(cname, config_hash))
+                self.module.debug(
+                    'Config change detected for {}, new hash: {}'.format(
+                        cname,
+                        config_hash
+                    )
+                )
                 if 'environment' not in startup_config_json:
                     startup_config_json['environment'] = {}
                 startup_config_json['environment']['TRIPLEO_CONFIG_HASH'] = (
