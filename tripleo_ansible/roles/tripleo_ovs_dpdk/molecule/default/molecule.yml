@@ -2,29 +2,13 @@
 driver:
   name: podman
 
-log: true
-
-platforms:
-
-  - name: stream8
-    hostname: stream8
-    image: quay.io/centos/centos:stream8
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - /lib/modules:/lib/modules
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    privileged: true
-    ulimits:
-      - host
-
 provisioner:
+  inventory:
+    hosts:
+      all:
+        hosts:
+          centos:
+            ansible_python_interpreter: /usr/bin/python3
   name: ansible
   log: true
   env:
