@@ -34,6 +34,28 @@
     - hosts
     - create
 
+- name: Add Cell internalapi VIP to control plan controller
+  become: true
+  vars:
+    cell_domain_name: >
+      {{ hostvars[item]['internal_api_hostname'] | regex_replace(item ~ '\.?', '') }}
+  lineinfile:
+    dest: "/etc/hosts"
+    regexp: "\\s*{{ tripleo_cellv2_cell_name }}\\.?{{ cell_domain_name }}.*$"
+    line: >-
+      {{ hostvars[item]['internal_api_vip'] }}
+      {{ cell_domain_name | ternary(tripleo_cellv2_cell_name ~ '.' ~ cell_domain_name, tripleo_cellv2_cell_name) }}
+    insertafter: "# HEAT_HOSTS_END"
+    state: present
+  when:
+    - hostvars[item]['internal_api_vip'] is defined
+    - hostvars[item]['internal_api_hostname'] is defined
+  with_items: "{{ tripleo_cellv2_cellcontroller_group }}"
+  register: hosts_result2
+  tags:
+    - hosts
+    - create
+
 - name: Restart nova services
   become: true
   block:
@@ -51,7 +73,7 @@
       command: docker restart nova_api nova_scheduler nova_conductor
       when: tripleo_cellv2_containercli == "docker"
   when:
-    - hosts_result.changed
+    - hosts_result.changed or hosts_result2.changed
   tags:
     - hosts
     - create
