@@ -26,6 +26,8 @@
     content: |
       {{ tripleo_admin_user }} ALL=(ALL) NOPASSWD:ALL
     mode: 0440
+    owner: root
+    group: root
 
 # workaround for https://bugs.launchpad.net/tripleo/+bug/1917856
 - name: ensure home dir has the right owner/group for user {{ tripleo_admin_user }}
