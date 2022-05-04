@@ -19,13 +19,31 @@
   any_errors_fatal: true
   gather_facts: false
   vars:
-    growvols_args: >
-      /=8GB
-      /tmp=1GB
-      /var/log=10GB
-      /var/log/audit=2GB
-      /home=1GB
-      /var=100%
+    role_growvols_args:
+      default:
+        /=8GB
+        /tmp=1GB
+        /var/log=10GB
+        /var/log/audit=2GB
+        /home=1GB
+        /var=100%
+      Controller:
+        /=8GB
+        /tmp=1GB
+        /var/log=10GB
+        /var/log/audit=2GB
+        /home=1GB
+        /var=90%
+        /srv=10%
+      ObjectStorage:
+        /=8GB
+        /tmp=1GB
+        /var/log=10GB
+        /var/log/audit=2GB
+        /home=1GB
+        /var=10%
+        /srv=90%
+
   pre_tasks:
     - name: Wait for provisioned nodes to boot
       wait_for:
@@ -37,6 +55,15 @@
         msg: Timeout waiting for provisioned nodes to become available
       connection: local
   tasks:
+
+    - name: Set growvols_args
+      set_fact:
+        growvols_args: "{{ role_growvols_args[tripleo_role_name] | default(role_growvols_args['default']) }}"
+      when: growvols_args is not defined
+
+    - name: Output growvols_args
+      debug:
+        var: growvols_args
 
     - name: Find the growvols utility
       shell: >
