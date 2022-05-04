@@ -23,13 +23,6 @@
       - "!min"
       - "selinux"
 
-- name: If specified, configure Unbound to listen on a specific IP address
-  import_tasks: collocated_bind.yml
-  when:
-    - tripleo_unbound_listen_interfaces is defined
-    - tripleo_unbound_designate_integration|bool
-    - (tripleo_unbound_bind_network is defined) and (tripleo_unbound_bind_network|length > 0)
-
 - name: create fcontext entry for unbound config content
   when:
     - ansible_facts.selinux.status == "enabled"
