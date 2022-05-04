@@ -1,10 +1,20 @@
 ---
 # XXX (beagles) which permissions?
-- name: create bind pool configuration for designate
+- name: create bind pool configuration for designate with framework IPS
   become: true
   template:
       src: pools.yaml.j2
       dest: "{{ designate_pool_config_file_path }}"
+  when:
+    - alternate_bind is not defined
+
+- name: create bind pool configuration for designate with extra collocation IPs
+  become: true
+  template:
+      src: pools-extra.yaml.j2
+      dest: "{{ designate_pool_config_file_path }}"
+  when:
+    - alternate_bind is defined
 
 - name: ensure rndc key path exists
   become: true
