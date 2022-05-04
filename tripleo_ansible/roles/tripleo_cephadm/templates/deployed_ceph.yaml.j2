@@ -9,5 +9,17 @@ parameter_defaults:
   CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}
   ContainerCephDaemonImage: {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag | string }}
   CephClusterName: {{ tripleo_cephadm_cluster }}
+  {% if tripleo_cephadm_pools -%}
+  CephPools: {{ tripleo_cephadm_pools }}
+  {% endif -%}
+  {% if tripleo_ceph_client_vars -%}
+  CephClientConfigVars: {{ tripleo_ceph_client_vars }}
+  {% endif -%}
+  {% if ceph_client_username -%}
+  CephClientUserName: {{ ceph_client_username }}
+  {% endif -%}
+  {% if ceph_client_key -%}
+  CephClientKey: {{ ceph_client_key }}
+  {% endif -%}
   # Recommendation: set the following to false after overcloud is deployed
   ApplyCephConfigOverridesOnUpdate: true
