@@ -20,5 +20,8 @@
   vars:
     test_deps_extra_packages:
       - device-mapper-multipath
+      - python*setuptools
+      - libselinux-python*
+      - policycoreutils-python-utils
   roles:
     - role: test_deps
