@@ -24,7 +24,7 @@
   shell: ss -tunlp | grep ":3306 " | sed -e 's/.*\///'
   register: mysql_result
   retries: 300
-  until: mysql_result is search('mysqld')
+  until: mysql_result is search('mariadbd')
   delay: 5
   tags:
     - bar_create_recover_image
