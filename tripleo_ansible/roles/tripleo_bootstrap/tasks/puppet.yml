@@ -14,9 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-- name: Import tripleo_bootstrap bootstrap tasks
-  import_tasks: bootstrap.yml
-
-- name: Import tripleo_bootstrap puppet tasks
-  import_tasks: puppet.yml
+- name: Symlink puppet modules under /etc/puppet/modules
+  become: true
+  shell: >-
+    ln -f -s /usr/share/openstack-puppet/modules/* /etc/puppet/modules/
+  args:
+    warn: false
+  register: result
+  failed_when: false
+  tags:
+    - skip_ansible_lint
