@@ -28,3 +28,8 @@
   template:
     src: named.conf.j2
     dest: "{{ designate_named_conf_path}}/named.conf"
+
+- include_tasks: configure_interfaces.yml
+  when:
+    - tripleo_designate_bind_network is defined
+    - tripleo_dns_listen_interfaces is defined
