@@ -10,11 +10,9 @@
     check:
       jobs:
       - openstack-tox-linters
-      - tripleo-ci-centos-7-content-provider:
-          dependencies: &deps_lint
-            - openstack-tox-linters
       - tripleo-ci-centos-8-content-provider:
-          dependencies: *deps_lint
+          dependencies:
+            - openstack-tox-linters
       - openstack-tox-docs: &tripleo-docs
           files:
           - ^doc/.*
@@ -43,7 +41,6 @@
     gate:
       jobs:
       - openstack-tox-linters
-      - tripleo-ci-centos-7-content-provider
       - tripleo-ci-centos-8-content-provider
       - openstack-tox-docs: *tripleo-docs
       - tripleo-ci-centos-8-containers-undercloud-minion: *undercloud_minion
