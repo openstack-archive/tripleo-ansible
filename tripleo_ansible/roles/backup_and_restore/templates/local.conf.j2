@@ -5,6 +5,7 @@
 # more information and implementation details:
 # https://opendev.org/openstack/tripleo-ansible
 
+export TMPDIR="${TMPDIR-/var/tmp}"
 {% for item in (tripleo_backup_and_restore_local_config | dict2items) %}
 {{ item.key }}={{ item.value }}
 {% endfor %}
@@ -13,3 +14,4 @@ NETWORKING_PREPARATION_COMMANDS={{ tripleo_backup_and_restore_network_preparatio
 {% endif %}
 BACKUP_PROG_OPTIONS+=( --anchored --xattrs-include='*.*' --xattrs )
 BACKUP_PROG_EXCLUDE=( {{ tripleo_backup_and_restore_exclude_paths | sum(start=[]) | map('quote') | join(' ') }} )
+EXCLUDE_RECREATE+=( "/dev/cinder-volumes" )
