@@ -28,9 +28,13 @@
 
 - name: Load Virtual IP Ceph networks data config from file
   set_fact:
-    ceph_ha: "{{ lookup('file', tripleo_cephadm_ha_services_path) | from_yaml }}"
+    ceph_vip_map: "{{ lookup('file', tripleo_cephadm_ha_services_path) | from_yaml }}"
   when:
-    - ceph_ha is undefined
+    - ceph_vip_map is undefined
+
+- name: Store reserved vip info
+  set_fact:
+    render_path: '{{ working_dir }}/ceph_vips.yaml'
 
 - name: Network/Subnet based Ceph VIPs build
   block:
