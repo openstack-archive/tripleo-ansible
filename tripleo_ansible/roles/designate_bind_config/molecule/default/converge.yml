@@ -17,10 +17,10 @@
 
 - name: Converge
   hosts: all
-  tasks:
-    - name: Configure bind
-      include_role:
-        name: designate_bind_config
+  roles:
+    - role: designate_bind_config
       vars:
         designate_named_conf_path: "/etc"
-        tripleo_dns_listen_interfaces: ['127.0.0.1']
+        designate_rndc_key: "dummy-rndc-key"
+        rndc_allowed_addresses: ["172.17.2.0/24"]
+        tripleo_dns_listen_interfaces: ["172.168.10.99"]
