@@ -16,20 +16,20 @@
 
 - name: Get the current mgr
   command: |
-    {{ container_cli }} ps -a -f 'name=ceph-?(.*)-mgr.*' --format \{\{\.Names\}\}
+    {{ container_cli }} ps -a -f 'name=ceph-?(.*)-mgr.*' --format \{\{\.Command\}\} --no-trunc
   register: ceph_mgr
   become: true
   delegate_to: "{{ dashboard_backend }}"
 
 - name: Check the resulting mgr container instance
   debug:
-    msg: "{{ ceph_mgr.stdout | regex_replace('^ceph-?(.*)-mgr.', '') }}"
+    msg: "{{ ceph_mgr.stdout | regex_replace('^-n mgr.(.*)(?P<inst>) -f (.*)+$', '\\1') }}"
   when: tripleo_cephadm_verbose | bool
 
 - name: config the current dashboard backend
   command: |
     {{ tripleo_cephadm_ceph_cli }} config set \
-    mgr mgr/dashboard/{{ ceph_mgr.stdout | regex_replace('^ceph-?(.*)-mgr.', '') }}/server_addr \
+    mgr mgr/dashboard/{{ ceph_mgr.stdout | regex_replace('^-n mgr.(.*)(?P<inst>) -f (.*)+$', '\\1') }}/server_addr \
     {{ hostvars[dashboard_backend][tripleo_ceph_dashboard_net] }}
   become: true
   changed_when: false
