@@ -1,0 +1,8 @@
+# Create chain if needed
+{%- for ruleset in tripleo_nftables_rules %}
+{%    set rule=ruleset['rule'] %}
+{%-   if 'extras' not in rule or rule['extras'].get('ensure', 'present') in ['enabled', 'present'] %}
+# Create chain TRIPLEO_{{ rule.get('chain', 'INPUT') }} in {{rule.get('table', 'filter') }} table
+add chain inet {{ rule.get('table', 'filter') }} TRIPLEO_{{ rule.get('chain', 'INPUT') }}
+{%    endif %}
+{% endfor %}

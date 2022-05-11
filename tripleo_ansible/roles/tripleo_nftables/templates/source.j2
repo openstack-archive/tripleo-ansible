@@ -1,0 +1,6 @@
+{%- if 'source' in rule %}
+{%-   if 'ipversion' not in rule %}
+ ip
+{%-   endif %}
+ saddr {{ rule['source'] }}
+{%- endif %}

@@ -1,0 +1,6 @@
+{%- if 'proto' in rule and (rule['proto']|lower) != 'all' %}
+{%-   if (rule['proto']|lower) not in ['tcp', 'udp'] %}
+ meta l4proto
+{%-   endif %}
+ {{ rule['proto']|lower }}
+{%- endif %}

@@ -1,0 +1,3 @@
+{%- if 'limit' in rule %}
+ limit rate {{ rule['limit']|regex_replace('([0-9]+)/min', '\\1/minute') }}
+{%- endif %}

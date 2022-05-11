@@ -1,0 +1,15 @@
+{%- if 'dport' in rule %}
+{%-   if rule['dport'] is iterable %}
+ {{ rule.get('proto', false)|ternary('', 'tcp ') }}dport { {{ rule['dport'] |join(',') }} }
+{%-   else %}
+ {{ rule.get('proto', false)|ternary('', 'tcp ') }}dport {{ rule['dport'] }}
+{%-   endif %}
+{%- endif %}
+{#- This is for legacy things - Really, use dport... #}
+{%- if 'port' in rule %}
+{%-   if rule['port'] is iterable %}
+ {{ rule.get('proto', false)|ternary('', 'tcp ') }}dport { {{ rule['port'] |join(',') }} }
+{%-   else %}
+ {{ rule.get('proto', false)|ternary('', 'tcp ') }}dport {{ rule['port'] }}
+{%-   endif %}
+{%- endif %}

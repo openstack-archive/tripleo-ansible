@@ -1,0 +1,7 @@
+# Managed by tripleo-ansible/tripleo_nftables
+{%- for ruleset in tripleo_nftables_rules %}
+{%    set rule=ruleset['rule'] %}
+{%    if 'extras' not in rule or rule['extras'].get('ensure', 'present') in ['enabled', 'present'] %}
+flush chain inet {{ rule.get('table', 'filter') }} TRIPLEO_{{ rule.get('chain', 'INPUT') }}
+{%    endif %}
+{% endfor %}

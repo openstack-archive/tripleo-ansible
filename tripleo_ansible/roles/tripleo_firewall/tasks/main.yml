@@ -87,83 +87,15 @@
       list
     }}"
 
-- name: Firewall add block
-  become: true
-  block:
-    - name: Ensure firewall is installed
-      package:
-        name: "{{ tripleo_firewall_packages }}"
-        state: present
+- name: Manage rules via iptables
+  when:
+    - tripleo_firewall_engine == 'iptables'
+  include_tasks: iptables.yaml
 
-    - name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
-      become: true
-      ignore_errors: "{{ (((ansible_facts['os_family'] | lower) ~ '-' ~ ansible_facts['distribution_major_version']) == 'redhat-7') | bool }}"
-      copy:
-        dest: "{{ item }}"
-        content: "# empty ruleset created by deployed-server bootstrap"
-      loop:
-        - /etc/sysconfig/iptables
-        - /etc/sysconfig/ip6tables
-
-    - name: Ensure firewall is enabled/started
-      systemd:
-        name: iptables
-        state: started
-        enabled: true
-
-    - name: Manage firewall rules
-      tripleo_iptables:
-        tripleo_rules: "{{ firewall_rules_sorted }}"
-
-- name: Firewall save block
-  become: true
-  block:
-    - name: Save firewall rules ipv4
-      command: /usr/libexec/iptables/iptables.init save
-
-    - name: Save firewall rules ipv6
-      command: /usr/libexec/iptables/ip6tables.init save
-
-    - name: Enable iptables service (and do a daemon-reload systemd)
-      systemd:
-        daemon_reload: true
-        enabled: true
-        name: "{{ item }}"
-        state: started
-      loop:
-        - iptables.service
-        - ip6tables.service
-
-    - name: Enable tripleo-iptables service (and do a daemon-reload systemd)
-      systemd:
-        daemon_reload: true
-        enabled: true
-        name: "{{ item }}"
-        state: started
-      loop:
-        - tripleo-iptables.service
-        - tripleo-ip6tables.service
-      failed_when: false
-
-    - name: Stop and disable firewalld
-      systemd:
-        enabled: false
-        name: "firewalld.service"
-        state: stopped
-      failed_when: false
-
-    - name: Find non-persistent rules
-      command: egrep -l 'comment.*(neutron-|ironic-inspector)' /etc/sysconfig/iptables* /etc/sysconfig/ip6tables*
-      failed_when: false
-      changed_when: false
-      register: neutron_rules
-
-    - name: Remove non-persistent line(s)
-      lineinfile:
-        path: "{{ item }}"
-        state: absent
-        regexp: '^((?!.*comment)(?=.*(ironic-inspector|neutron-)))'
-      when:
-        - not ansible_check_mode|bool
-        - item.find('v=' ~ '^/') == -1
-      loop: "{{ neutron_rules.stdout_lines }}"
+- name: Manage rules via nftables
+  when:
+    - tripleo_firewall_engine == 'nftables'
+  vars:
+    tripleo_nftables_rules: "{{ firewall_rules_sorted | sort(attribute='rule_name') |list }}"
+  include_role:
+    name: tripleo_nftables

@@ -1,0 +1,9 @@
+{%- if 'jump' in rule %}
+{%    if (rule['jump']|lower) not in ['accept', 'drop', 'log', 'masquerade', 'notrack', 'return'] %}
+ jump {{ rule['jump'] }}
+{%-   else %}
+ {{ rule['jump']|lower }}
+{%-   endif %}
+{%- else %}
+ accept
+{%- endif %}
