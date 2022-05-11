@@ -29,7 +29,6 @@
       wait_for_connection:
         timeout: 600
         delay: 10
-      connection: local
   tasks:
     - name: gather facts
       setup:

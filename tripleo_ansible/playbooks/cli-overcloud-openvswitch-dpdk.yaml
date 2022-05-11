@@ -41,7 +41,6 @@
       wait_for_connection:
         timeout: 600
         delay: 10
-      connection: local
 
   tasks:
     - name: ovs-dpdk role specific config block

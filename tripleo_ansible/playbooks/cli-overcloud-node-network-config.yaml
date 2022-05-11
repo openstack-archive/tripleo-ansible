@@ -23,7 +23,6 @@
       wait_for_connection:
         timeout: 600
         delay: 10
-      connection: local
   roles:
     - role: tripleo_network_config
       vars:
