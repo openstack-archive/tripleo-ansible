@@ -49,6 +49,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_nftables
       - tripleo-ansible-centos-stream-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-stream-molecule-tripleo_nova_image_cache
+      - tripleo-ansible-centos-stream-molecule-tripleo_nova_libvirt
       - tripleo-ansible-centos-stream-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-stream-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-stream-molecule-tripleo_ovs_dpdk
@@ -119,6 +120,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_nftables
       - tripleo-ansible-centos-stream-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-stream-molecule-tripleo_nova_image_cache
+      - tripleo-ansible-centos-stream-molecule-tripleo_nova_libvirt
       - tripleo-ansible-centos-stream-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-stream-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-stream-molecule-tripleo_ovs_dpdk
@@ -187,6 +189,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_nftables
       - tripleo-ansible-centos-stream-molecule-tripleo_nodes_validation
       - tripleo-ansible-centos-stream-molecule-tripleo_nova_image_cache
+      - tripleo-ansible-centos-stream-molecule-tripleo_nova_libvirt
       - tripleo-ansible-centos-stream-molecule-tripleo_nvdimm
       - tripleo-ansible-centos-stream-molecule-tripleo_ovn_cluster
       - tripleo-ansible-centos-stream-molecule-tripleo_ovs_dpdk
@@ -556,6 +559,13 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: tripleo_nova_image_cache
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_nova_libvirt/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_nova_libvirt
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_nova_libvirt
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_nvdimm/(?!meta).*

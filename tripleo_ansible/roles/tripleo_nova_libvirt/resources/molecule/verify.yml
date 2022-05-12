@@ -1,0 +1,63 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  any_errors_fatal: false
+  pre_tasks:
+    - name: Import test_vars
+      include_vars: "{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/test_vars.yml"
+  tasks:
+    - name: Validate configuration
+      when: config is defined and config
+      block:
+        - name: Check if changes applied to config files
+          lineinfile:
+            path: "{{ _conf.0.name }}"
+            line: "{{ _conf.1 }}"
+            state: present
+          check_mode: true
+          register: _conf_result
+          failed_when: _conf_result is changed or _conf_result is failed
+          with_subelements:
+            - "{{ config }}"
+            - expected_lines
+          loop_control:
+            loop_var: _conf
+      rescue:
+        - name: Output config
+          include_tasks: print_conf_content.yml
+          loop:
+            - "{{ config }}"
+          loop_control:
+            loop_var: _configs
+
+        - name: Print failed lines
+          fail:
+            msg: |
+
+              "FAILED: Not found in {{_entry.path}}: {{_entry.line}}"
+          failed_when: true
+          loop: "{{ _conf_result.results | selectattr('failed', 'equalto', true) | map(attribute='invocation') | map(attribute='module_args') }}"
+          loop_control:
+            loop_var: _entry
+
+        - name: Debug - Scenario name
+          debug:
+            var: molecule_yml.scenario.name
