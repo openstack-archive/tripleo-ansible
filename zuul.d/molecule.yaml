@@ -24,6 +24,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
       - tripleo-ansible-centos-8-molecule-tripleo_container_manage
       - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_standalone
       - tripleo-ansible-centos-8-molecule-tripleo_container_stop
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
@@ -88,6 +89,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
       - tripleo-ansible-centos-8-molecule-tripleo_container_manage
       - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_standalone
       - tripleo-ansible-centos-8-molecule-tripleo_container_stop
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
@@ -152,6 +154,7 @@
       - tripleo-ansible-centos-8-molecule-tripleo_container_image_prepare
       - tripleo-ansible-centos-8-molecule-tripleo_container_manage
       - tripleo-ansible-centos-8-molecule-tripleo_container_rm
+      - tripleo-ansible-centos-8-molecule-tripleo_container_standalone
       - tripleo-ansible-centos-8-molecule-tripleo_container_stop
       - tripleo-ansible-centos-8-molecule-tripleo_container_tag
       - tripleo-ansible-centos-8-molecule-tripleo_create_admin
@@ -352,6 +355,13 @@
     parent: tripleo-ansible-centos-8-base
     vars:
       tripleo_role_name: tripleo_container_rm
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_container_standalone/(?!meta).*
+    name: tripleo-ansible-centos-8-molecule-tripleo_container_standalone
+    parent: tripleo-ansible-centos-8-base
+    vars:
+      tripleo_role_name: tripleo_container_standalone
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_stop/(?!meta).*
