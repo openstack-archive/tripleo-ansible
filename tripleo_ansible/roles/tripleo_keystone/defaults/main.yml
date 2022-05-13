@@ -23,19 +23,6 @@ tripleo_keystone_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_keystone_hide_sensitive_logs: true
 
 tripleo_keystone_image: ""
-tripleo_keystone_common_volumes:
-  - /etc/hosts:/etc/hosts:ro
-  - /etc/localtime:/etc/localtime:ro
-  # OpenSSL trusted CAs
-  - /etc/pki/ca-trust/extracted:/etc/pki/ca-trust/extracted:ro
-  - /etc/pki/ca-trust/source/anchors:/etc/pki/ca-trust/source/anchors:ro
-  - /etc/pki/tls/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt:ro
-  - /etc/pki/tls/certs/ca-bundle.trust.crt:/etc/pki/tls/certs/ca-bundle.trust.crt:ro
-  - /etc/pki/tls/cert.pem:/etc/pki/tls/cert.pem:ro
-  # Syslog socket
-  - /dev/log:/dev/log
-  # required for bootstrap_host_exec
-  - /etc/puppet:/etc/puppet:ro
 
 tripleo_keystone_volumes:
     - /etc/openldap:/etc/openldap:ro

@@ -9,7 +9,6 @@ volumes:
   {% set keystone_volumes = [] %}
   {%- set keystone_volumes =
         keystone_volumes +
-        tripleo_keystone_common_volumes +
         tripleo_keystone_volumes +
         tripleo_keystone_logging_volumes +
         tripleo_keystone_internal_tls_volumes -%}
@@ -17,6 +16,6 @@ volumes:
   {%-   set keystone_volumes =
           keystone_volumes + tripleo_keystone_internal_tls_ca_file -%}
   {%- endif -%}
-  {{ keystone_volumes }}
+  {{ tripleo_container_standalone_common_volumes | default([]) + keystone_volumes }}
 environment:
   KOLLA_CONFIG_STRATEGY: COPY_ALWAYS
