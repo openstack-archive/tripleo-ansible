@@ -33,6 +33,11 @@
     selevel: s0
     state: present
 
+- name: Ensure requirements are satisfied
+  include_role:
+    name: tripleo_bootstrap
+    tasks_from: packages.yml
+
 - name: Ensure /var/lib/tripleo-config directory exists
   become: true
   file:
