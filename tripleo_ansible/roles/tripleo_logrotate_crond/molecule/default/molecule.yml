@@ -1,0 +1,27 @@
+---
+driver:
+  name: podman
+
+log: true
+
+provisioner:
+  inventory:
+    hosts:
+      all:
+        hosts:
+          centos:
+            ansible_python_interpreter: /usr/bin/python3
+  name: ansible
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - check
+    - verify
+    - destroy
