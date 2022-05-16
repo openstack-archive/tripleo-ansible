@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: genereate create_ceph_ansible_remote_tmp playbook
+- name: generate create_ceph_ansible_remote_tmp playbook
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/create_ceph_ansible_remote_tmp.yml"
     content: |
