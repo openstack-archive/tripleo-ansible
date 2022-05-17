@@ -24,7 +24,9 @@
 tripleo_sshd_package_state: present
 
 tripleo_sshd_motd_enabled: false
+tripleo_sshd_message_of_the_day: ''
 tripleo_sshd_banner_enabled: false
+tripleo_sshd_banner_text: ''
 
 # SSH configuration options
 tripleo_sshd_password_authentication: 'no'
