@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,14 @@
 # under the License.
 
 
-- name: Configure timezone
-  import_tasks: configure.yml
-
-- name: Run timezone
-  import_tasks: run.yml
+- name: Restart time services
+  systemd:
+    name: "{{ time_svc }}"
+    state: restarted
+  loop_control:
+    loop_var: time_svc
+  loop:
+    - rsyslog
+    - crond
+  when:
+    - _timezone_result_changed|default(false)
