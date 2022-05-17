@@ -1,7 +1,7 @@
 ---
 - job:
     description: Base tripleo-ansible job
-    name: tripleo-ansible-centos-8-base
+    name: tripleo-ansible-centos-stream-base
     nodeset: centos-8-stream
     parent: base
     success-url: "reports.html"

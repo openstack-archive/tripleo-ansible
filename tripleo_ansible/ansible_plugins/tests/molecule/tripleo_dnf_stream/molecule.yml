@@ -2,6 +2,30 @@
 driver:
   name: podman
 
+# It is not discovered by default podman molecule config
+# due to different directory structure.
+# That's why the config is kept here
+
+platforms:
+  - name: centos
+    hostname: centos
+    image: centos/centos:stream8
+    registry:
+      url: quay.io
+    dockerfile: Dockerfile.j2
+    pkg_extras: python*setuptools
+    volumes:
+      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
+      - /etc/dnf/vars:/etc/dnf/vars
+    privileged: true
+    environment: &env
+      http_proxy: "{{ lookup('env', 'http_proxy') }}"
+      https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    ulimits: &ulimit
+      - host
+
 provisioner:
   name: ansible
   inventory:
