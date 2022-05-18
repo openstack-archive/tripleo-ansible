@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
 from copy import deepcopy as dcopy
 import os
 
@@ -418,9 +419,39 @@ def check_existing(instances, provisioner, baremetal):
     not_found = []
     found = []
     unmanaged = []
+    existing_by_hostname = collections.defaultdict(list)
+    existing_by_name = collections.defaultdict(list)
+    if baremetal:
+        for node in baremetal.nodes(associated=True, fields=['uuid', 'name', 'instance_info']):
+            existing_by_name[node.name].append(node.uuid)
+            display_name = node.instance_info.get('display_name')
+            if display_name:
+                existing_by_hostname[display_name].append(node.uuid)
+
     for request in instances:
 
-        ident = request.get('name', request['hostname'])
+        hostname = request['hostname']
+        name = request.get('name')
+        hostname_matches = len(existing_by_hostname[hostname])
+        name_matches = name and len(existing_by_name[name]) or 0
+        if hostname_matches == 0:
+            if name_matches == 0:
+                # try the hostname, there may be an allocation with that name
+                ident = hostname
+            elif name_matches == 1:
+                ident = name
+            else:
+                message = ('There is more than one existing node with name=%s. '
+                           'Replace this name with a specific node uuid to match the desired instance.'
+                           % hostname)
+                raise BaremetalDeployException(message)
+        elif hostname_matches == 1:
+            ident = existing_by_hostname[hostname][0]
+        else:
+            message = ('There is more than one existing instance with instance_info.display_name=%s. '
+                       'Replace this hostname with a specific node uuid to match the desired instance.'
+                       % hostname)
+            raise BaremetalDeployException(message)
 
         if not request.get('managed', True):
             unmanaged.append(request)
