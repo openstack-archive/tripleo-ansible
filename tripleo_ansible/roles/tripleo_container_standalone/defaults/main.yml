@@ -29,9 +29,9 @@ tripleo_container_standalone_kolla_config_dir: /var/lib/kolla/config_files
 # Directory for container startup configs
 tripleo_container_standalone_container_startup_config_dir: /var/lib/tripleo-config/container-startup-config
 # Hash with keys of container name and value of YAML kolla config file.
-tripleo_container_standalone_kolla_config_files : {}
+tripleo_container_standalone_kolla_config_files: {}
 # Hash with keys of container name and value of YAML container definition
-tripleo_container_standalone_container_defs : {}
+tripleo_container_standalone_container_defs: {}
 
 # List of common volumes that can be included in the template of a container
 # definition to include the most common volumes.
@@ -48,3 +48,22 @@ tripleo_container_standalone_common_volumes:
   - /dev/log:/dev/log
   # required for bootstrap_host_exec
   - /etc/puppet:/etc/puppet:ro
+
+# List of volumes included when internal tls is enabled
+tripleo_container_standalone_internal_tls_volumes:
+  - /etc/pki/tls/certs/httpd:/etc/pki/tls/certs/httpd:ro
+  - /etc/pki/tls/private/httpd:/etc/pki/tls/private/httpd:ro
+
+# Internal TLS vars. These vars are not prefixed with the role name as they are
+# intended to be set from other services/roles.
+tripleo_enable_internal_tls: false
+tripleo_internal_tls_ca_file: /etc/ipa/ca.crt
+
+tripleo_container_standalone_volumes: "{{
+    tripleo_enable_internal_tls |
+      ternary(
+        tripleo_container_standalone_common_volumes +
+          tripleo_container_standalone_internal_tls_volumes +
+          [tripleo_internal_tls_ca_file ~ ':' ~ tripleo_internal_tls_ca_file ~ ':ro'],
+        tripleo_container_standalone_common_volumes)
+  }}"
