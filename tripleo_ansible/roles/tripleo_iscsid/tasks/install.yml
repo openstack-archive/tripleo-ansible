@@ -1,0 +1,53 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: create fcontext entry for iscsi
+  community.general.sefcontext:
+    target: "{{ item.path }}(/.*)?"
+    setype: "{{ item.setype }}"
+    state: present
+  with_items:
+    - { 'path': /etc/iscsi, 'setype': container_file_t }
+    - { 'path': /etc/target, 'setype': container_file_t }
+    - { 'path': /var/lib/iscsi, 'setype': container_file_t }
+  when:
+    - tripleo_selinux_mode | default('enforcing') == 'enforcing'
+- name: create persistent directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    setype: "{{ item.setype }}"
+  with_items:
+    - { 'path': /etc/iscsi, 'setype': container_file_t }
+    - { 'path': /etc/target, 'setype': container_file_t }
+    - { 'path': /var/lib/iscsi, 'setype': container_file_t }
+- name: stat /lib/systemd/system/iscsid.socket
+  stat: path=/lib/systemd/system/iscsid.socket
+  register: stat_iscsid_socket
+- name: Stop and disable iscsid.socket service
+  service: name=iscsid.socket state=stopped enabled=no
+  when: stat_iscsid_socket.stat.exists
+- name: Check if iscsi.service is enabled
+  command: systemctl is-enabled --quiet iscsi.service
+  failed_when: false
+  register: iscsi_service_enabled_result
+- name: Stop iscsi.service
+  service: name=iscsi.service state=stopped enabled=no
+  when:
+    - not ansible_check_mode
+    - iscsi_service_enabled_result is changed
+    - iscsi_service_enabled_result.rc == 0
