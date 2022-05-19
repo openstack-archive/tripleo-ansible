@@ -1041,7 +1041,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [mock.MagicMock(
-            uuid='aaaa', instance_info={'display_name': 'host2'})]
+            id='aaaa', instance_info={'display_name': 'host2'})]
 
         instances = [
             {'hostname': 'host1',
@@ -1052,7 +1052,7 @@ class TestCheckExistingInstances(base.TestCase):
              'capabilities': {'answer': '42'},
              'image': {'href': 'overcloud-full'}}
         ]
-        existing = mock.MagicMock(uuid='aaaa', hostname='host2', allocation=None)
+        existing = mock.MagicMock(id='aaaa', hostname='host2', allocation=None)
         pr.show_instance.side_effect = [
             sdk_exc.ResourceNotFound(""),
             metalsmith.exceptions.Error(""),
@@ -1077,7 +1077,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [mock.MagicMock(
-            uuid='aaaa', instance_info={})]
+            id='aaaa', instance_info={})]
 
         instances = [
             {'hostname': 'host1',
@@ -1088,7 +1088,7 @@ class TestCheckExistingInstances(base.TestCase):
              'capabilities': {'answer': '42'},
              'image': {'href': 'overcloud-full'}}
         ]
-        existing = mock.MagicMock(uuid='aaaa', hostname='host2', allocation=None)
+        existing = mock.MagicMock(id='aaaa', hostname='host2', allocation=None)
         pr.show_instance.side_effect = [
             sdk_exc.ResourceNotFound(""),
             metalsmith.exceptions.Error(""),
@@ -1113,9 +1113,9 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [
-            mock.MagicMock(uuid='aaaa', instance_info={'display_name': 'host1'}),
-            mock.MagicMock(uuid='bbbb', instance_info={'display_name': 'host1'}),
-            mock.MagicMock(uuid='cccc', instance_info={'display_name': 'host1'})
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host1'})
         ]
         instances = [
             {'hostname': 'host1',
@@ -1132,9 +1132,9 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         nodes = [
-            mock.MagicMock(uuid='aaaa', instance_info={'display_name': 'host1'}),
-            mock.MagicMock(uuid='bbbb', instance_info={'display_name': 'host2'}),
-            mock.MagicMock(uuid='cccc', instance_info={'display_name': 'host3'})
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host2'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host3'})
         ]
         nodes[0].name = 'node1'
         nodes[1].name = 'node1'
@@ -1156,9 +1156,9 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [
-            mock.MagicMock(uuid='aaaa', instance_info={'display_name': 'host3'}),
-            mock.MagicMock(uuid='bbbb', instance_info={'display_name': 'host2'}),
-            mock.MagicMock(uuid='cccc', instance_info={'display_name': 'host1'})
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host3'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host2'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host1'})
         ]
 
         instances = [
@@ -1170,9 +1170,9 @@ class TestCheckExistingInstances(base.TestCase):
              'image': {'href': 'overcloud-full'}},
         ]
         existing = [
-            mock.MagicMock(uuid='aaaa', hostname='host3', allocation=None),
-            mock.MagicMock(uuid='aaaa', hostname='host2', allocation=None),
-            mock.MagicMock(uuid='aaaa', hostname='host1', allocation=None),
+            mock.MagicMock(id='aaaa', hostname='host3', allocation=None),
+            mock.MagicMock(id='aaaa', hostname='host2', allocation=None),
+            mock.MagicMock(id='aaaa', hostname='host1', allocation=None),
         ]
         pr.show_instance.side_effect = existing
         found, not_found, unmanaged = bd.check_existing(instances, pr,
@@ -1188,7 +1188,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [mock.MagicMock(
-            uuid='aaaa', name="server2", instance_info={'display_name': 'host2'})]
+            id='aaaa', name="server2", instance_info={'display_name': 'host2'})]
         instances = [
             {'name': 'server2', 'resource_class': 'compute',
              'hostname': 'host2',
@@ -1231,7 +1231,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         baremetal.nodes.return_value = [mock.MagicMock(
-            uuid='aaaa', instance_info={'display_name': 'correct_hostname'})]
+            id='aaaa', instance_info={'display_name': 'correct_hostname'})]
         instances = [
             {'name': 'bm_node1', 'resource_class': 'baremetal',
              'hostname': 'correct_hostname',
@@ -1262,7 +1262,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr = mock.Mock()
         baremetal = mock.Mock()
         nodes = [mock.MagicMock(
-            uuid='aaaa', instance_info={'display_name': 'mismatching_hostname'})]
+            id='aaaa', instance_info={'display_name': 'mismatching_hostname'})]
         baremetal.nodes.return_value = nodes
         nodes[0].name = 'bm_node1'
         instances = [
@@ -1271,7 +1271,7 @@ class TestCheckExistingInstances(base.TestCase):
              'image': {'href': 'overcloud-full'}},
         ]
         existing = mock.MagicMock(
-            uuid='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
+            id='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
             state=metalsmith.InstanceState.ACTIVE)
         pr.show_instance.return_value = existing
         baremetal.get_node.return_value.instance_info = {

@@ -423,10 +423,10 @@ def check_existing(instances, provisioner, baremetal):
     existing_by_name = collections.defaultdict(list)
     if baremetal:
         for node in baremetal.nodes(associated=True, fields=['uuid', 'name', 'instance_info']):
-            existing_by_name[node.name].append(node.uuid)
+            existing_by_name[node.name].append(node.id)
             display_name = node.instance_info.get('display_name')
             if display_name:
-                existing_by_hostname[display_name].append(node.uuid)
+                existing_by_hostname[display_name].append(node.id)
 
     for request in instances:
 
