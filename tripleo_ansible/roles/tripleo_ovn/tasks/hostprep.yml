@@ -1,0 +1,52 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: create persistent directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    setype: "{{ item.setype }}"
+    mode: "{{ item.mode|default(omit) }}"
+  loop:
+    - { 'path': /var/log/containers/openvswitch, 'setype': container_file_t, 'mode': '0750' }
+    - { 'path': /var/lib/openvswitch/ovn, 'setype': container_file_t }
+
+- name: enable virt_sandbox_use_netlink for healthcheck
+  ansible.builtin.seboolean:
+    name: virt_sandbox_use_netlink
+    persistent: true
+    state: true
+  when:
+    - ansible_facts.selinux is defined
+    - ansible_facts.selinux.status == "enabled"
+
+- name: Copy in cleanup script
+  ansible.builtin.copy:
+    src: neutron-cleanup
+    dest: '/usr/libexec/neutron-cleanup'
+    force: true
+    mode: '0755'
+
+- name: Copy in cleanup service
+  ansible.builtin.copy:
+    src: neutron-cleanup.service
+    dest: '/usr/lib/systemd/system/neutron-cleanup.service'
+    force: true
+
+- name: Enabling the cleanup service
+  ansible.builtin.service:
+    name: neutron-cleanup
+    enabled: true
