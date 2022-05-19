@@ -22,15 +22,10 @@
 
 - name: create openssl configuration file from template
   become: true
-  copy: src="/etc/pki/tls/openssl.cnf" dest="{{ openssl_temp_dir }}/openssl.cnf" remote_src=yes
-
-- name: update openssl directory entry in the configuration file
-  become: true
-  ini_file: path="{{ openssl_temp_dir }}/openssl.cnf" section=" CA_default " option="dir" value="{{ openssl_temp_dir }}"
-
-- name: update openssl ca certificate file in the configuration file
-  become: true
-  replace: path="{{ openssl_temp_dir }}/openssl.cnf" regexp="cacert.pem" replace="ca_01.pem"
+  ansible.builtin.template:
+    src: openssl.cnf.j2
+    dest: "{{ openssl_temp_dir }}/openssl.cnf"
+    mode: '0640'
 
 - name: Generating certificate authority private key
   become: true
