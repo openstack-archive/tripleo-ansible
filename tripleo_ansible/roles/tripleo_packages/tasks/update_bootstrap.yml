@@ -14,20 +14,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# Exclude ansible until https://github.com/ansible/ansible/issues/56636
-# is available
-- name: Update all packages
+- name: Enforce RHOSP rules regarding subscription.
+  include_role:
+    name: tripleo_redhat_enforce
   when:
-    - not skip_package_update|bool
-  ansible.builtin.dnf:
-    name: '*'
-    state: latest
-    exclude: ansible
-# This is failsafe unless openvswitch package does something
-# to the systemd service state.
-- name: Ensure openvswitch is running after update
-  ansible.builtin.systemd:
-    name: openvswitch
-    enabled: true
-    state: started
-  ignore_errors: true
+    - ansible_facts['distribution'] == 'RedHat'
+    - not (skip_rhel_enforcement | bool)
+- name: Ensure DNF modules have the right stream enabled
+  tripleo_dnf_stream:
+    name: "{{ item.module }}:{{ item.stream }}"
+    state: enabled
+  loop: "{{ dnf_module_list|list }}"
+  when:
+    - ansible_facts['distribution_major_version'] is version('8', '>=')
+    - dnf_module_list|length > 0

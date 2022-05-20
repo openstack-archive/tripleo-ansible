@@ -18,11 +18,20 @@
 - name: Converge
   hosts: all
   vars:
-    step: 3
+    skip_package_update: true
+    skip_rhel_enforcement: true
     tripleo_packages_exclude_from_update:
       - ansible
       - redhat-release
   tasks:
+    - name: Import TripleO updates bootstrap tasks
+      include_role:
+        name: tripleo_packages
+        tasks_from: update_bootstrap.yml
+    - name: Import TripleO updates ovs tasks
+      include_role:
+        name: tripleo_packages
+        tasks_from: update_ovs.yml
     - name: Import TripleO packages role
       include_role:
         name: tripleo_packages
