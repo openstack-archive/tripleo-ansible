@@ -37,7 +37,7 @@
 - name: Add Cell internalapi VIP to control plan controller
   become: true
   vars:
-    cell_domain_name: >
+    cell_domain_name: >-
       {{ hostvars[item]['internal_api_hostname'] | regex_replace(item ~ '\.?', '') }}
   lineinfile:
     dest: "/etc/hosts"
