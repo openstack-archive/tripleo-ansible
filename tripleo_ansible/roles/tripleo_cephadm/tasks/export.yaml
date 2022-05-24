@@ -74,6 +74,15 @@
   tags:
     - cephadm_extract_keys
 
+- name: Ensure tripleo_ceph_client_vars path exists
+  file:
+    path: "{{ tripleo_ceph_client_vars | dirname }}"
+    state: directory
+    recurse: yes
+  delegate_to: localhost
+  when:
+    - (tripleo_ceph_client_vars | dirname) | length > 0
+
 - name: Save tripleo_ceph_client_vars file
   template:
     src: templates/ceph_client.yaml.j2
