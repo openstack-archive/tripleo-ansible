@@ -12,18 +12,6 @@
 [global]
 fsid = {{ tripleo_cephadm_fsid }}
 mon host = {{ tripleo_cephadm_first_mon_ip }}
-{% if public_network is defined %}
-public network = {{ public_network | regex_replace(' ', '') }}
-{% endif %}
-{% if cluster_network is defined %}
-cluster network = {{ cluster_network | regex_replace(' ', '') }}
-{% endif %}
-{% if ms_bind_ipv4 is defined %}
-ms_bind_ipv4 = {{ ms_bind_ipv4 }}
-{% endif %}
-{% if ms_bind_ipv6 is defined %}
-ms_bind_ipv6 = {{ ms_bind_ipv6 }}
-{% endif %}
 
 {# Build CephConfigOverrides #}
 {% for key, value in (ceph_conf_overrides | default({})).items() %}
