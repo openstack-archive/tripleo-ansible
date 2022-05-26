@@ -1040,6 +1040,9 @@ class TestCheckExistingInstances(base.TestCase):
     def test_success(self):
         pr = mock.Mock()
         baremetal = mock.Mock()
+        baremetal.nodes.return_value = [mock.MagicMock(
+            id='aaaa', instance_info={'display_name': 'host2'})]
+
         instances = [
             {'hostname': 'host1',
              'image': {'href': 'overcloud-full'}},
@@ -1049,8 +1052,43 @@ class TestCheckExistingInstances(base.TestCase):
              'capabilities': {'answer': '42'},
              'image': {'href': 'overcloud-full'}}
         ]
-        existing = mock.MagicMock(hostname='host2', allocation=None)
-        existing.uuid = 'aaaa'
+        existing = mock.MagicMock(id='aaaa', hostname='host2', allocation=None)
+        pr.show_instance.side_effect = [
+            sdk_exc.ResourceNotFound(""),
+            metalsmith.exceptions.Error(""),
+            existing,
+        ]
+        found, not_found, unmanaged = bd.check_existing(instances, pr,
+                                                        baremetal)
+
+        self.assertEqual([existing], found)
+        self.assertEqual([{
+            'hostname': 'host1',
+            'image': {'href': 'overcloud-full'},
+        }, {
+            'hostname': 'host3',
+            'image': {'href': 'overcloud-full'},
+        }], not_found)
+        pr.show_instance.assert_has_calls([
+            mock.call(host) for host in ['host1', 'host3', 'aaaa']
+        ])
+
+    def test_match_name_only(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        baremetal.nodes.return_value = [mock.MagicMock(
+            id='aaaa', instance_info={})]
+
+        instances = [
+            {'hostname': 'host1',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host3',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host2', 'resource_class': 'compute',
+             'capabilities': {'answer': '42'},
+             'image': {'href': 'overcloud-full'}}
+        ]
+        existing = mock.MagicMock(id='aaaa', hostname='host2', allocation=None)
         pr.show_instance.side_effect = [
             sdk_exc.ResourceNotFound(""),
             metalsmith.exceptions.Error(""),
@@ -1071,9 +1109,86 @@ class TestCheckExistingInstances(base.TestCase):
             mock.call(host) for host in ['host1', 'host3', 'host2']
         ])
 
+    def test_duplicate_display_names(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        baremetal.nodes.return_value = [
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host1'})
+        ]
+        instances = [
+            {'hostname': 'host1',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, baremetal)
+
+        self.assertIn("more than one existing instance", str(exc))
+        pr.show_instance.assert_not_called()
+
+    def test_duplicate_names(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        nodes = [
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host1'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host2'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host3'})
+        ]
+        nodes[0].name = 'node1'
+        nodes[1].name = 'node1'
+        nodes[2].name = 'node1'
+        baremetal.nodes.return_value = nodes
+        instances = [
+            {'hostname': 'host4',
+             'name': 'node1',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        exc = self.assertRaises(
+            bd.BaremetalDeployException, bd.check_existing,
+            instances, pr, baremetal)
+
+        self.assertIn("more than one existing node", str(exc))
+        pr.show_instance.assert_not_called()
+
+    def test_name_hostname_swapped(self):
+        pr = mock.Mock()
+        baremetal = mock.Mock()
+        baremetal.nodes.return_value = [
+            mock.MagicMock(id='aaaa', instance_info={'display_name': 'host3'}),
+            mock.MagicMock(id='bbbb', instance_info={'display_name': 'host2'}),
+            mock.MagicMock(id='cccc', instance_info={'display_name': 'host1'})
+        ]
+
+        instances = [
+            {'hostname': 'host3', 'name': 'host1',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host2', 'name': 'host2',
+             'image': {'href': 'overcloud-full'}},
+            {'hostname': 'host1', 'name': 'host3',
+             'image': {'href': 'overcloud-full'}},
+        ]
+        existing = [
+            mock.MagicMock(id='aaaa', hostname='host3', allocation=None),
+            mock.MagicMock(id='aaaa', hostname='host2', allocation=None),
+            mock.MagicMock(id='aaaa', hostname='host1', allocation=None),
+        ]
+        pr.show_instance.side_effect = existing
+        found, not_found, unmanaged = bd.check_existing(instances, pr,
+                                                        baremetal)
+
+        self.assertEqual(existing, found)
+        self.assertEqual([], not_found)
+        pr.show_instance.assert_has_calls([
+            mock.call(host) for host in ['aaaa', 'bbbb', 'cccc']
+        ])
+
     def test_existing_no_allocation(self):
         pr = mock.Mock()
         baremetal = mock.Mock()
+        baremetal.nodes.return_value = [mock.MagicMock(
+            id='aaaa', name="server2", instance_info={'display_name': 'host2'})]
         instances = [
             {'name': 'server2', 'resource_class': 'compute',
              'hostname': 'host2',
@@ -1081,9 +1196,8 @@ class TestCheckExistingInstances(base.TestCase):
              'image': {'href': 'overcloud-full'}}
         ]
         existing = mock.MagicMock(
-            hostname='host2', allocation=None,
+            uuid='aaaa', hostname='host2', allocation=None,
             state=metalsmith.InstanceState.ACTIVE)
-        existing.uuid = 'aaaa'
         pr.show_instance.return_value = existing
         baremetal.get_allocation.side_effect = sdk_exc.ResourceNotFound
 
@@ -1094,11 +1208,13 @@ class TestCheckExistingInstances(base.TestCase):
 
         self.assertEqual([], not_found)
         self.assertEqual([existing], found)
-        pr.show_instance.assert_has_calls([mock.call('server2'),
-                                           mock.call(existing.uuid)])
+        pr.show_instance.assert_has_calls([mock.call('aaaa'),
+                                           mock.call('aaaa')])
 
     def test_hostname_mismatch(self):
         pr = mock.Mock()
+        baremetal = mock.Mock()
+        baremetal.nodes.return_value = []
         instances = [
             {'hostname': 'host1',
              'image': {'href': 'overcloud-full'}},
@@ -1106,7 +1222,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr.show_instance.return_value.hostname = 'host2'
         exc = self.assertRaises(
             bd.BaremetalDeployException, bd.check_existing,
-            instances, pr, mock.Mock())
+            instances, pr, baremetal)
 
         self.assertIn("hostname host1 was not found", str(exc))
         pr.show_instance.assert_called_once_with('host1')
@@ -1114,15 +1230,16 @@ class TestCheckExistingInstances(base.TestCase):
     def test_hostname_mismatch_but_instance_info_display_name_correct(self):
         pr = mock.Mock()
         baremetal = mock.Mock()
+        baremetal.nodes.return_value = [mock.MagicMock(
+            id='aaaa', instance_info={'display_name': 'correct_hostname'})]
         instances = [
             {'name': 'bm_node1', 'resource_class': 'baremetal',
              'hostname': 'correct_hostname',
              'image': {'href': 'overcloud-full'}},
         ]
         existing = mock.MagicMock(
-            name='bm_node1', hostname='wrong_hostname', allocation=None,
+            uuid='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
             state=metalsmith.InstanceState.ACTIVE)
-        existing.uuid = 'aaaa'
         pr.show_instance.return_value = existing
         baremetal.get_node.return_value.instance_info = {
             'display_name': 'correct_hostname'}
@@ -1138,21 +1255,24 @@ class TestCheckExistingInstances(base.TestCase):
         self.assertEqual([], not_found)
         self.assertEqual([existing], found)
         self.assertEqual(2, pr.show_instance.call_count)
-        pr.show_instance.assert_has_calls([mock.call('bm_node1'),
-                                           mock.call(existing.uuid)])
+        pr.show_instance.assert_has_calls([mock.call('aaaa'),
+                                           mock.call('aaaa')])
 
     def test_hostname_mismatch_and_instance_info_display_name_mismatch(self):
         pr = mock.Mock()
         baremetal = mock.Mock()
+        nodes = [mock.MagicMock(
+            id='aaaa', instance_info={'display_name': 'mismatching_hostname'})]
+        baremetal.nodes.return_value = nodes
+        nodes[0].name = 'bm_node1'
         instances = [
             {'name': 'bm_node1', 'resource_class': 'baremetal',
              'hostname': 'correct_hostname',
              'image': {'href': 'overcloud-full'}},
         ]
         existing = mock.MagicMock(
-            name='bm_node1', hostname='wrong_hostname', allocation=None,
+            id='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
             state=metalsmith.InstanceState.ACTIVE)
-        existing.uuid = 'aaaa'
         pr.show_instance.return_value = existing
         baremetal.get_node.return_value.instance_info = {
             'display_name': 'mismatching_hostname'}
@@ -1178,6 +1298,8 @@ class TestCheckExistingInstances(base.TestCase):
 
     def test_unexpected_error(self):
         pr = mock.Mock()
+        baremetal = mock.Mock()
+        baremetal.nodes.return_value = []
         instances = [
             {'image': {'href': 'overcloud-full'},
              'hostname': 'host%d' % i} for i in range(3)
@@ -1185,7 +1307,7 @@ class TestCheckExistingInstances(base.TestCase):
         pr.show_instance.side_effect = RuntimeError('boom')
         exc = self.assertRaises(
             bd.BaremetalDeployException, bd.check_existing,
-            instances, pr, mock.Mock())
+            instances, pr, baremetal)
 
         self.assertIn("for host0", str(exc))
         self.assertIn("RuntimeError: boom", str(exc))
