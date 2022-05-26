@@ -67,3 +67,26 @@
     path: /etc/multipath
     state: directory
     setype: container_file_t
+
+- name: Configure multipath dracut module
+  when:
+    - tripleo_boot_from_multipath_device | bool
+  block:
+    - name: Check if multipath module is already configured in dracut
+      lineinfile:
+        state: absent
+        path: "/etc/dracut.conf"
+        regexp: "add_dracutmodules.*multipath.*"
+      check_mode: true
+      changed_when: false
+      register: check
+    - name: Add multipath dracut module if it's missing and refresh dracut
+      when: check.found == 0
+      block:
+        - name: Add multipath dracut module if it's missing
+          lineinfile:
+            state: present
+            path: "/etc/dracut.conf"
+            line: 'add_dracutmodules+="multipath"'
+        - name: Refresh dracut
+          shell: dracut -f
