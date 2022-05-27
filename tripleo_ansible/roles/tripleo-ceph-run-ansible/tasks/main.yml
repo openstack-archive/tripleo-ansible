@@ -52,7 +52,7 @@
       - ansible-playbook
       - '{% if ceph_ansible_private_key_file is defined %}--private-key {{ ceph_ansible_private_key_file }}{% endif %}'
       - '{% if ansible_python_interpreter is defined %}-e ansible_python_interpreter={{ ansible_python_interpreter }}{% endif %}'
-      - '-{%- for number in range(0, ceph_ansible_playbook_verbosity) -%}v{% endfor %}'
+      - '-{%- for number in range(0, ceph_ansible_playbook_verbosity|int) -%}v{% endfor %}'
       - '{% if ceph_ansible_skip_tags is defined and ceph_ansible_skip_tags|length > 0%}--skip-tags {{ ceph_ansible_skip_tags }}{% endif %}'
       - '--extra-vars'
       - '@{{ playbook_dir }}/ceph-ansible/extra_vars.yml'
