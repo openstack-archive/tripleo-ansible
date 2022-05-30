@@ -58,6 +58,17 @@
         path: /etc/rhsm-host
         state: absent
 
+    - name: Disable ubi 9 repos
+      when: ansible_distribution_major_version is version(9, '>=')
+      become: true
+      yum_repository:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - ubi-9-appstream
+        - ubi-9-baseos
+        - ubi-9-codeready-builder
+
 - name: Install tripleo-repos package
   become: true
   package:
@@ -71,13 +82,33 @@
     - test_deps_setup_tripleo | bool
   block:
     - name: Create tripleo repos
-      command: tripleo-repos {{ test_deps_setup_stream | ternary('--stream', '--no-stream', omit) }} \
+      command: tripleo-repos -d ubi9 {{ test_deps_setup_stream | ternary('--stream', '--no-stream', omit) }} \
           -b wallaby current-tripleo {{ test_deps_setup_ceph | ternary('ceph', '', omit) }}
+
+    - name: look for redhat-release rpm
+      shell: |
+        rpm -qe redhat-release
+      register: rpm_found
+      ignore_errors: yes
+
+    - name: Workaround of redhat-release binary on ubi9
+      when: rpm_found.rc == 0
+      block:
+        - name: Remove redhat-release
+          shell: |
+            rpm -e --nodeps redhat-release
+
+        - name: Install centos-stream-release
+          package:
+            name: "centos-stream-release"
+            state: latest
+            releasever: "{{ ansible_facts['distribution_major_version'] }}"
 
     - name: Install tripleo packages
       package:
         name: "{{ test_deps_tripleo_packages }}"
         state: present
+        releasever: "{{ ansible_facts['distribution_major_version'] }}"
 
 - name: Package block
   become: true
@@ -86,6 +117,7 @@
       package:
         name: "{{ test_deps_selinux_packages }}"
         state: present
+        releasever: "{{ ansible_facts['distribution_major_version'] }}"
       when:
         - (ansible_facts['os_family'] | lower) == 'redhat'
 
@@ -93,6 +125,7 @@
       package:
         name: "{{ test_deps_yaml_packages }}"
         state: present
+        releasever: "{{ ansible_facts['distribution_major_version'] }}"
       when:
         - (ansible_facts['os_family'] | lower) == 'redhat'
 
@@ -100,5 +133,6 @@
       package:
         name: "{{ test_deps_extra_packages }}"
         state: present
+        releasever: "{{ ansible_facts['distribution_major_version'] }}"
       when:
         - (test_deps_extra_packages | length) > 0

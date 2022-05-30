@@ -23,14 +23,10 @@
     test_deps_setup_stream: true
   roles:
     - role: test_deps
+      test_deps_extra_packages:
+        - openvswitch
+        - libibverbs
   post_tasks:
-    - name: Install ovs
-      package:
-        name:
-          - openvswitch
-          - libibverbs
-        state: present
-
     - name: Create ovs runtime directories
       file:
         path: "{{ item }}"

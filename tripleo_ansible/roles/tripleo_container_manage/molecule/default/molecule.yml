@@ -12,7 +12,7 @@ provisioner:
           instance:
             ansible_host: localhost
             ansible_connection: local
-            ansible_distribution: centos8
+            ansible_distribution: centos9
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

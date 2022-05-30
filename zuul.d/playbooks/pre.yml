@@ -22,13 +22,6 @@
         virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
 
-    - name: Set containers module to 3.0
-      become: true
-      shell: |
-        dnf module disable container-tools:rhel8 -y
-        dnf module enable container-tools:3.0 -y
-        dnf clean metadata
-
     - name: Run bindep
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
@@ -37,9 +30,10 @@
 
     - name: Ensure a recent version of pip is installed in virtualenv
       pip:
-        name: "pip>=19.1.1"
+        name: "pip<20.3.0"
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
+        state: latest
 
     - name: Setup test-python
       pip:

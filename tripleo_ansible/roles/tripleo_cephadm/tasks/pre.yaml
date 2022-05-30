@@ -14,11 +14,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather distribution facts if they don't exist
+  setup:
+    gather_subset: distribution
+  when: ansible_facts['distribution_major_version'] is not defined
+  tags:
+    - always
+
 - name: Install cephadm package
   become: true
   package:
     name: cephadm
     state: latest
+    releasever: "{{ ansible_facts['distribution_major_version'] }}"
   when:
     - tripleo_cephadm_predeployed | bool
 
