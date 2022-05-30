@@ -5,13 +5,14 @@ driver:
 platforms:
   - name: collectd-test
     hostname: collectd-test
-    image: centos/centos:stream8
+    image: ubi9/ubi-init
     registry:
-      url: quay.io
+      url: registry.access.redhat.com
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      # Had to comment this out or I get "No URLs in mirrorlist"
-      #- /etc/dnf/vars:/etc/dnf/vars
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
+      - /opt/yum.repos.d:/etc/yum.repos.d:rw
+      - /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"

@@ -19,48 +19,29 @@
   hosts:
     - collectd-test
     - collectd-server
+  roles:
+    - role: test_deps
+      test_deps_setup_tripleo: true
+      test_deps_setup_stream: true
+      test_deps_extra_packages:
+        - collectd
+        - collectd-amqp1
+        - collectd-disk
+        - collectd-hugepages
+        # for collectdctl
+        - collectd-utils
+        # enable_stf
+        - collectd-connectivity
+        - collectd-ipmi
+        - collectd-procevent
+        - collectd-rdt
+        # enable_sqlalchemy
+        - collectd-python
+        - python3-sqlalchemy-collectd
+        # libpodstats
+        - collectd-libpod-stats
+        - procps-ng
   tasks:
-    - name: "Enable delorean repos"
-      command: |
-        dnf config-manager --add-repo https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
-      args:
-        warn: false
-
-    - name: "Install tripleo-repos"
-      package:
-        name: "python*tripleo-repos"
-        state: present
-
-    - name: "Set-up tripleo-repos"
-      command: |
-        tripleo-repos -b master current-tripleo
-
-    - name: "Install collectd plugin packages"
-      package:
-        name:
-          - collectd
-          - collectd-amqp1
-          - collectd-disk
-          - collectd-hugepages
-          # for collectdctl
-          - collectd-utils
-          # enable_stf
-          - collectd-connectivity
-          - collectd-ipmi
-          - collectd-procevent
-          - collectd-rdt
-          # enable_sqlalchemy
-          - collectd-python
-          - python3-sqlalchemy-collectd
-          # libpodstats
-          - collectd-libpod-stats
-        state: present
-
-    - name: "Install pkill"
-      package:
-        name:
-          - procps-ng
-
     - name: "Create a directory for the log file"
       file:
         path: /var/log/collectd/

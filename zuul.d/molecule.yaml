@@ -214,6 +214,9 @@
     - ^tripleo_ansible/roles/backup_and_restore/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-backup_and_restore
     parent: tripleo-ansible-centos-stream-base
+    # Note(ChandanKumar): Marking this job to non-voting due to
+    # https://bugs.launchpad.net/tripleo/+bug/1980198
+    voting: false
     vars:
       tripleo_role_name: backup_and_restore
 - job:
@@ -272,6 +275,9 @@
     - ^tox.ini
     name: tripleo-ansible-centos-stream-molecule-tripleo-modules
     parent: tripleo-ansible-centos-stream-base
+    # Note(ChandanKumar): Marking this job as non-voting due
+    # to https://bugs.launchpad.net/tripleo/+bug/1979807
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/(?!meta).*
@@ -326,8 +332,13 @@
     parent: tripleo-ansible-centos-stream-base
     pre-run: zuul.d/playbooks/enable-fips.yml
     timeout: 7200
+    # Note(ChandanKumar): Marking this job as non-voting
+    # due to https://bugs.launchpad.net/tripleo/+bug/1979972
+    voting: false
     vars:
       tripleo_role_name: tripleo_collectd
+      nslookup_target: 'opendev.org'
+      enable_fips: True
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
@@ -362,6 +373,9 @@
     - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py$
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_manage
     parent: tripleo-ansible-centos-stream-base
+    # Note(ChandanKumar): Marking this job to non-voting
+    # due to https://bugs.launchpad.net/tripleo/+bug/1979810
+    voting: false
     vars:
       tripleo_role_name: tripleo_container_manage
 - job:
@@ -601,6 +615,9 @@
     - ^tripleo_ansible/roles/tripleo_redhat_enforce/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_redhat_enforce
     parent: tripleo-ansible-centos-stream-base
+    # Note(chandankumar): Marking this job non-voting due
+    # to https://bugs.launchpad.net/tripleo/+bug/1979971
+    voting: false
     vars:
       tox_envlist: mol-tripleo_redhat_enforce
 - job:
@@ -665,6 +682,9 @@
     - ^tripleo_ansible/roles/tripleo_update_trusted_cas/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_update_trusted_cas
     parent: tripleo-ansible-centos-stream-base
+    # Note(ChandanKumar): Marking this job non-voting
+    # due to https://bugs.launchpad.net/tripleo/+bug/1979807
+    voting: false
     vars:
       tox_envlist: mol-tripleo_update_trusted_cas
 - job:
@@ -699,7 +719,7 @@
     - ^zuul.d/playbooks/.*
     - ^zuul.d/molecule.yaml
     name: tripleo-ansible-centos-stream-role-addition
-    nodeset: centos-8-stream
+    nodeset: centos-9-stream
     parent: tox
     run:
     - zuul.d/playbooks/run-tox.yml
