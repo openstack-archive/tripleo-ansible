@@ -30,16 +30,17 @@
   tasks:
     - assert:
         that:
-          - tripleo_controller_group_name in groups
-          - ( groups[tripleo_controller_group_name] | length ) > 0
-        fail_msg: "There is no server on {{ tripleo_controller_group_name }} groups"
+          - item in groups
+          - ( groups[item] | length ) > 0
+        fail_msg: "There is no server on {{ item }} groups"
+      with_items: "{{ tripleo_controller_group_name }}"
       tags:
         - bar_create_recover_image
 
 - name: TripleO Controller backup
   hosts: '{{ tripleo_controller_group_name }}'
   remote_user: "{{ tripleo_target_user | default(lookup('env', 'USER')) }}"
-  serial: "{{ tripleo_backup_and_restore_enable_snapshots|bool | ternary(1, groups[tripleo_controller_group_name]|length) }}"
+  serial: "{{ (tripleo_controller_group_name|length > 1) or (tripleo_backup_and_restore_enable_snapshots|bool) | ternary(1, groups[tripleo_controller_group_name]|length) }}"
   vars_files:
     ../roles/backup_and_restore/defaults/main.yml
   become: true

@@ -15,19 +15,6 @@
 # under the License.
 #
 
-- name: Getting enabled_services
-  command: |
-    hiera -c "{{ tripleo_backup_and_restore_hiera_config_file }}" 'enabled_services'
-  register: tripleo_backup_and_restore_enabled_services
-  tags:
-    - bar_create_recover_image
-
-- name: Set pacemaker enable variable
-  set_fact:
-    pacemaker_enabled: "{{ (tripleo_backup_and_restore_enabled_services.stdout is search('pacemaker')) |  ternary(true,false) }}"
-  tags:
-    - bar_create_recover_image
-
 - name: Delete previous backup files if exists
   file:
     path: "{{ item }}"
