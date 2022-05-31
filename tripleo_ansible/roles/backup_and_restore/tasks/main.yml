@@ -32,6 +32,36 @@
   tags:
     - always
 
+- name: Getting enabled_services
+  command: |
+    puppet lookup --node agent.local --explain enabled_services
+  register: tripleo_backup_and_restore_enabled_services
+  tags:
+    - bar_create_recover_image
+
+- name: Set pacemaker variable as false by default
+  set_fact:
+    pacemaker_enabled: false
+  tags:
+    - bar_create_recover_image
+
+- name: Check pacemaker status
+  block:
+  - name:
+    command: |
+      pcs status
+    register: pacemaker_result
+    failed_when:
+      - '"error running crm_mon" not in pacemaker_result.stderr'
+      - pacemaker_result.stderr| length > 0
+
+  - name: Set pacemaker variable
+    set_fact:
+      pacemaker_enabled: "{{ pacemaker_result.rc == 0| ternary(true,false) }}"
+  when: tripleo_backup_and_restore_enabled_services.stdout is search('pacemaker')
+  tags:
+    - bar_create_recover_image
+
 - name: Setup NFS server
   import_tasks: setup_nfs.yml
 
@@ -46,9 +76,11 @@
 
 - name: Backup the database
   import_tasks: db_backup.yml
+  when: tripleo_backup_and_restore_enabled_services.stdout is search('mysql^')
 
 - name: Backup pacemaker configuration
   import_tasks: pacemaker_backup.yml
+  when: pacemaker_enabled
 
 - name: Perform backup
   block:
