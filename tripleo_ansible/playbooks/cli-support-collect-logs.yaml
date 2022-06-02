@@ -24,6 +24,7 @@
     sos_options:
       - boot
       - cluster
+      - container
       - hardware
       - kernel
       - memory
