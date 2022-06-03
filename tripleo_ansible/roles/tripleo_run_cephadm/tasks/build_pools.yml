@@ -23,28 +23,28 @@
 
     - name: add images pool
       set_fact:
-        images: [{'name': '{{ ceph_pools.glance_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
+        images: [{'name': '{{ ceph_pools.glance_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
       when:
         - tripleo_pool_images
         - ceph_pools.glance_pool.name not in overrides|default([])
 
     - name: add volumes pool
       set_fact:
-        volumes: [{'name': '{{ ceph_pools.cinder_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
+        volumes: [{'name': '{{ ceph_pools.cinder_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
       when:
         - tripleo_pool_volumes
         - ceph_pools.cinder_pool.name not in overrides|default([])
 
     - name: add vms pool
       set_fact:
-        vms: [{'name': '{{ ceph_pools.nova_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
+        vms: [{'name': '{{ ceph_pools.nova_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }} ', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
       when:
         - tripleo_pool_vms
         - ceph_pools.nova_pool.name not in overrides|default([])
 
     - name: add gnocchi pool
       set_fact:
-        metrics: [{'name': '{{ ceph_pools.gnocchi_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule',
+        metrics: [{'name': '{{ ceph_pools.gnocchi_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule',
                    'application': 'openstack_gnocchi'}]
       when:
         - tripleo_pool_metrics
@@ -53,7 +53,7 @@
 
     - name: add cinder backup pool
       set_fact:
-        backup: [{'name': '{{ ceph_pools.cinder_backup_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule',
+        backup: [{'name': '{{ ceph_pools.cinder_backup_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule',
                   'application': 'rbd'}]
       when:
         - tripleo_pool_volumes
@@ -65,7 +65,7 @@
       set_fact:
         cinder_extra: "{{ (cinder_extra|default([]) + [ pool ])|unique }}"
       vars:
-        pool: "{'name': '{{ item }}', 'pg_num': '{{ ceph_pools.pg_num }}', 'rule_name': 'replicated_rule', 'application': 'rbd' }"
+        pool: "{'name': '{{ item }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule', 'application': 'rbd' }"
       with_items: "{{ ceph_pools.cinder_pool.cinder_extra_pools }}"
       when:
         - tripleo_pool_volumes
@@ -80,12 +80,12 @@
   block:
     - name: add manila data pool
       set_fact:
-        cephfs_data: {'cephfs_data_pool': {'name': '{{ manila_pools.data }}', 'pg_num': '{{ manila_pools.data_pg_num }}',
+        cephfs_data: {'cephfs_data_pool': {'name': '{{ manila_pools.data }}', 'pg_num': '{{ manila_pools.data_pg_num | default(omit) }}',
                                            'rule_name': 'replicated_rule', 'application': 'cephfs'}}
 
     - name: add manila metadata pool
       set_fact:
-        cephfs_metadata: {'cephfs_metadata_pool': {'name': '{{ manila_pools.metadata }}', 'pg_num': '{{ manila_pools.metadata_pg_num }}',
+        cephfs_metadata: {'cephfs_metadata_pool': {'name': '{{ manila_pools.metadata }}', 'pg_num': '{{ manila_pools.metadata_pg_num | default(omit) }}',
                                                    'rule_name': 'replicated_rule', 'application': 'cephfs'}}
   when:
     - tripleo_enabled_services | intersect(['manila_api'])
