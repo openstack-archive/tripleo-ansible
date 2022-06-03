@@ -1779,11 +1779,6 @@ stack_data:
       924170d9-967f-476f-b457-715752961615:
         id: 924170d9-967f-476f-b457-715752961615
         name: '69'
-        parameter_groups:
-        - description: Do not use deprecated params, they will be removed.
-          label: deprecated
-          parameters:
-          - InotifyIntancesMax
         parameters:
         - ServiceData
         type: OS::TripleO::Services::Kernel
@@ -2280,11 +2275,6 @@ stack_data:
       da167bcb-03bc-4ad8-8246-593b93187aea:
         id: da167bcb-03bc-4ad8-8246-593b93187aea
         name: '17'
-        parameter_groups:
-        - description: Do not use deprecated params, they will be removed.
-          label: deprecated
-          parameters:
-          - InotifyIntancesMax
         parameters:
         - ServiceData
         type: OS::TripleO::Services::Kernel

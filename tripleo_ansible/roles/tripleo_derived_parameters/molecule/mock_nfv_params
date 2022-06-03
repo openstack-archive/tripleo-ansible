@@ -1077,12 +1077,6 @@ stack_data:
           - ExtraKernelModules
           - ExtraKernelPackages
           - ExtraSysctlSettings
-          - InotifyIntancesMax
-        parameter_groups:
-          - label: deprecated
-            description: Do not use deprecated params, they will be removed.
-            parameters:
-              - InotifyIntancesMax
       d234aba3-e361-4139-9aee-ebca9db2bb69:
         name: '89'
         id: d234aba3-e361-4139-9aee-ebca9db2bb69
@@ -5290,12 +5284,6 @@ stack_data:
           - ExtraKernelModules
           - ExtraKernelPackages
           - ExtraSysctlSettings
-          - InotifyIntancesMax
-        parameter_groups:
-          - label: deprecated
-            description: Do not use deprecated params, they will be removed.
-            parameters:
-              - InotifyIntancesMax
       a5760f1d-d8a7-4bd3-bf5c-aa4c0ee43379:
         name: '39'
         id: a5760f1d-d8a7-4bd3-bf5c-aa4c0ee43379
@@ -6396,12 +6384,6 @@ stack_data:
           - ExtraKernelModules
           - ExtraKernelPackages
           - ExtraSysctlSettings
-          - InotifyIntancesMax
-        parameter_groups:
-          - label: deprecated
-            description: Do not use deprecated params, they will be removed.
-            parameters:
-              - InotifyIntancesMax
       4860b0de-2438-4135-8e78-cc847ec9ab87:
         name: '39'
         id: 4860b0de-2438-4135-8e78-cc847ec9ab87
@@ -10182,13 +10164,6 @@ stack_data:
         tags:
           - role_specific
         name: ExtraSysctlSettings
-      InotifyIntancesMax:
-        type: Number
-        description: Configures sysctl fs.inotify.max_user_instances key
-        noEcho: 'false'
-        label: InotifyIntancesMax
-        default: 1024
-        name: InotifyIntancesMax
       ContainerCinderApiImage:
         type: String
         description: image
