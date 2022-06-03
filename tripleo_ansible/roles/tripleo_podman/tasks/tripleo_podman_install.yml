@@ -97,6 +97,9 @@
         - section: engine
           option: infra_image
           value:  "\"{{ tripleo_container_default_infra_image }}\""
+        - section: network
+          option: network_backend
+          value:  "\"{{ tripleo_container_default_network_backend }}\""
 
     - name: Enable podman.socket service
       when:

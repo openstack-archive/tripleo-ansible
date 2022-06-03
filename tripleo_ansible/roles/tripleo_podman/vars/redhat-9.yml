@@ -21,3 +21,4 @@ _tripleo_buildah_packages:
   - buildah
 
 tripleo_container_default_runtime: crun
+tripleo_container_default_network_backend: "netavark"
