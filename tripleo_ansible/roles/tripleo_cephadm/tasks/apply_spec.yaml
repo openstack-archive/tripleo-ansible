@@ -44,7 +44,7 @@
   when:
     - not (ceph_orch_status.stdout | from_json).available
 
-- name: Set container images used by the applied services
+- name: Run ceph config set for parameters before applying the spec
   include_tasks: cephadm_config_set.yaml
 
 - name: Apply spec
