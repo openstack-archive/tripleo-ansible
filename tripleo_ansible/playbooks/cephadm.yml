@@ -35,6 +35,11 @@
       when:
         - tripleo_cephadm_apply_ceph_conf_overrides_on_update | bool
 
+    - name: Run ceph config set to prepare additional parameters
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: cephadm_config_set.yaml
+
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm
