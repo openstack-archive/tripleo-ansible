@@ -228,7 +228,7 @@ def generate_ansible_inventory_network_config(result, module_opts, instances,
 
         hostname = instance['hostname']
         role = hostname_role_map[hostname]
-        host = inventory[role]['hosts'].setdefault(hostname, dict())
+        host = inventory[role]['hosts'].setdefault(hostname.lower(), dict())
         network_config = instance.get('network_config', dict())
         set_network_config_defaults(module_opts, network_config)
         translate_opts_for_tripleo_network_config_role(network_config)
