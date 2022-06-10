@@ -424,7 +424,7 @@ def _unprovision_ports(result, conn, stack, instance, ironic_uuid):
 def generate_node_port_map(result, net_maps, ports_by_node):
     node_port_map = result['node_port_map']
     for hostname, ports in ports_by_node.items():
-        node = node_port_map[hostname] = dict()
+        node = node_port_map[hostname.lower()] = dict()
         for port in ports:
             if not port.fixed_ips:
                 continue
