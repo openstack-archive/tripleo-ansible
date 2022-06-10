@@ -376,7 +376,8 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
     inst_ports = conn.network.ports(tags=tags)
     # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
     # have to do it manually.
-    inst_ports = [port for port in inst_ports if port.dns_name == hostname]
+    inst_ports = [port for port in inst_ports
+                  if port.dns_name == hostname.lower()]
 
     if ironic_uuid:
         tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
@@ -407,14 +408,16 @@ def _unprovision_ports(result, conn, stack, instance, ironic_uuid):
     inst_ports = conn.network.ports(tags=tags)
     # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
     # have to do it manually.
-    inst_ports = [port for port in inst_ports if port.dns_name == hostname]
+    inst_ports = [port for port in inst_ports
+                  if port.dns_name == hostname.lower()]
 
     # TODO(hjensas): This can be removed in later release when all upgraded
     # deployments has had the tripleo_ironic_uuid tag added.
     if not inst_ports:
         tags = ['tripleo_stack_name={}'.format(stack)]
         inst_ports = conn.network.ports(tags=tags)
-        inst_ports = [port for port in inst_ports if port.dns_name == hostname]
+        inst_ports = [port for port in inst_ports
+                      if port.dns_name == hostname.lower()]
 
     if inst_ports:
         delete_ports(conn, inst_ports)
