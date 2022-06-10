@@ -34,7 +34,7 @@ network_config:
   addresses:
   - ip_netmask: {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
   routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
-{%- endfor %}
+{% endfor %}
 {# Used as a provider network with external DHCP #}
 - type: ovs_user_bridge
   name: br-dpdk0
