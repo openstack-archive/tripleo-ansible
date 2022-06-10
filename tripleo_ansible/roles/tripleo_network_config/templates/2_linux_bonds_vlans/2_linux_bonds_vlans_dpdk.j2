@@ -54,7 +54,7 @@ network_config:
 {% else %}
   routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
 {% endif %}
-{%- endfor %}
+{% endfor %}
   members:
   - type: ovs_dpdk_bond
     name: dpdkbond0

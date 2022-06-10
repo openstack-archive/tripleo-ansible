@@ -76,4 +76,4 @@ network_config:
     addresses:
     - ip_netmask: {{ lookup('vars', networks_lower[network] ~ '_ip') }}/{{ lookup('vars', networks_lower[network] ~ '_cidr') }}
     routes: {{ lookup('vars', networks_lower[network] ~ '_host_routes') }}
-{%- endfor %}
+{% endfor %}
