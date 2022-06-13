@@ -539,7 +539,8 @@ def populate_environment(instance_uuids, provisioner, environment,
         ctlplane = {}
         ctlplane['fixed_ips'] = ctlplane_net.get('fixed_ips', [])
 
-        port_map['%s-%s' % (instance.hostname, ctlplane_network)] = ctlplane
+        port_map['%s-%s' % (instance.hostname.lower(),
+                            ctlplane_network)] = ctlplane
     return environment
 
 
