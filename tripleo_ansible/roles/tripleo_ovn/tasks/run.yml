@@ -14,10 +14,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: create ovn mac address for {{ tripleo_role_name }} role nodes
-  tripleo_ovn_mac_addresses:
-    playbook_dir: "{{ playbook_dir }}"
-    stack_name: "{{ stack_name }}"
-    server_resource_names: "{{ groups[tripleo_role_name] }}"
-    ovn_bridge_mappings: "{{ tripleo_ovn_bridge_mappings | join(', ') }}"
-    ovn_static_bridge_mac_mappings: "{{ ovn_static_bridge_mac_mappings }}"
+- name: Ensure /usr/libexec/tripleo-start-podman-container exists
+  import_role:
+    name: tripleo_container_manage
+    tasks_from: shutdown.yml
+
+- name: Run ovn_controller container
+  include_role:
+    name: tripleo_container_standalone
+  vars:
+    tripleo_container_standalone_service: ovn_controller
+    tripleo_container_standalone_container_defs:
+      ovn_controller: "{{ lookup('template', 'ovn_controller.yaml.j2') | from_yaml }}"
+    tripleo_container_standalone_kolla_config_files:
+      ovn_controller: "{{ lookup('template', 'kolla_ovn_controller.yaml.j2') | from_yaml }}"

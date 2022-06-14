@@ -14,10 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: create ovn mac address for {{ tripleo_role_name }} role nodes
-  tripleo_ovn_mac_addresses:
-    playbook_dir: "{{ playbook_dir }}"
-    stack_name: "{{ stack_name }}"
-    server_resource_names: "{{ groups[tripleo_role_name] }}"
-    ovn_bridge_mappings: "{{ tripleo_ovn_bridge_mappings | join(', ') }}"
-    ovn_static_bridge_mac_mappings: "{{ ovn_static_bridge_mac_mappings }}"
+- name: Cleanup hw-offload when no longer required
+  ansible.builtin.shell: >
+    ovs-vsctl remove open . other_config hw-offload
+  when: not tripleo_enable_hw_offload | bool
+
+- name: Cleanup enable-chassis-as-gw when DVR not enabled
+  ansible.builtin.shell: >
+    ovs-vsctl remove open . external_ids ovn-cms-options
+  when: not tripleo_enable_dvr | bool

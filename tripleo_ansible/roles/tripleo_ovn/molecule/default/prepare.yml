@@ -16,9 +16,26 @@
 
 
 - name: Prepare
-  hosts: all
+  hosts: centos
   gather_facts: true
-  roles:
-    - role: test_deps
-      test_deps_setup_stream: true
-    - role: env_data
+  tasks:
+    - include_role:
+        name: test_deps
+      vars:
+        test_deps_setup_tripleo: true
+        test_deps_setup_stream: true
+        test_deps_tripleo_packages:
+          - openvswitch
+          - libibverbs
+    - include_role:
+        name: env_data
+
+    # The openvswitch kernel module needs to be loaded on the host
+    - name: install and modprobe openvswitch
+      shell: |
+        sudo dnf -y install openvswitch
+        sudo modprobe openvswitch
+      delegate_to: localhost
+      run_once: true
+
+  post_tasks: []

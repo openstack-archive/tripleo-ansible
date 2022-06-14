@@ -14,7 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 - name: Include host prep tasks
-  include_tasks: install.yml
+  import_tasks: install.yml
 
-- name: Include external deploy tasks
-  include_tasks: externaldeploy.yml
+- name: Include bootstrap tasks
+  import_tasks: bootstrap.yml
+
+- name: Configure OVS
+  import_tasks: configure.yml
+
+- name: Ensure ovn_controller is running
+  import_tasks: run.yml
+
+- name: Cleanup unwanted OVS keys
+  import_tasks: cleanup.yml

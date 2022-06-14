@@ -17,5 +17,11 @@
 - name: Converge
   hosts: all
   gather_facts: true
-  roles:
-    - role: "tripleo_ovn"
+  become: true
+  tasks:
+    - include_role:
+        name: "tripleo_ovn"
+      vars:
+        tenant_ip: "{{ ansible_host }}"
+        tripleo_ovn_dbs:
+          - "{{ ansible_host }}"
