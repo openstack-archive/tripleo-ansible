@@ -36,20 +36,9 @@
   set_fact:
     tripleo_enabled_services: "{{ enabled_services | default([]) }}"
 
-- name: set dashboard_vip variable if dashboard is enabled
-  block:
-    - name: get the frontend_dashboard_vip from the overcloud vars
-      command: "hiera -c /etc/puppet/hiera.yaml ceph_dashboard_vip"
-      register: frontend_vip
-      become: true
-    - name: set dashboard_frontend variable
-      set_fact:
-        grafana_vip: |-
-         {% set dashboard_vip = control_virtual_ip %}
-         {% if frontend_vip.stdout != "nil" %}
-         {%   set dashboard_vip = frontend_vip.stdout %}
-         {% endif %}
-         {{ dashboard_vip }}
+- name: "Set grafana_vip: {{ net_vip_map[service_net_map['ceph_dashboard_network']] }}"
+  set_fact:
+    grafana_vip: "{{ net_vip_map[service_net_map['ceph_dashboard_network']] }}"
   when:
     - tripleo_enabled_services | intersect(['ceph_grafana'])
 
