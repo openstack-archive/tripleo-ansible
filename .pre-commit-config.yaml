@@ -11,7 +11,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: flake8
-        entry: flake8 --ignore=E24,E121,E122,E123,E124,E126,E226,E265,E305,E402,F401,F405,E501,E704,F403,F841,W503
+        entry: flake8 --ignore=E24,E121,E122,E123,E124,E126,E226,E265,E302,E305,E402,F401,F405,E501,E704,E741,F403,F811,F841,W503,W504
         # TODO(cloudnull): These codes were added to pass the lint check.
         #                  All of these ignore codes should be resolved in
         #                  future PRs.
@@ -25,10 +25,12 @@ repos:
         types: [file, yaml]
         entry: yamllint --strict -f parsable
   - repo: https://github.com/ansible/ansible-lint
-    rev: v4.3.1
+    rev: v4.3.5
     hooks:
       - id: ansible-lint
         files: \.(yaml|yml)$
+        additional_dependencies:
+          - 'rich>=9.5.1,<11.0.0'
         entry: >-
           ansible-lint --force-color -v -x "ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016"
           --exclude=tripleo_ansible/roles.galaxy

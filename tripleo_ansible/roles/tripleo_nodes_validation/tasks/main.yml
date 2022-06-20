@@ -27,6 +27,7 @@
   retries: 10
   delay: 60
   changed_when: false
+  check_mode: false
   when:
     - tripleo_nodes_validation_validate_gateway_icmp|bool
     - ansible_facts.default_ipv4 is defined
@@ -41,12 +42,16 @@
     loop_var: gateway_ip
   loop: "{{ tripleo_nodes_validation_ping_test_gateway_ips }}"
   changed_when: false
+  check_mode: false
   when:
     - tripleo_nodes_validation_validate_gateway_icmp|bool
     - tripleo_nodes_validation_ping_test_gateway_ips | length > 0
 
 - name: Check Controllers availability
-  include_tasks: ping.yml
+  include_tasks:
+    file: ping.yml
+    apply:
+      check_mode: false
   loop_control:
     loop_var: controller
   loop: "{{ tripleo_nodes_validation_ping_test_ips }}"
@@ -66,5 +71,6 @@
     fi
     exit 0
   changed_when: false
+  check_mode: false
   when:
     - tripleo_nodes_validation_validate_fqdn|bool
