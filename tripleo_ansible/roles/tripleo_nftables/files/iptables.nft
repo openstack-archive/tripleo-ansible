@@ -27,6 +27,20 @@ table inet raw {
                 type filter hook output priority raw; policy accept;
         }
 }
+table inet nat {
+        chain PREROUTING {
+                type nat hook prerouting priority dstnat; policy accept;
+        }
+        chain INPUT {
+                type nat hook input priority 100; policy accept;
+        }
+        chain OUTPUT {
+                type nat hook output priority -100; policy accept;
+        }
+        chain POSTROUTING {
+                type nat hook postrouting priority srcnat; policy accept;
+        }
+}
 # Compatibility tables and chains for iptables-nft
 table ip filter {
         chain INPUT {

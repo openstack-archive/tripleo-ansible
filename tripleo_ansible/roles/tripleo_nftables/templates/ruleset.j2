@@ -2,7 +2,7 @@
 # Managed by tripleo-ansible/tripleo_nftables
 # Valid starting nft-0.9.8
 
-{%- for ruleset in tripleo_nftables_rules %}
+{% for ruleset in tripleo_nftables_rules %}
 {%    set rule=ruleset['rule'] %}
 {%    set name=ruleset['rule_name'] %}
 {%-   if 'extras' not in rule or rule['extras'].get('ensure', 'present') in ['enabled', 'present'] %}
@@ -22,7 +22,6 @@ add rule
  counter
 {%-     include 'templates/jump.j2' %}
  comment "{{rule.get('rule_name', name) }}"
-
 {%   endif %}
 {% endfor %}
 
