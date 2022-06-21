@@ -23,6 +23,8 @@
 
 - name: ceph config set public/private network and ms_bind ipv4/v6
   include_tasks: network_config_set.yaml
+  when:
+    - tripleo_cephadm_deployed_ceph | default(false) | bool
 
 - name: set default container image in ceph configuration
   command: |
