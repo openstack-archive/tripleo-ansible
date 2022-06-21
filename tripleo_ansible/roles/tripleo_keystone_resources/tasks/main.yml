@@ -65,6 +65,10 @@
   loop_control:
     loop_var: keystone_endpoint_type
 
+- name: Run cleanup tasks
+  include_tasks: cleanup.yml
+  when: tripleo_keystone_resources_cleanup
+
 - name: Create Keystone Roles
   include_tasks: roles.yml
   loop: "{{ tripleo_keystone_resources_catalog_config | get_key_from_dict(key='roles', default='service') | batch(tripleo_keystone_resources_batch) | list }}"

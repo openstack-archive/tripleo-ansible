@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add a new playbook to allow for the removal of old Keystone services.
+    This playbook will remove any services that exist but have since been
+    disabled. This cleanup task is tunable using
+    `tripleo_keystone_resources_cleanup` which by default is set to True.
