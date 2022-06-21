@@ -29,3 +29,5 @@ tripleo_keystone_resources_clouds_file_mode: '0600'
 tripleo_keystone_resources_catalog_config: {}
 tripleo_keystone_resources_member_role_enabled: false
 tripleo_keystone_resources_batch: 10
+tripleo_keystone_removed_services: {}
+tripleo_keystone_resources_cleanup: true
