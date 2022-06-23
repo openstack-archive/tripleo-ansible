@@ -14,9 +14,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Gather facts if they don't exist
-  setup:
-    gather_subset: min
+- name: Gather facts and variables if they don't exist
+  block:
+  - name: Gather facts if they don't exist
+    setup:
+      gather_subset: min
+
+  # found within the "vars/" path. If no OS files are found the task will skip.
+  - name: Gather variables for each operating system
+    include_vars: "{{ item }}"
+    with_first_found:
+      - skip: true
+        files:
+          - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
+          - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+          - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
+          - "{{ ansible_facts['distribution'] | lower }}.yml"
+          - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
+          - "{{ ansible_facts['os_family'] | lower }}.yml"
+    tags:
+      - always
   when: not ansible_distribution|default(false)
 
 - name: Check required packages to bootstrap TripleO is installed
