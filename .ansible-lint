@@ -14,7 +14,6 @@ mock_roles:
     - ceph-facts
 mock_modules:
     - baremetal_nodes_validate
-    - baremetal_register_or_update_nodes
     - ceph_crush_rule
     - ceph_dashboard_user
     - ceph_key

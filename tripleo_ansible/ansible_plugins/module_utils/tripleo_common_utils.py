@@ -21,7 +21,6 @@
 #       should revise this.
 import os
 
-from glanceclient import client as glanceclient
 from heatclient.v1 import client as heatclient
 from ironicclient import client as ironicclient
 
@@ -89,25 +88,3 @@ class TripleOCommon(object):
                     os_ironic_api_version='1.36'
                 )
             return self.client_cache['ironicclient']
-
-    def get_image_client(self):
-        """Return the image (glance) client.
-
-        This method will return a client object using the legacy library. Upon
-        the creation of a successful client creation, the client object will
-        be stored in the `self.client_cache object`, should this method be
-        called more than once, the cached object will automatically return,
-        resulting in fewer authentications and faster API interactions.
-
-        :returns: Object
-        """
-
-        if 'glanceclient' in self.client_cache:
-            return self.client_cache['glanceclient']
-        else:
-            self.client_cache['glanceclient'] = \
-                glanceclient.Client(
-                    2,
-                    session=self.sess
-                )
-            return self.client_cache['glanceclient']
