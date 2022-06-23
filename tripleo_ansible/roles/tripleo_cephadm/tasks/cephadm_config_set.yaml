@@ -14,6 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Ensure tripleo_cephadm_ceph_cli is set
+  include_tasks: ceph_cli.yaml
+  when:
+    - tripleo_cephadm_ceph_cli is not defined
+
 - name: set cephadm debug level
   command: |
     {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/log_to_cluster_level debug
