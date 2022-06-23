@@ -46,7 +46,8 @@ ALLOWED_SPEC_KEYS = {
         'rgw_realm',
         'rgw_zone',
         'rgw_ip_address',
-        'rgw_frontend_ssl_certificate'
+        'rgw_frontend_ssl_certificate',
+        'ssl'
     ],
     'nfs': [
         'namespace',
