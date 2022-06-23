@@ -41,8 +41,8 @@
       # patch.
       masters:
         {% for minidns_server in designate_mdns_node_ips -%}
-        - host: {{ minidns_server }}
-          port: 5354
+        - host: {{ net_vip_map[service_net_map['public_network']] }}
+          port: {{ minidns_proxy_base_port + loop.index -1 }}
         {% endfor %}
 
       # BIND Configuration options
