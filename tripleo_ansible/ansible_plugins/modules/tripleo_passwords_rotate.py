@@ -112,7 +112,6 @@ def run_module():
         password_file = module.params.get('password_file')
         _, conn = openstack_cloud_from_module(module)
         tripleo = tc.TripleOCommon(session=conn.session)
-        swift = tripleo.get_object_client()
         heat = tripleo.get_orchestration_client()
 
         # Which file to look for passwords
@@ -128,7 +127,7 @@ def run_module():
             passwords_env = None
 
         rotated_passwords = plan_utils.generate_passwords(
-            swift, heat, container=container,
+            heat=heat, container=container,
             rotate_passwords=rotate_passwords,
             rotate_pw_list=password_list,
             passwords_env=passwords_env
