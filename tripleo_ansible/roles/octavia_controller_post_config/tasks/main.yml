@@ -107,6 +107,19 @@
   when:
     - enable_log_offloading | bool
 
+- name: setting [amphora_agent]/log_protocol
+  become: true
+  become_user: root
+  ini_file:
+    section: "amphora_agent"
+    option: "log_protocol"
+    value: "{{ log_offload_protocol | upper }}"
+    path: "{{ octavia_confd_prefix }}/etc/octavia/post-deploy.conf"
+    selevel: s0
+    setype: svirt_sandbox_file_t
+  when:
+    - enable_log_offloading | bool
+
 - name: setting [amphora_agent]/admin_log_targets
   become: true
   become_user: root

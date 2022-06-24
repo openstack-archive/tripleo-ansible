@@ -18,3 +18,4 @@ lb_mgmt_sec_grp_name: "lb-mgmt-sec-grp"
 lb_health_mgr_sec_grp_name: "lb-health-mgr-sec-grp"
 mgmt_port_dev: "o-hm0"
 enable_log_offloading: false
+log_offload_protocol: "udp"
