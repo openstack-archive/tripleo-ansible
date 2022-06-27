@@ -26,5 +26,6 @@ tripleo_unbound_allowed_cidrs: []
 tripleo_unbound_log_queries: false
 tripleo_unbound_security_harden: true
 tripleo_unbound_forward_resolvers: []
+tripleo_external_bind_servers: []
 tripleo_unbound_allow_recursion: true
 tripleo_unbound_forward_fallback: true
