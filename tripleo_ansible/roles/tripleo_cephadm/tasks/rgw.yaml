@@ -49,6 +49,7 @@
           rgw_realm: 'default'
           rgw_zone: 'default'
           rgw_frontend_ssl_certificate: "{{ rgw_frontend_cert }}"
+          ssl: "{{ tripleo_cephadm_internal_tls_enabled|default(false)|bool }}"
         render_path: "{{ tripleo_cephadm_spec_home }}"
         networks: "{{ radosgw_address_block }}"
       register: spc
