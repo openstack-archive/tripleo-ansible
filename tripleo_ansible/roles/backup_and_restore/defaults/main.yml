@@ -22,6 +22,7 @@ tripleo_controller_group_name: "{{ controller_group_name | default('Controller')
 
 # Set the container command line entry-point
 tripleo_container_cli: "{{ container_cli | default('podman') }}"
+tripleo_container_cli_flags: ""
 # Stop and start all running services before backup is ran.
 tripleo_backup_and_restore_service_manager: true
 

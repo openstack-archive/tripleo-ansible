@@ -35,7 +35,7 @@
 - name: Check ceph rgw presence
   shell: |
     set -o pipefail
-    {{ tripleo_container_cli }} ps -a | grep ceph-rgw | wc -l
+    {{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} ps -a | grep ceph-rgw | wc -l
   register: bar_ceph_rgw_exits
   ignore_errors: true
   tags:

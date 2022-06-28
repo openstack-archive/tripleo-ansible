@@ -26,7 +26,7 @@
     - bar_create_recover_image
 
 - name: unPause database container
-  command: "{{ tripleo_container_cli }} unpause {{ tripleo_backup_and_restore_mysql_container }}"
+  command: "{{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} unpause {{ tripleo_backup_and_restore_mysql_container }}"
   when:
     - tripleo_container_cli is defined
     - not enabled_galera
@@ -37,14 +37,14 @@
 - name: Gather Container Service Name
   shell: |
     set -o pipefail
-    /usr/bin/{{ tripleo_container_cli }} ps -a --filter='status=paused' --format '{{ '{{' }}.Names {{ '}}' }} '
+    /usr/bin/{{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} ps -a --filter='status=paused' --format '{{ '{{' }}.Names {{ '}}' }} '
   register: container_services
   changed_when: container_services.stdout is defined
   tags:
     - bar_create_recover_image
 
 - name: unPause containers
-  command: "{{ tripleo_container_cli }} unpause {{ item }}"
+  command: "{{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} unpause {{ item }}"
   with_items: "{{ container_services.stdout_lines }}"
   when: tripleo_container_cli is defined
   tags:
