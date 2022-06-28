@@ -22,7 +22,7 @@ tripleo_ceph_client_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_ceph_client_hide_sensitive_logs: true
 tripleo_ceph_client_config_home: "/etc/ceph"
 tripleo_ceph_client_fetch_dir: "{{ playbook_dir }}/ceph_client_fetch_dir"
-tripleo_ceph_client_vars: "/home/stack/ceph_client.yaml"
+tripleo_ceph_client_vars: "{{ playbook_dir }}/cephadm/ceph_client.yml"
 tripleo_ceph_client_cluster: "ceph"
 tripleo_ceph_client_fsid: ''
 tripleo_ceph_client_mon_ips: []
