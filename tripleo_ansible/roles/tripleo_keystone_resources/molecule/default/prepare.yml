@@ -23,18 +23,18 @@
       selinux:
         state: disabled
 
-  tasks:
-    - include_role:
-        name: test_deps
-      vars:
-        test_deps_setup_tripleo: true
-        test_deps_extra_packages:
-          - python3-openstacksdk
-          - python3-openstackclient
-          - python3-keystoneclient
-          - ansible-core
-          - ansible-collections-openstack
+  roles:
+    - role: test_deps
+      test_deps_setup_tripleo: true
+      test_deps_extra_packages:
+        - python3-openstacksdk
+        - python3-openstackclient
+        - python3-keystoneclient
+        - ansible-core
+        - ansible-collections-openstack
+    - role: env_data
 
+  tasks:
     - name: Build keystone container
       shell: "podman build -t keystone-img -f {{ playbook_dir }}/Dockerfile.keystone ."
       become: false

@@ -18,6 +18,7 @@
   hosts: all
   roles:
     - role: test_deps
+    - role: env_data
   post_tasks:
     - name: Create temp host file
       copy:

@@ -25,3 +25,4 @@
       - policycoreutils-python-utils
   roles:
     - role: test_deps
+    - role: env_data

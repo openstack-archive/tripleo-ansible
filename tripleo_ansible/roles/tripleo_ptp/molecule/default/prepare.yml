@@ -22,3 +22,4 @@
       test_deps_extra_packages:
         - cronie
         - rsyslog
+    - role: env_data

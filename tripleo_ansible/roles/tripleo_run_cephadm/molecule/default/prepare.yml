@@ -19,6 +19,7 @@
   hosts: all
   roles:
     - role: test_deps
+    - role: env_data
   post_tasks:
     - name: Ensure the cephadm workdir exists
       file:

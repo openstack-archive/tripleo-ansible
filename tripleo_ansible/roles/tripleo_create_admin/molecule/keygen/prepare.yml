@@ -19,8 +19,6 @@
   hosts: all
   roles:
     - role: test_deps
-  tasks:
-    - name: Install additional dependencies
-      package:
-        name: openssh
-        state: present
+      test_deps_extra_packages:
+        - openssh
+    - role: env_data

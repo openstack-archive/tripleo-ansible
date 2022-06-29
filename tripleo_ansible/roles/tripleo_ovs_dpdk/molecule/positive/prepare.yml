@@ -26,6 +26,7 @@
       test_deps_extra_packages:
         - openvswitch
         - libibverbs
+    - role: env_data
   post_tasks:
     - name: Create ovs runtime directories
       file:

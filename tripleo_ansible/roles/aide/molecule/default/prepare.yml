@@ -19,8 +19,6 @@
   hosts: all
   roles:
     - role: test_deps
-  post_tasks:
-    - name: Ensure cronie is installed
-      package:
-        name: cronie
-        state: present
+      test_deps_extra_packages:
+        - cronie
+    - role: env_data

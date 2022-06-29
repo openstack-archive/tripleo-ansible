@@ -1,5 +1,5 @@
 ---
-# Copyright 2021 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,7 @@
 # under the License.
 
 
-- name: Prepare
+- name: Converge
   hosts: all
   roles:
-    - role: test_deps
-    - role: env_data
+    - role: "env_data"

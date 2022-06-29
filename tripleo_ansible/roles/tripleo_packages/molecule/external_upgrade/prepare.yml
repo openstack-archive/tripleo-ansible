@@ -21,3 +21,4 @@
     test_deps_setup_stream: false
   roles:
     - role: test_deps
+    - role: env_data

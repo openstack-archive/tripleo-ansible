@@ -33,6 +33,7 @@
 
   roles:
     - role: test_deps
+    - role: env_data
 
   tasks:
     - name: Disable SELinux

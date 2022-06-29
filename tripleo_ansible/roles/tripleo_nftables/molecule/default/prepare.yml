@@ -17,11 +17,8 @@
 
 - name: Prepare
   hosts: all
-  tasks:
-    - name: test_deps
-      include_role:
-        name: test_deps
-    - name: Install nftables
-      become: true
-      package:
-        name: nftables
+  roles:
+    - role: test_deps
+      test_deps_extra_packages:
+        - nftables
+    - role: env_data
