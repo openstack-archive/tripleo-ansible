@@ -3,6 +3,9 @@ parameter_defaults:
   CephClusterFSID: {{ tripleo_cephadm_fsid }}
   CephDynamicSpec: false
   DeployedCeph: true
+  {% if tripleo_cephadm_standalone -%}
+  CephSpecFqdn: true
+  {% endif -%}
   CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}
   ContainerCephDaemonImage: {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag | string }}
   CephClusterName: {{ tripleo_cephadm_cluster }}

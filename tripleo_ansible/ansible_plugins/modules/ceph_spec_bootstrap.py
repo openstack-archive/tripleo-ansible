@@ -16,6 +16,7 @@
 
 import os
 import re
+import socket
 import yaml
 
 from ansible.module_utils.basic import AnsibleModule
@@ -39,11 +40,11 @@ description:
     - "The ceph_spec_bootstrap module uses information from both the composed services in TripleO roles and the deployed hosts file ('openstack overcloud node provision' output), or just the inventory file (tripleo-ansible-inventory output) to determine what Ceph services should run on what hosts and generate a valid Ceph spec. This allows the desired end state defined in TripleO to be translated into an end state defined in Ceph orchestrator. The intention is to use this module when bootstraping a new Ceph cluster."
 options:
     deployed_metalsmith:
-        description: The absolute path to a file like deployed_metal.yaml, as genereated by 'openstack overcloud node provision --output deployed_metal.yaml'. This file is used to map which ceph_service_types map to which deployed hosts. Use this option if you have deployed servers with metalsmith but do not yet have an inventory genereated from the overcloud in Heat. Either tripleo_ansible_inventory xor deployed_metalsmith must be used (not both).
+        description: The absolute path to a file like deployed_metal.yaml, as genereated by 'openstack overcloud node provision --output deployed_metal.yaml'. This file is used to map which ceph_service_types map to which deployed hosts. Use this option if you have deployed servers with metalsmith but do not yet have an inventory genereated from the overcloud in Heat. Either tripleo_ansible_inventory xor deployed_metalsmith must be used (not both) unless the method option is used.
         required: False
         type: str
     tripleo_ansible_inventory:
-        description: The absolute path to an Ansible inventory genereated by running the tripleo-ansible-inventory command. This file is used to map which ceph_service_types map to which deployed hosts. Use this option if you already have an inventory genereated from the overcloud in Heat. Either tripleo_ansible_inventory xor deployed_metalsmith must be used (not both).
+        description: The absolute path to an Ansible inventory genereated by running the tripleo-ansible-inventory command. This file is used to map which ceph_service_types map to which deployed hosts. Use this option if you already have an inventory genereated from the overcloud in Heat. Either tripleo_ansible_inventory xor deployed_metalsmith must be used (not both) unless the method option is used.
         required: False
         type: str
     new_ceph_spec:
@@ -70,6 +71,17 @@ options:
         description: The crush hierarchy, expressed as a dict, maps the relevant OSD nodes to a user defined crush hierarchy.
         required: False
         type: dict
+    standalone:
+        description: Create a spec file for a standalone deployment. Used for single server development or testing environments.
+        required: False
+        type: bool
+    mon_ip:
+        description: The desired IP address of the first Ceph monitor. Required when standalone is true, otherwise ignored.
+    method:
+        description: Whether the deployed_metalsmith file or tripleo_ansible_inventory file should be used to build the spec if both of these parameters are passed. When "both" is used the roles, services and hosts are determined from deployed_metalsmith and tripleo_roles parameters but the IPs come from the tripleo_ansible_inventory parameter.
+        required: False
+        type: str
+        choices: ['deployed_metalsmith', 'tripleo_ansible_inventory', 'both']
 author:
     - John Fulton (fultonj)
 '''
@@ -84,6 +96,13 @@ EXAMPLES = '''
   ceph_spec_bootstrap:
     new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
     tripleo_ansible_inventory: ~/config-download/overcloud/tripleo-ansible-inventory.yaml
+
+- name: make spec from deployed_metalsmith; use inventory not DeployedSeverPortMap for IPs
+  ceph_spec_bootstrap:
+    new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
+    tripleo_ansible_inventory: ~/config-download/overcloud/tripleo-ansible-inventory.yaml
+    deployed_metalsmith: ~/overcloud-baremetal-deployed.yaml
+    method: 'both'
 
 - name: make spec from inventory with FQDNs and custom osd_spec
   ceph_spec_bootstrap:
@@ -120,6 +139,12 @@ EXAMPLES = '''
         rotational: 1
       db_devices:
         rotational: 0
+
+- name: Create Ceph spec for standalone deployment
+  ceph_spec_bootstrap:
+    new_ceph_spec: "{{ playbook_dir }}/ceph_spec.yaml"
+    mon_ip: "{{ tripleo_cephadm_first_mon_ip }}"
+    standalone: True
 '''
 
 RETURN = '''
@@ -380,6 +405,24 @@ def flatten(t):
     return [item for sublist in t for item in sublist]
 
 
+def ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec={}):
+    """Write ceph_spec_path file for a standalone ceph host
+    :param new_ceph_spec: the path to a ceph_spec.yaml file
+    :param mon_ip: the ip address of the ceph monitor
+    :param (osd_spec): dict describing the OSDs
+    :return dictionary of ceph specs
+    """
+    hostname = socket.gethostname()
+    hosts_to_ips = dict()
+    hosts_to_ips[hostname] = mon_ip
+    svcs = ['osd', 'mon', 'mgr']
+    label_map = dict()
+    label_map[hostname] = svcs + ['_admin']
+    specs = get_specs(hosts_to_ips, label_map, svcs, osd_spec)
+    render(specs, new_ceph_spec)
+    return specs
+
+
 def main():
     """Main method of Ansible module
     """
@@ -406,6 +449,9 @@ def main():
     osd_spec = module.params.get('osd_spec')
     fqdn = module.params.get('fqdn')
     crush = module.params.get('crush_hierarchy')
+    standalone = module.params.get('standalone')
+    mon_ip = module.params.get('mon_ip')
+    method = module.params.get('method')
 
     # Set defaults
     if ceph_service_types is None:
@@ -420,24 +466,43 @@ def main():
         fqdn = False
     if crush is None:
         crush = {}
+    if standalone is None:
+        standalone = False
+    if mon_ip is None:
+        mon_ip = ""
 
-    # Validate inputs
-    # 0. Are they using metalsmith xor an inventory as their method?
-    method = ""
+    # Handle standalone scenario and exit module early ...
+    if standalone:
+        result['specs'] = ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec)
+        module.exit_json(**result)
+    # ... otherwise validate the inputs to build a multinode spec
+    # 0. Are they using metalsmith or an inventory as their method?
+    if not method:
+        if not (deployed_metalsmith or tripleo_ansible_inventory):
+            result['msg'] = ("The tripleo_ansible_inventory or "
+                             "deployed_metalsmith parameter is required.")
+            result['failed'] = True
+            module.exit_json(**result)
+        if not deployed_metalsmith and tripleo_ansible_inventory:
+            method = 'tripleo_ansible_inventory'
+        elif deployed_metalsmith and not tripleo_ansible_inventory:
+            method = 'deployed_metalsmith'
+        else:
+            method = "both"
+    result['method'] = method
+
+    # determine required files based on method
     required_files = []
-    if deployed_metalsmith is None and tripleo_ansible_inventory is not None:
-        method = 'inventory'
+    if method == 'tripleo_ansible_inventory':
         required_files.append(tripleo_ansible_inventory)
-    elif deployed_metalsmith is not None and tripleo_ansible_inventory is None:
-        method = 'metal'
+    elif method == 'deployed_metalsmith':
         required_files.append(deployed_metalsmith)
         required_files.append(tripleo_roles)
-    else:
-        error = "You must provide either the "
-        error += "tripleo_ansible_inventory or deployed_metalsmith "
-        error += "parameter (but not both)."
-        errors.append(error)
-        result['failed'] = True
+    elif method == 'both':
+        required_files.append(tripleo_ansible_inventory)
+        required_files.append(deployed_metalsmith)
+        required_files.append(tripleo_roles)
+
     # 1. The required files must all be an existing path to a file
     for fpath in required_files:
         if not os.path.isfile(fpath):
@@ -460,25 +525,34 @@ def main():
             errors.append(error)
             result['failed'] = True
     # 5. fqdn is only supported for the inventory method
-    if method != 'inventory' and fqdn:
+    if method != 'tripleo_ansible_inventory' and fqdn:
         error = "The fqdn option may only be true when using tripleo_ansible_inventory"
         errors.append(error)
         result['failed'] = True
 
     if not result['failed']:
         # Build data structures to map roles/services/hosts/labels
-        if method == 'metal':
+        if method == 'deployed_metalsmith':
             roles_to_svcs = get_roles_to_svcs_from_roles(tripleo_roles)
             roles_to_hosts = get_deployed_roles_to_hosts(deployed_metalsmith,
                                                          roles_to_svcs.keys())
             hosts_to_ips = get_deployed_hosts_to_ips(deployed_metalsmith)
-        elif method == 'inventory':
+        elif method == 'tripleo_ansible_inventory':
             with open(tripleo_ansible_inventory, 'r') as stream:
                 inventory = yaml.safe_load(stream)
             roles_to_svcs = get_roles_to_svcs_from_inventory(inventory)
             roles_to_hosts = get_inventory_roles_to_hosts(inventory,
                                                           roles_to_svcs.keys(),
                                                           fqdn)
+            hosts_to_ips = get_inventory_hosts_to_ips(inventory,
+                                                      roles_to_svcs.keys(),
+                                                      fqdn)
+        elif method == 'both':
+            roles_to_svcs = get_roles_to_svcs_from_roles(tripleo_roles)
+            roles_to_hosts = get_deployed_roles_to_hosts(deployed_metalsmith,
+                                                         roles_to_svcs.keys())
+            with open(tripleo_ansible_inventory, 'r') as stream:
+                inventory = yaml.safe_load(stream)
             hosts_to_ips = get_inventory_hosts_to_ips(inventory,
                                                       roles_to_svcs.keys(),
                                                       fqdn)
