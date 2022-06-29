@@ -214,9 +214,6 @@
     - ^tripleo_ansible/roles/backup_and_restore/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-backup_and_restore
     parent: tripleo-ansible-centos-stream-base
-    # Note(ChandanKumar): Marking this job to non-voting due to
-    # https://bugs.launchpad.net/tripleo/+bug/1980198
-    voting: false
     vars:
       tripleo_role_name: backup_and_restore
 - job:
