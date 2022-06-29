@@ -19,6 +19,7 @@
   package:
     name: cephadm
     state: latest
+    releasever: "{{ ansible_facts['distribution_major_version'] }}"
   when:
     - tripleo_cephadm_predeployed | bool
 

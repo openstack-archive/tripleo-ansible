@@ -2,42 +2,13 @@
 driver:
   name: podman
 
-log: true
-
-platforms:
-  - name: centos7
-    hostname: centos7
-    image: centos:7
-    dockerfile: Dockerfile
-    pkg_extras: python-setuptools cronie rsyslog
-    easy_install:
-      - pip
-    environment: &env
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-    privileged: true
-    ulimits: &ulimit
-      - host
-
-  - name: stream8
-    hostname: stream8
-    image: quay.io/centos/centos:stream8
-    dockerfile: Dockerfile
-    pkg_extras: python*-setuptools cronie rsyslog
-    environment:
-      http_proxy: "{{ lookup('env', 'http_proxy') }}"
-      https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    command: /sbin/init
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/dnf/vars:/etc/dnf/vars
-    privileged: true
-    ulimits: *ulimit
-
 provisioner:
+  inventory:
+    hosts:
+      all:
+        hosts:
+          centos:
+            ansible_python_interpreter: /usr/bin/python3
   name: ansible
   log: true
   env:

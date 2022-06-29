@@ -2,7 +2,6 @@
 - name: Prepare
   hosts: centos
   tasks:
-
     - name: "Enable delorean repos"
       command: |
         dnf config-manager --add-repo https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo

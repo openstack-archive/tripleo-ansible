@@ -32,7 +32,7 @@
           - python3-openstacksdk
           - python3-openstackclient
           - python3-keystoneclient
-          - ansible
+          - ansible-core
           - ansible-collections-openstack
 
     - name: Build keystone container

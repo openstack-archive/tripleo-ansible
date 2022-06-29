@@ -18,6 +18,7 @@
   package:
     name: 'openstack-tripleo-validations'
     state: installed
+    releasever: "{{ ansible_facts['distribution_major_version'] }}"
 
 - name: Set group name fact
   set_fact:

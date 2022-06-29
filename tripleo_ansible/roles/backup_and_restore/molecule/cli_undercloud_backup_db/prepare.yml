@@ -84,8 +84,8 @@
       containers.podman.podman_image:
         name: "{{ item }}"
       with_items:
-        - registry.access.redhat.com/ubi8/ubi-minimal
-        - mysql
+        - registry.access.redhat.com/ubi9/ubi-minimal
+        - docker.io/mysql
 
     - name: Create a data container
       containers.podman.podman_container:

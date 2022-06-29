@@ -7,11 +7,11 @@ driver:
 # That's why the config is kept here
 
 platforms:
-  - name: centos
-    hostname: centos
-    image: centos/centos:stream8
+  - name: ubi9
+    hostname: ubi9
+    image: ubi9/ubi-init
     registry:
-      url: quay.io
+      url: registry.access.redhat.com
     dockerfile: Dockerfile.j2
     pkg_extras: python*setuptools
     volumes:
@@ -32,7 +32,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          centos:
+          ubi9:
             ansible_python_interpreter: /usr/bin/python3
   log: true
   env:

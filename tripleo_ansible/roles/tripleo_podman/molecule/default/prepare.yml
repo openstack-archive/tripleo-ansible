@@ -33,6 +33,8 @@
         - ansible_user_dir is undefined
   roles:
     - role: test_deps
+      test_deps_extra_packages:
+        - runc
   post_tasks:
     - name: pull an image
       containers.podman.podman_image:

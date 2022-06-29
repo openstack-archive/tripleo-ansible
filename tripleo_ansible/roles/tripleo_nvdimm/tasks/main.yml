@@ -35,6 +35,7 @@
   package:
     name: "{{ pkgs }}"
     state: present
+    releasever: "{{ ansible_facts['distribution_major_version'] }}"
   vars:
     pkgs:
       - ndctl
