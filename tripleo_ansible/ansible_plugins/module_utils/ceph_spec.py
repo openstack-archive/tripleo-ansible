@@ -30,14 +30,7 @@ ALLOWED_HOST_PLACEMENT_MODE = ['hosts', 'host_pattern', 'label']
 CRUSH_ALLOWED_LOCATION = ['osd', 'host', 'chassis', 'rack', 'row', 'pdu', 'pod',
                           'room', 'datacenter', 'zone', 'region', 'root']
 
-ALLOWED_EXTRA_KEYS = {
-    'osd': [
-        'data_devices',
-        'db_devices',
-        'wal_devices',
-        'encrypted'
-    ]
-}
+ALLOWED_EXTRA_KEYS = dict()
 
 ALLOWED_SPEC_KEYS = {
     'rgw': [
