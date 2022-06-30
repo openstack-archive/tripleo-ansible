@@ -128,7 +128,7 @@ the healthcheck is periodically running and healthy:
 
 .. code-block:: bash
 
-    "Healthcheck": {
+    "Health": {
         "Status": "healthy",
         "FailingStreak": 0,
         "Log": [

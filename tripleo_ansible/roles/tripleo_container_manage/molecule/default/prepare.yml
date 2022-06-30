@@ -28,11 +28,13 @@
         path: '/tmp/container-configs'
         state: directory
     - name: Create a configuration file for a fedora container
+      # ipc mode added as WA for podman 4.1.x
       copy:
         content: |
           {
             "image": "fedora:latest",
             "net": "host",
+            "ipc": "shareable",
             "command": "sleep 3600",
             "restart": "always",
             "check_interval": "500s",
@@ -45,6 +47,7 @@
           {
             "image": "fedora:latest",
             "net": "host",
+            "ipc": "shareable",
             "command": "sleep 5"
           }
         dest: '/tmp/container-configs/fedora_bis.json'
@@ -54,6 +57,7 @@
           {
             "image": "fedora:latest",
             "net": "host",
+            "ipc": "shareable",
             "command": "sleep 5"
           }
         dest: '/tmp/container-configs/fedora_three.json'

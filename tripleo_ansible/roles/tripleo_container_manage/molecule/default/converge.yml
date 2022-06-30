@@ -94,7 +94,7 @@
         - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+              - "'healthy' in fedora_infos.containers.0.State.Health.Status"
             fail_msg: 'fedora container healthcheck is not healthy'
             success_msg: 'fedora container healthcheck is healthy'
         - name: Verify that Fedora systemd healthcheck container was removed correctly
@@ -240,7 +240,7 @@
         - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+              - "'healthy' in fedora_infos.containers.0.State.Health.Status"
             fail_msg: 'fedora container healthcheck is not healthy'
             success_msg: 'fedora container healthcheck is healthy'
         - name: Check for fedora_bis container
@@ -283,7 +283,7 @@
         - name: Check if tripleo_fedora healthcheck is active and healthy
           assert:
             that:
-              - "'healthy' in fedora_infos.containers.0.State.Healthcheck.Status"
+              - "'healthy' in fedora_infos.containers.0.State.Health.Status"
             fail_msg: 'fedora container healthcheck is not healthy'
             success_msg: 'fedora container healthcheck is healthy'
         - name: Check for fedora_bis container
