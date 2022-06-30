@@ -26,6 +26,7 @@ tripleo_ovn_cluster_nb_db_protocol: "{{ enable_internal_tls | bool | ternary('ss
 tripleo_ovn_cluster_nb_db_port: 6641
 tripleo_ovn_cluster_nb_local_port: 6643
 tripleo_ovn_cluster_nb_remote_port: 6643
+tripleo_ovn_cluster_nb_election_timer: 10
 tripleo_ovn_cluster_nb_ssl_key: /etc/pki/tls/private/ovn_dbs.key
 tripleo_ovn_cluster_nb_ssl_cert: /etc/pki/tls/certs/ovn_dbs.crt
 tripleo_ovn_cluster_nb_ssl_ca_cert: /etc/ipa/ca.crt
@@ -34,6 +35,7 @@ tripleo_ovn_cluster_sb_db_protocol: "{{ enable_internal_tls | bool | ternary('ss
 tripleo_ovn_cluster_sb_db_port: 6642
 tripleo_ovn_cluster_sb_local_port: 6644
 tripleo_ovn_cluster_sb_remote_port: 6644
+tripleo_ovn_cluster_sb_election_timer: 16
 tripleo_ovn_cluster_sb_ssl_key: /etc/pki/tls/private/ovn_dbs.key
 tripleo_ovn_cluster_sb_ssl_cert: /etc/pki/tls/certs/ovn_dbs.crt
 tripleo_ovn_cluster_sb_ssl_ca_cert: /etc/ipa/ca.crt
