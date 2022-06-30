@@ -47,6 +47,7 @@
         - syslinux
         - genisoimage
         - kbd
+    - role: env_data
 
   post_tasks:
     - name: Create hiera config file

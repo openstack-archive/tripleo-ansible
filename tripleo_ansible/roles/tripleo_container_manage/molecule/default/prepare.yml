@@ -22,6 +22,7 @@
     - role: test_deps
       test_deps_extra_packages:
         - podman
+    - role: env_data
   tasks:
     - name: Prepare the container configs directory
       file:

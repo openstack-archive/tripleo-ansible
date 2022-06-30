@@ -24,13 +24,9 @@
       - podman
   roles:
     - role: test_deps
+      required_packages: "{{ required_packages }}"
+    - role: env_data
   post_tasks:
-    - name: Install podman
-      become: true
-      package:
-        name: "{{ required_packages }}"
-        state: latest
-
     - name: Pull container image
       containers.podman.podman_image:
         name: fedora

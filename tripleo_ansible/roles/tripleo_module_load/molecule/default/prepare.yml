@@ -19,9 +19,6 @@
   hosts: all
   roles:
     - role: test_deps
-  post_tasks:
-    - name: Install additional dependencies
-      become: true
-      package:
-        name: kmod
-        state: present
+      test_deps_extra_packages:
+        - kmod
+    - role: env_data

@@ -7,7 +7,7 @@
       - tripleo-ansible-centos-stream-molecule-aide
       - tripleo-ansible-centos-stream-molecule-backup_and_restore
       - tripleo-ansible-centos-stream-molecule-designate_bind_config
-      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
+      - tripleo-ansible-centos-stream-molecule-env_data
       - tripleo-ansible-centos-stream-molecule-login_defs
       - tripleo-ansible-centos-stream-molecule-snapshot_and_revert
       - tripleo-ansible-centos-stream-molecule-test_deps
@@ -35,6 +35,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_hieradata
       - tripleo-ansible-centos-stream-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
@@ -75,7 +76,7 @@
       - tripleo-ansible-centos-stream-molecule-aide
       - tripleo-ansible-centos-stream-molecule-backup_and_restore
       - tripleo-ansible-centos-stream-molecule-designate_bind_config
-      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
+      - tripleo-ansible-centos-stream-molecule-env_data
       - tripleo-ansible-centos-stream-molecule-login_defs
       - tripleo-ansible-centos-stream-molecule-snapshot_and_revert
       - tripleo-ansible-centos-stream-molecule-test_deps
@@ -103,6 +104,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_hieradata
       - tripleo-ansible-centos-stream-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
@@ -144,7 +146,7 @@
       - tripleo-ansible-centos-stream-molecule-aide
       - tripleo-ansible-centos-stream-molecule-backup_and_restore
       - tripleo-ansible-centos-stream-molecule-designate_bind_config
-      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
+      - tripleo-ansible-centos-stream-molecule-env_data
       - tripleo-ansible-centos-stream-molecule-login_defs
       - tripleo-ansible-centos-stream-molecule-snapshot_and_revert
       - tripleo-ansible-centos-stream-molecule-test_deps
@@ -170,6 +172,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_hieradata
       - tripleo-ansible-centos-stream-molecule-tripleo_hosts_entries
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
@@ -216,6 +219,7 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: backup_and_restore
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/designate_bind_config/(?!meta).*
@@ -225,11 +229,11 @@
       tripleo_role_name: designate_bind_config
 - job:
     files:
-    - ^tripleo_ansible/roles/tripleo_iscsid/(?!meta).*
-    name: tripleo-ansible-centos-stream-molecule-tripleo_iscsid
+    - ^tripleo_ansible/roles/env_data/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-env_data
     parent: tripleo-ansible-centos-stream-base
     vars:
-      tripleo_role_name: tripleo_iscsid
+      tripleo_role_name: env_data
 - job:
     files:
     - ^tripleo_ansible/roles/login_defs/(?!meta).*
@@ -272,8 +276,6 @@
     - ^tox.ini
     name: tripleo-ansible-centos-stream-molecule-tripleo-modules
     parent: tripleo-ansible-centos-stream-base
-    # Note(ChandanKumar): Marking this job as non-voting due
-    # to https://bugs.launchpad.net/tripleo/+bug/1979807
     voting: false
 - job:
     files:
@@ -329,13 +331,11 @@
     parent: tripleo-ansible-centos-stream-base
     pre-run: zuul.d/playbooks/enable-fips.yml
     timeout: 7200
-    # Note(ChandanKumar): Marking this job as non-voting
-    # due to https://bugs.launchpad.net/tripleo/+bug/1979972
-    voting: false
     vars:
+      enable_fips: true
+      nslookup_target: opendev.org
       tripleo_role_name: tripleo_collectd
-      nslookup_target: 'opendev.org'
-      enable_fips: True
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
@@ -372,6 +372,7 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: tripleo_container_manage
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_container_rm/(?!meta).*
@@ -451,6 +452,13 @@
       tripleo_role_name: tripleo_image_serve
 - job:
     files:
+    - ^tripleo_ansible/roles/tripleo_iscsid/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_iscsid
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_iscsid
+- job:
+    files:
     - ^tripleo_ansible/roles/tripleo_kernel/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_kernel
     parent: tripleo-ansible-centos-stream-base
@@ -482,13 +490,10 @@
     - ^tripleo_ansible/roles/tripleo_metrics_qdr/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_metrics_qdr
     parent: tripleo-ansible-centos-stream-base
-    # Note(chandankumar): Making the job non-voting till
-    # https://bugs.launchpad.net/tripleo/+bug/1973874 gets
-    # fixed.
-    voting: false
     pre-run: zuul.d/playbooks/enable-fips.yml
     vars:
       tripleo_role_name: tripleo_metrics_qdr
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_module_load/(?!meta).*
@@ -609,11 +614,9 @@
     - ^tripleo_ansible/roles/tripleo_redhat_enforce/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_redhat_enforce
     parent: tripleo-ansible-centos-stream-base
-    # Note(chandankumar): Marking this job non-voting due
-    # to https://bugs.launchpad.net/tripleo/+bug/1979971
-    voting: false
     vars:
       tox_envlist: mol-tripleo_redhat_enforce
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_run_cephadm/(?!meta).*
@@ -676,11 +679,9 @@
     - ^tripleo_ansible/roles/tripleo_update_trusted_cas/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_update_trusted_cas
     parent: tripleo-ansible-centos-stream-base
-    # Note(ChandanKumar): Marking this job non-voting
-    # due to https://bugs.launchpad.net/tripleo/+bug/1979807
-    voting: false
     vars:
       tox_envlist: mol-tripleo_update_trusted_cas
+    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_upgrade_hiera/(?!meta).*

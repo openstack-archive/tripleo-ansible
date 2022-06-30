@@ -24,6 +24,7 @@
       test_deps_extra_packages:
         - facter
         - rsync
+    - role: env_data
   post_tasks:
     - name: Create container-puppet dir
       become: true

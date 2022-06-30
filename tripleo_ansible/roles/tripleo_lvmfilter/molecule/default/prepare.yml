@@ -22,3 +22,4 @@
       - lvm2
   roles:
     - role: test_deps
+    - role: env_data

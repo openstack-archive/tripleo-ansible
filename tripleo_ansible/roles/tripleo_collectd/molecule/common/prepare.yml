@@ -41,6 +41,7 @@
         # libpodstats
         - collectd-libpod-stats
         - procps-ng
+    - role: env_data
   tasks:
     - name: "Create a directory for the log file"
       file:

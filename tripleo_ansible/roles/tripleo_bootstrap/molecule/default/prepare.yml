@@ -17,8 +17,7 @@
 
 - name: Prepare
   hosts: all
-  tasks:
-    - include_role:
-        name: test_deps
-      vars:
-        test_deps_setup_tripleo: true
+  roles:
+    - role: test_deps
+      test_deps_setup_tripleo: true
+    - role: env_data

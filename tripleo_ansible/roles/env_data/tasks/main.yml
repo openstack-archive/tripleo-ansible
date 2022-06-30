@@ -1,5 +1,5 @@
 ---
-# Copyright 2021 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,16 @@
 # under the License.
 
 
-- name: Prepare
-  hosts: all
-  roles:
-    - role: test_deps
-    - role: env_data
+- name: Gather all installed packages
+  ansible.builtin.command: rpm -qa
+  register: package_list
+- name: Gather repository list
+  ansible.builtin.command: dnf repolist
+  register: repo_list
+- name: Output installed packages
+  ansible.builtin.debug:
+    msg: |
+      #### INSTALLED PACKAGES
+      {{ package_list.stdout }}
+      #### REPOSITORIES
+      {{ repo_list.stdout }}

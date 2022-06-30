@@ -17,11 +17,12 @@
 
 - name: Prepare
   hosts: all
+  roles:
+    - role: test_deps
+      test_deps_setup_tripleo: true
+    - role: env_data
+
   tasks:
-    - import_role:
-        name: test_deps
-      vars:
-        test_deps_setup_tripleo: true
     - name: Ensure legacy scripts installed
       become: true
       package:

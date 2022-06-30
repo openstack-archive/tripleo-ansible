@@ -24,6 +24,7 @@
       test_deps_setup_ceph: true
       test_deps_extra_packages:
         - openssh
+    - role: env_data
   tasks:
     - name: Ensure ceph-admin group exists
       become: true

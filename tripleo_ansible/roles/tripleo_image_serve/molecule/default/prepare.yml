@@ -19,3 +19,4 @@
   hosts: all
   roles:
     - role: test_deps
+    - role: env_data

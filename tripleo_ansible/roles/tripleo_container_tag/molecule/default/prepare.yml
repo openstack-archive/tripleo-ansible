@@ -24,9 +24,5 @@
       - podman
   roles:
     - role: test_deps
-  post_tasks:
-    - name: Install podman
-      become: true
-      package:
-        name: "{{ required_packages }}"
-        state: latest
+      test_deps_extra_packages: "{{ required_packages }}"
+    - role: env_data

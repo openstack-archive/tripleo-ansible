@@ -23,3 +23,4 @@
     - role: test_deps
       test_deps_setup_tripleo: true
       test_deps_setup_stream: true
+    - role: env_data

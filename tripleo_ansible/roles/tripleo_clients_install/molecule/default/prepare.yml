@@ -19,6 +19,6 @@
   hosts: all
   roles:
     - role: test_deps
-      vars:
-        test_deps_setup_tripleo: true
-        test_deps_setup_stream: true
+      test_deps_setup_tripleo: true
+      test_deps_setup_stream: true
+    - role: env_data

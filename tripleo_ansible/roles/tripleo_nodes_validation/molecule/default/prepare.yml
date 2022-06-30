@@ -21,3 +21,4 @@
     - role: test_deps
       test_deps_extra_packages:
         - iputils
+    - role: env_data
