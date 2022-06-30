@@ -14,6 +14,8 @@ OVN_NB_DB_OPTS="
 --db-nb-cluster-remote-proto={{ tripleo_ovn_cluster_nb_db_protocol }} \
 --db-nb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip }} \
 --db-nb-cluster-remote-port={{ tripleo_ovn_cluster_nb_remote_port }} \
+{% elif has_ovsdb_tool_election_timer|bool %}
+--db-nb-election-timer={{ tripleo_ovn_cluster_nb_election_timer * 1000 }} \
 {% endif %}
 --db-nb-cluster-local-proto={{ tripleo_ovn_cluster_nb_db_protocol }} \
 --db-nb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
@@ -35,6 +37,8 @@ OVN_SB_DB_OPTS="
 --db-sb-cluster-remote-proto={{ tripleo_ovn_cluster_sb_db_protocol }} \
 --db-sb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip }} \
 --db-sb-cluster-remote-port={{ tripleo_ovn_cluster_sb_remote_port }} \
+{% elif has_ovsdb_tool_election_timer|bool %}
+--db-sb-election-timer={{ tripleo_ovn_cluster_sb_election_timer * 1000 }} \
 {% endif %}
 --db-sb-cluster-local-proto={{ tripleo_ovn_cluster_sb_db_protocol }} \
 --db-sb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
