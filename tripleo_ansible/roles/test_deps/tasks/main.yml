@@ -14,6 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Gather facts if they don't exist
+  setup:
+    gather_subset: min
+  when: "'distribution' not in ansible_facts"
+  tags:
+    - always
 
 # "{{ role_name }}" will search for and load any operating system variable file
 # found within the "vars/" path. If no OS files are found the task will skip.
@@ -59,7 +65,7 @@
         state: absent
 
     - name: Disable ubi 9 repos
-      when: ansible_distribution_major_version is version(9, '>=')
+      when: ansible_facts['distribution_major_version'] is version(9, '>=')
       become: true
       yum_repository:
         name: "{{ item }}"

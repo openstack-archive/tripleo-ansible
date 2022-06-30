@@ -17,7 +17,7 @@
 - name: Gather facts if they don't exist
   setup:
     gather_subset: min
-  when: ansible_distribution is undefined
+  when: "'distribution' not in ansible_facts"
   tags:
     - always
 
