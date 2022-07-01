@@ -92,7 +92,6 @@ class TestTripleoComposableNetwork(tests_base.TestCase):
             'provider:network_type': 'flat',
             'provider:physical_network': 'netname',
             'provider:segmentation_id': 100,
-            'is_admin_state_up': False,
             'dns_domain': 'netname.localdomain',
             'name': 'netname'})
         module = mock.Mock()
