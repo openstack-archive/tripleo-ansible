@@ -1,7 +1,3 @@
 controls {
-{% if tripleo_dns_listen_interfaces is defined %}
 	inet {{ tripleo_dns_listen_interfaces[0] }} allow { {{ rndc_allowed_addresses|join(';') }}; } keys { "rndc-key"; };
-{% else %}
-        inet {{ external_ip|default(ctlplane_ip)|default('127.0.0.1') }} allow { {{ rndc_allowed_addresses|join(';') }}; } keys { "rndc-key"; };
-{% endif %}
 };

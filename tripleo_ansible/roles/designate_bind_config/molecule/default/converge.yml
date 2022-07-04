@@ -23,5 +23,4 @@
         name: designate_bind_config
       vars:
         designate_named_conf_path: "/etc"
-        ctlplane_ip: "192.168.24.32"
         tripleo_dns_listen_interfaces: ['127.0.0.1']
