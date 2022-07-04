@@ -112,7 +112,7 @@
   register: desync_output
   retries: 300
   delay: 5
-  until: desync_output.stderr == ""
+  until: desync_output.stderr == "" or '"WARN" in desync_output.stderr'
   when:
     - mysql_password.stderr is defined
     - enabled_galera
