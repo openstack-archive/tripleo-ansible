@@ -13,6 +13,7 @@
       - tripleo-ansible-centos-stream-molecule-test_deps
       - tripleo-ansible-centos-stream-molecule-test_package_action
       - tripleo-ansible-centos-stream-molecule-tripleo-modules
+      - tripleo-ansible-centos-stream-molecule-tripleo_auditd
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
@@ -82,6 +83,7 @@
       - tripleo-ansible-centos-stream-molecule-test_deps
       - tripleo-ansible-centos-stream-molecule-test_package_action
       - tripleo-ansible-centos-stream-molecule-tripleo-modules
+      - tripleo-ansible-centos-stream-molecule-tripleo_auditd
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
@@ -151,6 +153,7 @@
       - tripleo-ansible-centos-stream-molecule-snapshot_and_revert
       - tripleo-ansible-centos-stream-molecule-test_deps
       - tripleo-ansible-centos-stream-molecule-test_package_action
+      - tripleo-ansible-centos-stream-molecule-tripleo_auditd
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
@@ -277,6 +280,13 @@
     name: tripleo-ansible-centos-stream-molecule-tripleo-modules
     parent: tripleo-ansible-centos-stream-base
     voting: false
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_auditd/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_auditd
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_auditd
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_bootstrap/(?!meta).*
