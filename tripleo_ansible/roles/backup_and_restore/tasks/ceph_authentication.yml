@@ -55,13 +55,13 @@
   tags: bar_create_recover_image
   block:
     - name: Ensure cephmon container is running
-      command: "{{ tripleo_container_cli }} unpause ceph-mon-{{ inventory_hostname }}"
+      command: "{{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} unpause ceph-mon-{{ inventory_hostname }}"
       failed_when: false
 
     - name: Export ceph authentication
       shell: |
         set -o pipefail
-        {{ tripleo_container_cli }} exec ceph-mon-{{ inventory_hostname }} \
+        {{ tripleo_container_cli }} {{ tripleo_container_cli_flags }} exec ceph-mon-{{ inventory_hostname }} \
         bash -c "ceph --cluster {{ tripleo_backup_and_restore_ceph_cluster | default('ceph') }} auth export"
       register: bar_ceph_authentication_content
 
