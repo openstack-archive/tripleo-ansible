@@ -148,6 +148,8 @@ def get_network_info(conn, network_id):
             _dict.pop('admin_state_up')
         if _dict['vip'] == DEFAULT_NETWORK_VIP:
             _dict.pop('vip')
+        if _dict['dns_domain'] is None:
+            _dict.pop('dns_domain')
 
     network = conn.network.get_network(network_id)
     tag_dict = n_utils.tags_to_dict(network.tags)
