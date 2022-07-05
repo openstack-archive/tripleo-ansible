@@ -240,8 +240,7 @@ def main():
     try:
         # Get the network configs data for the required role name
         network_configs = stack_param_utils.get_network_configs(
-            tripleo.get_object_client(),
-            tripleo.get_orchestration_client(),
+            heat=tripleo.get_orchestration_client(),
             container=module.params["container"],
             role_name=module.params["role_name"]
         )
