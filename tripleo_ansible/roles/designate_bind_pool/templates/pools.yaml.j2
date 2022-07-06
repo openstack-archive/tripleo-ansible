@@ -15,8 +15,6 @@
       priority: {{ loop.index }}
     {% endfor %}
 
-  # List out the nameservers for this pool. These are the actual BIND servers.
-  # We use these to verify changes have propagated to all nameservers.
   nameservers:
     {% for nameserver in groups.designate_bind -%}
 
@@ -24,21 +22,11 @@
       port: 53
     {% endfor %}
 
-  # List out the targets for this pool. For BIND there will be one
-  # entry for each BIND server, as we have to run rndc command on each server
   targets:
     {% for server in groups.designate_bind -%}
     - type: bind9
       description: BIND9 Server {{ loop.index }}
 
-      # List out the designate-mdns servers from which BIND servers should
-      # request zone transfers (AXFRs) from.
-      # This should be the IP of the controller node.
-      # If you have multiple controllers you can add multiple masters
-      # by running designate-mdns on them, and adding them here.
-      # XXX(beagles): these are just internal API atm but there really needs to
-      # be a public VIP endpoint for each and will be addressed in a followup
-      # patch.
       masters:
         {% for minidns_server in designate_mdns_node_ips -%}
         - host: {{ net_vip_map[service_net_map['public_network']] }}
@@ -53,4 +41,24 @@
         rndc_port:  953
         rndc_config_file: {{ keyfile_base_path|default('/etc/designate/private/bind') }}{{ loop.index }}.conf
 
+    {% endfor %}
+
+    # Configure targets for user provided bind servers.
+    {% for server in tripleo_external_bind_servers -%}
+    - type: bind9
+      description: External BIND9 Server {{ loop.index }}
+
+      masters:
+        {% for minidns_server in designate_mdns_node_ips -%}
+        - host: {{ net_vip_map[service_net_map['public_network']] }}
+          port: {{ minidns_proxy_base_port + loop.index -1 }}
+        {% endfor %}
+
+      # BIND options:
+      options:
+        host: {{ server.host }}
+        port: {{ server.port|default(53) }}
+        rndc_host: {{ server.rndc_host|default(server.host) }}
+        rndc_port: {{ server.rndc_port|default(953) }}
+        rndc_config_file: {{ keyfile_base_path|default('/etc/designate/private/xbind') }}{{ loop.index }}.conf
     {% endfor %}
