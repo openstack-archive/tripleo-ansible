@@ -15,12 +15,9 @@
   fail:
     msg: >-
       Your environment is not subscribed!
-      If it is expected, please set SkipRhelEnforcement to true.
-      For Director the documentation is there
-      https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.0/html-single/
-      director_installation_and_usage/index#configuring-the-undercloud-with-environment-files,
-      for the Overcloud you need to add a new parameter file to your deploy
-      command with that parameter set. You can also disable it in the role, see rhsm_enforce role parameter.
+      If it is expected, please set SkipRhelEnforcement to true in the heat
+      parameter.
+      You can also disable it in the role, see rhsm_enforce role parameter.
       If this is unexpected, you have to subscribe this node and
       ensure that RHEL is pinned to {{ tripleo_redhat_enforce_os }} as
       this is the only version supported for {{ tripleo_redhat_enforce_osp }}.
