@@ -1,0 +1,11 @@
+key "rndc-key" {
+        algorithm hmac-sha256;
+        secret "{{ designate_rndc_key }}";
+};
+
+options {
+{% if defined designate_worker_source_address %}
+    default-source-address {{ designate_worker_source_address }};
+{% endif %}
+    default-key "rndc-key";
+};

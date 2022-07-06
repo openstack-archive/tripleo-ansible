@@ -1,0 +1,20 @@
+key "rndc-key" {
+        algorithm hmac-sha256;
+        secret "{{ designate_rndc_key }}";
+};
+
+options {
+{% if designate_worker_network is defined %}
+{% set designate_worker_source_address = hostvars[inventory_hostname][designate_worker_network + "_ip"] %}
+{% elif 'internal_api_ip' in hostvars[inventory_hostname] %}
+{% set designate_worker_source_address = hostvars[inventory_hostname]['internal_api_ip'] %}
+{% else %}
+{% set designate_worker_source_address = hostvars[inventory_hostname]['ctlplane_ip'] %}
+{% endif %}
+{% if designate_worker_source_address|ipv4 %}
+    default-source-address {{ designate_worker_source_address }};
+{% elif designate_worker_source_address|ipv6 %}
+    default-source-address-v6 {{ designate_worker_source_address }};
+{% endif %}
+    default-key "rndc-key";
+};
