@@ -7,10 +7,8 @@
 egg
 .coverage
 cover
-.tox
 nosetests.xml
 .testrepository
-.venv
 .stestr
 tripleo_ansible.egg-info/
 __pycache__
