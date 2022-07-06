@@ -20,7 +20,6 @@ import time
 from ansible import constants as C
 from ansible.errors import AnsibleAssertionError
 from ansible.executor.play_iterator import PlayIterator
-from ansible.module_utils.six import iteritems
 from ansible.playbook.block import Block
 from ansible.playbook.task import Task
 from ansible.template import Templar
@@ -118,7 +117,7 @@ class StrategyModule(BASE.TripleoBase):
 
         self._debug('organize tasks by state')
         host_tasks_to_run = [(host, state_task)
-                             for host, state_task in iteritems(host_tasks)
+                             for host, state_task in host_tasks.items()
                              if state_task and state_task[1]]
 
         # figure out our current block
