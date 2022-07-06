@@ -1,23 +1,4 @@
 ---
-driver:
-  name: delegated
-  options:
-    managed: false
-    login_cmd_template: >-
-      ssh
-      -o UserKnownHostsFile=/dev/null
-      -o StrictHostKeyChecking=no
-      -o Compression=no
-      -o TCPKeepAlive=yes
-      -o VerifyHostKeyDNS=no
-      -o ForwardX11=no
-      -o ForwardAgent=no
-      {instance}
-    ansible_connection_options:
-      ansible_connection: ssh
-
-log: true
-
 platforms:
   - name: instance
     pkg_extras: libselinux-python* policycoreutils-python-utils
