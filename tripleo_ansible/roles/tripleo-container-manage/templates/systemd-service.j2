@@ -2,8 +2,8 @@
 Description={{ lookup('dict', container_data).key }} container
 After=tripleo-container-shutdown.service
 {% if lookup('dict', container_data).value.depends_on | default([]) | length > 0 %}
-After={{ lookup('dict', container_data).value.depends_on | default([]) | join(',') }}
-Wants={{ lookup('dict', container_data).value.depends_on | default([]) | join(',') }}
+After={{ lookup('dict', container_data).value.depends_on | default([]) | join(' ') }}
+Wants={{ lookup('dict', container_data).value.depends_on | default([]) | join(' ') }}
 {% endif %}
 [Service]
 Restart=always
