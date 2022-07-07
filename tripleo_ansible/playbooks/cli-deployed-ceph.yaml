@@ -199,6 +199,11 @@
         name: tripleo_cephadm
         tasks_from: bootstrap
 
+    - name: Configure public/private network and ms_bind ipv4/v6
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: network_config_set
+
     - name: Prepare Ceph VIPs
       import_role:
         name: tripleo_cephadm
