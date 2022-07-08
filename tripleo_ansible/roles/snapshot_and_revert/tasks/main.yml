@@ -16,65 +16,65 @@
 
 - name: Use LVM snapshots if LVM is defined
   when:
-    - ansible_lvm is defined
-    - ansible_lvm.lvs is defined
-    - ansible_lvm.vgs is defined
-    - ansible_lvm.vgs.vg is defined
+    - ansible_facts.lvm is defined
+    - ansible_facts.lvm.lvs is defined
+    - ansible_facts.lvm.vgs is defined
+    - ansible_facts.lvm.vgs.vg is defined
   block:
     - name: Delete the lv_snapshot volume if it exists
       command: lvremove -f /dev/vg/lv_snapshot
       when:
-        - ansible_lvm.lvs.lv_snapshot is defined
-        - ansible_lvm.lvs.lv_snapshot.size_g|float >= 8.00
+        - ansible_facts.lvm.lvs.lv_snapshot is defined
+        - ansible_facts.lvm.lvs.lv_snapshot.size_g|float >= 8.00
 
     - name: Clean audit snapshot volume
       command: lvremove -f /dev/vg/ss_audit
-      when: ansible_lvm.lvs.ss_audit is defined
+      when: ansible_facts.lvm.lvs.ss_audit is defined
 
     - name: Clean home snapshot volume
       command: lvremove -f /dev/vg/ss_home
-      when: ansible_lvm.lvs.ss_home is defined
+      when: ansible_facts.lvm.lvs.ss_home is defined
 
     - name: Clean log snapshot volume
       command: lvremove -f /dev/vg/ss_log
-      when: ansible_lvm.lvs.ss_log is defined
+      when: ansible_facts.lvm.lvs.ss_log is defined
 
     - name: Clean root snapshot volume
       command: lvremove -f /dev/vg/ss_root
-      when: ansible_lvm.lvs.ss_root is defined
+      when: ansible_facts.lvm.lvs.ss_root is defined
 
     - name: Clean srv snapshot volume
       command: lvremove -f /dev/vg/ss_srv
-      when: ansible_lvm.lvs.ss_srv is defined
+      when: ansible_facts.lvm.lvs.ss_srv is defined
 
     - name: Clean var snapshot volume
       command: lvremove -f /dev/vg/ss_var
-      when: ansible_lvm.lvs.ss_var is defined
+      when: ansible_facts.lvm.lvs.ss_var is defined
 
     - name: Create lvm snapshot if there are at least 8GB of free space in the vg volumegroup
       when:
-        - ansible_lvm.vgs.vg.free_g|float >= 8.00
+        - ansible_facts.lvm.vgs.vg.free_g|float >= 8.00
       block:
         - name: Create audit snapshot volume
           command: lvcreate -s -n ss_audit -L {{ tripleo_snapshot_revert_audit_size }} /dev/vg/lv_audit
-          when: ansible_lvm.lvs.lv_audit is defined
+          when: ansible_facts.lvm.lvs.lv_audit is defined
 
         - name: Create home snapshot volume
           command: lvcreate -s -n ss_home -L {{ tripleo_snapshot_revert_home_size }} /dev/vg/lv_home
-          when: ansible_lvm.lvs.lv_home is defined
+          when: ansible_facts.lvm.lvs.lv_home is defined
 
         - name: Create log snapshot volume
           command: lvcreate -s -n ss_log -L {{ tripleo_snapshot_revert_log_size }} /dev/vg/lv_log
-          when: ansible_lvm.lvs.lv_log is defined
+          when: ansible_facts.lvm.lvs.lv_log is defined
 
         - name: Create root snapshot volume
           command: lvcreate -s -n ss_root -L {{ tripleo_snapshot_revert_root_size }} /dev/vg/lv_root
-          when: ansible_lvm.lvs.lv_root is defined
+          when: ansible_facts.lvm.lvs.lv_root is defined
 
         - name: Create srv snapshot volume
           command: lvcreate -s -n ss_srv -L {{ tripleo_snapshot_revert_srv_size }} /dev/vg/lv_srv
-          when: ansible_lvm.lvs.lv_srv is defined
+          when: ansible_facts.lvm.lvs.lv_srv is defined
 
         - name: Create var snapshot volume
           command: lvcreate -s -n ss_var -L {{ tripleo_snapshot_revert_var_size }} /dev/vg/lv_var
-          when: ansible_lvm.lvs.lv_var is defined
+          when: ansible_facts.lvm.lvs.lv_var is defined
