@@ -16,7 +16,7 @@
 
 
 - name: Gather all installed packages
-  ansible.builtin.command: rpm -qa
+  ansible.builtin.shell: rpm -qa | sort
   register: package_list
 - name: Gather repository list
   ansible.builtin.command: dnf repolist
