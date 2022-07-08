@@ -29,7 +29,8 @@
     gate:
       jobs:
       - tripleo-ci-centos-8-content-provider
-      - tripleo-ci-centos-9-content-provider
+      - tripleo-ci-centos-9-content-provider:
+          irrelevant-files: *provider_deps_irrelevant
       - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
     post:
