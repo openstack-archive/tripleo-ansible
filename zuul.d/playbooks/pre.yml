@@ -2,14 +2,11 @@
 
 - hosts: all
   pre_tasks:
+    - name: Create directories
+      import_tasks: directories.yml
     - name: Set project path fact
       set_fact:
         tripleo_ansible_project_path: "{{ ansible_user_dir }}/{{ zuul.projects['opendev.org/openstack/tripleo-ansible'].src_dir }}"
-
-    - name: Ensure output dirs
-      file:
-        path: "{{ ansible_user_dir }}/zuul-output/logs"
-        state: directory
 
     - name: Ensure pip is available
       include_role:
@@ -52,16 +49,6 @@
     - name: Basic ci setup
       become: true
       block:
-        - name: Ensure ci directories
-          file:
-            path: "/etc/ci"
-            state: "directory"
-
-        - name: Ensure ci mirror file
-          file:
-            path: "/etc/ci/mirror_info.sh"
-            state: "touch"
-
         - name: Set an appropriate fs.file-max
           sysctl:
             name: fs.file-max
@@ -85,13 +72,6 @@
               * soft nproc 2048
               * hard nproc 4096
             dest: /etc/security/limits.d/containers.conf
-
-        - name: Copy repos directory to opt workspace
-          copy:
-            src: /etc/yum.repos.d
-            dest: /opt/
-            remote_src: true
-            mode: "0777"
 
         - name: Reset ssh connection
           meta: reset_connection
