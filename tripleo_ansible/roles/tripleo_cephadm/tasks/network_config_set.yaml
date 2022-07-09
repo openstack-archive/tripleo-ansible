@@ -1,4 +1,9 @@
 ---
+- name: Ensure tripleo_cephadm_ceph_cli is set
+  include_tasks: ceph_cli.yaml
+  when:
+    - tripleo_cephadm_ceph_cli is not defined
+
 - name: Define list of keys to search for in initial ceph conf file
   set_fact:
     keys_in_ceph_conf: []
