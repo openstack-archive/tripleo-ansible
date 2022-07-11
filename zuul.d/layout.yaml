@@ -13,8 +13,6 @@
       - tripleo-ci-centos-9-content-provider:
           dependencies:
             - openstack-tox-linters
-          irrelevant-files: &irrelevant_files
-          - ^tox.ini$
       - openstack-tox-linters
       - openstack-tox-docs: &tripleo-docs
           files:
@@ -26,8 +24,7 @@
 
     gate:
       jobs:
-      - tripleo-ci-centos-9-content-provider:
-          irrelevant-files: *irrelevant_files
+      - tripleo-ci-centos-9-content-provider
       - openstack-tox-linters
       - openstack-tox-docs: *tripleo-docs
     post:
