@@ -206,11 +206,12 @@ class ContainerPuppetManager:
                     returned_dict[config_volume]['config_image']
                 )
                 if volumes:
-                    volumes_orig = returned_dict[config_volume].get('volumes', [])
-                    if volumes_orig:
-                        volumes = volumes_orig.extend(volumes)
+                    volumes_orig = (
+                        returned_dict[config_volume].get('volumes', [])
+                    )
+                    volumes_orig.extend(volumes)
                     returned_dict[config_volume]['volumes'] = (
-                        sorted(set(volumes))
+                        sorted(set(volumes_orig))
                     )
                 if puppet_tags is not None:
                     returned_dict[config_volume]['puppet_tags'] = '%s,%s' % (
