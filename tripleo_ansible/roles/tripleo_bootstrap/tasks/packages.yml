@@ -61,6 +61,7 @@
     - rpm_query_result.rc > 0
 
 - name: Ensure packages are actually well installed
+  become: true
   command: "rpm -V {{ tripleo_bootstrap_packages_bootstrap | join(' ') }}"
   register: rpm_verify_result
   failed_when:
