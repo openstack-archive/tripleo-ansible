@@ -2,12 +2,25 @@
 - name: ensure rndc configuration path exists
   become: true
   file:
-      path: "{{ designate_worker_config_file_path }}/private"
-      state: directory
+    path: "{{ designate_worker_config_file_path }}/private"
+    state: directory
 
 - name: create rndc configurations for each bind instance
   become: true
   template:
-      src: rndc.conf.j2
-      dest: "{{ designate_worker_config_file_path }}/private/bind{{ item.0|int + 1 }}.conf"
-  with_indexed_items: "{{ designate_bind_node_ips  }}"
+    src: rndc.conf.j2
+    dest: "{{ designate_worker_config_file_path }}/private/bind{{ index|int + 1 }}.conf"
+  loop: "{{ designate_bind_node_ips|flatten(levels=1) }}"
+  loop_control:
+    index_var: index
+
+- name: create rndc configurations for each external bind instance
+  become: true
+  template:
+    src: rndc.conf.j2
+    dest: "{{ designate_worker_config_file_path }}/private/xbind{{ index|int + 1 }}.conf"
+  vars:
+    server_rndc_key: "{{ item.rndc_key }}"
+  loop: "{{ tripleo_external_bind_servers|flatten(levels=1) }}"
+  loop_control:
+    index_var: index
