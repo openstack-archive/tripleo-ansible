@@ -49,13 +49,6 @@ DOCUMENTATION = '''
         - Will fail playbook if any hosts have a failure during the
           execution and any_errors_fatal is true (free does not do this).
         - Should be backwards compatible for Ansible 2.8
-        - Handles run_once to only invoke the task a single time for a
-          given run. It should be noted that run_once does not ensure the
-          task actually is successful but rather that it is only triggered
-          once time for the host groups. If the task fails, the playbook
-          will fail at the end of the play but there is no assurance that
-          the task will actually complete successfully for a given playbook
-          execution. Other tasks will continue on the other hosts.
     version_added: "2.9"
     author: Alex Schultz <aschultz@redhat.com>
 '''
@@ -211,22 +204,11 @@ class StrategyModule(BASE.TripleoBase):
                     and getattr(action, 'BYPASS_HOST_LOOP', False))
 
         if run_once:
-            display.warning('tripleo_free run_once does not ensure a task '
-                            'is successful for a given playbook but rather '
-                            'it is only attempted to execute once.')
             if action and getattr(action, 'BYPASS_HOST_LOOP', False):
-                raise AnsibleError('Cannot bypass host loop with strategy')
+                raise AnsibleError('Cannot bypass host loop with ansible_free strategy')
             else:
-                if task._uuid in self._run_once_tasks:
-                    # If the task was previously executed, just drop it
-                    # by clearing the blocked host and telling the parent
-                    # function to continue.
-                    self._debug("Skipping run_once task {} on {}".format(
-                        task._uuid, host))
-                    del self._blocked_hosts[host_name]
-                    raise TripleoFreeContinue()
-                else:
-                    self._run_once_tasks.add(task._uuid)
+                display.warning("Using run_once with the tripleo_free strategy is not currently supported. "
+                                "This task will still be executed for every host in the inventory list.")
 
         # handle role deduplication logic
         if task._role and task._role.has_run(host):
