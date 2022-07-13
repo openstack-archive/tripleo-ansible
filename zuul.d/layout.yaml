@@ -4,6 +4,7 @@
     - tripleo-ansible-molecule-jobs
     - release-notes-jobs-python3
     - openstack-python3-zed-jobs
+    - tripleo-external-compute-deployment-pipeline
     - tripleo-multinode-container-minimal-pipeline
     - tripleo-standalone-scenarios-pipeline
     - tripleo-undercloud-jobs-pipeline
