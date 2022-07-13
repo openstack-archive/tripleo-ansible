@@ -106,6 +106,7 @@
       tripleo_enabled_services: {{ enabled_services | default([]) }}
       tripleo_cephadm_fqdn: "{{ ceph_spec_fqdn | bool }}"
       tripleo_cephadm_spec_ansible_host: "{{ tripleo_run_cephadm_spec_path }}"
+      tripleo_ceph_client_vars: "{{ playbook_dir }}/cephadm/ceph_client.yml"
       tripleo_cephadm_internal_tls_enabled: "{{ enable_internal_tls }}"
       tripleo_cephadm_num_osd_expected: "{{ groups['ceph_osd'] | default([]) | length }}"
       tripleo_cephadm_deployed_ceph: {{ tripleo_cephadm_deployed_ceph | default(false) }}
