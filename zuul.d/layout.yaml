@@ -13,8 +13,6 @@
       - tripleo-ci-centos-8-content-provider: &tripleo_cp
           dependencies:
             - openstack-tox-linters
-          irrelevant-files: &provider_deps_irrelevant
-          - ^tox.ini$
       - tripleo-ci-centos-9-content-provider: *tripleo_cp
       - openstack-tox-linters: &tripleo-linters
           nodeset: centos-8-stream
@@ -29,8 +27,7 @@
     gate:
       jobs:
       - tripleo-ci-centos-8-content-provider
-      - tripleo-ci-centos-9-content-provider:
-          irrelevant-files: *provider_deps_irrelevant
+      - tripleo-ci-centos-9-content-provider
       - openstack-tox-linters: *tripleo-linters
       - openstack-tox-docs: *tripleo-docs
     post:
