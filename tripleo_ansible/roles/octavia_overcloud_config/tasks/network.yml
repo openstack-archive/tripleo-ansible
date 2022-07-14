@@ -107,7 +107,7 @@
 - name: create security group rule for log offloading
   openstack.cloud.security_group_rule:
     security_group: "{{ lb_health_mgr_sec_grp_name }}"
-    protocol: udp
+    protocol: "{{ log_offload_protocol }}"
     port_range_min: 514
     port_range_max: 514
     remote_ip_prefix: 0.0.0.0/0
