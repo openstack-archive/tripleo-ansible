@@ -1,0 +1,19 @@
+ log
+{%- if 'group' in rule or 'nft_group' in rule %}
+ group {{ rule.get('group', rule.get('nft_group')) }}
+{%- endif %}
+{%- if 'prefix' in rule or 'nft_prefix' in rule %}
+ prefix "{{ rule.get('prefix', rule.get('nft_prefix')) }}"
+{%- endif %}
+{%- if 'level' in rule or 'nft_level' in rule%}
+ level {{ rule.get('level', rule.get('nft_level')) }}
+{%- endif %}
+{%- if 'flags' in rule or 'nft_flags' in rule%}
+ flags {{ rule.get('flags', rule.get('nft_flags')) }}
+{%- endif %}
+{%- if 'queue_threshold' in rule or 'nft_queue_threshold' in rule%}
+ queue-threshold {{ rule.get('queue_threshold', rule.get('nft_queue_threshold')) }}
+{%- endif %}
+{%- if 'snaplen' in rule or 'nft_snaplen' in rule %}
+ snaplen {{ rule.get('snaplen', rule.get('nft_snaplen')) }}
+{%- endif %}

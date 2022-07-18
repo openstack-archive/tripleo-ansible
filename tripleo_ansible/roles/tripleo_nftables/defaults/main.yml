@@ -52,6 +52,10 @@ tripleo_nftables_rules:
       limit: 20/min
       limit_burst: 15
       proto: all
+      level: 'warn'
+      flags: 'all'
+      prefix: 'DROPPING: '
+      state: []
     rule_name: 998 log all
   - rule:
       action: drop
