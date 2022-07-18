@@ -63,3 +63,4 @@ scenario:
     - check
     - verify
     - destroy
+    - cleanup
