@@ -47,7 +47,17 @@
         name: "{{ tripleo_firewall_packages }}"
         state: present
 
-    - name: Ensure firewall is enabled
+    - name: Create empty ruleset in /etc/sysconfig/iptables and /etc/sysconfig/ip6tables
+      become: true
+      ignore_errors: "{{ (((ansible_facts['os_family'] | lower) ~ '-' ~ ansible_facts['distribution_major_version']) == 'redhat-7') | bool }}"
+      copy:
+        dest: "{{ item }}"
+        content: "# empty ruleset created by deployed-server bootstrap"
+      loop:
+        - /etc/sysconfig/iptables
+        - /etc/sysconfig/ip6tables
+
+    - name: Ensure firewall is enabled/started
       systemd:
         name: iptables
         state: started
@@ -56,7 +66,6 @@
     - name: Manage firewall rules
       tripleo_iptables:
         tripleo_rules: "{{ firewall_rules_sorted }}"
-      register: _iptables_result
 
     # If the iptables file is still empty at this point, we need to run iptables-save.
     # We can assume that if the iptables file is empty, the ip6tables file is probably
@@ -71,9 +80,6 @@
       register: _empty_ruleset
 
 - name: Firewall save block
-  when:
-    - _iptables_result.changed or
-      _empty_ruleset.changed
   become: true
   block:
     - name: Save firewall rules ipv4
