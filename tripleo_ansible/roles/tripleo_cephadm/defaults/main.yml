@@ -34,7 +34,6 @@ tripleo_cephadm_uid: "167"
 tripleo_cephadm_mode: "0755"
 tripleo_cephadm_keyring_permissions: "0644"
 tripleo_ceph_client_config_home: "/etc/ceph"
-tripleo_ceph_client_vars: "{{ playbook_dir }}/cephadm/ceph_client.yml"
 tripleo_cephadm_dashboard_enabled: false
 tripleo_cephadm_wait_for_mons: true
 tripleo_cephadm_wait_for_mons_retries: 10
