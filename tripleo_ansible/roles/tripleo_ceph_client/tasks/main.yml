@@ -28,15 +28,18 @@
   stat:
     path: '{{ tripleo_ceph_client_vars }}'
   register: ceph_input_vars
+  when: tripleo_ceph_client_vars is defined
 
 - name: Load variables produced by the cephadm provisioning process
   include_vars: '{{ tripleo_ceph_client_vars }}'
-  when: ceph_input_vars.stat.exists == True
+  when:
+    - tripleo_ceph_client_vars is defined
+    - ceph_input_vars.stat.exists == True
 
 - name: Get Ceph Cluster variables if ceph-ansible deployed
   include_tasks: ceph_ansible.yml
   when:
-    - ceph_input_vars.stat.exists == False
+    - tripleo_ceph_client_vars is not defined
     - ceph_ansible_group_vars_all is defined
 
 - name: Configure multiple external ceph clusters
