@@ -59,9 +59,11 @@ tripleo_firewall_default_rules:
   '001 accept all ipv6-icmp':
     ipversion: ipv6
     proto: ipv6-icmp
+    state: []
   '002 accept all to lo interface':
     proto: all
     interface: lo
+    state: []
   '004 accept ipv6 dhcpv6':
     ipversion: ipv6
     dport: 546
