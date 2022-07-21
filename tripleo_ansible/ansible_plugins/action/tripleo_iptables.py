@@ -173,6 +173,9 @@ class ActionModule(ActionBase):
             rule_data = dict()
             rule = item['rule']
 
+            # Ensure we filter out the nftables dedicated keys
+            rule = {k: rule[k] for k in rule if not k.startswith('nft_')}
+
             ipversions = rule.get('ipversion', ['ipv4', 'ipv6'])
             if not isinstance(ipversions, list):
                 ipversions = [ipversions]
