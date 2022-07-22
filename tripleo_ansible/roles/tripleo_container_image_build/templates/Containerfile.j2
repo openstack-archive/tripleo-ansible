@@ -14,7 +14,7 @@
 # under the License.
 
 {% for key, value in tcib_args.items() %}
-ARG = {{ key }}={{ value | to_json }}
+ARG {{ key }}={{ value | to_json }}
 {% endfor %}
 FROM {{ tcib_from }}
 {% for key, value in tcib_labels.items() %}
