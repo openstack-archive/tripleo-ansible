@@ -1238,13 +1238,14 @@ class TestCheckExistingInstances(base.TestCase):
              'image': {'href': 'overcloud-full'}},
         ]
         existing = mock.MagicMock(
-            uuid='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
+            uuid='aaaa', name='bm_node1', hostname='wrong_hostname',
+            allocation=None,
             state=metalsmith.InstanceState.ACTIVE)
         pr.show_instance.return_value = existing
         baremetal.get_node.return_value.instance_info = {
             'display_name': 'correct_hostname'}
-        baremetal.get_allocation.side_effect = sdk_exc.ResourceNotFound
-
+        baremetal.get_allocation.side_effect = [sdk_exc.ResourceNotFound,
+                                                mock.MagicMock()]
         found, not_found, unmanaged = bd.check_existing(instances, pr,
                                                         baremetal)
 
@@ -1271,9 +1272,11 @@ class TestCheckExistingInstances(base.TestCase):
              'image': {'href': 'overcloud-full'}},
         ]
         existing = mock.MagicMock(
-            id='aaaa', name='bm_node1', hostname='wrong_hostname', allocation=None,
+            id='aaaa', name='bm_node1', hostname='wrong_hostname',
+            allocation=mock.MagicMock(),
             state=metalsmith.InstanceState.ACTIVE)
         pr.show_instance.return_value = existing
+        baremetal.get_allocation.return_value = mock.MagicMock()
         baremetal.get_node.return_value.instance_info = {
             'display_name': 'mismatching_hostname'}
         exc = self.assertRaises(
