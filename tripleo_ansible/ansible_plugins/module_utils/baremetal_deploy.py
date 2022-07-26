@@ -475,20 +475,6 @@ def check_existing(instances, provisioner, baremetal):
             raise BaremetalDeployException(
                 "%s. %s: %s" % (message, type(exc).__name__, exc))
         else:
-            # NOTE(dtantsur): metalsmith can match instances by node names,
-            # provide a safeguard to avoid conflicts
-            if (instance.hostname
-                    and instance.hostname != request['hostname']):
-                node = baremetal.get_node(instance.uuid)
-                if (node.instance_info.get('display_name')
-                        != request['hostname']):
-                    error = ("Requested hostname %s was not found, but the "
-                             "deployed node %s has a matching name. Refusing "
-                             "to proceed to avoid confusing results. Please "
-                             "either rename the node or use a different "
-                             "hostname") % (request['hostname'], instance.uuid)
-                    raise BaremetalDeployException(error)
-
             if (not instance.allocation
                     and instance.state == metalsmith.InstanceState.ACTIVE
                     and 'name' in request):
@@ -514,6 +500,25 @@ def check_existing(instances, provisioner, baremetal):
                 # Refresh the instance after adding the allocation
                 # See: https://bugs.launchpad.net/tripleo/+bug/1929555
                 instance = provisioner.show_instance(instance.uuid)
+
+            # NOTE(dtantsur): metalsmith can match instances by node names,
+            # provide a safeguard to avoid conflicts
+            if (instance.hostname
+                    and instance.hostname != request['hostname']):
+                try:
+                    allocation = baremetal.get_allocation(request['hostname'])
+                    node = baremetal.get_node(allocation.node_id)
+                    if (node.instance_info.get('display_name')
+                            != request['hostname']):
+                        error = ("Requested hostname %s was not found, but "
+                                 "the deployed node %s has a matching name. "
+                                 "Refusing to proceed to avoid confusing "
+                                 "results. Please either rename the node or "
+                                 "use a different hostname") % (
+                                     request['hostname'], instance.uuid)
+                        raise BaremetalDeployException(error)
+                except sdk.exceptions.ResourceNotFound:
+                    continue
             found.append(instance)
 
     return found, not_found, unmanaged
