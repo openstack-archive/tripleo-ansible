@@ -24,3 +24,4 @@
         designate_rndc_key: "dummy-rndc-key"
         rndc_allowed_addresses: ["172.17.2.0/24"]
         tripleo_dns_listen_interfaces: ["172.168.10.99"]
+        designate_worker_node_ips: ["10.0.0.5", "10.0.0.6", "10.0.0.7"]

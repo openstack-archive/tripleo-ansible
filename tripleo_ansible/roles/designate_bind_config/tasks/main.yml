@@ -10,6 +10,8 @@
   template:
     src: options.conf.j2
     dest: "{{ designate_named_conf_path }}/named/options.conf"
+  vars:
+    notify_sources: "{{ designate_worker_node_ips }}"
 
 - name: generate named/rndc.conf
   become: true
