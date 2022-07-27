@@ -18,20 +18,6 @@
 # "tripleo_keystone_resources" will search for and load any operating system variable file
 
 # found within the "vars/" path. If no OS files are found the task will skip.
-- name: Gather variables for each operating system
-  include_vars: "{{ item }}"
-  with_first_found:
-    - skip: true
-      files:
-        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] | lower }}.yml"
-        - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_major_version'] | lower }}.yml"
-        - "{{ ansible_facts['distribution'] | lower }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}-{{ ansible_facts['distribution_version'].split('.')[0] }}.yml"
-        - "{{ ansible_facts['os_family'] | lower }}.yml"
-  tags:
-    - always
-
 - name: Create Keystone Admin resources
   include_tasks: admin.yml
 
