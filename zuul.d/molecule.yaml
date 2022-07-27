@@ -29,7 +29,6 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_container_stop
       - tripleo-ansible-centos-stream-molecule-tripleo_container_tag
       - tripleo-ansible-centos-stream-molecule-tripleo_create_admin
-      - tripleo-ansible-centos-stream-molecule-tripleo_derived_parameters
       - tripleo-ansible-centos-stream-molecule-tripleo_firewall
       - tripleo-ansible-centos-stream-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-stream-molecule-tripleo_hieradata
@@ -98,7 +97,6 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_container_stop
       - tripleo-ansible-centos-stream-molecule-tripleo_container_tag
       - tripleo-ansible-centos-stream-molecule-tripleo_create_admin
-      - tripleo-ansible-centos-stream-molecule-tripleo_derived_parameters
       - tripleo-ansible-centos-stream-molecule-tripleo_firewall
       - tripleo-ansible-centos-stream-molecule-tripleo_ha_wrapper
       - tripleo-ansible-centos-stream-molecule-tripleo_hieradata
@@ -408,13 +406,6 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: tripleo_create_admin
-- job:
-    files:
-    - ^tripleo_ansible/roles/tripleo_derived_parameters/(?!meta).*
-    name: tripleo-ansible-centos-stream-molecule-tripleo_derived_parameters
-    parent: tripleo-ansible-centos-stream-base
-    vars:
-      tripleo_role_name: tripleo_derived_parameters
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_firewall/(?!meta).*

@@ -1,6 +1,0 @@
-dpdk_nics_numa_info:
-- name: eno4
-  numa_node: 0
-  mtu: 1500
-  bridge_name: br-link1
-  addresses: []
