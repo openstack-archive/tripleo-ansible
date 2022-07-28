@@ -2,13 +2,11 @@
 
 # OVN Northbound Database
 OVN_NB_DB_OPTS="
-{% if tripleo_ovn_cluster_nb_db_protocol == 'ssl' %}
 --db-nb-create-insecure-remote=no \
+{% if tripleo_ovn_cluster_nb_db_protocol == 'ssl' %}
 --ovn-nb-db-ssl-key={{ tripleo_ovn_cluster_nb_ssl_key }} \
 --ovn-nb-db-ssl-cert={{ tripleo_ovn_cluster_nb_ssl_cert }} \
 --ovn-nb-db-ssl-ca-cert={{ tripleo_ovn_cluster_nb_ssl_ca_cert }} \
-{% else %}
---db-nb-create-insecure-remote=yes \
 {% endif %}
 {% if not is_ovn_dbs_bootstrap_node|bool %}
 --db-nb-cluster-remote-proto={{ tripleo_ovn_cluster_nb_db_protocol }} \
@@ -23,13 +21,11 @@ OVN_NB_DB_OPTS="
 
 # OVN Southbound Database
 OVN_SB_DB_OPTS="
-{% if tripleo_ovn_cluster_sb_db_protocol == 'ssl' %}
 --db-sb-create-insecure-remote=no \
+{% if tripleo_ovn_cluster_sb_db_protocol == 'ssl' %}
 --ovn-sb-db-ssl-key={{ tripleo_ovn_cluster_sb_ssl_key }} \
 --ovn-sb-db-ssl-cert={{ tripleo_ovn_cluster_sb_ssl_cert }} \
 --ovn-sb-db-ssl-ca-cert={{ tripleo_ovn_cluster_sb_ssl_ca_cert }} \
-{% else %}
---db-sb-create-insecure-remote=yes \
 {% endif %}
 {% if not is_ovn_dbs_bootstrap_node|bool %}
 --db-sb-cluster-remote-proto={{ tripleo_ovn_cluster_sb_db_protocol }} \
