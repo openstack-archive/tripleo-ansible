@@ -1,0 +1,21 @@
+{
+  "name": "{{ podman_network_inspect.stdout | from_json | first | json_query('name') }}",
+  "id": "{{ podman_network_inspect.stdout | from_json | first | json_query('id') }}",
+  "driver": "{{ podman_network_inspect.stdout | from_json | first | json_query('driver') }}",
+  "network_interface": "{{ podman_network_inspect.stdout | from_json | first | json_query('network_interface') }}",
+  "created": "{{ podman_network_inspect.stdout | from_json | first | json_query('created') }}",
+  "subnets": [
+    {
+      "subnet": "10.255.255.0/24",
+      "gateway": "10.255.255.1"
+    },
+    {
+      "subnet": "fc00:2222:3333::/64",
+      "gateway": "fc00:2222:3333::1"
+    }
+  ],
+  "ipv6_enabled": true,
+  "internal": {{ podman_network_inspect.stdout | from_json | first | json_query('internal') | to_json }},
+  "dns_enabled": {{ podman_network_inspect.stdout | from_json | first | json_query('dns_enabled') | to_json }},
+  "ipam_options": {{ podman_network_inspect.stdout | from_json | first | json_query('ipam_options') | to_json }}
+}
