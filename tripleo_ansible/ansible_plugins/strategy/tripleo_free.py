@@ -154,6 +154,7 @@ class StrategyModule(BASE.TripleoBase):
             vars_params['_hosts_all'] = self._hosts_cache_all
 
         task_vars = self._variable_manager.get_vars(**vars_params)
+        self.add_tqm_variables(task_vars, play=self._iterator._play)
         templar = Templar(loader=self._loader, variables=task_vars)
 
         # if task has a throttle attribute, check throttle e.g. ansible > 2.9
