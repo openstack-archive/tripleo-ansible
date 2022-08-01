@@ -12,13 +12,13 @@ OVN_NB_DB_OPTS="
 {% endif %}
 {% if not is_ovn_dbs_bootstrap_node|bool %}
 --db-nb-cluster-remote-proto={{ tripleo_ovn_cluster_nb_db_protocol }} \
---db-nb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip }} \
+--db-nb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip | ansible.netcommon.ipwrap }} \
 --db-nb-cluster-remote-port={{ tripleo_ovn_cluster_nb_remote_port }} \
 {% endif %}
 --db-nb-cluster-local-proto={{ tripleo_ovn_cluster_nb_db_protocol }} \
---db-nb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
+--db-nb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] | ansible.netcommon.ipwrap }} \
 --db-nb-cluster-local-port={{ tripleo_ovn_cluster_nb_local_port }} \
---db-nb-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
+--db-nb-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] | ansible.netcommon.ipwrap }} \
 --db-nb-port={{ tripleo_ovn_cluster_nb_db_port }}"
 
 # OVN Southbound Database
@@ -33,13 +33,13 @@ OVN_SB_DB_OPTS="
 {% endif %}
 {% if not is_ovn_dbs_bootstrap_node|bool %}
 --db-sb-cluster-remote-proto={{ tripleo_ovn_cluster_sb_db_protocol }} \
---db-sb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip }} \
+--db-sb-cluster-remote-addr={{ ovn_dbs_bootstrap_node_ip | ansible.netcommon.ipwrap }} \
 --db-sb-cluster-remote-port={{ tripleo_ovn_cluster_sb_remote_port }} \
 {% endif %}
 --db-sb-cluster-local-proto={{ tripleo_ovn_cluster_sb_db_protocol }} \
---db-sb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
+--db-sb-cluster-local-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] | ansible.netcommon.ipwrap }} \
 --db-sb-cluster-local-port={{ tripleo_ovn_cluster_sb_local_port }} \
---db-sb-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] }} \
+--db-sb-addr={{ hostvars[inventory_hostname][tripleo_ovn_cluster_network ~ '_ip'] | ansible.netcommon.ipwrap }} \
 --db-sb-port={{ tripleo_ovn_cluster_sb_db_port }}"
 
 # OVN Northd
@@ -50,5 +50,5 @@ OVN_NORTHD_OPTS="
 --certificate={{ tripleo_ovn_cluster_northd_ssl_cert }} \
 --ca-cert={{ tripleo_ovn_cluster_northd_ssl_ca_cert }} \
 {% endif %}
---ovnnb-db={{ [tripleo_ovn_cluster_nb_db_protocol] | product(ovn_dbs_node_ips) | map('join', ':') | product([tripleo_ovn_cluster_nb_db_port]) | map('join', ':') | join(',') }} \
---ovnsb-db={{ [tripleo_ovn_cluster_nb_db_protocol] | product(ovn_dbs_node_ips) | map('join', ':') | product([tripleo_ovn_cluster_sb_db_port]) | map('join', ':') | join(',') }}"
+--ovnnb-db={{ [tripleo_ovn_cluster_nb_db_protocol] | product(ovn_dbs_node_ips | ansible.netcommon.ipwrap) | map('join', ':') | product([tripleo_ovn_cluster_nb_db_port]) | map('join', ':') | join(',') }} \
+--ovnsb-db={{ [tripleo_ovn_cluster_nb_db_protocol] | product(ovn_dbs_node_ips | ansible.netcommon.ipwrap) | map('join', ':') | product([tripleo_ovn_cluster_sb_db_port]) | map('join', ':') | join(',') }}"
