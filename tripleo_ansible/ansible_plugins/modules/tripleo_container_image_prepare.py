@@ -15,6 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 import yaml
 import logging
 import os
@@ -147,6 +148,25 @@ def run_module():
         params = kolla_builder.container_images_prepare_multi(
             env, roles_data, cleanup=cleanup, dry_run=dry_run,
             lock=lock)
+
+        for role in roles_data:
+            # NOTE(tkajinam): If a role-specific container image prepare
+            #                 parameter is set, run the image prepare process
+            #                 with the overridden environment
+            role_param = '%sContainerImagePrepare' % role['name']
+            if env.get('parameter_defaults', {}).get(role_param):
+                tmp_env = copy.deepcopy(env)
+                tmp_env['parameter_defaults']['ContainerImagePrepare'] = (
+                    env['parameter_defaults'][role_param]
+                )
+
+                # NOTE(tkajinam): Put the image parameters as role-specific
+                #                 parameters
+                params['%sParameters' % role['name']] = (
+                    kolla_builder.container_images_prepare_multi(
+                        tmp_env, [role], cleanup=cleanup, dry_run=dry_run,
+                        lock=lock)
+                )
 
         if not module.no_log:
             output = yaml.safe_dump(params, default_flow_style=False)
