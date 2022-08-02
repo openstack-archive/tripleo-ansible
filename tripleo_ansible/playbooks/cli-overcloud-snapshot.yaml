@@ -19,5 +19,12 @@
   vars_files:
     ../roles/snapshot_and_revert/defaults/main.yml
   become: true
+  pre_tasks:
+    - name: Gather facts with an active connection
+      setup:
+        gather_subset:
+          - 'devices'
+      tags:
+        - always
   roles:
     - role: snapshot_and_revert
