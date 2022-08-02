@@ -74,6 +74,10 @@ tripleo_firewall_default_rules:
     jump: LOG
     limit: 20/min
     limit_burst: 15
+    nft_level: 'warn'
+    nft_flags: 'all'
+    nft_prefix: 'DROPPING: '
+    state: []
   '999 drop all':
     proto: all
     action: drop

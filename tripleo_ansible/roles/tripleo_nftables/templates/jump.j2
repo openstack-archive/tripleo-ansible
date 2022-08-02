@@ -1,6 +1,8 @@
 {%- if 'jump' in rule %}
 {%    if (rule['jump']|lower) not in ['accept', 'drop', 'log', 'masquerade', 'notrack', 'return'] %}
  jump {{ rule['jump'] }}
+{%-   elif (rule['jump']|lower) == 'log' %}
+{%-     include 'templates/jump-log.j2' %}
 {%-   else %}
  {{ rule['jump']|lower }}
 {%-   endif %}
