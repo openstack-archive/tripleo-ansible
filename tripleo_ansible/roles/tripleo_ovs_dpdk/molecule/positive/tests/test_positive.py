@@ -54,8 +54,10 @@ def test_positive_lcore(host):
 
 def test_positive_socket_mem(host):
     other_config = get_config(host)
-    dpdk_extra = other_config['dpdk-socket-mem'].replace('"', '')
-    assert dpdk_extra == "1024,1024"
+    socket_mem = other_config['dpdk-socket-mem'].replace('"', '')
+    socket_limit = other_config['dpdk-socket-limit'].replace('"', '')
+    assert socket_mem == "1024,1024"
+    assert socket_limit == "1024,1024"
 
 
 def test_positive_validator_threads(host):

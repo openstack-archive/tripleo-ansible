@@ -19,11 +19,6 @@
     msg: "List of PMD cores cannot be empty - tripleo_ovs_dpdk_pmd_core_list"
   when: not tripleo_ovs_dpdk_pmd_core_list|string or tripleo_ovs_dpdk_pmd_core_list == 'null'
 
-- name: Check valid input for tripleo_ovs_dpdk_socket_memory
-  fail:
-    msg: "Socket Memory cannot be empty - tripleo_ovs_dpdk_socket_memory"
-  when: not tripleo_ovs_dpdk_socket_memory|string or tripleo_ovs_dpdk_socket_memory == 'null'
-
 - name: Apply PMD cores config
   openvswitch_db:
     table: open_vswitch
@@ -63,14 +58,39 @@
     key: dpdk-extra
     value: "'{{ tripleo_ovs_dpdk_extra_internal }}'"
 
-- name: Apply socket mem config
-  openvswitch_db:
-    table: open_vswitch
-    record: .
-    col: other_config
-    key: dpdk-socket-mem
-    value: "{{ tripleo_ovs_dpdk_socket_memory }}"
+- name: Apply socket-mem and socket-limit config
+  block:
+    - openvswitch_db:
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: dpdk-socket-mem
+        value: "{{ tripleo_ovs_dpdk_socket_memory }}"
+
+    - openvswitch_db:
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: dpdk-socket-limit
+        value: "{{ tripleo_ovs_dpdk_socket_memory }}"
   when: tripleo_ovs_dpdk_socket_memory|string
+
+- name: Remove DPDK socket-mem and socket-limit config
+  block:
+    - openvswitch_db:
+        state: absent
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: dpdk-socket-mem
+
+    - openvswitch_db:
+        state: absent
+        table: open_vswitch
+        record: .
+        col: other_config
+        key: dpdk-socket-limit
+  when: not tripleo_ovs_dpdk_socket_memory|string or tripleo_ovs_dpdk_socket_memory == 'null'
 
 - name: Apply Revalidator threads config
   openvswitch_db:
