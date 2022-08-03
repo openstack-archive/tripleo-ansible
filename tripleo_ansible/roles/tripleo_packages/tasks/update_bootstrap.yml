@@ -26,5 +26,6 @@
     state: enabled
   loop: "{{ dnf_module_list|list }}"
   when:
-    - ansible_facts['distribution_major_version'] is version('8', '>=')
     - dnf_module_list|length > 0
+    - item.distribution_version is defined
+    - ansible_facts['distribution_major_version'] is version(item.distribution_version, '==')
