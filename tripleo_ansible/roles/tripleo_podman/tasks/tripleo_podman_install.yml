@@ -63,6 +63,33 @@
           group: root
       when:
         - '"cni-podman0" not in ansible_facts["interfaces"]'
+        - tripleo_container_default_network_backend == 'cni'
+
+    - name: Update netavark container network configuration
+      block:
+        - name: Make sure /etc/containers/networks exists
+          file:
+            path: /etc/containers/networks
+            state: directory
+            recurse: true
+            mode: 0755
+            owner: root
+            group: root
+        - name: Get current podman network
+          shell: |
+            podman network inspect podman
+          register: podman_network_inspect
+        - name: Update the default network configuration
+          template:
+            src: podman_network_config.j2
+            dest: /etc/containers/networks/podman.json
+            mode: '0644'
+            owner: root
+            group: root
+          when:
+            - podman_network_inspect is not skipped
+      when:
+        - tripleo_container_default_network_backend == 'netavark'
 
     - name: Write containers registries.conf
       template:
