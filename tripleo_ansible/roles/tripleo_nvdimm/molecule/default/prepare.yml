@@ -25,3 +25,4 @@
         test_deps_setup_stream: true
         test_deps_extra_packages:
           - jq
+          - ndctl

@@ -2,22 +2,20 @@
 driver:
   name: podman
 
-# It is not discovered by default podman molecule config
-# due to different directory structure.
-# That's why the config is kept here
+log: true
 
 platforms:
-  - name: centos
-    hostname: centos
-    image: centos/centos:stream8
+  - name: ubi9
+    hostname: ubi9
+    image: ubi9/ubi-init
     registry:
-      url: quay.io
+      url: registry.access.redhat.com
     dockerfile: Dockerfile.j2
     pkg_extras: python*setuptools
     volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
       - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /opt/yum.repos.d:/etc/yum.repos.d:rw
       - /etc/dnf/vars:/etc/dnf/vars
     privileged: true
     environment: &env
@@ -32,7 +30,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          centos:
+          ubi9:
             ansible_python_interpreter: /usr/bin/python3
   log: true
   env:

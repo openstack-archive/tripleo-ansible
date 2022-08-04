@@ -5,11 +5,11 @@ driver:
 log: true
 
 platforms:
-  - name: centos
-    hostname: centos
-    image: centos/centos:stream8
+  - name: ubi
+    hostname: ubi
+    image: ubi9/ubi-init
     registry:
-      url: quay.io
+      url: registry.access.redhat.com
     pkg_extras: python*setuptools
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
@@ -30,7 +30,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          centos:
+          ubi:
             ansible_python_interpreter: /usr/bin/python3
         vars:
           ansible_user: root

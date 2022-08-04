@@ -5,9 +5,9 @@ driver:
 log: true
 
 platforms:
-  - name: ubi8
-    hostname: ubi8
-    image: ubi8/ubi-init
+  - name: ubi9
+    hostname: ubi9
+    image: ubi9/ubi-init
     registry:
       url: registry.access.redhat.com
     dockerfile: Dockerfile
@@ -30,7 +30,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          ubi8:
+          ubi9:
             ansible_python_interpreter: /usr/bin/python3
   log: true
   env:

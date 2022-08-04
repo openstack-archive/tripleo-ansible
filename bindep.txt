@@ -21,7 +21,7 @@ openssl-devel     [platform:rpm]
 podman            [platform:rpm]
 python-devel      [platform:rpm !platform:rhel-8 !platform:centos-8 !platform:fedora]
 python3-devel     [platform:rpm !platform:rhel-7 !platform:centos-7]
-PyYAML            [platform:rpm !platform:rhel-8 !platform:centos-8 !platform:fedora]
+PyYAML            [platform:rpm !platform:rhel-8 !platform:centos-8 !platform:rhel-9 !platform:centos-9 !platform:fedora]
 python3-pyyaml    [platform:rpm !platform:rhel-7 !platform:centos-7]
 python3-dnf       [platform:rpm !platform:rhel-7 !platform:centos-7]
 

@@ -3,9 +3,9 @@ log: true
 platforms:
   - name: centos
     hostname: centos
-    image: centos/centos:stream8
+    image: ubi9/ubi-init
     registry:
-      url: quay.io
+      url: registry.access.redhat.com
     dockerfile: Dockerfile.j2
     pkg_extras: python*setuptools
     volumes:
