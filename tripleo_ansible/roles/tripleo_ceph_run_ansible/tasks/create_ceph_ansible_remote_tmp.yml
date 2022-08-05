@@ -63,3 +63,4 @@
   shell: "{{ create_ceph_ansible_remote_tmp_list|join(' ') }}"
   tags:
     - run_ceph_ansible
+    - ceph_ansible_remote_tmp
