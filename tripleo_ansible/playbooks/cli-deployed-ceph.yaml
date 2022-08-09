@@ -211,6 +211,7 @@
       delegate_to: localhost
       when:
         - tripleo_cephadm_ha_services_path is defined
+        - tripleo_cephadm_ingress | default(true)
 
     - name: Apply Ceph spec
       import_role:
@@ -252,6 +253,7 @@
             msg: Vips are required to configure HA services
           when:
             - tripleo_cephadm_ha_services_path is not defined
+            - tripleo_cephadm_ingress | default(true)
         - name: Config MDS
           import_role:
             name: tripleo_cephadm

@@ -46,6 +46,7 @@
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
 
 - name: Create the ingress Daemon spec definition for nfs
+  when: tripleo_cephadm_ingress | default(true)
   become: true
   ceph_mkspec:
     service_type: ingress
