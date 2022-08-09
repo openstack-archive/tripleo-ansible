@@ -16,19 +16,7 @@
 
 tripleo_auditd_pkg: 'audit'
 tripleo_auditd_service: 'auditd'
-tripleo_auditd_rules:
-  "Default - Delete all rules":
-    content: '-D'
-    order: 0
-  "Default - Set Buffer size":
-    content: '-b 8192'
-    order: 1
-  "Default - Set failure mode":
-    content: "-f 1"
-    order: 2
-  "Default - Set backlog time":
-    content: "--backlog_wait_time 60000"
-    order: 3
+tripleo_auditd_rules: {}
 
 tripleo_auditd_config: {}
 tripleo_auditd_config_default:
