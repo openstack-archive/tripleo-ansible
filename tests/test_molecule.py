@@ -18,10 +18,10 @@ import pytest
 import yaml
 
 
-def set_proper_molecule_config(role_path):
+def set_proper_molecule_config(role_path, scenario='default'):
     mol_config_file = "config.yml"
-    if os.path.exists(os.path.join(role_path, 'molecule', 'default/molecule.yml')):
-        molecule_path = os.path.join(role_path, 'molecule', 'default/molecule.yml')
+    if os.path.exists(os.path.join(role_path, 'molecule', f'{scenario}/molecule.yml')):
+        molecule_path = os.path.join(role_path, 'molecule', f'{scenario}/molecule.yml')
         with open(molecule_path) as content:
             data = yaml.safe_load(content)
         if 'driver' in data.keys() and data['driver']['name'] == 'podman':
@@ -35,8 +35,11 @@ def set_proper_molecule_config(role_path):
 def test_molecule(pytestconfig):
     cmd = ['python', '-m', 'molecule']
     scenario = pytestconfig.getoption("scenario")
+    if not scenario:
+        scenario = 'default'
     ansible_args = pytestconfig.getoption("ansible_args")
-    cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
+    cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd(),
+                                                            scenario)])
 
     if ansible_args:
         cmd.append('converge')

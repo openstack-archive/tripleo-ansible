@@ -1,5 +1,9 @@
 ---
+driver:
+  name: podman
+
 log: true
+
 platforms:
   - name: centos
     hostname: centos
