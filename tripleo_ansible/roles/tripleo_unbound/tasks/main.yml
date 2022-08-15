@@ -60,7 +60,16 @@
     selevel: s0
     setype: container_file_t
   when:
-    - tripleo_unbound_forward_resolvers is defined and tripleo_unbound_forward_resolvers != ""
+    - tripleo_unbound_forward_resolvers is defined and ( tripleo_unbound_forward_resolvers | length ) > 0
+  register: _unbound_fwd_config_result
+
+- name: Remove the TripleO Unbound forwarders configuration if no forwarders are configured
+  become: true
+  ansible.builtin.file:
+    path: "{{ tripleo_unbound_config_basedir }}/tripleo-forwarder-unbound.conf"
+    state: absent
+  when:
+    - tripleo_unbound_forward_resolvers is not defined or ( tripleo_unbound_forward_resolvers | length ) == 0
   register: _unbound_fwd_config_result
 
 - name: Restart Unbound
