@@ -20,3 +20,8 @@
   roles:
     - role: "tripleo_firewall"
       tripleo_firewall_engine: 'nftables'
+  tasks:
+    - name: Clean everything nftables related
+      import_role:
+        name: tripleo_nftables
+        tasks_from: cleanup.yaml

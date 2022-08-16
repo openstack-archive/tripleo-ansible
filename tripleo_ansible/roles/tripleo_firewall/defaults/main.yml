@@ -71,7 +71,7 @@ tripleo_firewall_default_rules:
     state:
       - NEW
     destination: 'fe80::/64'
-  '998 log all':
+  '999 log all':
     proto: all
     jump: LOG
     limit: 20/min
@@ -80,6 +80,3 @@ tripleo_firewall_default_rules:
     nft_flags: 'all'
     nft_prefix: 'DROPPING: '
     state: []
-  '999 drop all':
-    proto: all
-    action: drop

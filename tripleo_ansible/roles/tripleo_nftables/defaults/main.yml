@@ -58,8 +58,4 @@ tripleo_nftables_rules:
       flags: 'all'
       prefix: 'DROPPING: '
       state: []
-    rule_name: 998 log all
-  - rule:
-      action: drop
-      proto: all
-    rule_name: 999 drop all
+    rule_name: 999 log all
