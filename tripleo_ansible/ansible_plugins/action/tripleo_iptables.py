@@ -187,6 +187,9 @@ class ActionModule(ActionBase):
             if action == 'drop':
                 rule_data['action'] = 'append'
                 rule_data['jump'] = rule.get('jump', 'DROP')
+            elif action == 'accept':
+                rule_data['action'] == 'append'
+                rule_data['jump'] = rule.get('jump', 'ACCEPT')
             else:
                 rule_data['jump'] = rule.get('jump', 'ACCEPT')
 
