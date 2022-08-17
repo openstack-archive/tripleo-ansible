@@ -28,6 +28,16 @@
     is_ovn_dbs_bootstrap_node: "{{ ovn_dbs_short_bootstrap_node_name|default('')|lower == ansible_facts['hostname']|lower }}"
   when: is_ovn_dbs_bootstrap_node is undefined
 
+- name: check ovsdb-tool election-timer options
+  shell: ovsdb-tool --help|grep -q election-timer
+  register: check_ovsdb_tool_election_timer
+  failed_when: check_ovsdb_tool_election_timer.rc > 1
+
+- name: set has_ovsdb_tool_election_timer fact
+  set_fact:
+    has_ovsdb_tool_election_timer: "{{ check_ovsdb_tool_election_timer.rc == 0 }}"
+  when: has_ovsdb_tool_election_timer is undefined
+
 - name: render OVN cluster configuration
   become: true
   ansible.builtin.template:
