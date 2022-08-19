@@ -34,32 +34,51 @@
   when: tripleo_cephadm_ceph_nfs_rados_backend | bool
 
 - name: create an empty rados index object
+  become: true
   command: |
     {{ tripleo_cephadm_ceph_cli }} -p {{ cephfs_data_pool.name }} --cluster {{ tripleo_cephadm_cluster }} \
     put {{ tripleo_cephadm_nfs_rados_export_index }} /dev/null
   when:
     - tripleo_cephadm_ceph_nfs_rados_backend | bool
     - rados_index_exists.rc != 0
+  delegate_to: "{{ groups['ceph_nfs'][0] }}"
 
-- name: Extract key
-  ceph_key:
-    name: "{{ item.name }}"
-    cluster: "{{ tripleo_cephadm_cluster }}"
-    output_format: plain
-    state: info
-  environment:
-    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
-    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-  register: _rgw_keys
-  become: true
-  with_items:
-    - { name: "client.bootstrap-rgw", path: "/var/lib/ceph/bootstrap-rgw/{{ tripleo_cephadm_cluster }}.keyring", copy_key: true }
+- name: Extract keys
+  block:
+    - name: Extract key - internal
+      ceph_key:
+        name: "{{ item.name }}"
+        cluster: "{{ tripleo_cephadm_cluster }}"
+        output_format: plain
+        state: info
+      environment:
+        CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
+        CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+      register: _rgw_keys_int
+      become: true
+      with_items:
+        - { name: "client.bootstrap-rgw", path: "/var/lib/ceph/bootstrap-rgw/{{ tripleo_cephadm_cluster }}.keyring", copy_key: true }
+      run_once: true
+      delegate_to: "{{ groups['ceph_nfs'][0] }}"
+      when: not external_cluster
+
+    - name: slurp manila key from remote host - external
+      become: true
+      slurp:
+        src: "{{ tripleo_cephadm_config_home }}/{{ tripleo_cephadm_cluster }}.client.{{ tripleo_cephadm_ceph_nfs_ceph_user }}.keyring"
+      register: _rgw_keys_ext
+      delegate_to: "{{ groups['ceph_nfs'][0] }}"
+      when: external_cluster
+  vars:
+    external_cluster: "{{ true if groups['ceph_mon'] | default([]) | length == 0 else false }}"
 
 - name: Distribute Ceph keys to the nfs nodes
   include_tasks: ganesha/distribute_keys.yaml
   vars:
     nfs_node: "{{ node }}"
-    rgw_keys: "{{ _rgw_keys }}"
+    rgw_keys_int: "{{ _rgw_keys_int }}"
+    rgw_keys_ext: "{{ _rgw_keys_ext }}"
+    external_cluster: "{{ true if groups['ceph_mon'] | default([]) | length == 0 else false }}"
   loop: "{{ groups['ceph_nfs'] }}"
   loop_control:
     loop_var: node
@@ -72,6 +91,7 @@
   register: _dbus_ganesha
   run_once: true
   changed_when: false
+  delegate_to: "{{ groups['ceph_nfs'][0] }}"
 
 - name: Render Ganesha templates and files
   include_tasks: ganesha/start_nfs.yaml
