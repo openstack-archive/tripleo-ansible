@@ -25,7 +25,9 @@
       --interactive
       {% endif %}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
+      {% if not external_cluster|default(false) -%}
       --volume {{ tripleo_cephadm_assimilate_conf }}:{{ tripleo_cephadm_assimilate_conf_container }}:z
+      {% endif %}
       {% if mount_spec|default(false) %}
       --volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z
       {% endif %}
@@ -36,7 +38,7 @@
       {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
       {% if ceph_command|default('ceph') == 'ceph' or ceph_command|default('ceph') == 'rados' or ceph_command|default('ceph') == 'rbd' -%}
         {% if not admin_daemon|default(false) -%}
-        --fsid {{ tripleo_cephadm_fsid }} -c {{ tripleo_cephadm_conf }} -k {{ tripleo_cephadm_keyring_prefix }}.{{ select_keyring| default('admin') }}.keyring
+        --fsid {{ tripleo_cephadm_fsid }} -c /etc/ceph/{{ tripleo_cephadm_cluster }}.conf -k /etc/ceph/{{ tripleo_cephadm_cluster }}.client.{{ select_keyring| default('admin') }}.keyring
         {%- endif %}
         {% if external_cluster|default(false) -%}
         -n client.{{ select_keyring }}
