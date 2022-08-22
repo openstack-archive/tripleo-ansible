@@ -18,6 +18,7 @@
 _tripleo_bootstrap_packages_bootstrap:
   - lvm2
   - jq
+  - nftables
   - openvswitch
   - openstack-heat-agents
   - openstack-selinux
