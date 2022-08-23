@@ -1,5 +1,5 @@
 ---
-# Copyright 2021 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,8 +13,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-- name: Include host prep tasks
-  include_tasks: hostprep.yml
 
-- name: Include external deploy tasks
-  include_tasks: externaldeploy.yml
+- name: create ovn mac address for {{ tripleo_role_name }} role nodes
+  tripleo_ovn_mac_addresses:
+    playbook_dir: "{{ playbook_dir }}"
+    stack_name: "{{ stack_name }}"
+    role_name: "{{ tripleo_role_name }}"
+    server_resource_names: "{{ groups[tripleo_role_name] }}"
+    ovn_bridge_mappings: "{{ ovn_bridge_mappings }}"
+    ovn_static_bridge_mac_mappings: "{{ ovn_static_bridge_mac_mappings }}"
