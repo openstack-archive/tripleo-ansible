@@ -17,6 +17,7 @@
 
 from concurrent import futures
 import metalsmith
+import re
 import yaml
 
 try:
@@ -197,14 +198,8 @@ def pre_provisioned_ports(result, conn, net_maps, instance, inst_ports, tags):
                        "be found.".format(port=net['port'],
                                           instance=instance['hostname']))
                 raise Exception(msg)
-
-            p_tags = set(p_obj.tags)
-            if not tags.issubset(p_tags):
-                p_tags.update(tags)
-                conn.network.set_tags(p_obj, list(p_tags))
-
+            result['changed'] = _reset_tags(conn, p_obj, tags)
             inst_ports.append(p_obj)
-            result['changed'] = True
 
 
 def fixed_ips_need_update(port_def, port):
@@ -234,6 +229,31 @@ def port_need_update(port_def, port):
     return update_fields
 
 
+def _reset_tags(conn, port, tags, default_route_network=None,
+                net_name=None):
+    changed = False
+    p_tags = set(port.tags)
+    # This would allow us to move nodes from one role to other
+    r = re.compile('tripleo_role=.*')
+    matched_tags = filter(r.match, p_tags.copy())
+    for role_tag in matched_tags:
+        if role_tag and role_tag not in tags:
+            p_tags.remove(role_tag)
+
+    if default_route_network and net_name in default_route_network:
+        tags.update({'tripleo_default_route=true'})
+    elif 'tripleo_default_route=true' in p_tags:
+        p_tags.remove('tripleo_default_route=true')
+        conn.network.set_tags(port, list(p_tags))
+        changed = True
+
+    if not tags.issubset(p_tags):
+        p_tags.update(tags)
+        conn.network.set_tags(port, list(p_tags))
+        changed = True
+    return changed
+
+
 def update_ports(result, conn, port_defs, inst_ports, tags, net_maps,
                  network_config):
     default_route_network = network_config.get('default_route_network', [])
@@ -255,18 +275,9 @@ def update_ports(result, conn, port_defs, inst_ports, tags, net_maps,
             result['changed'] = True
 
         net_name = net_maps['by_id'][port.network_id]
-        p_tags = set(port.tags)
-
-        if net_name in default_route_network:
-            tags.update({'tripleo_default_route=true'})
-        elif 'tripleo_default_route=true' in p_tags:
-            p_tags.remove('tripleo_default_route=true')
-            conn.network.set_tags(port, list(p_tags))
-
-        if not tags.issubset(p_tags):
-            p_tags.update(tags)
-            conn.network.set_tags(port, list(p_tags))
-
+        result['changed'] = _reset_tags(conn, port, tags,
+                                        default_route_network,
+                                        net_name)
         # Remove the 'tripleo_default_route' tag before processing next port
         try:
             tags.remove('tripleo_default_route=true')
@@ -368,8 +379,7 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
                      ironic_uuid, role):
     hostname = instance['hostname']
     network_config = instance.get('network_config', {})
-    tags = ['tripleo_stack_name={}'.format(stack),
-            'tripleo_role={}'.format(role)]
+    tags = ['tripleo_stack_name={}'.format(stack)]
     # TODO(hjensas): This can be moved below the ironic_uuid condition in
     # later release when all upgraded deployments has had the
     # tripleo_ironic_uuid tag added
@@ -379,6 +389,7 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
     inst_ports = [port for port in inst_ports
                   if port.dns_name == hostname.lower()]
 
+    tags.append('tripleo_role={}'.format(role))
     if ironic_uuid:
         tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
 
@@ -509,16 +520,10 @@ def _tag_metalsmith_instance_ports(result, conn, provisioner, uuid, hostname,
     instance = provisioner.show_instance(uuid)
 
     for nic in instance.nics():
-        nic_tags = set(nic.tags)
         net_name = net_maps['by_id'][nic.network_id]
-
-        if net_name in default_route_network:
-            tags.update({'tripleo_default_route=true'})
-
-        if not tags.issubset(nic_tags):
-            nic_tags.update(tags)
-            conn.network.set_tags(nic, list(nic_tags))
-            result['changed'] = True
+        result['changed'] = _reset_tags(conn, nic, tags,
+                                        default_route_network,
+                                        net_name)
         if not nic.dns_name == hostname:
             conn.network.update_port(nic, dns_name=hostname)
             result['changed'] = True
