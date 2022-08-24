@@ -17,6 +17,7 @@
 
 _tripleo_bootstrap_packages_bootstrap:
   - lvm2
+  - crudini
   - jq
   - openvswitch
   - openstack-heat-agents

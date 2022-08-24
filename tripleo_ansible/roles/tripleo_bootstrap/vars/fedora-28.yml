@@ -17,6 +17,7 @@
 
 _tripleo_bootstrap_packages_bootstrap:
   - openstack-heat-agents
+  - crudini
   - jq
   - puppet-tripleo
   - os-net-config
