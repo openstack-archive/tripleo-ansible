@@ -20,8 +20,10 @@ import yaml
 
 def set_proper_molecule_config(role_path, scenario='default'):
     mol_config_file = "config.yml"
-    if os.path.exists(os.path.join(role_path, 'molecule', f'{scenario}/molecule.yml')):
-        molecule_path = os.path.join(role_path, 'molecule', f'{scenario}/molecule.yml')
+    if os.path.exists(os.path.join(role_path, 'molecule',
+                      f'{scenario}/molecule.yml')):
+        molecule_path = os.path.join(
+            role_path, 'molecule', f'{scenario}/molecule.yml')
         with open(molecule_path) as content:
             data = yaml.safe_load(content)
         if 'driver' in data.keys() and data['driver']['name'] == 'podman':
@@ -32,9 +34,8 @@ def set_proper_molecule_config(role_path, scenario='default'):
     return mol_config
 
 
-def test_molecule(pytestconfig):
+def run_molecule(pytestconfig, scenario=None):
     cmd = ['python', '-m', 'molecule']
-    scenario = pytestconfig.getoption("scenario")
     if not scenario:
         scenario = 'default'
     ansible_args = pytestconfig.getoption("ansible_args")
@@ -59,7 +60,24 @@ def test_molecule(pytestconfig):
     finally:
         if ansible_args:
             cmd = ['python', '-m', 'molecule', 'destroy']
-            cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
+            cmd.extend(['--base-config',
+                        set_proper_molecule_config(os.getcwd())])
             if scenario:
                 cmd.extend(['--scenario-name', scenario])
             subprocess.call(cmd)
+
+
+def get_molecule_scenario(role_path):
+    mol_scenario = []
+    if os.path.exists(os.path.join(role_path, 'molecule')):
+        mol_dir = os.path.join(role_path, 'molecule')
+        dirs = os.listdir(mol_dir)
+        mol_scenario = [d for d in dirs if os.path.exists(
+            os.path.join(mol_dir, d, 'molecule.yml'))]
+        return mol_scenario
+
+
+def test_molcule(pytestconfig):
+    scenarios = get_molecule_scenario(os.getcwd())
+    for scenario in scenarios:
+        run_molecule(pytestconfig, scenario)

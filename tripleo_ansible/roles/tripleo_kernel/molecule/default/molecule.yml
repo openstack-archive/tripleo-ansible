@@ -13,6 +13,7 @@ provisioner:
     cleanup: "${MOLECULE_SCENARIO_DIRECTORY}/../../resources/molecule/cleanup.yml"
 
 scenario:
+  name: default
   test_sequence:
     - prepare
     - converge
