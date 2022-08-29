@@ -73,7 +73,6 @@ tripleo_frr_ovn_bgp_agent_certificate: /etc/pki/tls/certs/ovn_bgp_agent.crt
 tripleo_frr_ovn_bgp_agent_ca_cert: /etc/ipa/ca.crt
 tripleo_frr_ovn_bgp_agent_internal_tls_enable: false
 tripleo_frr_ovn_bgp_agent_config_basedir: "/var/lib/config-data/ansible-generated/ovn-bgp-agent"
-tripleo_frr_ovn_bgp_agent_bridge_mappings: []
 tripleo_frr_ovn_bgp_agent_bgp_as: 64999
 tripleo_frr_ovn_bgp_agent_root_helper: "sudo ovn-bgp-agent-rootwrap /etc/ovn-bgp-agent/rootwrap.conf"
 tripleo_frr_ovn_bgp_agent_root_helper_daemon: "sudo ovn-bgp-agent-rootwrap-daemon /etc/ovn-bgp-agent/rootwrap.conf"

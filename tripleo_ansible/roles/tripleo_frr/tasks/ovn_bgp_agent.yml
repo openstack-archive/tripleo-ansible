@@ -52,28 +52,6 @@
 - name: configure ovs manager
   command: ovs-vsctl set-manager "{{ tripleo_frr_ovn_bgp_agent_ovs_manager }}"
 
-
-# ['datacenter:br-ex', 'foo:br-vlan']
-- name: Set ipv4 proxy_arp for each physical nic used in bridge mappings
-  sysctl:
-    name: "net.ipv4.conf.{{ item.split(':')[1] }}.proxy_arp"
-    value: 1
-    sysctl_set: true
-    sysctl_file: /etc/sysctl.d/99-tripleo-ovn-bgp-agent.conf
-    state: present
-    reload: true
-  loop: "{{ tripleo_frr_ovn_bgp_agent_bridge_mappings }}"
-
-- name: Set ipv6 proxy_ndp for each physical nic used in bridge mappings
-  sysctl:
-    name: "net.ipv6.conf.{{ item.split(':')[1] }}.proxy_ndp"
-    value: 1
-    sysctl_set: true
-    sysctl_file: /etc/sysctl.d/99-tripleo-ovn-bgp-agent.conf
-    state: present
-    reload: true
-  loop: "{{ tripleo_frr_ovn_bgp_agent_bridge_mappings }}"
-
 - name: restart OVN BGP agent
   when:
     - _ovn_bgp_agent_config_result.changed or
