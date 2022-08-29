@@ -19,6 +19,7 @@ provisioner:
     ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
 
 scenario:
+  name: default
   test_sequence:
     - prepare
     - converge

@@ -19,3 +19,7 @@
   hosts: all
   roles:
     - role: "tripleo_nftables"
+  tasks:
+    - name: Empty firewall
+      become: true
+      command: nft flush ruleset
