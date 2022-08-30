@@ -22,4 +22,5 @@ test_deps_tripleo_packages:
   - python3-tripleoclient
   - python3-openstacksdk
   - centos-stream-release
+  - openssh
 test_deps_tripleo_repos: current-tripleo
