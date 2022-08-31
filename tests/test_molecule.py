@@ -34,6 +34,35 @@ def set_proper_molecule_config(role_path, scenario='default'):
     return mol_config
 
 
+def set_molecule_tags(role_path, scenario='default'):
+    mol_tags = []
+    if os.path.exists(os.path.join(role_path, 'molecule',
+                                   f'{scenario}/test_vars.yml')):
+        test_vars_path = os.path.join(role_path, 'molecule',
+                                      f'{scenario}/test_vars.yml')
+        with open(test_vars_path) as content:
+            data = yaml.safe_load(content)
+
+        if not data:
+            return []
+        if ('test_skip_tags' in data.keys() and data['test_skip_tags']
+           and data.get('molecule_skip_tags_enforce', True)):
+            mol_tags.append('--skip-tags')
+            if type(data['test_skip_tags']) == str:
+                mol_tags.append(data['test_skip_tags'])
+            elif type(data['test_skip_tags']) == list:
+                mol_tags.append(",".join(data['test_skip_tags']))
+
+        if ('test_tags' in data.keys() and data['test_tags']
+           and data.get('molecule_tags_enforce', True)):
+            mol_tags.append('--tags')
+            if type(data['test_tags']) == str:
+                mol_tags.append(data['test_tags'])
+            elif type(data['test_tags']) == list:
+                mol_tags.append(",".join(data['test_tags']))
+        return mol_tags
+
+
 def run_molecule(pytestconfig, scenario=None):
     cmd = ['python', '-m', 'molecule']
     if not scenario:
@@ -54,6 +83,12 @@ def run_molecule(pytestconfig, scenario=None):
             cmd.extend(['--scenario-name', scenario])
         else:
             cmd.append('--all')
+
+    alltags = set_molecule_tags(os.getcwd(), scenario)
+    if alltags:
+        if '--' not in cmd:
+            cmd.append('--')
+        cmd.extend(alltags)
 
     try:
         assert subprocess.call(cmd) == 0
