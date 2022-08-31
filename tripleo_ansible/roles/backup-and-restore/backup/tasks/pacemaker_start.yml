@@ -28,5 +28,6 @@
   retries: 300
   until: mysql_result is search('mysqld')
   delay: 5
+  when: tripleo_backup_and_restore_enabled_services.stdout is search('mysql^')
   tags:
     - bar_create_recover_image

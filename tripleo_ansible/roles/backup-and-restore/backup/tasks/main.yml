@@ -35,6 +35,7 @@
 - name: Take this node out of pacemaker
   command: pcs cluster stop --request-timeout={{ tripleo_backup_and_restore_pcs_timeout }}
   when:
+    - tripleo_backup_and_restore_enabled_services.stdout is search('pacemaker')
     - pacemaker_enabled
     - tripleo_backup_and_restore_enable_snapshots|bool
   tags:
