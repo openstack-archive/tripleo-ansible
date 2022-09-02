@@ -25,7 +25,7 @@ tripleo_keystone_resources_cloud_config: {}
 tripleo_keystone_resources_clouds_file_path: /etc/openstack/clouds.yaml
 tripleo_keystone_resources_clouds_file_owner: root
 tripleo_keystone_resources_clouds_file_group: root
-tripleo_keystone_resources_clouds_file_mode: '0644'
+tripleo_keystone_resources_clouds_file_mode: '0600'
 tripleo_keystone_resources_catalog_config: {}
 tripleo_keystone_resources_member_role_enabled: false
 tripleo_keystone_resources_batch: 10
