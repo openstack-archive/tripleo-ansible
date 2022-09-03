@@ -18,6 +18,7 @@
 _tripleo_bootstrap_packages_bootstrap:
   - libselinux-python
   - lvm2
+  - crudini
   - jq
   - os-net-config
   - openstack-heat-agents
