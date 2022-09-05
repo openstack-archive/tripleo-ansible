@@ -16,6 +16,7 @@
 
 
 _tripleo_bootstrap_packages_bootstrap:
+  - driverctl
   - lvm2
   - jq
   - openvswitch
