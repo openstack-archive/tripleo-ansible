@@ -6,7 +6,7 @@
   DocumentRoot "{{ tripleo_httpd_vhost_document_root }}"
 
   <Directory "{{ tripleo_httpd_vhost_document_root }}">
-    Options -Indexes +FollowSymLinks +MultiViews
+    Options {{ tripleo_httpd_vhost_options | join(' ') }}
     AllowOverride None
     Require all granted
   </Directory>

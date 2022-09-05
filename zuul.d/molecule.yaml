@@ -38,6 +38,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_config
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_vhost
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_ironic
       - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
@@ -110,6 +111,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_config
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_vhost
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_ironic
       - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
@@ -181,6 +183,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_config
       - tripleo-ansible-centos-stream-molecule-tripleo_httpd_vhost
       - tripleo-ansible-centos-stream-molecule-tripleo_image_serve
+      - tripleo-ansible-centos-stream-molecule-tripleo_ironic
       - tripleo-ansible-centos-stream-molecule-tripleo_iscsid
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
@@ -480,6 +483,13 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: tripleo_image_serve
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_ironic/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_ironic
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_ironic
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_iscsid/(?!meta).*
