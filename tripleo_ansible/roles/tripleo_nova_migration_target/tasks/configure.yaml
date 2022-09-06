@@ -15,7 +15,7 @@
 # under the License.
 
 - name: validate nova-migration-target container state
-  containers.podman.podman_containers_info:
+  containers.podman.podman_container_info:
     name: nova_migration_target
   register: nova_migration_target_infos
   failed_when:
