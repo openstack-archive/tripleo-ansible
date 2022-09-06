@@ -1,7 +1,7 @@
 {%- if 'source' in rule %}
-{%-   if 'ipversion' in rule and rule['ipversion'] == 'ipv6' %}
+{%-   if 'ipversion' in rule and rule['ipversion'] == 'ipv6' or ':' in rule['source'] %}
  ip6
-{% else %}
+{%    else %}
  ip
 {%-   endif %}
  saddr {{ rule['source'] }}
