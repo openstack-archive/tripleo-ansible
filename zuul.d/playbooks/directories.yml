@@ -29,5 +29,5 @@
   # https://bugzilla.redhat.com/show_bug.cgi?id=2123611
 - name: Downgrade containers-common
   shell: |
-    sudo dnf -y downgrade containers-common-1-40.el9
+    if [ -n "$(rpm -qa containers-common)" ];then dnf -y downgrade containers-common-1-40.el9; fi
   become: true
