@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 - name: Include host prep tasks
-  include_tasks: hostprep.yml
+  include_tasks: install.yml
 
 - name: Include external deploy tasks
   include_tasks: externaldeploy.yml
