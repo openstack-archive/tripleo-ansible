@@ -7,17 +7,13 @@ log: true
 platforms:
   - name: centos
     hostname: centos
-    image: ubi9/ubi-init
+    image: ${TRIPLEO_ANSIBLE_MOLECULE_IMAGE:-"ubi9/ubi-init"}
     registry:
-      url: registry.access.redhat.com
+      url: ${TRIPLEO_ANSIBLE_MOLECULE_REGISTRY:-"registry.access.redhat.com"}
     dockerfile: Dockerfile.j2
     pkg_extras: python*setuptools
-    command: /sbin/init
-    volumes:
-      - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg:O
-      - /opt/yum.repos.d:/etc/yum.repos.d:O
-      - /etc/dnf/vars:/etc/dnf/vars:O
+    command: ${TRIPLEO_ANSIBLE_MOLECULE_COMMAND:-"/sbin/init"}
+    volumes: ${TRIPLEO_ANSIBLE_MOLECULE_VOLUMES:-['/etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro','/etc/pki/rpm-gpg:/etc/pki/rpm-gpg:O','/opt/yum.repos.d:/etc/yum.repos.d:O','/etc/dnf/vars:/etc/dnf/vars:O']}
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"

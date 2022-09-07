@@ -133,9 +133,19 @@ file from the project root, and then execute the following commands.
 
 .. code-block:: console
 
+    (test-python) $ source ansible-test-env.rc
     (test-python) $ cd tripleo_ansible/roles/${NEWROLENAME}/
-    (test-python) $ molecule test --all
+    (test-python) $ molecule --base-config ../../../.config/molecule/config.yml test --all
 
+To run a test using the `podman` driver, `ansible-test-env-podman.rc` also
+needs to be sourced, and specify the `config_podman.yml` molecule config.
+
+.. code-block:: console
+
+    (test-python) $ source ansible-test-env.rc
+    (test-python) $ source ansible-test-env-podman.rc
+    (test-python) $ cd tripleo_ansible/roles/${NEWROLENAME}/
+    (test-python) $ molecule --base-config ../../../.config/molecule/config_podman.yml test --all
 
 If a role has more than one scenario, a specific scenario can be
 specified on the command line. Running specific scenarios will

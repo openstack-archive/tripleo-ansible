@@ -48,17 +48,6 @@
     - (ansible_facts['os_family'] | lower) == 'redhat'
     - mirrors_file.stat.exists | bool
   block:
-    - name: Fetch latest repo version
-      uri:
-        url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
-        return_content: true
-      register: tripleo_packages
-
-    - name: Create default repo file
-      copy:
-        content: "{{ tripleo_packages.content }}"
-        dest: /etc/yum.repos.d/delorean.repo
-
     - name: Disable ubi host subscription-manager integration
       file:
         path: /etc/rhsm-host
@@ -74,6 +63,22 @@
         - ubi-9-appstream
         - ubi-9-baseos
         - ubi-9-codeready-builder
+
+- name: tripleo-repos Block
+  become: true
+  when:
+    - (ansible_facts['os_family'] | lower) == 'redhat'
+  block:
+    - name: Fetch latest repo version
+      uri:
+        url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
+        return_content: true
+      register: tripleo_packages
+
+    - name: Create default repo file
+      copy:
+        content: "{{ tripleo_packages.content }}"
+        dest: /etc/yum.repos.d/delorean.repo
 
 - name: Install tripleo-repos package
   become: true
