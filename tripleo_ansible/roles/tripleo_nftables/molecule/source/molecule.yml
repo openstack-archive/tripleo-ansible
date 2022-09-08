@@ -1,0 +1,29 @@
+---
+log: true
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp/molecule/facts
+  inventory:
+    hosts:
+      all:
+        hosts:
+          instance:
+            ansible_host: localhost
+  log: true
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${HOME}/zuul-jobs/roles"
+
+scenario:
+  name: source
+  test_sequence:
+    - prepare
+    - converge
+    - check
+
+verifier:
+  name: testinfra
