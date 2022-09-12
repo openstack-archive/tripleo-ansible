@@ -95,10 +95,18 @@ mapping:
 
 
 def _get_interfaces():
-    eth_addr = [
+    eth_addr = []
+
+    for x in os.listdir('/sys/class/net/'):
+        excluded_ints = ['lo', 'vnet']
+        int_subdir = '/sys/class/net/{}/'.format(x)
+
+        if x in excluded_ints or not os.path.isdir(int_subdir):
+            continue
         # cast to lower case for MAC address match
-        open('/sys/class/net/{}/address'.format(x)).read().strip().lower()
-        for x in os.listdir('/sys/class/net/')]
+        mac_addr = open('/sys/class/net/{}/address'.format(x)).read().strip().lower()
+        eth_addr.append(mac_addr)
+
     eth_addr = list(filter(None, eth_addr))
 
     return eth_addr
