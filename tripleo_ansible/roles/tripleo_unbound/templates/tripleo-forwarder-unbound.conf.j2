@@ -19,16 +19,6 @@ forward-zone:
 {% for forwarder in tripleo_unbound_forward_resolvers %}
     forward-addr: {{ forwarder }}
 {% endfor %}
-{% if tripleo_unbound_forward_resolvers|length == 0 %}
-{% if groups.designate_bind is defined %}
-{% for server in groups.designate_bind %}
-    forward-addr: {{ hostvars[server].tripleo_dns_listen_interfaces[0] }}
-{% endfor %}
-{% endif %}
-{% for server in tripleo_external_bind_servers %}
-    forward-addr: {{ server.host }}
-{% endfor %}
-{% endif %}
 {% if tripleo_unbound_forward_fallback and tripleo_unbound_allow_recursion %}
     forward-first: yes
 {% else %}
