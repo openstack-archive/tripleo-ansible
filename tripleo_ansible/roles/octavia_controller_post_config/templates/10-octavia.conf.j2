@@ -1,14 +1,41 @@
 module(load="im{{ log_offload_protocol }}")
 input(type="im{{ log_offload_protocol }}" address="{{ mgmt_port_ip }}" port="514")
 
+{% macro forwarder(type, log_targets) %}
+{% if (log_targets|length) > 0 %}
+ruleset(name="{{ type }}_forwarding" queue.type="linkedList" queue.size="10000") {
+{% for target in log_targets %}
+    action(type="omfwd"
+           {%- set host, port = target.split(':') -%}
+           target="{{ host }}"
+           port="{{ port }}"
+           protocol="{{ log_offload_protocol }}"
+           action.resumeRetryCount="5"
+           action.resumeInterval="2"
+           {% if not loop.first %}action.execOnlyWhenPreviousIsSuspended="on"{%- endif %}
+           )
+{% endfor %}
+}
+{% endif %}
+{% endmacro %}
+
+{{ forwarder('tenant', tenant_log_targets) }}
+{{ forwarder('admin', admin_log_targets) }}
+
 # Output the amphora tenant traffic flow logs
 if ($inputname == "im{{ log_offload_protocol }}" and $syslogfacility-text == "local0" and $syslogseverity-text == "info" and $hostname startswith "amphora") then {
     action(type="omfile" FileCreateMode="0644" File="/var/log/octavia/octavia-tenant-traffic.log")
+{% if (tenant_log_targets|length) > 0 %}
+    call tenant_forwarding
+{% endif %}
     stop
 }
 
 # Output the amphora administrative logs
 if ($inputname == "im{{ log_offload_protocol }}" and $syslogfacility-text != "local0" and $hostname startswith "amphora") then {
     action(type="omfile" FileCreateMode="0644" File="/var/log/octavia/octavia-amphora.log")
+{% if (admin_log_targets|length) > 0 %}
+    call admin_forwarding
+{% endif %}
     stop
 }
