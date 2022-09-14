@@ -1,0 +1,8 @@
+---
+# A test case to install only, no special checks but idempotence
+test_skip_tags:
+  - configure
+  - run
+test_tags:
+  - install
+molecule_tags_enforce: false

@@ -1,0 +1,3 @@
+---
+# A test case to install, configure all, then run all libvirt containers
+# No config checks as libvirt containers got same config files generated
