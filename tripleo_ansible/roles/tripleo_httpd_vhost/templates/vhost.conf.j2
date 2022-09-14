@@ -1,0 +1,42 @@
+# File managed by tripleo-ansible/tripleo_httpd_vhost
+<VirtualHost {{ tripleo_httpd_vhost_bind_host }}:{{ tripleo_httpd_vhost_bind_port }}>
+  ServerName {{ tripleo_httpd_vhost_servername }}
+
+  ## Vhost docroot
+  DocumentRoot "{{ tripleo_httpd_vhost_document_root }}"
+
+  <Directory "{{ tripleo_httpd_vhost_document_root }}">
+    Options -Indexes +FollowSymLinks +MultiViews
+    AllowOverride None
+    Require all granted
+  </Directory>
+
+  ## Logging
+  ErrorLog "{{ tripleo_httpd_vhost_error_log_file }}"
+  ServerSignature Off
+  CustomLog "{{ tripleo_httpd_vhost_access_log_file }}" {{ tripleo_httpd_vhost_access_log_format }}
+  SetEnvIf X-Forwarded-Proto https HTTPS=1
+{% for request_header in tripleo_httpd_vhost_request_headers %}
+  RequestHeader {{ request_header }}
+{% endfor -%}
+{% for header in tripleo_httpd_vhost_headers %}
+  Header {{ header }}
+{% endfor %}
+{% if tripleo_httpd_vhost_allow_encoded_slashes != None %}
+  AllowEncodedSlashes {{ tripleo_httpd_vhost_allow_encoded_slashes }}
+{% endif %}
+
+{% if tripleo_httpd_vhost_wsgi|bool %}
+{%   include 'templates/wsgi.inc.j2' %}
+{% endif %}
+{% if tripleo_httpd_vhost_ssl|bool %}
+{%   include 'templates/ssl.inc.j2' %}
+{% endif %}
+{% if tripleo_httpd_vhost_proxy|bool %}
+{%   include 'templates/proxy.inc.j2' %}
+{% endif %}
+
+{%- for option, value in tripleo_httpd_vhost_custom_options.items() %}
+  {{ option }} {{ value }}
+{% endfor %}
+</VirtualHost>
