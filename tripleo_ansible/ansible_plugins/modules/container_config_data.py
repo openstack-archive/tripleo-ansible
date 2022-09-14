@@ -165,8 +165,8 @@ class ContainerConfigDataManager(object):
         :returns: string
         """
         if os.path.exists(path):
-            f = open(path, 'r')
-            return f.read()
+            with open(path, 'r') as f:
+                return f.read()
         else:
             self.module.warn('{} was not found.'.format(path))
             return ''
