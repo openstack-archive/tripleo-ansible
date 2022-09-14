@@ -37,6 +37,10 @@ tripleo_httpd_vhost_document_root: '/var/www/cgi-bin'
 tripleo_httpd_vhost_error_log_file: "/var/log/httpd/{{ tripleo_httpd_vhost_access_log_name }}_error.log"
 tripleo_httpd_vhost_group: 'apache'
 tripleo_httpd_vhost_headers: []
+tripleo_httpd_vhost_options:
+  - '-Indexes'
+  - '+FollowSymLinks'
+  - '+MultiViews'
 tripleo_httpd_vhost_path: '/'
 tripleo_httpd_vhost_priority: 10
 tripleo_httpd_vhost_proxy: false
