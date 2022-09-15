@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,15 +12,23 @@
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
-# under the License.
+# under the License
 
-
-- name: Prepare
-  hosts: all
+- name: Ensure podman socket directory exists
   become: true
-  gather_facts: true
-  roles:
-    - role: test_deps
-      test_deps_extra_packages:
-        - runc
-        - containernetworking-plugins
+  ansible.builtin.file:
+    path: "{{ tripleo_podman_socket_path | dirname }}"
+    state: directory
+
+- name: Create required systemd unit file for podman service
+  become: true
+  ansible.builtin.template:
+    src: podman.service.j2
+    dest: "/etc/systemd/system/{{ tripleo_podman_service_unit_name }}"
+    mode: 0644
+
+- name: Enable podman service unit
+  ansible.builtin.service:
+    name: "{{ tripleo_podman_service_unit_name }}"
+    state: started
+    enabled: true

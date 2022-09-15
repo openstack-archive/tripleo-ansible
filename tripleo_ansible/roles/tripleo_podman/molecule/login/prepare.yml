@@ -33,6 +33,9 @@
 
   roles:
     - role: test_deps
+      test_deps_extra_packages:
+        - runc
+        - containernetworking-plugins
 
   tasks:
     - name: Disable SELinux
