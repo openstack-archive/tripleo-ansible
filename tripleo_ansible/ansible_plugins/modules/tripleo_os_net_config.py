@@ -130,7 +130,9 @@ def _generate_default_cfg():
     network_interfaces = []
     for i in os.listdir('/sys/class/net/'):
         excluded_ints = ['lo', 'vnet']
-        if i in excluded_ints:
+        int_subdir = '/sys/class/net/{}/'.format(i)
+
+        if i in excluded_ints or not os.path.isdir(int_subdir):
             continue
         mac_addr_type = int(open('/sys/class/net/{}/'
                                  'addr_assign_type'.format(i)).read().strip())
