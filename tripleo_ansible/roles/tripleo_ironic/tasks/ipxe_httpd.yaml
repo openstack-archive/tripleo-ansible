@@ -7,7 +7,6 @@
     tripleo_httpd_vhost_group: "{{ tripleo_httpd_vhost_user }}"
     tripleo_httpd_vhost_access_log_name: "{{ tripleo_httpd_vhost_servername }}"
     tripleo_httpd_vhost_document_root: '/var/lib/ironic/httpboot'
-    tripleo_httpd_vhost_bind_port: 8088
     tripleo_httpd_vhost_options:
       - 'Indexes'
       - 'FollowSymLinks'
