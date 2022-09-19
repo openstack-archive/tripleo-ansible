@@ -37,7 +37,7 @@
 
     - name: add vms pool
       set_fact:
-        vms: [{'name': '{{ ceph_pools.nova_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }} ', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
+        vms: [{'name': '{{ ceph_pools.nova_pool.name }}', 'pg_num': '{{ ceph_pools.pg_num | default(omit) }}', 'rule_name': 'replicated_rule', 'application': 'rbd'}]
       when:
         - tripleo_pool_vms
         - ceph_pools.nova_pool.name not in overrides|default([])
