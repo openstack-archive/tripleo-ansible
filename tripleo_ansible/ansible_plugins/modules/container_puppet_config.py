@@ -420,8 +420,8 @@ class ContainerPuppetManager:
         :returns: string
         """
         if self._exists(path):
-            f = open(path, 'r')
-            return f.read()
+            with open(path, 'r') as f:
+                return f.read()
         else:
             self.module.warn('{} was not found.'.format(path))
             return ''
@@ -432,8 +432,8 @@ class ContainerPuppetManager:
         :param path: string
         :param config: string
         """
-        f = open(path, 'wb')
-        f.write(json.dumps(config, indent=2).encode('utf-8'))
+        with open(path, 'wb') as f:
+            f.write(json.dumps(config, indent=2).encode('utf-8'))
         os.chmod(path, 0o600)
         self.results['changed'] = True
 

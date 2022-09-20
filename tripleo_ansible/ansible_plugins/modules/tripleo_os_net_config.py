@@ -143,18 +143,15 @@ def _generate_default_cfg():
 
         if i in excluded_ints or not os.path.isdir(int_subdir):
             continue
-        mac_addr_type = int(open('/sys/class/net/{}/'
-                                 'addr_assign_type'.format(i)).read().strip())
+        with open('/sys/class/net/{}/addr_assign_type'.format(i), 'r') as f:
+            mac_addr_type = int(f.read().strip())
+
         if mac_addr_type != 0:
             print('Device {} has generated MAC, skipping.'.format(i))
             continue
-        try:
-            open('/sys/class/net/{}/'
-                 'device/physfn'.format(i))
+        if os.path.exists('/sys/class/net/{}/device/physfn'.format(i)):
             print("Device ({}) is a SR-IOV VF, skipping.".format(i))
             continue
-        except FileNotFoundError:
-            pass
         retries = 10
         has_link = _has_link(i)
         while has_link and retries > 0:
@@ -182,8 +179,8 @@ def _generate_default_cfg():
 
 def _has_link(interface):
     try:
-        has_link = int(open('/sys/class/net/{}/'
-                            'carrier'.format(interface)).read().strip())
+        with open('/sys/class/net/{}/carrier'.format(interface)) as f:
+            has_link = int(f.read().strip())
     except FileNotFoundError:
         has_link = 0
     if has_link == 1:

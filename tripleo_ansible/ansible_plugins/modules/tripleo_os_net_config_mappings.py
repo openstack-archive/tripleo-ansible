@@ -104,7 +104,8 @@ def _get_interfaces():
         if x in excluded_ints or not os.path.isdir(int_subdir):
             continue
         # cast to lower case for MAC address match
-        mac_addr = open('/sys/class/net/{}/address'.format(x)).read().strip().lower()
+        with open('/sys/class/net/{}/address'.format(x)) as f:
+            mac_addr = f.read().strip().lower()
         eth_addr.append(mac_addr)
 
     eth_addr = list(filter(None, eth_addr))
