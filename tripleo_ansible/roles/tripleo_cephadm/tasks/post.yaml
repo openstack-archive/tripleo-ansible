@@ -16,8 +16,6 @@
 
 - name: Get ceph_cli
   include_tasks: ceph_cli.yaml
-  vars:
-    mount_spec: true
 
 - name: Get the ceph orchestrator status
   command: "{{ tripleo_cephadm_ceph_cli }} orch status --format json"
