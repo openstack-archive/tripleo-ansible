@@ -50,7 +50,10 @@ class CallbackModule(CallbackBase):
             'JSON_ERROR_LOG_FILE', 'ansible-errors.json')
 
     def v2_playbook_on_stats(self, stats):
-        with open(self.log_file, 'w') as f:
+        fdesc = os.open(path=self.log_file,
+                        flags=(os.O_WRONLY | os.O_CREAT | os.O_TRUNC),
+                        mode=0o640)
+        with os.fdopen(fdesc, 'w') as f:
             f.write(json.dumps(self.errors))
 
     def v2_runner_on_failed(self, result, ignore_errors=False):

@@ -237,7 +237,10 @@ class ActionModule(ActionBase):
             all_nodes = dict(all_nodes)
             all_nodes_path = os.path.join(task_vars['playbook_dir'],
                                           'group_vars', 'overcloud.json')
-            with open(all_nodes_path, 'w') as f:
+            fdesc = os.open(path=all_nodes_path,
+                            flags=(os.O_WRONLY | os.O_CREAT | os.O_TRUNC),
+                            mode=0o640)
+            with os.fdopen(fdesc, 'w') as f:
                 DISPLAY.vv("Rendering all_nodes to {}".format(all_nodes_path))
                 json.dump(all_nodes, f, sort_keys=True, indent=4)
         except Exception as e:
