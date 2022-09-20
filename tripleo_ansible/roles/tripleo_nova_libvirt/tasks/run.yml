@@ -34,7 +34,7 @@
           nova_libvirt_init_secret: "{{ lookup('file', 'files/nova_libvirt_init_secret.yaml') | from_yaml }}"
 
     - name: Run nova_libvirt containers
-      import_role:
+      include_role:
         name: tripleo_container_standalone
       vars:
         tripleo_container_standalone_service: nova_libvirt
