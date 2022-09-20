@@ -32,7 +32,14 @@
   tags:
     - always
 
-- name: Create {{ tripleo_container_standalone_kolla_config_dir }}
+- name: Ensure {{ tripleo_container_standalone_kolla_config_dir }} exists
+  file:
+    path: "{{ tripleo_container_standalone_kolla_config_dir }}"
+    state: directory
+    recurse: true
+    setype: container_file_t
+
+- name: Create kolla config files
   copy:
     content: "{{ item.value | to_nice_json }}"
     dest: "{{ tripleo_container_standalone_kolla_config_dir ~ '/' ~ item.key ~ '.json' }}"
