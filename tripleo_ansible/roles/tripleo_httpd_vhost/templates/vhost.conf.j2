@@ -11,6 +11,8 @@
     Require all granted
   </Directory>
 
+{% include 'templates/locations.inc.j2' %}
+
   ## Logging
   ErrorLog "{{ tripleo_httpd_vhost_error_log_file }}"
   ServerSignature Off
