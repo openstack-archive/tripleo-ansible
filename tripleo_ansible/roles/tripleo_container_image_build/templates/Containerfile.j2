@@ -13,10 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+FROM {{ tcib_from }}
 {% for key, value in tcib_args.items() %}
 ARG {{ key }}={{ value | to_json }}
 {% endfor %}
-FROM {{ tcib_from }}
 {% for key, value in tcib_labels.items() %}
 LABEL {{ key }}={{ value | to_json }}
 {% endfor %}
