@@ -22,10 +22,10 @@ tripleo_ceph_client_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_ceph_client_hide_sensitive_logs: true
 tripleo_ceph_client_config_home: "/etc/ceph"
 tripleo_ceph_client_fetch_dir: "{{ playbook_dir }}/ceph_client_fetch_dir"
-tripleo_ceph_client_cluster: "ceph"
-tripleo_ceph_client_fsid: ''
+tripleo_ceph_client_cluster: "{{ tripleo_ceph_cluster_name | default('ceph', true) }}"
+tripleo_ceph_client_fsid: "{{ tripleo_ceph_cluster_fsid | default('', true) }}"
 tripleo_ceph_client_mon_ips: []
-tripleo_ceph_client_keys: []
+tripleo_ceph_client_keys: "{{ tripleo_ceph_cluster_keys | default([], true) }}"
 tripleo_ceph_client_config_overrides: {}
 tripleo_ceph_client_rbd_admin_socket_path: '/var/run/ceph'
 tripleo_ceph_client_rbd_log_path: '/var/log/ceph'
