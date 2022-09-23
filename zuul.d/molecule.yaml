@@ -234,7 +234,6 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: backup_and_restore
-    voting: false
 - job:
     files:
     - ^tripleo_ansible/roles/designate_bind_config/(?!meta).*

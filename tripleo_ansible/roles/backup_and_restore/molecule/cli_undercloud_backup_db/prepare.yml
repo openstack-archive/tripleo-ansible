@@ -86,7 +86,7 @@
         name: "{{ item }}"
       with_items:
         - registry.access.redhat.com/ubi9/ubi-minimal
-        - docker.io/mysql
+        - quay.io/mariadb-foundation/mariadb-devel:10.11
 
     - name: Create a data container
       containers.podman.podman_container:
@@ -98,10 +98,10 @@
         - test-container1
         - test-container2
 
-    - name: Start myql container
+    - name: Start mysql container
       containers.podman.podman_container:
         name: mysql
-        image: mysql
+        image: quay.io/mariadb-foundation/mariadb-devel:10.11
         state: started
         env:
           MYSQL_ROOT_PASSWORD: password
