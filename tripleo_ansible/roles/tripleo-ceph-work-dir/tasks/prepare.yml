@@ -14,30 +14,33 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: create ceph-ansible temp dirs
+- name: generate ceph-ansible workdir
   become: true
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-  with_items:
-    - "{{ playbook_dir }}/ceph-ansible"
-    - "{{ playbook_dir }}/ceph-ansible/group_vars"
-    - "{{ playbook_dir }}/ceph-ansible/host_vars"
-    - "{{ playbook_dir }}/ceph-ansible/fetch_dir"
+  block:
+    - name: create ceph-ansible temp dirs
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: '0750'
+      with_items:
+        - "{{ playbook_dir }}/ceph-ansible"
+        - "{{ playbook_dir }}/ceph-ansible/group_vars"
+        - "{{ playbook_dir }}/ceph-ansible/host_vars"
+        - "{{ playbook_dir }}/ceph-ansible/fetch_dir"
 
-- name: symbolic link to tripleo inventory from ceph-ansible work directory
-  # If we call ceph-ansible with the same inventory as the calling
-  # playbook, then config-download/groups_vars will be used instead
-  # of config-download/ceph-ansible/group_vars.
-  file:
-    src: "{{ inventory_file }}"
-    dest: "{{ playbook_dir }}/ceph-ansible/inventory.yml"
-    state: link
-    force: true
-  tags:
-    - run_uuid_ansible
-    - run_ceph_ansible
+    - name: symbolic link to tripleo inventory from ceph-ansible work directory
+      # If we call ceph-ansible with the same inventory as the calling
+      # playbook, then config-download/groups_vars will be used instead
+      # of config-download/ceph-ansible/group_vars.
+      file:
+        src: "{{ inventory_file }}"
+        dest: "{{ playbook_dir }}/ceph-ansible/inventory.yml"
+        state: link
+        force: true
+      tags:
+        - run_uuid_ansible
+        - run_ceph_ansible
 
 - name: get the list of enabled services on the overcloud
   set_fact:
@@ -81,21 +84,26 @@
 - name: build ceph config overrides
   include_tasks: build_config_overrides.yml
 
-- name: generate ceph-ansible group vars all
-  copy:
-    dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
-    content: "{{ ceph_ansible_group_vars_all | combine(ceph_overrides|default({}))
-             | combine(openstack_pools|default({'openstack_pools': []})) | combine(openstack_keys|default({'openstack_keys': []}))
-             | combine(keys|default({'keys': []})) | combine(cephfs_data|default({})) | combine(cephfs_metadata|default({})) | to_nice_yaml }}"
+- name: Generate ceph-ansible variables
+  become: true
+  block:
+    - name: generate ceph-ansible group vars all
+      copy:
+        mode: '0640'
+        dest: "{{ playbook_dir }}/ceph-ansible/group_vars/all.yml"
+        content: "{{ ceph_ansible_group_vars_all | combine(ceph_overrides|default({}))
+                 | combine(openstack_pools|default({'openstack_pools': []})) | combine(openstack_keys|default({'openstack_keys': []}))
+                 | combine(keys|default({'keys': []})) | combine(cephfs_data|default({})) | combine(cephfs_metadata|default({})) | to_nice_yaml }}"
 
-- name: generate ceph-ansible extra vars
-  copy:
-    dest: "{{ playbook_dir }}/ceph-ansible/extra_vars.yml"
-    content: "{{ ceph_ansible_extra_vars | to_nice_yaml }}"
+    - name: generate ceph-ansible extra vars
+      copy:
+        dest: "{{ playbook_dir }}/ceph-ansible/extra_vars.yml"
+        content: "{{ ceph_ansible_extra_vars | to_nice_yaml }}"
 
 - when:
     - ceph_external_multi_config is defined
     - (ceph_external_multi_config|length) > 0
+  become: true
   block:
 
     - name: generate ceph-ansible extra vars foreach ceph in ceph_external_multi_config

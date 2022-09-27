@@ -15,8 +15,10 @@
 # under the License.
 
 - name: generate create_ceph_ansible_remote_tmp playbook
+  become: true
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/create_ceph_ansible_remote_tmp.yml"
+    mode: '0640'
     content: |
       - hosts: all
         gather_facts: no

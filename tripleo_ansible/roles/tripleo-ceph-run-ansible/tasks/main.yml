@@ -78,9 +78,10 @@
         calling_ansible_log_path: "{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log"
 
 - name: save ceph-ansible playbook command(s) to shell script
+  become: true
   copy:
     dest: "{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.sh"
-    mode: '0755'
+    mode: '0750'
     content: |
       #!/usr/bin/env bash
       set -e
@@ -101,9 +102,10 @@
         ceph_default: "{{ [playbook_dir + '/ceph-ansible/ceph_ansible_command.sh'] }}"
 
     - name: save external ceph-ansible playbook command(s) to shell script(s)
+      become: true
       copy:
         dest: "{{ ceph_prefix + item + ceph_suffix }}"
-        mode: '0755'
+        mode: '0750'
         content: |
           #!/usr/bin/env bash
           set -e
