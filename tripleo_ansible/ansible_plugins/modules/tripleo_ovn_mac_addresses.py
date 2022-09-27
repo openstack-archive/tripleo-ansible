@@ -241,8 +241,6 @@ def run_module():
             _, conn = openstack_cloud_from_module(module)
             net_id = create_ovn_mac_address_network(result, conn)
             tags = ['tripleo_stack_name={}'.format(stack)]
-            if role_name:
-                tags.append('tripleo_role={}'.format(role_name))
 
             # no limit on concurrency, create a worker for every server
             if concurrency < 1:
