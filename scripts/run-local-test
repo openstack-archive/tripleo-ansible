@@ -40,6 +40,8 @@ function run_pip {
                                   -r "${PROJECT_DIR}/requirements.txt" \
                                   -r "${PROJECT_DIR}/test-requirements.txt" \
                                   -r "${PROJECT_DIR}/molecule-requirements.txt" ${@:-}
+    # Required by authorized_key module used in tripleo_ansible/playbooks/prepare-test-host.yml
+    "${HOME}/test-python/bin/ansible-galaxy" collection install ansible.posix
 }
 
 ## Main ----------------------------------------------------------------------
@@ -49,10 +51,17 @@ source /etc/os-release || source /usr/lib/os-release
 RHT_PKG_MGR=$(command -v dnf || command -v yum)
 PYTHON_EXEC=$(command -v python3 || command -v python)
 
-# Install the one requirement we need to run any local test
+# Install the requirements we need to run local tests
+sudo dnf -y install gcc
 case "${ID,,}" in
-    amzn|rhel|centos|fedora)
-        sudo "${RHT_PKG_MGR}" install -y gcc python*-virtualenv
+    amzn|fedora)
+        sudo "${RHT_PKG_MGR}" install -y python*-virtualenv
+        ;;
+    rhel|centos)
+        # Virtualenv no longer packaged for RHEL/CentOS 9. We will have to use
+        # system pip to install it.
+        sudo dnf -y install python*-pip
+        sudo pip install virtualenv
         ;;
 esac
 

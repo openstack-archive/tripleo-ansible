@@ -1,0 +1,16 @@
+---
+all:
+  hosts:
+    tripleo_compute_node: &id001
+      ansible_connection: podman
+      ansible_podman_executable: podman
+  children:
+    Compute:
+      hosts:
+        tripleo_compute_node:
+    overcloud:
+      children:
+        Compute:
+    allovercloud:
+      children:
+        overcloud:
