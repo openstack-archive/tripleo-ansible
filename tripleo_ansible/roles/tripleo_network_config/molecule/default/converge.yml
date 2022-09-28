@@ -18,7 +18,6 @@
 - name: Converge
   hosts: all
   vars:
-    tripleo_network_config_with_ansible: true
     tripleo_network_config_template: templates/standalone.j2
     tripleo_network_config_manage_service: false
     tripleo_network_config_hide_sensitive_logs: false
