@@ -63,10 +63,6 @@ options:
       - Name of the overcloud stack
     type: str
     default: overcloud
-  role_name:
-    description:
-      - TripleO role name
-    type: str
   ovn_bridge_mappings:
     description:
       - OVN bridge mappings
@@ -95,7 +91,6 @@ EXAMPLES = '''
 - name: Create OVN Mac address ports
   tripleo_ovn_mac_addresses:
     stack_name: overcloud
-    role_name: Controller
     bridge_mappings:
       - datacentre:br-ex
     server_resource_names:
@@ -105,7 +100,6 @@ EXAMPLES = '''
 - name: Create OVN Mac address ports (static)
   tripleo_ovn_mac_addresses:
     stack_name: overcloud
-    role_name: Controller
     bridge_mappings:
       - datacentre:br-ex
     server_resource_names:
@@ -226,7 +220,6 @@ def run_module():
     )
 
     stack = module.params.get('stack_name', 'overcloud')
-    role_name = module.params['role_name']
     bridge_mappings = module.params['ovn_bridge_mappings'] or []
     servers = module.params.get('server_resource_names') or []
     playbook_dir = module.params['playbook_dir']
