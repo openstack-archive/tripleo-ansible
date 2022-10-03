@@ -29,7 +29,6 @@
 #   dport: 22
 #   extras:
 #     ensure: 'absent'
-tripleo_firewall_engine: 'iptables'
 
 tripleo_firewall_rules: {}
 

@@ -87,14 +87,7 @@
       list
     }}"
 
-- name: Manage rules via iptables
-  when:
-    - tripleo_firewall_engine == 'iptables'
-  include_tasks: iptables.yaml
-
 - name: Manage rules via nftables
-  when:
-    - tripleo_firewall_engine == 'nftables'
   vars:
     tripleo_nftables_rules: "{{ firewall_rules_sorted | sort(attribute='rule_name') |list }}"
   include_role:

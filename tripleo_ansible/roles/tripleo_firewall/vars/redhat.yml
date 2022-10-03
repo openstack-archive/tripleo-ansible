@@ -20,4 +20,4 @@
 # intended to be modified.
 
 tripleo_firewall_packages:
-  - iptables-services
+  - nftables
