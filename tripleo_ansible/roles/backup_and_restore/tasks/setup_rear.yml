@@ -220,7 +220,7 @@
       echo "Taking a fresh ceph data backup if this controller has co-located cephs"
       mount -t {{ tripleo_backup_and_restore_ceph_device_format.stdout }} {{ tripleo_backup_and_restore_ceph_device.stdout }} /mnt/local
       cd /mnt/local
-      [ -d "var/lib/ceph" ] && tar cvfz /tmp/ceph.tar.gz var/lib/ceph --xattrs --xattrs-include='*.*' --acls
+      [ -d "lib/ceph" ] && tar cvfz /tmp/ceph.tar.gz lib/ceph --xattrs --xattrs-include='*.*' --acls
       cd /
       umount {{ tripleo_backup_and_restore_ceph_device.stdout }}
   when: varlibceph_dir.stat.exists
@@ -233,8 +233,8 @@
     content: |
       echo "Restoring ceph backup if it exists"
       if [ -f "/tmp/ceph.tar.gz" ]; then
-        rm -rf /mnt/local/var/lib/ceph/*
-        tar xvC /mnt/local -f /tmp/ceph.tar.gz var/lib/ceph --xattrs --xattrs-include='*.*'
+        rm -rf /mnt/local/lib/ceph/*
+        tar xvC /mnt/local -f /tmp/ceph.tar.gz lib/ceph --xattrs --xattrs-include='*.*'
       fi
   when: varlibceph_dir.stat.exists
   tags:
