@@ -47,6 +47,17 @@
     - not ('No package openvswitch available.' in tripleo_bootstrap_packages_bootstrap_result.failures | default([]))
   register: tripleo_bootstrap_packages_bootstrap_result
 
+- name: Enable openvswitch service if installed
+  become: true
+  service:
+    name: openvswitch
+    enabled: true
+    state: started
+  register: openvswitch_service_start
+  failed_when:
+    - not 'Could not find the requested service' in openvswitch_service_start.msg|default('')
+    - openvswitch_service_start is failed
+
 - name: Create /var/lib/heat-config/tripleo-config-download directory for deployment data
   become: true
   file:
