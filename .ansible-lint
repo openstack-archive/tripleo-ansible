@@ -48,7 +48,6 @@ mock_modules:
     - tripleo_get_introspected_data
     - tripleo_get_role_list
     - tripleo_image_params_prepare
-    - tripleo_iptables
     - tripleo_network_populate_environment
     - tripleo_network_ports_populate_environment
     - tripleo_os_net_config
