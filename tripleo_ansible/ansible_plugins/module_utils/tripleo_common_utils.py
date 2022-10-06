@@ -23,17 +23,12 @@ import os
 
 from heatclient.v1 import client as heatclient
 from ironicclient import client as ironicclient
-from novaclient import client as novaclient
 
 from tripleo_common.utils import heat as tc_heat_utils
 from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
 
 import ironic_inspector_client
-
-
-class DeriveParamsError(Exception):
-    """Error while performing a derive parameters operation"""
 
 
 class TripleOCommon(object):
@@ -85,25 +80,6 @@ class TripleOCommon(object):
                     heatclient.Client(session=self.sess)
             return self.client_cache['heatclient']
 
-    def get_compute_client(self):
-        """Return the compute (nova) client.
-
-        This method will return a client object using the legacy library. Upon
-        the creation of a successful client creation, the client object will
-        be stored in the `self.client_cache object`, should this method be
-        called more than once, the cached object will automatically return,
-        resulting in fewer authentications and faster API interactions.
-
-        :returns: Object
-        """
-
-        if 'novaclient' in self.client_cache:
-            return self.client_cache['novaclient']
-        else:
-            self.client_cache['novaclient'] = \
-                novaclient.Client(version=2, session=self.sess)
-            return self.client_cache['novaclient']
-
     def get_baremetal_client(self):
         """Return the baremetal (ironic) client.
 
@@ -138,17 +114,3 @@ class TripleOCommon(object):
 
         client = self.get_ironic_inspector_client()
         return client.get_data(node_id=node_id)
-
-    def return_flavor_profile(self, flavor_name):
-        """Return flavor profile information.
-
-        :param flavor_name: Flavor name
-        :type flavor_name: String
-
-        :returns: Object
-        """
-
-        return parameters.get_profile_of_flavor(
-            flavor_name=flavor_name,
-            compute_client=self.get_compute_client()
-        )

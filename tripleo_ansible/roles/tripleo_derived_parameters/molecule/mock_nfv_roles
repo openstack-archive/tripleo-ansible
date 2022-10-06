@@ -1,8 +1,0 @@
-changed: false
-error: null
-failed: false
-roles:
-- Controller
-- ComputeOvsDpdk
-- ComputeSriov
-success: true
