@@ -45,15 +45,6 @@
     - name: Delete OVN MAC Address ports
       tripleo_ovn_mac_addresses:
         stack_name: "{{ stack_name }}"
-    - name: Delete heat stack
-      openstack.cloud.stack:
-        name: "{{ stack_name }}"
-        state: absent
-      register: stack_delete
-      until: stack_delete is success
-      delay: 4
-      retries: 16
-      when: heat_stack_delete|default(false)
     - name: Remove the config download stack
       file:
         path: "{{ config_download_path }}/{{ stack_name }}"
