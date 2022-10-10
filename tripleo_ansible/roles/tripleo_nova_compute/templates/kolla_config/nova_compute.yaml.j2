@@ -29,13 +29,13 @@ permissions:
   - path: {{ "/etc/ceph/" ~ tripleo_nova_compute_ceph_cluster_name ~ ".client." ~ tripleo_nova_compute_ceph_client_user_name ~ ".keyring" }}
     owner: nova:nova
     perm: '0600'
-{%- for store in tripleo_nova_compute_glance_multistore_config %}
+{% for _, store in tripleo_nova_compute_glance_multistore_config.items() %}
   - path: /etc/ceph/{{ store.CephClusterName | default(tripleo_nova_compute_ceph_cluster_name) }}.client.{{ store.CephClientUserName | default(tripleo_nova_compute_ceph_client_user_name) }}.keyring
     owner: nova:nova
     perm: '0600'
-{%- endfor -%}
-{%- for store in tripleo_nova_compute_cinder_rbd_multi_config %}
+{% endfor %}
+{% for _, store in tripleo_nova_compute_cinder_rbd_multi_config.items() %}
   - path: /etc/ceph/{{ store.CephClusterName | default(tripleo_nova_compute_ceph_cluster_name) }}.client.{{ store.CephClientUserName | default(tripleo_nova_compute_ceph_client_user_name) }}.keyring
     owner: nova:nova
     perm: '0600'
-{%- endfor -%}
+{% endfor %}
