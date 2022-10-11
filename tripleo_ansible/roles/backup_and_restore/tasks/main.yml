@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 # "backup_and_restore" will search for and load any operating system variable file
 
 # found within the "vars/" path. If no OS files are found the task will skip.
