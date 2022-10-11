@@ -29,15 +29,12 @@
 - name: IPtables compatibility layout
   become: true
   block:
-    - name: Push initial, empty ruleset
-      register: init_nftables
+    - name: Push empty ruleset
       copy:
         dest: /etc/nftables/iptables.nft
         src: iptables.nft
 
-    - name: Load empty ruleset if needed
-      when:
-        - init_nftables is changed
+    - name: Load empty ruleset
       ansible.builtin.command: nft -f /etc/nftables/iptables.nft
 
 # Get current nft rules in JSON format, with our iptables compat content.
@@ -123,11 +120,9 @@
   become: true
   ansible.builtin.command: nft -f /etc/nftables/tripleo-chains.nft
 
-# Here, we make different call in order to avoid jumps duplication.
-# In both cases, we flush the custom chains. Doing things like that ensures
-# we run all, from the flush to the rule creation, in a single transaction.
+# Load all the ruleset in a single transaction.
 # This prevents accidental lock-outs.
-- name: Reload custom nftables ruleset WITH jumps
+- name: Reload custom nftables ruleset files
   become: true
   ansible.builtin.shell: >-
     cat /etc/nftables/tripleo-flushes.nft
