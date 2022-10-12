@@ -1,0 +1,71 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# This role reconfigures the container image used by a pacemaker resource bundle.
+# - The resource is updated without triggering a cluster-wide resource restart, by
+#   using a pacemaker idiom unmanage/update/cleanup/manage. This way, service is
+#   not disrupted.
+# - The new container image name is automatically tagged in podman on all nodes
+#   to point to the original container image ID. This tag is meant to be updated
+#   later during the minor update to point to a new container image, without causing
+#   any service disruption.
+# - A file on disk keeps track of the old image name used by the pacemaker resource
+#   bundle. This is used by role tripleo_ha_wrapper to clean up the old image once
+#   it is no longer used on the node.
+#
+# The following variables are required:
+# - tripleo_ha_image_update_node_names: The nodes that host the bundle replicas
+# - tripleo_ha_image_update_bundle: The name of the ocf bundle resource to update (e.g. galera-bundle)
+# - tripleo_ha_image_update_new_image: The name of the container image to use
+# - tripleo_ha_image_update_old_image: Old container image name to remove from podman
+
+- when:
+    - tripleo_ha_image_update_old_image != tripleo_ha_image_update_new_image
+    - tripleo_ha_image_update_node_names | length > 0
+  block:
+    - name: "Temporary pacemaker container tag for bundle {{ tripleo_ha_image_update_bundle }}"
+      include_role:
+        name: tripleo_container_tag
+        apply:
+          delegate_to: '{{ item }}'
+      vars:
+        container_image: '{{ tripleo_ha_image_update_old_image }}'
+        container_image_latest: '{{ tripleo_ha_image_update_new_image }}'
+        tripleo_container_pull_image: false
+      loop: '{{ tripleo_ha_image_update_node_names }}'
+
+    - name: "Keep track of the old container image name tag for bundle {{ tripleo_ha_image_update_bundle }}"
+      copy:
+        dest: '{{ tripleo_ha_image_update_file_prefix }}{{ tripleo_ha_image_update_bundle }}'
+        content: '{{ tripleo_ha_image_update_old_image }}'
+      delegate_to: '{{ item }}'
+      loop: '{{ tripleo_ha_image_update_node_names }}'
+
+    - name: "Unmanage the bundle {{ tripleo_ha_image_update_bundle }}"
+      command: 'pcs resource unmanage {{ tripleo_ha_image_update_bundle }}'
+      delegate_to: '{{ tripleo_ha_image_update_node_names[0] }}'
+
+    - name: "Update the bundle {{ tripleo_ha_image_update_bundle }} to use the new container image name"
+      command: 'pcs resource bundle update {{ tripleo_ha_image_update_bundle }} container image={{ tripleo_ha_image_update_new_image }}'
+      delegate_to: '{{ tripleo_ha_image_update_node_names[0] }}'
+
+    - name: "Refresh the status of bundle {{ tripleo_ha_image_update_bundle }} to pick up the container image config"
+      command: 'pcs resource refresh {{ tripleo_ha_image_update_bundle }}'
+      delegate_to: '{{ tripleo_ha_image_update_node_names[0] }}'
+
+    - name: "Give back control of the bundle {{ tripleo_ha_image_update_bundle }} to pacemaker"
+      command: 'pcs resource manage {{ tripleo_ha_image_update_bundle }}'
+      delegate_to: '{{ tripleo_ha_image_update_node_names[0] }}'

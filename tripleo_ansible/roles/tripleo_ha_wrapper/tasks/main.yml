@@ -82,3 +82,30 @@
       TRIPLEO_HA_WRAPPER_RESOURCE_EXISTS: "{{ (pcs_resource_exists.rc == 0) | string }}"
   when:
     - (config_volume_md5.stat.exists | bool)
+
+- name: "Check if an image update marker exists for bundle {{ tripleo_ha_wrapper_bundle_name }}"
+  stat:
+    path: "{{ tripleo_ha_wrapper_update_file_prefix }}{{ tripleo_ha_wrapper_bundle_name }}"
+  register: update_marker
+- when:
+    - update_marker.stat.exists and (update_marker.stat.isreg | bool)
+  block:
+    - name: "Get container image tag from marker for bundle {{ tripleo_ha_wrapper_bundle_name }}"
+      slurp:
+        src: "{{ tripleo_ha_wrapper_update_file_prefix }}{{ tripleo_ha_wrapper_bundle_name }}"
+      register: update_marker_content
+    - name: "Get container image tag from bundle {{ tripleo_ha_wrapper_bundle_name }}"
+      command: 'xmllint --xpath "string(//bundle[@id=''{{ tripleo_ha_wrapper_bundle_name }}'']/podman/@image)" /var/lib/pacemaker/cib/cib.xml'
+      register: bundle_image
+    - name: "Compare tags between marker and bundle {{ tripleo_ha_wrapper_bundle_name }}"
+      set_fact:
+        old_image: "{{ update_marker_content.content | b64decode }}"
+        current_image: "{{ bundle_image.stdout }}"
+    - name: "Remove old image tag {{ old_image }} for bundle {{ tripleo_ha_wrapper_bundle_name }}"
+      command: 'podman rmi {{ old_image }}'
+      failed_when: false
+      when: old_image != current_image
+    - name: "Remove update marker for bundle {{ tripleo_ha_wrapper_bundle_name }}"
+      file:
+        path: "{{ tripleo_ha_wrapper_update_file_prefix }}{{ tripleo_ha_wrapper_bundle_name }}"
+        state: absent

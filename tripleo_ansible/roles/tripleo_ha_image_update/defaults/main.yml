@@ -1,5 +1,5 @@
 ---
-# Copyright 2020 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,12 +16,4 @@
 
 
 # All variables intended for modification should place placed in this file.
-
-# All variables within this role should have a prefix of "tripleo_ha_wrapper"
-tripleo_ha_wrapper_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
-tripleo_ha_wrapper_hide_sensitive_logs: true
-tripleo_ha_wrapper_config_basedir: "/var/lib/config-data/puppet-generated"
-tripleo_ha_wrapper_config_suffix: ".previous_run"
-tripleo_ha_wrapper_puppet_modulepath: "/etc/puppet/modules:/opt/stack/puppet-modules:/usr/share/openstack-puppet/modules"
-tripleo_ha_wrapper_pcmk_restart_script: "/var/lib/container-config-scripts/pacemaker_restart_bundle.sh"
-tripleo_ha_wrapper_update_file_prefix: "/tmp/tripleo_ha_image_"
+tripleo_ha_image_update_file_prefix: "/tmp/tripleo_ha_image_"
