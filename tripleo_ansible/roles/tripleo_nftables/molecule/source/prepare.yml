@@ -26,4 +26,4 @@
     - name: Cleanup nftables
       import_role:
         name: tripleo_nftables
-        tasks_from: cleanup.yaml
+        tasks_from: cleanup.yml

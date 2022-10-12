@@ -14,20 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# systemctl will return 0 if success, 1 if unit not found
-- name: Ensure legacy iptables services are off
+- name: Inject our custom chains in nftables
   become: true
-  ansible.builtin.command: "systemctl disable --now {{ item }}"
-  register: ipt_service
-  failed_when:
-    - ipt_service.rc not in [0, 1]
-  loop:
-    - iptables.service
-    - ip6tables.service
+  ansible.builtin.command: nft -f /etc/nftables/tripleo-chains.nft
 
-- name: Ensure nftables service is enabled and running
+# Load all the ruleset in a single transaction.
+# This prevents accidental lock-outs.
+- name: Reload custom nftables ruleset files
   become: true
-  ansible.builtin.systemd:
-    name: nftables
-    state: started
-    enabled: true
+  ansible.builtin.shell: >-
+    cat /etc/nftables/tripleo-flushes.nft
+    /etc/nftables/tripleo-rules.nft
+    /etc/nftables/tripleo-update-jumps.nft | nft -f -
+  when:
+    - nft_ruleset is defined
+    - nft_ruleset is changed
