@@ -21,6 +21,20 @@
     - ansible_facts['distribution'] == 'RedHat'
     - not (image_filename is defined)
 
+# If the image path was not defined by the user, ensure that the RPM is
+# installed.
+# Ignore errors if the package doesn't exist (RDO CI).
+- name: Ensure amphora image RPM in installed
+  package:
+    name: octavia-amphora-image
+    state: present
+  ignore_errors: true
+  vars:
+    # override the ansible_become variable from the inventory
+    ansible_become: true
+  when:
+    - amp_image_filename is not defined or (amp_image_filename | length) < 1
+
 - name: check if amphora image file exists
   stat:
     path: "{{ image_filename }}"
