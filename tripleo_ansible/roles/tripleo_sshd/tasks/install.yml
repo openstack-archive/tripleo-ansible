@@ -17,11 +17,18 @@
 - name: Import sshd load_vars tasks
   import_tasks: load_vars.yml
 
-- name: Import sshd install tasks
-  import_tasks: install.yml
+- name: Run sshd tasks as root
+  become: true
+  block:
+    - name: Install the OpenSSH server
+      package:
+        name: "{{ tripleo_sshd_packages }}"
+        state: "{{ tripleo_sshd_package_state }}"
+      register: _sshd_install_result
 
-- name: Import sshd configure tasks
-  import_tasks: configure.yml
-
-- name: Import sshd run tasks
-  import_tasks: run.yml
+    # NOTE(mwhahaha): we need this here because in order to validate our generated
+    # config, we need to ensure the host keys exist
+    - name: Generate sshd host keys
+      shell: ssh-keygen -A
+      when:
+        - _sshd_install_result.changed

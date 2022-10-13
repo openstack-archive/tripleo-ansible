@@ -14,14 +14,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Import sshd load_vars tasks
-  import_tasks: load_vars.yml
+- name: Run sshd tasks as root
+  become: true
+  block:
+    - name: Enable sshd
+      systemd:
+        name: sshd
+        enabled: true
 
-- name: Import sshd install tasks
-  import_tasks: install.yml
+    - name: Start sshd
+      systemd:
+        name: sshd
+        state: started
 
-- name: Import sshd configure tasks
-  import_tasks: configure.yml
-
-- name: Import sshd run tasks
-  import_tasks: run.yml
+    - name: Restart sshd due to config change
+      systemd:
+        name: sshd
+        state: reloaded
+      when:
+        - _sshd_config_result_changed | default(false)
