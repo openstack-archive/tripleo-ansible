@@ -19,9 +19,9 @@
     - name: Prepare ceph config variables
       set_fact:
         external_cluster_mon_ips: "{{ multiple.external_cluster_mon_ips }}"
-        tripleo_ceph_client_fsid: "{{ multiple.fsid }}"
+        tripleo_ceph_client_fsid: "{{ multiple.fsid | default(multiple.tripleo_ceph_cluster_fsid, true) }}"
         tripleo_ceph_client_cluster_network: ''
         tripleo_ceph_client_mon_ips: []
-        tripleo_ceph_client_cluster: "{{ multiple.cluster }}"
+        tripleo_ceph_client_cluster: "{{ multiple.cluster | default(multiple.tripleo_ceph_cluster_name, true) }}"
         tripleo_ceph_client_keys: "{{ multiple.get('keys',[]) }}"
         tripleo_ceph_client_config_overrides: "{{ multiple.get('ceph_conf_overrides',{}) }}"
