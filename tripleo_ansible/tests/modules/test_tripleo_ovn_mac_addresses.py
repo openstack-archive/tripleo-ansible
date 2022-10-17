@@ -37,8 +37,7 @@ FAKE_NETWORK = stubs.FakeNeutronNetwork(
 FAKE_PORT = stubs.FakeNeutronPort(
     name='server-01_ovn_physnet_network01',
     dns_name='server-01',
-    tags=['tripleo_ovn_physnet=network01', 'tripleo_stack_name=stack',
-          'tripleo_role_name=Compute']
+    tags=['tripleo_ovn_physnet=network01', 'tripleo_stack_name=stack']
 )
 
 
@@ -76,7 +75,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
 
     def test_port_exists_port_not_found(self, mock_conn):
         net_id = FAKE_NETWORK.id
-        tags = ['tripleo_stack_name=stack', 'tripleo_role_name=Compute']
+        tags = ['tripleo_stack_name=stack']
         name = 'server-01_ovn_physnet_network01'
         mock_conn.network.ports.return_value = self.a2g([])
         self.assertFalse(plugin.port_exists(mock_conn, net_id, tags, name))
@@ -85,7 +84,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
 
     def test_port_exists_port_found(self, mock_conn):
         net_id = FAKE_NETWORK.id
-        tags = ['tripleo_stack_name=stack', 'tripleo_role_name=Compute']
+        tags = ['tripleo_stack_name=stack']
         name = 'server-01_ovn_physnet_network01'
         mock_conn.network.ports.return_value = self.a2g([FAKE_PORT])
         self.assertTrue(plugin.port_exists(mock_conn, net_id, tags, name))
@@ -95,8 +94,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
     @mock.patch.object(plugin, 'port_exists', autospec=True)
     def test_create_ovn_mac_address_ports(self, mock_port_exists, mock_conn):
         result = dict(changed=False)
-        tags = ['tripleo_stack_name=overcloud',
-                'tripleo_role=Controller']
+        tags = ['tripleo_stack_name=overcloud']
         physnets = ['net-a', 'net-b']
         server = 'controller-0'
         mock_port_exists.return_value = False
@@ -118,8 +116,7 @@ class TestTripleoOVNMacAddresses(tests_base.TestCase):
     def test_create_ovn_mac_address_ports_exists(self, mock_port_exists,
                                                  mock_conn):
         result = dict(changed=False)
-        tags = ['tripleo_stack_name=overcloud',
-                'tripleo_role=Controller']
+        tags = ['tripleo_stack_name=overcloud']
         physnets = ['net-a', 'net-b']
         server = 'controller-0.example.com'
         mock_port_exists.return_value = True

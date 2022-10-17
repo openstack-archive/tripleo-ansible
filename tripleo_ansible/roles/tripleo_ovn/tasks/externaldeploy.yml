@@ -18,7 +18,6 @@
   tripleo_ovn_mac_addresses:
     playbook_dir: "{{ playbook_dir }}"
     stack_name: "{{ stack_name }}"
-    role_name: "{{ tripleo_role_name }}"
     server_resource_names: "{{ groups[tripleo_role_name] }}"
     ovn_bridge_mappings: "{{ ovn_bridge_mappings }}"
     ovn_static_bridge_mac_mappings: "{{ ovn_static_bridge_mac_mappings }}"
