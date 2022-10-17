@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,11 @@
 # under the License.
 
 
-- name: Configure timezone
-  import_tasks: configure.yml
+- name: Set timezone
+  timezone:
+    name: "{{ tripleo_timezone }}"
+  register: _timezone_result
 
-- name: Run timezone
-  import_tasks: run.yml
+- name: Set fact for timezone result
+  set_fact:
+    _timezone_result_changed: _timezone_result.changed
