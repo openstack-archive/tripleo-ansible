@@ -22,17 +22,6 @@
         name: tripleo_container_manage
         tasks_from: shutdown.yml
 
-    - name: Manage optional libvirt init containers for Nova
-      when: tripleo_nova_libvirt_need_libvirt_secret|bool
-      include_role:
-        name: tripleo_container_standalone
-      vars:
-        tripleo_container_standalone_service: nova_libvirt_init_secret
-        tripleo_container_standalone_container_defs:
-          nova_libvirt_init_secret: "{{ lookup('template', 'nova_libvirt_init_secret.yaml.j2') | from_yaml }}"
-        tripleo_container_standalone_kolla_config_files:
-          nova_libvirt_init_secret: "{{ lookup('file', 'files/nova_libvirt_init_secret.yaml') | from_yaml }}"
-
     - name: Run nova_libvirt containers
       include_role:
         name: tripleo_container_standalone
@@ -54,3 +43,24 @@
           nova_virtqemud: "{{ lookup('file', 'files/nova_virtqemud.yaml') | from_yaml }}"
           nova_virtsecretd: "{{ lookup('file', 'files/nova_virtsecretd.yaml') | from_yaml }}"
           nova_virtstoraged: "{{ lookup('file', 'files/nova_virtstoraged.yaml') | from_yaml }}"
+
+    - name: Ensure /var/lib/container-config-scripts exists
+      file:
+        path: /var/lib/container-config-scripts
+        state: directory
+
+    - name: Copy nova_libvirt_init_secret.sh to /var/lib/container-config-scripts
+      copy:
+        src: files/nova_libvirt_init_secret.sh
+        dest: /var/lib/container-config-scripts/nova_libvirt_init_secret.sh
+
+    - name: Create libvirt secret for ceph now that nova_virtsecretd is running
+      when: tripleo_nova_libvirt_need_libvirt_secret|bool
+      include_role:
+        name: tripleo_container_standalone
+      vars:
+        tripleo_container_standalone_service: nova_libvirt_init_secret
+        tripleo_container_standalone_container_defs:
+          nova_libvirt_init_secret: "{{ lookup('template', 'nova_libvirt_init_secret.yaml.j2') | from_yaml }}"
+        tripleo_container_standalone_kolla_config_files:
+          nova_libvirt_init_secret: "{{ lookup('file', 'files/nova_libvirt_init_secret.yaml') | from_yaml }}"
