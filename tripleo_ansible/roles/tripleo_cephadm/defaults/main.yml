@@ -35,6 +35,7 @@ tripleo_cephadm_mode: "0755"
 tripleo_cephadm_keyring_permissions: "0644"
 tripleo_ceph_client_config_home: "/etc/ceph"
 tripleo_cephadm_dashboard_enabled: false
+tripleo_cephadm_observability_data_only: false
 tripleo_cephadm_wait_for_mons: true
 tripleo_cephadm_wait_for_mons_retries: 10
 tripleo_cephadm_wait_for_mons_delay: 20
