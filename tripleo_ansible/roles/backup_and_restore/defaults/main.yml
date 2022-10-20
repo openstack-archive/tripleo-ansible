@@ -140,6 +140,12 @@ tripleo_backup_and_restore_restore_retries: 300
 # Restore delay
 tripleo_backup_and_restore_restore_delay: 10
 
+# Galera retries
+tripleo_backup_and_restore_galera_retries: 300
+
+# Galera delay
+tripleo_backup_and_restore_galera_delay: 10
+
 # Ironic ubdirectory where the kernel and initrd are uploaded
 backup_and_restore_history_path: ""
 
