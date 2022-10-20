@@ -48,7 +48,7 @@
     - name: Clean everything nftables related
       import_role:
         name: tripleo_nftables
-        tasks_from: cleanup.yaml
+        tasks_from: cleanup.yml
 
     - name: Fail if file was changed
       when: line_in_file is changed
