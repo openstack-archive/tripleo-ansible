@@ -42,6 +42,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-stream-molecule-tripleo_logrotate_crond
       - tripleo-ansible-centos-stream-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-stream-molecule-tripleo_metrics_qdr
       - tripleo-ansible-centos-stream-molecule-tripleo_module_load
@@ -116,6 +117,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-stream-molecule-tripleo_logrotate_crond
       - tripleo-ansible-centos-stream-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-stream-molecule-tripleo_metrics_qdr
       - tripleo-ansible-centos-stream-molecule-tripleo_module_load
@@ -190,6 +192,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_kernel
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone
       - tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
+      - tripleo-ansible-centos-stream-molecule-tripleo_logrotate_crond
       - tripleo-ansible-centos-stream-molecule-tripleo_lvmfilter
       - tripleo-ansible-centos-stream-molecule-tripleo_module_load
       - tripleo-ansible-centos-stream-molecule-tripleo_multipathd
@@ -514,6 +517,13 @@
     parent: tripleo-ansible-centos-stream-base
     vars:
       tripleo_role_name: tripleo_keystone_resources
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_logrotate_crond/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_logrotate_crond
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_logrotate_crond
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_lvmfilter/(?!meta).*
