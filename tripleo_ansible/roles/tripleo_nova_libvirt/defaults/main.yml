@@ -25,6 +25,7 @@ tripleo_nova_libvirt_hide_sensitive_logs: true
 tripleo_nova_libvirt_container_image: "quay.io/tripleomastercentos9/openstack-nova-libvirt:current-tripleo"  # role specific
 tripleo_nova_libvirt_container_config_image: "quay.io/tripleomastercentos9/openstack-nova-libvirt:current-tripleo"  # role specific
 tripleo_nova_libvirt_container_ulimit: ['nofile=131072', 'nproc=126960']
+tripleo_nova_libvirt_container_pid: host
 tripleo_nova_libvirt_container_pids_limit: 65536
 tripleo_nova_libvirt_ceph_config_path: "{{
   tripleo_ceph_config_path | default('/var/lib/tripleo-config/ceph', true) }}"

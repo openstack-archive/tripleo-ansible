@@ -3,7 +3,7 @@ image: {{ tripleo_nova_libvirt_container_image }}
 ulimit: {{ tripleo_nova_libvirt_container_ulimit }}
 cgroupns: host
 net: host
-pid: host
+pid: {{ tripleo_nova_libvirt_container_pid }}
 pids_limit: {{ tripleo_nova_libvirt_container_pids_limit }}
 privileged: true
 security_opt:

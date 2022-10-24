@@ -3,7 +3,7 @@ start_order: 1
 detach: false
 cgroupns: host
 net: host
-pid: host
+pid: {{ tripleo_nova_libvirt_container_pid }}
 user: root
 command:
   - /container_puppet_apply.sh
