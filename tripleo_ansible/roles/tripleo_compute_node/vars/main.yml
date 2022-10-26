@@ -1,5 +1,5 @@
 ---
-# Copyright 2019 Red Hat, Inc.
+# Copyright 2022 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,18 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# DEPRECATED, the official location for dependencies is now
-# /requirements.yaml file.
 
-- name: openstack-operations
-  scm: git
-  src: https://opendev.org/openstack/ansible-role-openstack-operations
-  version: master
-  trackbranch: master
+# While options found within the vars/ path can be overridden using extra
+# vars, items within this path are considered part of the role and not
+# intended to be modified.
 
-# ansible-config_template action plugin
-- name: config_template
-  scm: git
-  src: https://opendev.org/openstack/ansible-config_template
-  version: master
-  trackbranch: master
+# All variables within this role should have a prefix of "tripleo_compute_node"

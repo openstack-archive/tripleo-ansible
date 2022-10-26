@@ -21,6 +21,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
       - tripleo-ansible-centos-stream-molecule-tripleo_collectd
+      - tripleo-ansible-centos-stream-molecule-tripleo_compute_node
       - tripleo-ansible-centos-stream-molecule-tripleo_config
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_prepare
@@ -98,6 +99,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
       - tripleo-ansible-centos-stream-molecule-tripleo_collectd
+      - tripleo-ansible-centos-stream-molecule-tripleo_compute_node
       - tripleo-ansible-centos-stream-molecule-tripleo_config
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_prepare
@@ -175,6 +177,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
       - tripleo-ansible-centos-stream-molecule-tripleo_collectd
+      - tripleo-ansible-centos-stream-molecule-tripleo_compute_node
       - tripleo-ansible-centos-stream-molecule-tripleo_config
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_build
       - tripleo-ansible-centos-stream-molecule-tripleo_container_image_prepare
@@ -367,6 +370,14 @@
       nslookup_target: opendev.org
       tripleo_role_name: tripleo_collectd
     voting: false
+- job:
+    files:
+    - ^tripleo_ansible/roles/tripleo_compute_node/(?!meta).*
+    - ^tripleo_ansible/playbooks/.*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_compute_node
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_compute_node
 - job:
     files:
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
