@@ -37,3 +37,6 @@ doc/build/*
 # JetBrain
 .idea/
 .cache
+
+# Custom inventory variable files
+tripleo_ansible/inventory/99-standalone-vars
