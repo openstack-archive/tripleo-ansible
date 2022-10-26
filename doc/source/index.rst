@@ -17,6 +17,7 @@ Contents:
    usage
    roles
    modules
+   standalone-roles-playbooks
 
 Indices and tables
 ==================
