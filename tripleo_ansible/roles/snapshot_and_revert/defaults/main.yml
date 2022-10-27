@@ -23,3 +23,8 @@ tripleo_snapshot_revert_log_size: 1G
 tripleo_snapshot_revert_root_size: 2G
 tripleo_snapshot_revert_srv_size: 512M
 tripleo_snapshot_revert_var_size: 3G
+
+# These parameters ensure that nodes are taken out from Pacemaker cluster
+# before taking a snapshot, one node at a time to not cause any downtimes.
+tripleo_snapshot_revert_snapshot_inactive_nodes: "{{ snapshot_inactive_nodes | default('true') }}"
+tripleo_snapshot_revert_pcs_timeout: 3600
