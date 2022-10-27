@@ -94,6 +94,24 @@
     - create_snapshots
     - remove_snapshots
 
+- name: Read Services running on the host
+  command: puppet lookup --explain 'service_names'
+  when: tripleo_snapshot_revert_snapshot_inactive_nodes|bool
+  register: services_enabled
+  changed_when: false
+  failed_when: false
+  tags:
+    - create_snapshots
+
+- name: Take out the node from Pacemaker cluster before taking a snapshot
+  command: pcs cluster stop --request-timeout={{ tripleo_snapshot_revert_pcs_timeout }}
+  when:
+    - tripleo_snapshot_revert_snapshot_inactive_nodes|bool
+    - services_enabled is defined
+    - '"pacemaker" in services_enabled.stdout'
+  tags:
+    - create_snapshots
+
 - name: Create lvm snapshot if there are at least 8GB of free space in the vg volumegroup
   when:
     - ansible_facts.lvm is defined
@@ -125,5 +143,20 @@
     - name: Create var snapshot volume
       command: lvcreate -s -n ss_var -L {{ tripleo_snapshot_revert_var_size }} /dev/vg/lv_var
       when: ansible_facts.lvm.lvs.lv_var is defined
+  tags:
+    - create_snapshots
+
+- name: Pacemaker management
+  when:
+    - services_enabled is defined
+    - tripleo_snapshot_revert_snapshot_inactive_nodes|bool
+    - "'pacemaker' in services_enabled.stdout"
+  block:
+    - name: Add the node to the pacemaker cluster
+      command: pcs cluster start
+
+    - name: Wait until pacemaker has Galera up&running
+      shell: /var/lib/container-config-scripts/pacemaker_wait_bundle.sh galera galera-bundle Master
+      when: "'mysql' in services_enabled.stdout"
   tags:
     - create_snapshots
