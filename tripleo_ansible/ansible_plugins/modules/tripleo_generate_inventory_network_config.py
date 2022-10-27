@@ -126,8 +126,6 @@ Controller:
        network_config_update: False
        net_config_data_lookup: {}
        bond_interface_ovs_options: bond_mode=balance-slb
-  vars:
-    tripleo_network_config_with_ansible: true
 Compute:
   hosts:
      overcloud-compute-0:
@@ -144,8 +142,6 @@ Compute:
        network_config_update: False
        net_config_data_lookup: {}
        bond_interface_ovs_options: bond_mode=balance-slb
-  vars:
-    tripleo_network_config_with_ansible: true
 '''
 
 EXAMPLES = '''
@@ -219,7 +215,6 @@ def generate_ansible_inventory_network_config(result, module_opts, instances,
         inventory.setdefault(role, dict())
         inventory[role].setdefault('hosts', dict())
         role_vars = inventory[role].setdefault('vars', dict())
-        role_vars.setdefault('tripleo_network_config_with_ansible', True)
         role_vars['tripleo_network_config_hide_sensitive_logs'] = False
 
     for instance in instances:
