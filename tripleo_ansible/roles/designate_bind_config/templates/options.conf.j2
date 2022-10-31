@@ -2,10 +2,16 @@ options {
 	allow-new-zones yes;
 	directory "/var/named-persistent";
 
+	# The default for named is to listen on everything and it's controlled
+	# by different settings for different IP versions. If the objective is to
+	# restrict to listening on a given address, we need to explicitly turn
+	# listening *off* for the different IP version.
 	{% if tripleo_dns_listen_interfaces[0]|ipv4 %}
 	listen-on port 53 { {{ tripleo_dns_listen_interfaces[0] }};  };
+	listen-on-v6 { none; };
 	{% elif tripleo_dns_listen_interfaces[0]|ipv6 %}
 	listen-on-v6 port 53 { {{ tripleo_dns_listen_interfaces[0] }};  };
+	listen-on { none; };
 	{% endif %}
 
 	allow-notify { {{ tripleo_dns_listen_interfaces[0] }};{{ notify_sources|join(';') }}; };
