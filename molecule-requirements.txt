@@ -14,6 +14,7 @@ molecule-podman>=1.0.0a1
 ruamel.yaml
 netaddr
 jinja2
+cryptography<37.0.0
 
 ansible-core<2.12.0
 
