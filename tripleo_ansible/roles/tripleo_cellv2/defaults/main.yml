@@ -19,8 +19,6 @@
 
 tripleo_cellv2_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_cellv2_cell_name: ""
-# containercli can be tropped when we fully switched to podman
-tripleo_cellv2_containercli: "docker"
 
 tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
 tripleo_cellv2_cell_database_vip: "{{ hostvars[tripleo_cellv2_cellcontroller_group[0]]['cell_database_vip'] }}"

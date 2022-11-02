@@ -19,12 +19,12 @@
   block:
   - name: Discover hosts
     shell: >-
-      {{ tripleo_cellv2_containercli }} exec -i -u root nova_api
+      podman exec -i -u root nova_api
       nova-manage cell_v2 discover_hosts --by-service --verbose
 
   - name: List Cells
     shell: >-
-      {{ tripleo_cellv2_containercli }} exec -i -u root nova_api
+      podman exec -i -u root nova_api
       nova-manage cell_v2 list_cells
   tags:
     - discover
