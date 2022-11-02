@@ -135,15 +135,11 @@
       dest: /var/lib/nova/instanceha/check-run-nova-compute
       mode: 0755
 
-  - name: Get list of instance HA compute nodes
-    command: hiera -c /etc/puppet/hiera.yaml compute_instanceha_short_node_names
-    register: iha_nodes
-
   - name: If instance HA is enabled on the node activate the evacuation completed check
     file:
       path: /var/lib/nova/instanceha/enabled
       state: touch
-    when: iha_nodes.stdout|lower is search('"'+ansible_facts['hostname']|lower+'"')
+    when: inventory_hostname in groups["compute_instanceha"] | default([])
 
   - name: install nova-compute delay wrapper script
     copy:
