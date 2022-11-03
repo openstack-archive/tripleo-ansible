@@ -14,6 +14,7 @@ ruamel.yaml
 testinfra
 netaddr
 jinja2
+cryptography<37.0.0
 
 # this is required for the docs build jobs
 ansible-core<2.12.0
