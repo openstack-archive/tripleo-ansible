@@ -29,8 +29,6 @@ from swiftclient import client as swift_client
 from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
 
-import ironic_inspector_client
-
 try:
     # TODO(slagle): the try/except can be removed once tripleo_common is
     # released with
@@ -44,25 +42,6 @@ class TripleOCommon(object):
     def __init__(self, session):
         self.sess = session
         self.client_cache = dict()
-
-    def get_ironic_inspector_client(self):
-        """Return the ironic inspector client.
-
-        This method will return a client object using the legacy library. Upon
-        the creation of a successful client creation, the client object will
-        be stored in the `self.client_cache object`, should this method be
-        called more than once, the cached object will automatically return,
-        resulting in fewer authentications and faster API interactions.
-
-        :returns: Object
-        """
-
-        if 'ironic_inspector_client' in self.client_cache:
-            return self.client_cache['ironic_inspector_client']
-        else:
-            self.client_cache['ironic_inspector_client'] = \
-                ironic_inspector_client.ClientV1(session=self.sess)
-            return self.client_cache['ironic_inspector_client']
 
     def get_orchestration_client(self):
         """Return the orchestration (heat) client.
@@ -156,15 +135,3 @@ class TripleOCommon(object):
                 max_backoff=120
             )
             return self.client_cache['swift_client']
-
-    def return_introspected_node_data(self, node_id):
-        """Return baremetal data from the ironic inspector.
-
-        :param node_id: Node UUID
-        :type node_id: String
-
-        :returns: Object
-        """
-
-        client = self.get_ironic_inspector_client()
-        return client.get_data(node_id=node_id)
