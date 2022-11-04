@@ -387,11 +387,11 @@ class TestHelperFilters(tests_base.TestCase):
         self.assertEqual(result, file_path)
 
     def test_abspath_not_found(self):
-        file_path = 'plan-environment.yaml'
+        file_path = 'roles_data.yaml'
         ex = self.assertRaises(
             errors.AnsibleFilterError,
             self.filters.tht_abspath, file_path)
-        msg = ("Can't find path plan-environment.yaml")
+        msg = (f"Can't find path {file_path}")
         self.assertEqual(msg, str(ex))
 
     def test_needs_delete(self):
