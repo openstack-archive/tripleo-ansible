@@ -87,3 +87,7 @@ tripleo_container_default_infra_image: "registry.access.redhat.com/ubi8/pause"
 # additional ordering dependencies for the systemd
 # scopes associated to podman containers.
 tripleo_podman_systemd_drop_in_dependencies: true
+
+tripleo_podman_service_unit_name: "tripleo_podman.service"
+tripleo_podman_service_unit_description: "Podman API service for TripleO purposes"
+tripleo_podman_socket_path: /var/lib/tripleo-podman/podman.sock
