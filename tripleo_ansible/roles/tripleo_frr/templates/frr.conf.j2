@@ -27,9 +27,16 @@ router bgp {{ tripleo_frr_bgp_asn }}
   neighbor uplink bfd
   neighbor uplink bfd profile tripleo
 {% endif %}
+{% if tripleo_frr_bgp_peers %}
+{% for peer in tripleo_frr_bgp_peers %}
+  neighbor {{ peer }} peer-group uplink
+{% endfor %}
+{% else %}
 {% for iface in tripleo_frr_bgp_uplinks_mapped %}
   neighbor {{ iface }} interface peer-group uplink
 {% endfor %}
+{% endif %}
+
 {% if tripleo_frr_bgp_neighbor_ttl_security_hops | int > 0 %}
   neighbor uplink ttl-security hops {{ tripleo_frr_bgp_neighbor_ttl_security_hops }}
 {% endif %}

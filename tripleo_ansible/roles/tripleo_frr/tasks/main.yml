@@ -60,6 +60,7 @@
         msg: |
           Failed to map at least one interface from {{ tripleo_frr_bgp_uplinks }} to {{ iface_map }}.
           Please check value of Ansible variable tripleo_frr_bgp_uplinks.
+  when: tripleo_frr_bgp_uplinks
 
 - name: configure FRR
   become: true
