@@ -27,3 +27,8 @@
           include "/etc/nftables/tripleo-chains.nft"
           include "/etc/nftables/tripleo-rules.nft"
           include "/etc/nftables/tripleo-jumps.nft"
+
+    - name: Remove snippets directory
+      ansible.builtin.file:
+        path: "{{ tripleo_nftables_src }}"
+        state: absent

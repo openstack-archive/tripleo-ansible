@@ -17,6 +17,8 @@
 
 - name: Prepare
   hosts: all
+  vars:
+    tripleo_nftables_src: /opt/tripleo-firewall
   roles:
     - role: test_deps
       test_deps_extra_packages:
@@ -24,6 +26,32 @@
     - role: env_data
   tasks:
     - name: Cleanup nftables
-      import_role:
+      ansible.builtin.import_role:
         name: tripleo_nftables
         tasks_from: cleanup.yml
+    - name: Create snippet directory
+      become: true
+      ansible.builtin.file:
+        path: /opt/tripleo-firewall
+        state: directory
+    - name: Inject snippet for action
+      become: true
+      tripleo_nftables_snippet:
+        dest: /opt/tripleo-firewall/action.yaml
+        content: |
+          - rule_name: '000 related established'
+            rule:
+              proto: all
+              state:
+                - established
+                - related
+          - rule_name: '001 local'
+            rule:
+              proto: all
+              interface: lo
+              state: []
+          - rule_name: '010 testing action'
+            rule:
+              proto: tcp
+              dport: 1211
+              action: drop

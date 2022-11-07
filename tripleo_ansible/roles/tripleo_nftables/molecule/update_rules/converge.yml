@@ -15,43 +15,34 @@
 # under the License.
 
 
-- name: Prepare
+- name: Converge
   hosts: all
+  vars:
+    tripleo_nftables_src: /opt/tripleo-firewall
   roles:
-    - role: test_deps
-      test_deps_extra_packages:
-        - nftables
-    - role: env_data
+    - role: "tripleo_nftables"
   tasks:
-    - name: Cleanup nftables
-      vars:
-        tripleo_nftables_src: /opt/tripleo-firewall
-      import_role:
-        name: tripleo_nftables
-        tasks_from: cleanup.yml
-    - name: Create snippet directory
-      become: true
-      ansible.builtin.file:
-        path: /opt/tripleo-firewall
-        state: directory
-    - name: Push snippet for destination
+    - name: Update snippet
       become: true
       tripleo_nftables_snippet:
-        dest: /opt/tripleo-firewall/destination.yml
+        dest: /opt/tripleo-firewall/ruleset.yml
         content: |
-          - rule_name: '000 related established'
+          - rule_name: '00 related established'
             rule:
               proto: all
               state:
-                - established
                 - related
-          - rule_name: '001 local'
+                - established
+          - rule_name: '01 local link'
             rule:
               proto: all
               interface: lo
               state: []
-          - rule_name: '010 testing destination'
+          - rule_name: '02 ssh from all'
             rule:
               proto: tcp
-              destination: "fd00:fd00:fd00:2000::/64"
-              dport: 1211
+              dport: 22
+    - name: Cleanup nftables
+      ansible.builtin.import_role:
+        name: tripleo_nftables
+        tasks_from: cleanup.yml

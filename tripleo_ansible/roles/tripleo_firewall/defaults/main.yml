@@ -45,37 +45,3 @@ tripleo_firewall_edge_frontend_enabled: false
 tripleo_firewall_edge_frontend_rules: {}
 
 tripleo_firewall_edge_ssl_frontend_rules: {}
-
-tripleo_firewall_default_rules:
-  '000 accept related established rules':
-    proto: all
-    state:
-      - RELATED
-      - ESTABLISHED
-  '001 accept all icmp':
-    ipversion: ipv4
-    proto: icmp
-  '001 accept all ipv6-icmp':
-    ipversion: ipv6
-    proto: ipv6-icmp
-    state: []
-  '002 accept all to lo interface':
-    proto: all
-    interface: lo
-    state: []
-  '004 accept ipv6 dhcpv6':
-    ipversion: ipv6
-    dport: 546
-    proto: udp
-    state:
-      - NEW
-    destination: 'fe80::/64'
-  '999 log all':
-    proto: all
-    jump: LOG
-    limit: 20/min
-    limit_burst: 15
-    nft_level: 'warn'
-    nft_flags: 'all'
-    nft_prefix: 'DROPPING: '
-    state: []

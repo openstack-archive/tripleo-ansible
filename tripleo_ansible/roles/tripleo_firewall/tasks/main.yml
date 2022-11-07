@@ -77,18 +77,29 @@
 - name: Set rule fact
   set_fact:
     firewall_rules_sorted: "{{
-      tripleo_firewall_default_rules |
-      combine(tripleo_firewall_rules) |
+      tripleo_firewall_rules |
       combine(tripleo_firewall_frontend_rules_real) |
       combine(masquerade_rules|from_yaml) |
       dict2items(key_name='rule_name', value_name='rule') |
       sort(attribute='rule_name') |
-      reverse |
       list
     }}"
 
+- name: Ensures rule snippets directory exists
+  become: true
+  file:
+    path: /var/lib/tripleo-config/firewall
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Output rule snippet
+  become: true
+  tripleo_nftables_snippet:
+    dest: /var/lib/tripleo-config/firewall/tripleo-generated-rules.yaml
+    content: "{{ firewall_rules_sorted | to_nice_yaml }}"
+
 - name: Manage rules via nftables
-  vars:
-    tripleo_nftables_rules: "{{ firewall_rules_sorted | sort(attribute='rule_name') |list }}"
   include_role:
     name: tripleo_nftables
