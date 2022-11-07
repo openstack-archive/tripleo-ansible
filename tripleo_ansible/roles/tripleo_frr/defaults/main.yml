@@ -46,6 +46,10 @@ tripleo_frr_bgp_l2vpn_peers_scope: external
 # won't work on a FIPS-enabled environment
 tripleo_frr_bgp_neighbor_password: ''
 tripleo_frr_bgp_neighbor_ttl_security_hops: 1
+# List of ips or hostnames frr should peer with
+tripleo_frr_bgp_peers: []
+# List of interfaces frr should use to set up peering
+tripleo_frr_bgp_uplinks: []
 tripleo_frr_bgp_uplinks_scope: internal
 tripleo_frr_config_basedir: "/var/lib/config-data/ansible-generated/frr"
 tripleo_frr_defaults: traditional
