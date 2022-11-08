@@ -11,6 +11,7 @@ sh>=1.12.14,<1.13
 molecule==3.0a5
 netaddr
 jinja2>=2.8.0,<3
+cryptography
 
 # this is required for the docs build jobs
 ansible>=2.8,!=2.8.9,!=2.9.12,<2.10.0
