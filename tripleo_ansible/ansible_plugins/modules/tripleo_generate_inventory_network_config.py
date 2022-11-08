@@ -108,6 +108,11 @@ options:
                 bond_mode=balance-slb for OVS bonds or like mode=4 for Linux
                 bonds using this option.
             type: string
+          num_dpdk_interface_rx_queues:
+            description:
+              - Number of Rx Queues required for DPDK bond or DPDK ports
+            type: int
+            default: 1
   hostname_role_map:
     description:
       - Mapping of instance hostnames to role name
