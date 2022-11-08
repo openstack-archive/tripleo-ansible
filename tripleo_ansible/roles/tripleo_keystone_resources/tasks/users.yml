@@ -14,23 +14,41 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: "Check password of Keystone user"
+  openstack.cloud.identity_user_info:
+    name: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
+    auth_type: "v3password"
+    auth:
+      auth_url: "{{ tripleo_keystone_resources_public_endpoint }}"
+      username: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
+      password: "{{ lookup('dict', tripleo_keystone_resources_data).value.password }}"
+      user_domain_id: "{{ lookup('dict', tripleo_keystone_resources_data).value.domain | default('default') }}"
+      project_name: "{{ tripleo_keystone_resources_service_project }}"
+      project_domain_id: default
+  register: tripleo_keystone_resources_user_info_results
+  ignore_errors: true
+  loop: "{{ batched_tripleo_keystone_resources_data }}"
+  loop_control:
+    label: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
+    loop_var: tripleo_keystone_resources_data
+
 - name: "Async creation of Keystone user"
   # needed because it'll throw a warning if you have update_password without it
   no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   openstack.cloud.identity_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-    name: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
-    password: "{{ lookup('dict', tripleo_keystone_resources_data).value.password }}"
-    update_password: always
-    email: "{{ lookup('dict', tripleo_keystone_resources_data).key }}@localhost"
-    domain: "{{ lookup('dict', tripleo_keystone_resources_data).value.domain | default('default') }}"
+    name: "{{ lookup('dict', tripleo_keystone_resources_data.0).value.name | default(lookup('dict', tripleo_keystone_resources_data.0).key) }}"
+    password: "{{ lookup('dict', tripleo_keystone_resources_data.0).value.password }}"
+    update_password: "{{ tripleo_keystone_resources_data.1 is failed | ternary('always', 'on_create') }}"
+    email: "{{ lookup('dict', tripleo_keystone_resources_data.0).key }}@localhost"
+    domain: "{{ lookup('dict', tripleo_keystone_resources_data.0).value.domain | default('default') }}"
     state: present
   async: "{{ (not ansible_check_mode | bool) | ternary('60', omit) }}"
   poll: "{{ (not ansible_check_mode | bool) | ternary('0', omit) }}"
   register: tripleo_keystone_resources_user_results
-  loop: "{{ batched_tripleo_keystone_resources_data }}"
+  loop: "{{ batched_tripleo_keystone_resources_data|zip(tripleo_keystone_resources_user_info_results.results)|list }}"
   loop_control:
-    label: "{{ lookup('dict', tripleo_keystone_resources_data).value.name | default(lookup('dict', tripleo_keystone_resources_data).key) }}"
+    label: "{{ lookup('dict', tripleo_keystone_resources_data.0).value.name | default(lookup('dict', tripleo_keystone_resources_data.0).key) }}"
     loop_var: tripleo_keystone_resources_data
 
 - name: "Check Keystone user status"
@@ -40,7 +58,7 @@
     jid: "{{ tripleo_keystone_resources_user_async_result_item.ansible_job_id }}"
   loop: "{{ tripleo_keystone_resources_user_results.results }}"
   loop_control:
-    label: "{{ lookup('dict', tripleo_keystone_resources_user_async_result_item.tripleo_keystone_resources_data).key }}"
+    label: "{{ lookup('dict', tripleo_keystone_resources_user_async_result_item.tripleo_keystone_resources_data.0).key }}"
     loop_var: "tripleo_keystone_resources_user_async_result_item"
   register: tripleo_keystone_resources_user_async_poll_results
   until: tripleo_keystone_resources_user_async_poll_results.finished
