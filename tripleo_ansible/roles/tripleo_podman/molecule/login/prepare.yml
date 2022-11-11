@@ -18,6 +18,9 @@
 - name: Prepare
   hosts: all
   gather_facts: true
+  vars:
+    tripleo_container_registry_insecure_registries:
+      - localhost:5000
   pre_tasks:
     - name: set basic user fact
       set_fact:
