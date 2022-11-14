@@ -38,8 +38,6 @@
 
 - name: Check required packages to bootstrap TripleO is installed
   command: "rpm -q --whatprovides {{ tripleo_bootstrap_packages_bootstrap | join(' ') }}"
-  args:
-    warn: false
   register: rpm_query_result
   failed_when: false
 

@@ -204,8 +204,6 @@
                --nopostun \
                --notriggers \
                --nodeps $(rpm -qa 'openvswitch{{ package_suffix|default('') }}*' | grep -v 'selinux')
-      args:
-        warn: false
       when:
         - new_ovs_version != current_ovs_version
 

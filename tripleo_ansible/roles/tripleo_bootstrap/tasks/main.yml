@@ -40,8 +40,6 @@
   block:
     - name: Check release version package is installed
       command: "rpm -q --whatprovides {{ tripleo_bootstrap_release_version_package | join(' ') }}"
-      args:
-        warn: false
       register: rpm_query_result
       failed_when: false
     - name: Deploy release version package
@@ -79,8 +77,6 @@
   block:
     - name: Check required legacy network packages for bootstrap TripleO is installed
       command: "rpm -q --whatprovides {{ tripleo_bootstrap_legacy_network_packages | join(' ') }}"
-      args:
-        warn: false
       register: rpm_query_result
       failed_when: false
 
@@ -127,8 +123,6 @@
   become: true
   shell: >-
     ln -f -s /usr/share/openstack-puppet/modules/* /etc/puppet/modules/
-  args:
-    warn: false
   register: result
   failed_when: false
   tags:

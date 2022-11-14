@@ -85,7 +85,5 @@
     rm -rf /tmp/rear.* || true
     rm -rf /var/lib/rear/output/*
   failed_when: false
-  args:
-    warn: false
   tags:
     - bar_create_recover_image
