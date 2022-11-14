@@ -16,8 +16,6 @@
 
 - name: Check tuned package is installed
   command: "rpm -q --whatprovides {{ tuned_system_packages }}"
-  args:
-    warn: false
   register: rpm_query_result
   failed_when: false
 
