@@ -88,7 +88,7 @@ class CallbackModule(DefaultCallback):
             line.append(host_str)
             color = C.COLOR_CHANGED
         else:
-            if not self.display_ok_hosts:
+            if not self.get_option('display_ok_hosts'):
                 return (None, None)
             line.append(self._get_state('OK'))
             line.append(self._get_task_name(result))

@@ -130,13 +130,20 @@ class TripleoBase(StrategyBase):
                 failures[role] = 1
         return failures
 
+    def _get_task_attr(self, task, name):
+        # Ansible < 2.14 replaced _valid_attrs by FieldAttributes
+        # https://github.com/ansible/ansible/pull/73908
+        if hasattr(task, 'fattributes'):
+            return task.fattributes.get(name)
+        return task._valid_attrs[name]
+
     def _get_task_errors_fatal(self, task, templar):
         """Return parsed any_errors_fatal from a task"""
-        return task.get_validated_value('any_errors_fatal',
-                                        task._valid_attrs['any_errors_fatal'],
-                                        templar.template(
-                                            task.any_errors_fatal),
-                                        None)
+        return task.get_validated_value(
+            'any_errors_fatal',
+            self._get_task_attr(task, 'any_errors_fatal'),
+            templar.template(task.any_errors_fatal),
+            None)
 
     def process_includes(self, host_results, noop=False):
         """Handle includes
