@@ -36,6 +36,34 @@
     opts: _netdev,bg,{{ tripleo_nova_compute_nfs_options }},nfsvers={{ tripleo_nova_compute_nfs_version }}
   when: tripleo_nova_compute_nfs_enabled|bool
 
+- name: Set up systemd target for libvirt services
+  copy:
+    dest: /etc/systemd/system/tripleo_nova_libvirt.target
+    mode: '0644'
+    owner: root
+    group: root
+    content: |
+      [Unit]
+      Wants=tripleo_nova_virtsecretd.service
+      Wants=tripleo_nova_virtnodedevd.service
+      Wants=tripleo_nova_virtstoraged.service
+      Wants=tripleo_nova_virtproxyd.service
+      Wants=tripleo_nova_virtqemud.service
+      After=tripleo_nova_virtsecretd.service
+      After=tripleo_nova_virtnodedevd.service
+      After=tripleo_nova_virtstoraged.service
+      After=tripleo_nova_virtproxyd.service
+      After=tripleo_nova_virtqemud.service
+  register: libvirt_target_result
+
+- name: Reload systemd
+  systemd:
+    name: tripleo_nova_libvirt.target
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  when: libvirt_target_result.changed
+
 - name: install tripleo_nova_libvirt_guests systemd unit file (podman)
   when: tripleo_nova_compute_resume_guests_state_on_host_boot|bool
   block:
@@ -48,7 +76,7 @@
           Requires=virt-guest-shutdown.target
           After=systemd-machined.service
           After=network-online.target
-          After=tripleo_nova_virtproxyd.service
+          After=tripleo_nova_libvirt.target
           Before=tripleo_nova_compute.service
           Documentation=man:libvirtd(8)
           Documentation=https://libvirt.org
