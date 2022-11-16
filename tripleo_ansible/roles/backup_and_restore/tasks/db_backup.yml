@@ -65,13 +65,7 @@
     - bar_create_recover_image
 
 - name: Wait until pacemaker has Galera up&running
-  shell: |
-    set -o pipefail
-    ss -tunlp | grep ":3306 " | sed -e 's/.*\///'
-  register: mysql_result
-  retries: 300
-  until: mysql_result is search('mariadbd')
-  delay: 5
+  shell: /var/lib/container-config-scripts/pacemaker_wait_bundle.sh galera galera-bundle Master
   when:
     - enabled_galera
   tags:
