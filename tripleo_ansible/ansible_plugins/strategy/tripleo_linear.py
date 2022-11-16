@@ -19,7 +19,8 @@ import time
 
 from ansible import constants as C
 from ansible.errors import AnsibleAssertionError
-from ansible.executor.play_iterator import PlayIterator
+from ansible.executor.play_iterator import FailedStates
+from ansible.executor.play_iterator import IteratingStates
 from ansible.playbook.block import Block
 from ansible.playbook.task import Task
 from ansible.template import Templar
@@ -126,7 +127,7 @@ class StrategyModule(BASE.TripleoBase):
                 lowest_cur_block = min(
                     (self._iterator.get_active_state(s).cur_block
                      for h, (s, t) in host_tasks_to_run
-                     if s.run_state != PlayIterator.ITERATING_COMPLETE))
+                     if s.run_state != IteratingStates.COMPLETE))
             except ValueError:
                 lowest_cur_block = None
         else:
@@ -140,10 +141,10 @@ class StrategyModule(BASE.TripleoBase):
                 continue
 
             # count up tasks based on state, we only care about:
-            # PlayIterator.ITERATING_SETUP
-            # PlayIterator.ITERATING_TASKS
-            # PlayIterator.ITERATING_RESCUE
-            # PlayIterator.ITERATING_ALWAYS
+            # IteratingStates.SETUP
+            # IteratingStates.TASKS
+            # IteratingStates.RESCUE
+            # IteratingStates.ALWAYS
             if not task_counts.get(s.run_state):
                 task_counts[s.run_state] = 1
             else:
@@ -153,10 +154,10 @@ class StrategyModule(BASE.TripleoBase):
         # to execute them in a specific order. If there are tasks
         # in that state, we run all those tasks and then noop the
         # rest of the hosts with tasks not currently in that state
-        for state_type in [PlayIterator.ITERATING_SETUP,
-                           PlayIterator.ITERATING_TASKS,
-                           PlayIterator.ITERATING_RESCUE,
-                           PlayIterator.ITERATING_ALWAYS]:
+        for state_type in [IteratingStates.SETUP,
+                           IteratingStates.TASKS,
+                           IteratingStates.RESCUE,
+                           IteratingStates.ALWAYS]:
             if state_type in task_counts:
                 return self._advance_hosts(hosts,
                                            host_tasks,
@@ -261,15 +262,15 @@ class StrategyModule(BASE.TripleoBase):
     def _process_failures(self):
         """Handle failures"""
         self._debug('_process_failures...')
-        non_fail_states = frozenset([self._iterator.ITERATING_RESCUE,
-                                     self._iterator.ITERATING_ALWAYS])
+        non_fail_states = frozenset([IteratingStates.RESCUE,
+                                     IteratingStates.ALWAYS])
         result = self._tqm.RUN_OK
         for host in self._hosts_left:
             (s, _) = self._iterator.get_next_task_for_host(host, peek=True)
             s = self._iterator.get_active_state(s)
             if ((s.run_state not in non_fail_states)
-                    or (s.run_state == self._iterator.ITERATING_RESCUE
-                        and s.fail_state & self._iterator.FAILED_RESCUE != 0)):
+                    or (s.run_state == IteratingStates.RESCUE
+                        and s.fail_state & FailedStates.RESCUE != 0)):
                 self._tqm._failed_hosts[host.name] = True
                 result |= self._tqm.RUN_FAILED_BREAK_PLAY
         return result
