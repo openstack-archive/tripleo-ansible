@@ -14,10 +14,11 @@ molecule-podman>=1.0.0a1
 ruamel.yaml
 netaddr
 jinja2
-cryptography
 
 ansible-core<2.12.0
 
 # Upstream requirements from constraints.txt
 tripleo-common
 os-net-config  # Apache-2.0
+# Allows to unpin cryptography
+pyOpenSSL>=22.1.0
