@@ -24,7 +24,6 @@ import os
 from glanceclient import client as glanceclient
 from heatclient.v1 import client as heatclient
 from ironicclient import client as ironicclient
-from swiftclient import client as swift_client
 
 from tripleo_common.utils import nodes
 from tripleo_common.utils import parameters
@@ -112,26 +111,3 @@ class TripleOCommon(object):
                     session=self.sess
                 )
             return self.client_cache['glanceclient']
-
-    def get_object_client(self):
-        """Return the object (swift) client.
-
-        This method will return a client object using the legacy library. Upon
-        the creation of a successful client creation, the client object will
-        be stored in the `self.client_cache object`, should this method be
-        called more than once, the cached object will automatically return,
-        resulting in fewer authentications and faster API interactions.
-
-        :returns: Object
-        """
-
-        if 'swift_client' in self.client_cache:
-            return self.client_cache['swift_client']
-        else:
-            self.client_cache['swift_client'] = swift_client.Connection(
-                session=self.sess,
-                retries=10,
-                starting_backoff=3,
-                max_backoff=120
-            )
-            return self.client_cache['swift_client']
