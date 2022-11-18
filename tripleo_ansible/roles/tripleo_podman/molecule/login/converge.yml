@@ -26,7 +26,7 @@
   tasks:
     - include_role:
         name: tripleo_podman
-        tasks_from: tripleo_podman_login.yml
+        tasks_from: login.yml
     - include_role:
         name: tripleo_podman
-        tasks_from: tripleo_podman_buildah_login.yml
+        tasks_from: buildah_login.yml

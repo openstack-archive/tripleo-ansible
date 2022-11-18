@@ -14,8 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Import tripleo_podman_login.yml tasks
-  import_tasks: tripleo_podman_login.yml
+- name: Import login.yml tasks
+  import_tasks: login.yml
 - name: Configure tripleo_container_manage to generate systemd drop-in dependencies
   copy:
     dest: /etc/sysconfig/podman_drop_in

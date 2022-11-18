@@ -70,7 +70,7 @@
     - name: Install tripleo_podman
       import_role:
         name: tripleo_podman
-        tasks_from: tripleo_podman_install.yml
+        tasks_from: install.yml
       tags:
         - tripleo_podman
     - name: Install tripleo_sshd

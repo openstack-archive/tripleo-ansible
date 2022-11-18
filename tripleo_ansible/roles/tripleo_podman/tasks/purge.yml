@@ -15,15 +15,17 @@
 # under the License.
 
 
-- name: Converge
-  hosts: all
-  tasks:
-    - name: Run install
-      include_role:
-        name: tripleo_podman
-        tasks_from: install.yml
-        vars_from: "redhat.yml"
-    # https://bugs.launchpad.net/bugs/1889510
-    - name: Test podman network ls
-      become: true
-      command: podman network ls
+- name: Podman image prune
+  become: true
+  block:
+    - name: Clean podman images
+      command: podman image prune -a -f
+  rescue:
+    # In case -f isn't available yet, we fallback to old way.
+    # https://bugs.launchpad.net/tripleo/+bug/1889418
+    - name: Clean podman images
+      command: podman image prune -a
+
+- name: Clean podman volumes
+  become: true
+  command: podman volume prune -f
