@@ -20,7 +20,6 @@
   vars:
     tripleo_podman_hide_sensitive_logs: false
     tripleo_podman_buildah_login: true
-    tripleo_podman_tls_verify: false
     tripleo_container_registry_logins:
       localhost:5000:
         testuser: testpassword

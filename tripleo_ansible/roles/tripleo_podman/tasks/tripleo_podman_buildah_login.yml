@@ -37,7 +37,6 @@
   shell: |-
     buildah login --username=$REGISTRY_USERNAME \
                   --password=$REGISTRY_PASSWORD \
-                  --tls-verify={{ tripleo_podman_tls_verify }} \
                   $REGISTRY
   environment:
     REGISTRY_USERNAME: "{{ lookup('dict', item.value).key }}"
