@@ -42,6 +42,28 @@
     - (ansible_facts['os_family'] | lower) == 'redhat'
     - mirrors_file.stat.exists | bool
   block:
+    - name: Disable ubi host subscription-manager integration
+      file:
+        path: /etc/rhsm-host
+        state: absent
+
+    - name: Disable ubi 9 repos
+      when: ansible_facts['distribution_major_version'] is version(9, '>=')
+      become: true
+      yum_repository:
+        name: "{{ item }}"
+        state: absent
+        keepcache: false
+      with_items:
+        - ubi-9-appstream
+        - ubi-9-baseos
+        - ubi-9-codeready-builder
+
+- name: tripleo-repos Block
+  become: true
+  when:
+    - (ansible_facts['os_family'] | lower) == 'redhat'
+  block:
     - name: Fetch latest repo version
       uri:
         url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo

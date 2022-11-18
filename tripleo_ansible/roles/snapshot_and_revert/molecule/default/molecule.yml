@@ -1,4 +1,5 @@
-ver:
+---
+driver:
   name: delegated
   options:
     managed: false
