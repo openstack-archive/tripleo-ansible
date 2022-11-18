@@ -114,7 +114,7 @@ EXAMPLES = '''
 
 
 DEFAULT_NETWORK_MTU = 1500
-DEFAULT_NETWROK_SHARED = False
+DEFAULT_NETWORK_SHARED = False
 DEFAULT_NETWORK_ADMIN_STATE_UP = False
 DEFAULT_NETWORK_TYPE = 'flat'
 DEFAULT_NETWORK_VIP = False
@@ -133,7 +133,7 @@ def get_network_info(conn, network_id):
     def pop_defaults(_dict):
         if _dict['mtu'] == DEFAULT_NETWORK_MTU:
             _dict.pop('mtu')
-        if _dict['shared'] == DEFAULT_NETWROK_SHARED:
+        if _dict['shared'] == DEFAULT_NETWORK_SHARED:
             _dict.pop('shared')
         if _dict['admin_state_up'] == DEFAULT_NETWORK_ADMIN_STATE_UP:
             _dict.pop('admin_state_up')
