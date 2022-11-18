@@ -94,6 +94,8 @@ STANDALONE_VARS = {
     },
     'tripleo_nova_compute_service_user_username': {
         'template': 'nova',
+        'section': 'service_user',
+        'option': 'username'
     },
     'tripleo_nova_compute_service_user_password': {
         'template': '{{ service_user_password }}',
@@ -180,6 +182,36 @@ STANDALONE_VARS = {
         'template': '{{ placement_valid_interfaces }}',
         'section': 'placement',
         'option': 'valid_interfaces'
+    },
+    'tripleo_nova_compute_neutron_auth_type': {
+        'template': 'v3password',
+        'section': 'neutron',
+        'option': 'auth_type'
+    },
+    'tripleo_nova_compute_neutron_project_name': {
+        'template': 'service',
+        'section': 'neutron',
+        'option': 'project_name'
+    },
+    'tripleo_nova_compute_neutron_user_domain_name': {
+        'template': 'Default',
+        'section': 'neutron',
+        'option': 'user_domain_name'
+    },
+    'tripleo_nova_compute_neutron_project_domain_name': {
+        'template': 'Default',
+        'section': 'neutron',
+        'option': 'project_domain_name'
+    },
+    'tripleo_nova_compute_neutron_region_name': {
+        'template': 'regionOne',
+        'section': 'neutron',
+        'option': 'region_name'
+    },
+    'tripleo_nova_compute_neutron_username': {
+        'template': 'neutron',
+        'section': 'neutron',
+        'option': 'username'
     },
     'tripleo_ovn_dbs': {
         'template': '{{ ovn_dbs }}',
