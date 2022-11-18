@@ -59,6 +59,7 @@
       yum_repository:
         name: "{{ item }}"
         state: absent
+        keepcache: false
       with_items:
         - ubi-9-appstream
         - ubi-9-baseos
