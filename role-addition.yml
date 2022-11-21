@@ -83,7 +83,8 @@
                   "name": new_job_name,
                   "parent": "tripleo-ansible-centos-stream-base",
                   "files": [
-                    "^tripleo_ansible/roles/" ~ _role_name ~ "/(?!meta).*"
+                    "^tripleo_ansible/roles/" ~ _role_name ~ "/(?!meta).*",
+                    "^molecule-requirements.txt",
                   ],
                   "vars": {
                     "tripleo_role_name": _role_name

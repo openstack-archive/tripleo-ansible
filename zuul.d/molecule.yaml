@@ -235,6 +235,7 @@
       - tripleo-ansible-centos-stream-role-addition
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/aide/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-aide
     parent: tripleo-ansible-centos-stream-base
@@ -242,6 +243,7 @@
       tripleo_role_name: aide
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/backup_and_restore/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-backup_and_restore
     parent: tripleo-ansible-centos-stream-base
@@ -249,6 +251,7 @@
       tripleo_role_name: backup_and_restore
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/designate_bind_config/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-designate_bind_config
     parent: tripleo-ansible-centos-stream-base
@@ -256,6 +259,7 @@
       tripleo_role_name: designate_bind_config
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/env_data/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-env_data
     parent: tripleo-ansible-centos-stream-base
@@ -263,6 +267,7 @@
       tripleo_role_name: env_data
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/login_defs/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-login_defs
     parent: tripleo-ansible-centos-stream-base
@@ -270,6 +275,7 @@
       tripleo_role_name: login_defs
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/snapshot_and_revert/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-snapshot_and_revert
     parent: tripleo-ansible-centos-stream-base
@@ -277,6 +283,7 @@
       tripleo_role_name: snapshot_and_revert
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^.config/molecule/config.yml
     - ^tripleo_ansible/roles/test_deps/(?!meta).*
     - ^zuul.d/playbooks/pre.yml
@@ -286,6 +293,7 @@
       tripleo_role_name: test_deps
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/ansible_plugins/action/package.py
     - ^tripleo_ansible/roles/test_package_action/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-test_package_action
@@ -294,6 +302,7 @@
       tripleo_role_name: test_package_action
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/ansible_plugins/modules/container_startup_config.py
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_configs.py
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_container_config_scripts.py
@@ -306,6 +315,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_auditd/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_auditd
     parent: tripleo-ansible-centos-stream-base
@@ -313,6 +323,7 @@
       tripleo_role_name: tripleo_auditd
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_bootstrap/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
     parent: tripleo-ansible-centos-stream-base
@@ -320,6 +331,7 @@
       tripleo_role_name: tripleo_bootstrap
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_cellv2/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_cellv2
     parent: tripleo-ansible-centos-stream-base
@@ -327,6 +339,7 @@
       tripleo_role_name: tripleo_cellv2
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ceph_client/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
     parent: tripleo-ansible-centos-stream-base
@@ -335,6 +348,7 @@
       tripleo_role_name: tripleo_ceph_client
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ceph_distribute_keys/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ceph_distribute_keys
     parent: tripleo-ansible-centos-stream-base
@@ -343,6 +357,7 @@
       tripleo_role_name: tripleo_ceph_distribute_keys
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_cephadm/(?!meta).*
     - ^tripleo_ansible/ansible_plugins/modules/ceph_(?!meta).*
     - ^tripleo_ansible/ansible_plugins/module_utils/ceph_spec.py
@@ -353,6 +368,7 @@
       tripleo_role_name: tripleo_cephadm
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_clients_install/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_clients_install
     parent: tripleo-ansible-centos-stream-base
@@ -360,6 +376,7 @@
       tripleo_role_name: tripleo_clients_install
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_collectd/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_collectd
     parent: tripleo-ansible-centos-stream-base
@@ -372,6 +389,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_compute_node/(?!meta).*
     - ^tripleo_ansible/playbooks/.*
     name: tripleo-ansible-centos-stream-molecule-tripleo_compute_node
@@ -380,6 +398,7 @@
       tripleo_role_name: tripleo_compute_node
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_config/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_config
     parent: tripleo-ansible-centos-stream-base
@@ -387,6 +406,7 @@
       tripleo_role_name: tripleo_config
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_image_build/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_image_build
     parent: tripleo-ansible-centos-stream-base
@@ -394,6 +414,7 @@
       tripleo_role_name: tripleo_container_image_build
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_image_prepare/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_image_prepare
     parent: tripleo-ansible-centos-stream-base
@@ -403,6 +424,7 @@
       tripleo_role_name: tripleo_container_image_prepare
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_manage/(?!meta).*
     - ^tripleo_ansible/roles/tripleo_container_rm/.*
     - ^tripleo_ansible/ansible_plugins/action/container_systemd.py$
@@ -417,6 +439,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_rm/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_rm
     parent: tripleo-ansible-centos-stream-base
@@ -424,6 +447,7 @@
       tripleo_role_name: tripleo_container_rm
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_standalone/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_standalone
     parent: tripleo-ansible-centos-stream-base
@@ -431,6 +455,7 @@
       tripleo_role_name: tripleo_container_standalone
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_stop/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_stop
     parent: tripleo-ansible-centos-stream-base
@@ -438,6 +463,7 @@
       tripleo_role_name: tripleo_container_stop
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_container_tag/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_container_tag
     parent: tripleo-ansible-centos-stream-base
@@ -445,6 +471,7 @@
       tripleo_role_name: tripleo_container_tag
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_create_admin/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_create_admin
     parent: tripleo-ansible-centos-stream-base
@@ -452,6 +479,7 @@
       tripleo_role_name: tripleo_create_admin
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_etcd/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_etcd
     parent: tripleo-ansible-centos-stream-base
@@ -459,6 +487,7 @@
       tripleo_role_name: tripleo_etcd
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_firewall/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_firewall
     parent: tripleo-ansible-centos-stream-base
@@ -466,6 +495,7 @@
       tripleo_role_name: tripleo_firewall
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ha_wrapper/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ha_wrapper
     parent: tripleo-ansible-centos-stream-base
@@ -473,6 +503,7 @@
       tripleo_role_name: tripleo_ha_wrapper
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_hieradata/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_hieradata
     parent: tripleo-ansible-centos-stream-base
@@ -480,6 +511,7 @@
       tripleo_role_name: tripleo_hieradata
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_hosts_entries/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_hosts_entries
     parent: tripleo-ansible-centos-stream-base
@@ -487,6 +519,7 @@
       tripleo_role_name: tripleo_hosts_entries
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_httpd_config/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_httpd_config
     parent: tripleo-ansible-centos-stream-base
@@ -494,6 +527,7 @@
       tripleo_role_name: tripleo_httpd_config
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_httpd_vhost/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_httpd_vhost
     parent: tripleo-ansible-centos-stream-base
@@ -501,6 +535,7 @@
       tripleo_role_name: tripleo_httpd_vhost
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_image_serve/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_image_serve
     parent: tripleo-ansible-centos-stream-base
@@ -508,6 +543,7 @@
       tripleo_role_name: tripleo_image_serve
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ironic/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ironic
     parent: tripleo-ansible-centos-stream-base
@@ -515,6 +551,7 @@
       tripleo_role_name: tripleo_ironic
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_iscsid/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_iscsid
     parent: tripleo-ansible-centos-stream-base
@@ -522,6 +559,7 @@
       tripleo_role_name: tripleo_iscsid
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_kernel/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_kernel
     parent: tripleo-ansible-centos-stream-base
@@ -529,6 +567,7 @@
       tripleo_role_name: tripleo_kernel
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_keystone/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_keystone
     parent: tripleo-ansible-centos-stream-base
@@ -536,6 +575,7 @@
       tripleo_role_name: tripleo_keystone
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_keystone_resources/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_keystone_resources
     parent: tripleo-ansible-centos-stream-base
@@ -543,6 +583,7 @@
       tripleo_role_name: tripleo_keystone_resources
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_logrotate_crond/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_logrotate_crond
     parent: tripleo-ansible-centos-stream-base
@@ -550,6 +591,7 @@
       tripleo_role_name: tripleo_logrotate_crond
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_lvmfilter/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_lvmfilter
     parent: tripleo-ansible-centos-stream-base
@@ -557,6 +599,7 @@
       tripleo_role_name: tripleo_lvmfilter
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_metrics_qdr/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_metrics_qdr
     parent: tripleo-ansible-centos-stream-base
@@ -566,6 +609,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_module_load/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_module_load
     parent: tripleo-ansible-centos-stream-base
@@ -573,6 +617,7 @@
       tripleo_role_name: tripleo_module_load
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_multipathd/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_multipathd
     parent: tripleo-ansible-centos-stream-base
@@ -580,6 +625,7 @@
       tripleo_role_name: tripleo_multipathd
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_mysql_client/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_mysql_client
     parent: tripleo-ansible-centos-stream-base
@@ -587,6 +633,7 @@
       tripleo_role_name: tripleo_mysql_client
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_network_config/(?!meta).*
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_os_net_config.py
     name: tripleo-ansible-centos-stream-molecule-tripleo_network_config
@@ -595,6 +642,7 @@
       tripleo_role_name: tripleo_network_config
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nftables/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_nftables
     parent: tripleo-ansible-centos-stream-base
@@ -602,6 +650,7 @@
       tripleo_role_name: tripleo_nftables
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nodes_validation/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_nodes_validation
     parent: tripleo-ansible-centos-stream-base
@@ -609,6 +658,7 @@
       tripleo_role_name: tripleo_nodes_validation
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nova_image_cache/(?!meta).*
     - ^tripleo_ansible/ansible_plugins/action/tripleo_nova_image_cache.py
     - ^tripleo_ansible/ansible_plugins/modules/tripleo_nova_image_cache.py
@@ -618,6 +668,7 @@
       tripleo_role_name: tripleo_nova_image_cache
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nova_libvirt/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_nova_libvirt
     parent: tripleo-ansible-centos-stream-base
@@ -625,6 +676,7 @@
       tripleo_role_name: tripleo_nova_libvirt
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nova_compute/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_nova_compute
     parent: tripleo-ansible-centos-stream-base
@@ -632,6 +684,7 @@
       tripleo_role_name: tripleo_nova_compute
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_nvdimm/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_nvdimm
     parent: tripleo-ansible-centos-stream-base
@@ -639,6 +692,7 @@
       tripleo_role_name: tripleo_nvdimm
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ovn/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ovn
     parent: tripleo-ansible-centos-stream-base
@@ -646,6 +700,7 @@
       tripleo_role_name: tripleo_ovn
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ovn_cluster/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ovn_cluster
     parent: tripleo-ansible-centos-stream-base
@@ -653,6 +708,7 @@
       tripleo_role_name: tripleo_ovn_cluster
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ovs_dpdk/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ovs_dpdk
     parent: tripleo-ansible-centos-stream-base
@@ -660,6 +716,7 @@
       tripleo_role_name: tripleo_ovs_dpdk
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_packages/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_packages
     parent: tripleo-ansible-centos-stream-base
@@ -667,6 +724,7 @@
       tripleo_role_name: tripleo_packages
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_persist/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_persist
     parent: tripleo-ansible-centos-stream-base
@@ -674,6 +732,7 @@
       tripleo_role_name: tripleo_persist
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_podman/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_podman
     parent: tripleo-ansible-centos-stream-base
@@ -681,6 +740,7 @@
       tripleo_role_name: tripleo_podman
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_provision_mcelog/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_provision_mcelog
     parent: tripleo-ansible-centos-stream-base
@@ -688,6 +748,7 @@
       tripleo_role_name: tripleo_provision_mcelog
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ptp/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ptp
     parent: tripleo-ansible-centos-stream-base
@@ -695,6 +756,7 @@
       tripleo_role_name: tripleo_ptp
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_puppet_cache/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_puppet_cache
     parent: tripleo-ansible-centos-stream-base
@@ -702,6 +764,7 @@
       tripleo_role_name: tripleo_puppet_cache
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_redhat_enforce/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_redhat_enforce
     parent: tripleo-ansible-centos-stream-base
@@ -710,6 +773,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_run_cephadm/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_run_cephadm
     parent: tripleo-ansible-centos-stream-base
@@ -718,6 +782,7 @@
       tripleo_role_name: tripleo_run_cephadm
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_securetty/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_securetty
     parent: tripleo-ansible-centos-stream-base
@@ -725,6 +790,7 @@
       tripleo_role_name: tripleo_securetty
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_ssh_known_hosts/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_ssh_known_hosts
     parent: tripleo-ansible-centos-stream-base
@@ -732,6 +798,7 @@
       tripleo_role_name: tripleo_ssh_known_hosts
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_sshd/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_sshd
     parent: tripleo-ansible-centos-stream-base
@@ -739,6 +806,7 @@
       tripleo_role_name: tripleo_sshd
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_systemd_wrapper/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_systemd_wrapper
     parent: tripleo-ansible-centos-stream-base
@@ -746,6 +814,7 @@
       tripleo_role_name: tripleo_systemd_wrapper
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_timezone/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_timezone
     parent: tripleo-ansible-centos-stream-base
@@ -753,6 +822,7 @@
       tripleo_role_name: tripleo_timezone
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_transfer/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_transfer
     parent: tripleo-ansible-centos-stream-base
@@ -760,6 +830,7 @@
       tripleo_role_name: tripleo_transfer
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_unbound/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_unbound
     parent: tripleo-ansible-centos-stream-base
@@ -767,6 +838,7 @@
       tripleo_role_name: tripleo_unbound
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_update_trusted_cas/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_update_trusted_cas
     parent: tripleo-ansible-centos-stream-base
@@ -775,6 +847,7 @@
     voting: false
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_upgrade_hiera/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_upgrade_hiera
     parent: tripleo-ansible-centos-stream-base
@@ -782,6 +855,7 @@
       tripleo_role_name: tripleo_upgrade_hiera
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tripleo_validations_package/(?!meta).*
     name: tripleo-ansible-centos-stream-molecule-tripleo_validations_package
     parent: tripleo-ansible-centos-stream-base
@@ -789,6 +863,7 @@
       tripleo_role_name: tripleo_validations_package
 - job:
     files:
+    - ^molecule-requirements.txt
     - ^tripleo_ansible/roles/tuned/(?!meta).*
     - ^zuul.d/playbooks/pre.yml
     name: tripleo-ansible-centos-stream-molecule-tuned
