@@ -13,3 +13,40 @@
     fi
   run_once: true
   when: octavia_manage_nova_flavor | default(false) | bool
+
+- name: create nova multi-vCPU flavor for Octavia
+  shell: |
+    if ! openstack flavor show octavia_{{ octavia_multivcpu_flavor_id }} > /dev/null; then
+      openstack flavor create -vv \
+        --id {{ octavia_multivcpu_flavor_id }} \
+        --ram {{ octavia_multivcpu_flavor_properties.ram }} \
+        --disk {{ octavia_multivcpu_flavor_properties.disk }} \
+        --vcpus {{ octavia_multivcpu_flavor_properties.vcpus }} \
+        --private \
+        octavia_{{ octavia_multivcpu_flavor_id }}
+    fi
+  run_once: true
+  when: octavia_manage_nova_flavor | default(false) | bool
+
+- name: create octavia multi-vCPU flavor profile
+  shell: |
+    if ! openstack loadbalancer flavorprofile show octavia_{{ octavia_multivcpu_flavor_id }}_profile > /dev/null; then
+      openstack loadbalancer flavorprofile create -vv \
+        --name octavia_{{ octavia_multivcpu_flavor_id }}_profile \
+        --provider amphora --flavor-data \
+        '{"loadbalancer_topology": "ACTIVE_STANDBY", "compute_flavor": "{{ octavia_multivcpu_flavor_id }}"}'
+    fi
+  run_once: true
+  when: octavia_manage_nova_flavor | default(false) | bool
+
+- name: create octavia multi-vCPU flavor
+  shell: |
+    if ! openstack loadbalancer flavor show octavia_{{ octavia_multivcpu_flavor_id }} > /dev/null; then
+      openstack loadbalancer flavor create -vv \
+        --name octavia_{{ octavia_multivcpu_flavor_id }} \
+        --flavorprofile octavia_{{ octavia_multivcpu_flavor_id }}_profile \
+        --description "A flavor with {{ octavia_multivcpu_flavor_properties.vcpus }} \
+        vCPUs and {{ octavia_multivcpu_flavor_properties.ram }} MB RAM."
+    fi
+  run_once: true
+  when: octavia_manage_nova_flavor | default(false) | bool
