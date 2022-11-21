@@ -14,14 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Remove openstack-nova-compute and python-nova package during upgrade
-  package:
-    name:
-      - openstack-nova-compute
-      - python-nova
-    state: removed
-  failed_when: false
-
 - tags: down
   become: true
   environment:
