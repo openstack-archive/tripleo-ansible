@@ -77,6 +77,15 @@
       set_fact:
         calling_ansible_log_path: "{{ playbook_dir }}/ceph-ansible/ceph_ansible_command.log"
 
+- name: rotate ceph_ansible_command.log
+  become: true
+  shell: |
+      if [[ -e ceph_ansible_command.log ]]; then
+        mv ceph_ansible_command.log ceph_ansible_command.log-$(date "+%Y-%m-%dT%H:%M:%S");
+      fi
+  args:
+    chdir: "{{ playbook_dir }}/ceph-ansible/"
+
 - name: save ceph-ansible playbook command(s) to shell script
   become: true
   copy:
