@@ -84,7 +84,7 @@ tripleo_nova_compute_hw_machine_type: "x86_64=q35"  # role specific
 tripleo_nova_compute_additional_cell: false
 tripleo_nova_compute_enable_ksm: false  # role specific
 tripleo_nova_compute_cinder_password: "{{ tripleo_cinder_password | default('') }}"  # sensitive, assert not empty
-tripleo_nova_compute_keystone_region: region_one
+tripleo_nova_compute_keystone_region: regionOne
 tripleo_nova_compute_num_pcie_ports: 16  # role specific
 tripleo_nova_compute_mem_stats_period_seconds: 10  # role specific
 tripleo_nova_compute_live_migration_wait_for_vif_plug: true  # role specific
