@@ -3,7 +3,6 @@ set -x
 
 ### Openstack Keystone
 
-: ${OS_RELEASE:=queens}
 : ${IPADDR:=127.0.0.1}
 # Identity service configuration
 : ${OS_IDENTITY_URL_IPADDR:=$IPADDR}
