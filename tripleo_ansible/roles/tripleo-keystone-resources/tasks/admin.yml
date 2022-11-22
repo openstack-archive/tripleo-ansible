@@ -38,13 +38,27 @@
   when:
     - keystone_enable_member | default(tripleo_keystone_resources_member_role_enabled)
 
+- name: Check admin password
+  openstack.cloud.identity_user_info:
+    name: admin
+    auth_type: "v3password"
+    auth:
+      auth_url: "{{ tripleo_keystone_resources_public_endpoint }}"
+      username: admin
+      password: "{{ tripleo_keystone_resources_admin_password }}"
+      user_domain_id: default
+      project_name: admin
+      project_domain_id: default
+  register: user_info_result
+  ignore_errors: true
+
 - name: Create admin user
   no_log: "{{ tripleo_keystone_resources_hide_sensitive_logs | bool }}"
   openstack.cloud.identity_user:
     cloud: "{{ tripleo_keystone_resources_cloud_name }}"
     name: admin
     password: "{{ tripleo_keystone_resources_admin_password }}"
-    update_password: always
+    update_password: "{{ user_info_result is failed | ternary('always', 'on_create') }}"
     email: "admin@localhost"
     domain: default
 
