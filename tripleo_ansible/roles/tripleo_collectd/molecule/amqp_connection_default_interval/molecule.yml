@@ -10,9 +10,9 @@ platforms:
       url: registry.access.redhat.com
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /opt/yum.repos.d:/etc/yum.repos.d:rw
-      - /etc/dnf/vars:/etc/dnf/vars
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg:O
+      - /opt/yum.repos.d:/etc/yum.repos.d:O
+      - /etc/dnf/vars:/etc/dnf/vars:O
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"

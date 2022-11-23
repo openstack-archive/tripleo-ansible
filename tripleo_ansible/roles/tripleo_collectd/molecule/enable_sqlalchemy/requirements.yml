@@ -1,6 +1,0 @@
----
-- src: git+https://github.com/infrawatch/functional-tests
-  name: functional_tests
-
-- src: git+http://github.com/infrawatch/collectd-config-ansible-role
-  name: collectd_config
