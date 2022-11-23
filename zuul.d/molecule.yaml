@@ -386,7 +386,7 @@
       enable_fips: true
       nslookup_target: opendev.org
       tripleo_role_name: tripleo_collectd
-    voting: false
+    voting: true
 - job:
     files:
     - ^molecule-requirements.txt

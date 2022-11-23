@@ -14,9 +14,9 @@ platforms:
       url: registry.access.redhat.com
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
-      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg
-      - /opt/yum.repos.d:/etc/yum.repos.d:rw
-      - /etc/dnf/vars:/etc/dnf/vars
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg:O
+      - /opt/yum.repos.d:/etc/yum.repos.d:O
+      - /etc/dnf/vars:/etc/dnf/vars:O
     privileged: true
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
@@ -32,6 +32,7 @@ platforms:
     networks:
       - name: collectd
         ipv4_address: "192.168.42.1"
+
   - name: collectd-server
     hostname: collectd-server
     image: ubi9/ubi-init
@@ -39,6 +40,9 @@ platforms:
       url: registry.access.redhat.com
     volumes:
       - /etc/ci/mirror_info.sh:/etc/ci/mirror_info.sh:ro
+      - /etc/pki/rpm-gpg:/etc/pki/rpm-gpg:O
+      - /opt/yum.repos.d:/etc/yum.repos.d:O
+      - /etc/dnf/vars:/etc/dnf/vars:O
     privileged: true
     environment:
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
@@ -56,6 +60,8 @@ provisioner:
       all:
         hosts:
           collectd-test:
+            ansible_python_interpreter: /usr/bin/python3
+          collectd-server:
             ansible_python_interpreter: /usr/bin/python3
     host_vars:
       collectd-test:
