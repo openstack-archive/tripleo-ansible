@@ -124,17 +124,8 @@ DEFAULT_SUBNET_IPV6_RA_MODE = None
 
 
 def is_vip_network(conn, network_id):
-    network_name = conn.network.get_network(network_id).name
-    vip_ports = conn.network.ports(network_id=network_id,
-                                   name='{}{}'.format(network_name,
-                                                      n_utils.NET_VIP_SUFFIX))
-    try:
-        next(vip_ports)
-        return True
-    except StopIteration:
-        pass
-
-    return False
+    network = conn.network.get_network(network_id)
+    return (network.tags is not None and 'tripleo_vip=True' in network.tags)
 
 
 def get_network_info(conn, network_id):

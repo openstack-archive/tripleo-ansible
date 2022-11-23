@@ -32,9 +32,11 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
     def test_is_vip_network_true(self, conn_mock):
         net_name = 'external'
         net_id = '132f871f-eaec-4fed-9475-0d54465e0f00'
-        fake_network = stubs.FakeNeutronNetwork(id=net_id, name=net_name)
+        fake_network = stubs.FakeNeutronNetwork(id=net_id,
+                                                name=net_name,
+                                                tags=['tripleo_vip=True'])
         fake_port = stubs.FakeNeutronPort(
-            name='{}{}'.format(net_name, n_utils.NET_VIP_SUFFIX),
+            name='{}{}'.format(net_name, "IT_DOES_NOT_MATTER"),
             fixed_ips=[{'ip_address': '10.10.10.10', 'subnet_id': 'foo'}]
         )
 

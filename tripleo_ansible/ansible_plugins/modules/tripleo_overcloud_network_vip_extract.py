@@ -129,7 +129,7 @@ def find_net_vips(conn, net_resrcs, vip_data):
                 net_resrcs[net][res][n_utils.RES_ID])
             vip_ports = conn.network.ports(
                 network_id=network.id,
-                name='{}{}'.format(network.name, n_utils.NET_VIP_SUFFIX))
+                tags='tripleo_vip_net={}'.format(network.name))
 
             update_vip_data(conn, network, vip_ports, vip_data)
 
