@@ -47,3 +47,6 @@ fabricd_options=("-A 127.0.0.1")
 # If vtysh_enable is no or non-existant, the frr.conf is ignored.
 # it is highly suggested to have this set to yes
 vtysh_enable=yes
+
+# Allow frr to be started by non-root users
+FRR_NO_ROOT="yes"
