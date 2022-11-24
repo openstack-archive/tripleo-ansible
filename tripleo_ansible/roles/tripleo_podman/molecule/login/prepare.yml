@@ -87,5 +87,5 @@
     - name: Run install
       include_role:
         name: tripleo_podman
-        tasks_from: tripleo_podman_install.yml
+        tasks_from: install.yml
         vars_from: "redhat.yml"

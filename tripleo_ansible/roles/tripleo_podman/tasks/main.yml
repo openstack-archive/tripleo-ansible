@@ -18,22 +18,22 @@
   import_tasks: load_vars.yaml
 
 - name: Podman install
-  import_tasks: tripleo_podman_install.yml
+  import_tasks: install.yml
 
 - name: Rsyslog configuration
-  import_tasks: tripleo_podman_rsyslog.yml
+  import_tasks: rsyslog.yml
 
 - name: Podman purge
-  import_tasks: tripleo_podman_purge.yml
+  import_tasks: purge.yml
 
 - name: Podman install
-  import_tasks: tripleo_podman_login.yml
+  import_tasks: login.yml
   when:
     - tripleo_container_registry_login | bool
     - tripleo_container_registry_logins
 
 - name: Buildah setup
-  import_tasks: tripleo_podman_buildah_login.yml
+  import_tasks: buildah_login.yml
   when:
     - tripleo_podman_buildah_login | bool
     - tripleo_container_registry_login | bool

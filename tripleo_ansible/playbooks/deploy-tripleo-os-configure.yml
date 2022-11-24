@@ -25,7 +25,7 @@
     - name: Configure tripleo_podman
       import_role:
         name: tripleo_podman
-        tasks_from: tripleo_podman_configure.yml
+        tasks_from: configure.yml
       tags:
         - tripleo_podman
     - name: Manage tripleo container services
