@@ -1,6 +1,6 @@
 ---
-{% set control_virtual_ip = deployed_server_port_map.control_virtual_ip.fixed_ips[0].ip_address %}
-{% set public_virtual_ip = deployed_server_port_map.public_virtual_ip.fixed_ips[0].ip_address %}
+{% set control_virtual_ip = net_vip_map.ctlplane %}
+{% set public_virtual_ip = vip_port_map.external.ip_address %}
 {% if ':' in control_virtual_ip %}
 {%   set control_virtual_cidr = 128 %}
 {% else %}

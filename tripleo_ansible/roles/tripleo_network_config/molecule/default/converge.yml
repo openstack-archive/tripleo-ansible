@@ -28,30 +28,14 @@
     ctlplane_dns_nameservers: []
     dns_search_domains: []
     neutron_public_interface_name: dummy0
-    deployed_server_port_map:
-      control_virtual_ip:
-        fixed_ips:
-          - ip_address: 203.0.113.3
-        network:
-          tags:
-            - 203.0.113.0/24
-        subnets:
-          - cidr: 203.0.113.0/24
-      public_virtual_ip:
-        fixed_ips:
-          - ip_address: 203.0.113.1
-        network:
-          tags:
-            - 203.0.113.0/24
-        subnets:
-          - cidr: 203.0.113.0/24
-      standalone-ctlplane:
-        fixed_ips:
-          - ip_address: 203.0.113.1
-        network:
-          tags:
-            - 203.0.113.0/24
-        subnets:
-          - cidr: 203.0.113.0/24
+    net_vip_map:
+      ctlplane: 203.0.113.3
+      ctlplane_subnet: 203.0.113.0/24
+      ctlplane_uri: 203.0.113.3
+    vip_port_map:
+      external:
+        ip_address: 203.0.113.1
+        ip_address_uri: 203.0.113.1
+        ip_subnet: 203.0.113.0/24
   roles:
     - role: "tripleo_network_config"
