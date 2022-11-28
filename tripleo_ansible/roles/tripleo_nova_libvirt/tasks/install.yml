@@ -31,9 +31,11 @@
     - { 'path': /var/cache/libvirt }
     - { 'path': /var/lib/nova, 'setype': container_file_t }
     - { 'path': /run/libvirt, 'setype': virt_var_run_t }
+    # TODO(bogdando): use container_logwriter_t as of container-selinux v2.191.0
+    - { 'path': /var/log/containers/libvirt/swtpm, 'setype': container_file_t, 'mode': '0770' }
+    - { 'path': /var/log/containers/libvirt, 'setype': container_ro_file_t, 'selevel': s0, 'mode': '0750' }
     # NOTE(bogdando): this mostly replicates today t-h-t common/common-container-setup-tasks.yaml
     # we can tweak it further later, or move to some common tasks later
-    - { 'path': /var/log/containers/libvirt, 'setype': container_ro_file_t, 'selevel': s0, 'mode': '0750' }
     - { 'path': /var/lib/kolla/config_files, 'setype': container_file_t, 'selevel': s0, 'recurse': true }
     - { 'path': /var/lib/tripleo-config, 'setype': container_file_t, 'selevel': s0, 'mode': '0750' }
     - { 'path': /var/lib/config-data, 'setype': container_file_t, 'selevel': s0, 'mode': '0755' }
