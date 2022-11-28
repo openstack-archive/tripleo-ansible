@@ -123,18 +123,9 @@
       failed_when: true
 
     - name: Configure nova.conf
-      ini_file:
-        path: "{{ tripleo_nova_compute_config_dir }}/etc/nova/nova.conf"
-        section: "{{ item.section }}"
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-      loop: "{{ nova_conf }}"
-      vars:
-        nova_conf: |
-          {% set _nova_conf = [] %}
-          {% for section, options in (tripleo_nova_compute_config | combine(tripleo_nova_compute_config_overrides, recursive=True)).items() %}
-          {% for option, value in options.items() %}
-          {% set _ = _nova_conf.append({'section': section, 'option': option, 'value': value}) %}
-          {% endfor %}
-          {% endfor %}
-          {{ _nova_conf }}
+      config_template:
+        remote_src: true
+        src: "{{ tripleo_nova_compute_config_dir }}/etc/nova/nova.conf"
+        dest: "{{ tripleo_nova_compute_config_dir }}/etc/nova/nova.conf"
+        config_type: ini
+        config_overrides: "{{ tripleo_nova_compute_config | combine(tripleo_nova_compute_config_overrides, recursive=True) }}"
