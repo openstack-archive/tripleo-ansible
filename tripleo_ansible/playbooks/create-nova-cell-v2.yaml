@@ -20,7 +20,6 @@
   vars:
     tripleo_cellv2_cell_name: "{{ tripleo_cellv2_cell_name }}"
     # containercli can be tropped when we fully switched to podman
-    tripleo_cellv2_containercli: "{{ tripleo_cellv2_containercli }}"
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
@@ -32,8 +31,6 @@
   gather_facts: true
   vars:
     tripleo_cellv2_cell_name: "{{ tripleo_cellv2_cell_name }}"
-    # containercli can be tropped when we fully switched to podman
-    tripleo_cellv2_containercli: "{{ tripleo_cellv2_containercli }}"
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
@@ -45,8 +42,6 @@
   gather_facts: true
   vars:
     tripleo_cellv2_cell_name: "{{ tripleo_cellv2_cell_name }}"
-    # containercli can be tropped when we fully switched to podman
-    tripleo_cellv2_containercli: "{{ tripleo_cellv2_containercli }}"
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
@@ -58,8 +53,6 @@
   gather_facts: true
   vars:
     tripleo_cellv2_cell_name: "{{ tripleo_cellv2_cell_name }}"
-    # containercli can be tropped when we fully switched to podman
-    tripleo_cellv2_containercli: "{{ tripleo_cellv2_containercli }}"
     tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
@@ -69,11 +62,6 @@
 - hosts: Controller[0]
   remote_user: stack
   gather_facts: true
-  vars:
-    tripleo_cellv2_cell_name: "{{ tripleo_cellv2_cell_name }}"
-    # containercli can be tropped when we fully switched to podman
-    tripleo_cellv2_containercli: "{{ tripleo_cellv2_containercli }}"
-    tripleo_cellv2_cellcontroller_group: "{{ groups['CellController'] }}"
   tasks:
     - import_role:
         name: tripleo_cellv2

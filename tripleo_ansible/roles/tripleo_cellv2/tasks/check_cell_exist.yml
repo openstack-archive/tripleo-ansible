@@ -16,19 +16,19 @@
 
 - name: Check if cell exist
   block:
-  - name: Fail if cell_name or containercli are not passed
-    fail: msg="Both tripleo_cellv2_cell_name and tripleo_cellv2_containercli are mandatory parameters!"
-    when: tripleo_cellv2_cell_name is not defined or tripleo_cellv2_containercli is not defined
+  - name: Fail if cell_name is not passed
+    fail: msg="tripleo_cellv2_cell_name is a mandatory parameter!"
+    when: tripleo_cellv2_cell_name is not defined
   - name: Check if cell is already created
     become: true
     shell: |-
       set -o pipefail
-      {{ tripleo_cellv2_containercli }} exec -i -u root nova_api \
+      podman exec -i -u root nova_api \
       nova-manage {{ (tripleo_cellv2_debug | bool) | ternary('--debug', '') }} \
       cell_v2 list_cells | grep {{ tripleo_cellv2_cell_name }}
     failed_when: false
     register: cell_check_result
-  - name: Fail if cell already exist
+  - name: Fail if cell already exists
     fail: msg="Cell with name {{ tripleo_cellv2_cell_name }} already exist!"
     when: cell_check_result.rc == 0
   tags:

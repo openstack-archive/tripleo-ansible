@@ -58,20 +58,13 @@
 
 - name: Restart nova services
   become: true
-  block:
-    - name: nova restart podman
-      systemd:
-        name: "{{ item }}"
-        state: restarted
-      with_items:
-        - tripleo_nova_api
-        - tripleo_nova_conductor
-        - tripleo_nova_scheduler
-      when: tripleo_cellv2_containercli == "podman"
-
-    - name: nova restart docker
-      command: docker restart nova_api nova_scheduler nova_conductor
-      when: tripleo_cellv2_containercli == "docker"
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - tripleo_nova_api
+    - tripleo_nova_conductor
+    - tripleo_nova_scheduler
   when:
     - hosts_result.changed or hosts_result2.changed
   tags:
