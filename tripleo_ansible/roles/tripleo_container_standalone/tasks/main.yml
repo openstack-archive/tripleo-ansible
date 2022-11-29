@@ -55,6 +55,10 @@
   copy:
     content: "{{ item.value | to_nice_json }}"
     dest: "{{ tripleo_container_standalone_container_startup_config_dir }}/{{ tripleo_container_standalone_service }}/{{ item.key }}.json"
+  # NOTE(tkajinam): Some containers (eg. keystone_bootstrap) contain secrets
+  #                 in its environments. Hide the output to avoid dumping these
+  #                 to output.
+  no_log: true
   loop: "{{ tripleo_container_standalone_container_defs | dict2items }}"
 
 - name: Run {{ tripleo_container_standalone_service }}  containers
