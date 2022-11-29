@@ -60,7 +60,13 @@
     puppet apply {{ (tripleo_ha_wrapper_puppet_debug | default(false) | bool) | ternary('--debug --verbose', '') }} --detailed-exitcodes \
     --summarize --color=false --modulepath '{{ tripleo_ha_wrapper_puppet_modulepath }}' --tags '{{ tripleo_ha_wrapper_puppet_tags }}' \
     -e '{{ tripleo_ha_wrapper_puppet_execute }}'
+  failed_when: false
+  no_log: true
   register: puppet_run
+
+- name: "Debug output for task: Run init bundle puppet on the host for {{ tripleo_ha_wrapper_service_name }}"
+  debug:
+    var: puppet_run.stdout_lines | default([]) | union(puppet_run.stderr_lines | default([]))
   changed_when: puppet_run.rc == 2
   failed_when: puppet_run.rc != 2 and puppet_run.rc != 0
 
