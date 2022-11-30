@@ -69,19 +69,18 @@
       become: true
       register: find_growvols
 
-    - name: Stopping playbook when no growvols utility is found
-      meta: end_play
-      when: find_growvols.rc != 0
+    - name: Run growvols block
+      when: find_growvols.rc == 0
+      block:
+        - name: Setting growvols path
+          set_fact:
+            growvols_path: "{{ find_growvols.stdout_lines[0] }}"
 
-    - name: Setting growvols path
-      set_fact:
-        growvols_path: "{{ find_growvols.stdout_lines[0] }}"
+        - name: "Running {{ growvols_path }} {{growvols_args}}"
+          shell: "{{ growvols_path }} --yes {{growvols_args}}"
+          become: true
+          register: run_growvols
 
-    - name: "Running {{ growvols_path }} {{growvols_args}}"
-      shell: "{{ growvols_path }} --yes {{growvols_args}}"
-      become: true
-      register: run_growvols
-
-    - name: Output of growvols stdout
-      debug:
-        var: run_growvols.stdout
+        - name: Output of growvols stdout
+          debug:
+            var: run_growvols.stdout
