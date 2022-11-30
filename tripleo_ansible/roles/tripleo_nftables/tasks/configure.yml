@@ -14,6 +14,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Basic config steps and basic rules
+  become: true
+  block:
+    - name: Create snipets directory
+      ansible.builtin.file:
+        path: "{{ tripleo_nftables_src }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0750
+
+    - name: Push default ruleset snipet
+      ansible.builtin.copy:
+        dest: "{{ tripleo_nftables_src }}/tripleo-nftables-base.yaml"
+        src: 00-base-rules.yaml
+
 - name: IPtables compatibility layout
   become: true
   block:
@@ -31,8 +47,16 @@
   ansible.builtin.command: nft -j list ruleset
   register: nft_current_rules
 
+- name: Load firewall snippets
+  become: true
+  register: tripleo_nftables_rules_list
+  tripleo_nftables_from_files:
+    src: "{{ tripleo_nftables_src }}"
+
 - name: nftables files generation
   become: true
+  when:
+    - not ansible_check_mode|bool
   block:
     # Create a dedicated file for jumps - makes easier to manage afterward.
     # That one will be loaded upon boot only.
@@ -41,6 +65,7 @@
       vars:
         current_nft: "{{ nft_current_rules }}"
         nft_is_update: false
+        tripleo_nftables_rules: "{{ tripleo_nftables_rules_list['rules'] }}"
       ansible.builtin.template:
         dest: /etc/nftables/tripleo-jumps.nft
         src: jump-chain.j2
@@ -54,6 +79,7 @@
       vars:
         current_nft: "{{ nft_current_rules }}"
         nft_is_update: true
+        tripleo_nftables_rules: "{{ tripleo_nftables_rules_list['rules'] }}"
       ansible.builtin.template:
         dest: /etc/nftables/tripleo-update-jumps.nft
         src: jump-chain.j2
@@ -62,18 +88,24 @@
     # already empty!
     - name: Generate nft flushes
       register: nft_flushes
+      vars:
+        tripleo_nftables_rules: "{{ tripleo_nftables_rules_list['rules'] }}"
       ansible.builtin.template:
         dest: /etc/nftables/tripleo-flushes.nft
         src: flush-chain.j2
 
     - name: Generate nft tripleo chains
       register: nft_chains
+      vars:
+        tripleo_nftables_rules: "{{ tripleo_nftables_rules_list['rules'] }}"
       ansible.builtin.template:
         dest: /etc/nftables/tripleo-chains.nft
         src: chains.j2
 
     - name: Generate nft ruleset in static file
       register: nft_ruleset
+      vars:
+        tripleo_nftables_rules: "{{ tripleo_nftables_rules_list['rules'] }}"
       ansible.builtin.template:
         dest: /etc/nftables/tripleo-rules.nft
         src: ruleset.j2
@@ -82,6 +114,8 @@
 # we don't load the chains before. So let's validate now, with all the things.
 # Remember, the "iptables" compat layout is already loaded at this point.
 - name: Validate all of the generated content before loading
+  when:
+    - not ansible_check_mode|bool
   ansible.builtin.shell: >-
     cat /etc/nftables/tripleo-chains.nft
     /etc/nftables/tripleo-flushes.nft

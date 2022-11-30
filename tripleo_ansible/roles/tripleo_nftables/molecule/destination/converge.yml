@@ -18,23 +18,7 @@
 - name: Converge
   hosts: all
   vars:
-    tripleo_nftables_rules:
-      - rule_name: '000 related established'
-        rule:
-          proto: all
-          state:
-            - established
-            - related
-      - rule_name: '001 local'
-        rule:
-          proto: all
-          interface: lo
-          state: []
-      - rule_name: '010 testing destination'
-        rule:
-          proto: tcp
-          destination: "fd00:fd00:fd00:2000::/64"
-          dport: 1211
+    tripleo_nftables_src: /opt/tripleo-firewall
   roles:
     - role: "tripleo_nftables"
   tasks:

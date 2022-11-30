@@ -1,0 +1,38 @@
+- rule:
+    proto: all
+    state:
+    - RELATED
+    - ESTABLISHED
+  rule_name: 000 accept related established rules
+- rule:
+    ipversion: ipv4
+    proto: icmp
+  rule_name: 001 accept all icmp
+- rule:
+    ipversion: ipv6
+    proto: ipv6-icmp
+    state: []
+  rule_name: 001 accept all ipv6-icmp
+- rule:
+    interface: lo
+    proto: all
+    state: []
+  rule_name: 002 accept all to lo interface
+- rule:
+    destination: fe80::/64
+    dport: 546
+    ipversion: ipv6
+    proto: udp
+    state:
+    - NEW
+  rule_name: 004 accept ipv6 dhcpv6
+- rule:
+    jump: LOG
+    limit: 20/min
+    limit_burst: 15
+    proto: all
+    level: 'warn'
+    flags: 'all'
+    prefix: 'DROPPING: '
+    state: []
+  rule_name: 999 log all

@@ -17,29 +17,14 @@
 
 - name: Converge
   hosts: all
+  become: true
   vars:
-    tripleo_nftables_rules:
-      - rule_name: '000 related established'
-        rule:
-          proto: all
-          state:
-            - established
-            - related
-      - rule_name: '001 local'
-        rule:
-          proto: all
-          interface: lo
-          state: []
-      - rule_name: '010 testing action'
-        rule:
-          proto: tcp
-          dport: 1211
-          action: drop
-  roles:
-    - role: "tripleo_nftables"
+    tripleo_nftables_src: /opt/tripleo-firewall
   tasks:
+    - name: Run role
+      ansible.builtin.import_role:
+        name: tripleo_nftables
     - name: "Ensure we drop connections on TCP/1211"
-      become: true
       lineinfile:
         path: /etc/nftables/tripleo-rules.nft
         line: 'add rule inet filter TRIPLEO_INPUT tcp dport { 1211 } ct state new counter drop comment "010 testing action"'
