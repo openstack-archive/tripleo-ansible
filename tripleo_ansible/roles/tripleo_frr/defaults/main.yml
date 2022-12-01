@@ -71,6 +71,7 @@ tripleo_frr_ovn_bgp_agent_enable: true
 tripleo_frr_ovn_bgp_agent_debug: true
 tripleo_frr_ovn_bgp_agent_reconcile_interval: 120
 tripleo_frr_ovn_bgp_agent_expose_tenant_networks: false
+tripleo_frr_ovn_bgp_agent_expose_ipv6_gua_tenant_networks: false
 tripleo_frr_ovn_bgp_agent_driver: ovn_bgp_driver
 tripleo_frr_ovn_bgp_agent_private_key: /etc/pki/tls/private/ovn_bgp_agent.key
 tripleo_frr_ovn_bgp_agent_certificate: /etc/pki/tls/certs/ovn_bgp_agent.crt
