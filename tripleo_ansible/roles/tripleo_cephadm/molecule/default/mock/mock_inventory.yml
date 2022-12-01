@@ -6,6 +6,8 @@ Standalone:
       canonical_hostname: standalone.localdomain
       ctlplane_hostname: standalone.ctlplane.localdomain
       ctlplane_ip: 192.168.24.1
+  vars:
+    tripleo_role_name: Standalone
 ceph_osd:
   children:
     Standalone: {}

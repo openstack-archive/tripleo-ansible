@@ -24,6 +24,10 @@ try:
     from ansible.module_utils import ceph_spec
 except ImportError:
     from tripleo_ansible.ansible_plugins.module_utils import ceph_spec
+try:
+    from ansible.module_utils import tripleo_inventory_manager
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import tripleo_inventory_manager
 
 
 ANSIBLE_METADATA = {
@@ -187,26 +191,19 @@ def get_inventory_hosts_to_ips(inventory, roles, tld, fqdn=False):
 
     Then the hosts of the CephStorage group (from the roles list)
     are ['ceph-0'] because overcloud_CephStorage is a child group.
-    Does not handle if one group has both children and hosts, but only
-    needs to handle the types of groups generated in tripleo inventory.
     """
     hosts_to_ips = {}
-    for key in inventory:
-        if key in roles:
-            if 'children' in inventory[key] and 'hosts' not in inventory[key]:
-                # e.g. if CephStorage has children (e.g. overcloud_CephStorage)
-                # then set the key to overcloud_CephStorage so we get its hosts
-                key = [k for k, v in inventory[key]['children'].items()][0]
-            if 'hosts' in inventory[key]:
-                for host in inventory[key]['hosts']:
-                    ip = inventory[key]['hosts'][host]['ansible_host']
-                    if fqdn:
-                        hostname = inventory[key]['hosts'][host]['canonical_hostname']
-                    else:
-                        hostname = host
-                        if tld:
-                            hostname += "." + tld
-                    hosts_to_ips[hostname] = ip
+    for role in roles:
+        role_hosts = inventory.get_hosts(groupname=role)
+        for host in role_hosts:
+            ip = host.vars['ansible_host']
+            if fqdn:
+                hostname = host.vars['canonical_hostname']
+            else:
+                hostname = host.name
+                if tld:
+                    hostname += "." + tld
+            hosts_to_ips[hostname] = ip
     return hosts_to_ips
 
 
@@ -255,17 +252,18 @@ def get_inventory_roles_to_hosts(inventory, roles, tld, fqdn=False):
     Uses ansible inventory as source
     """
     roles_to_hosts = {}
-    for key in inventory:
-        if key in roles:
-            roles_to_hosts[key] = []
-            for host in inventory[key]['hosts']:
-                if fqdn:
-                    hostname = inventory[key]['hosts'][host]['canonical_hostname']
-                else:
-                    hostname = host
-                    if tld:
-                        hostname += "." + tld
-                roles_to_hosts[key].append(hostname)
+    for role in roles:
+        roles_to_hosts[role] = []
+        role_hosts = inventory.get_hosts(groupname=role)
+        for host in role_hosts:
+            if fqdn:
+                hostname = host.vars['canonical_hostname']
+            else:
+                hostname = host.name
+                if tld:
+                    hostname += "." + tld
+
+            roles_to_hosts[role].append(hostname)
     return roles_to_hosts
 
 
@@ -322,10 +320,13 @@ def get_roles_to_svcs_from_inventory(inventory):
         for ceph_name in ceph_list:
             ceph_services.append(ceph_name)
             inverse_service_map[ceph_name] = tripleo_name
-    for key in inventory:
-        key_rename = key.replace('ceph_', '')
+    for group in inventory.groups.values():
+        key_rename = group.name.replace('ceph_', '')
         if key_rename in ceph_services:
-            for role in inventory[key]['children'].keys():
+            for child_group in group.get_descendants():
+                role = child_group.vars.get('tripleo_role_name')
+                if role is None:
+                    continue
                 if role in roles_to_services.keys():
                     roles_to_services[role].append(inverse_service_map[key_rename])
                 else:
@@ -575,8 +576,9 @@ def main():
                                                          roles_to_svcs.keys(), tld)
             hosts_to_ips = get_deployed_hosts_to_ips(deployed_metalsmith, tld)
         elif method == 'tripleo_ansible_inventory':
-            with open(tripleo_ansible_inventory, 'r') as stream:
-                inventory = yaml.safe_load(stream)
+            inventory = tripleo_inventory_manager.TripleoInventoryManager(
+                tripleo_ansible_inventory
+            )
             roles_to_svcs = get_roles_to_svcs_from_inventory(inventory)
             roles_to_hosts = get_inventory_roles_to_hosts(inventory,
                                                           roles_to_svcs.keys(),
@@ -588,8 +590,9 @@ def main():
             roles_to_svcs = get_roles_to_svcs_from_roles(tripleo_roles)
             roles_to_hosts = get_deployed_roles_to_hosts(deployed_metalsmith,
                                                          roles_to_svcs.keys(), tld)
-            with open(tripleo_ansible_inventory, 'r') as stream:
-                inventory = yaml.safe_load(stream)
+            inventory = tripleo_inventory_manager.TripleoInventoryManager(
+                tripleo_ansible_inventory
+            )
             hosts_to_ips = get_inventory_hosts_to_ips(inventory,
                                                       roles_to_svcs.keys(),
                                                       tld, fqdn)

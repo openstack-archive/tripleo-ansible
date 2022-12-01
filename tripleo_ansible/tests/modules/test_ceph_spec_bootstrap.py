@@ -19,6 +19,10 @@ import socket
 import tempfile
 import yaml
 
+try:
+    from ansible.module_utils import tripleo_inventory_manager
+except ImportError:
+    from tripleo_ansible.ansible_plugins.module_utils import tripleo_inventory_manager
 from tripleo_ansible.ansible_plugins.modules import ceph_spec_bootstrap
 from tripleo_ansible.tests import base as tests_base
 
@@ -217,8 +221,9 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         ceph_service_types = ['mon', 'mgr', 'osd']
         inventory_file = "roles/tripleo_cephadm/molecule/default/mock/mock_inventory.yml"
         tld = ""
-        with open(inventory_file, 'r') as stream:
-            inventory = yaml.safe_load(stream)
+        inventory = tripleo_inventory_manager.TripleoInventoryManager(
+            inventory_file
+        )
         roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_inventory(inventory)
         expected = {'Standalone': ['CephOSD', 'CephMgr', 'CephMon']}
         self.assertEqual(roles_to_svcs, expected)
@@ -272,8 +277,9 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         ceph_service_types = ['mon', 'mgr', 'osd']
         inventory_file = "roles/tripleo_cephadm/molecule/default/mock/mock_inventory.yml"
         tld = "abc.local"
-        with open(inventory_file, 'r') as stream:
-            inventory = yaml.safe_load(stream)
+        inventory = tripleo_inventory_manager.TripleoInventoryManager(
+            inventory_file
+        )
         roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_inventory(inventory)
         expected = {'Standalone': ['CephOSD', 'CephMgr', 'CephMon']}
         self.assertEqual(roles_to_svcs, expected)
