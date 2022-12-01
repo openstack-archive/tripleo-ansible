@@ -326,11 +326,23 @@ class TripleoContainerManage:
     def run_container(self, data):
         name, config = data
         action = config.get('action', 'create')
+        retries = config.pop('retries', 0)
+        retry_sleep = config.pop('retry_sleep', 30)
+
         success = False
-        if action == 'exec':
-            success = self.exec_container(name, config)
-        else:
-            success = self.manage_container(name, config)
+        while True:
+            if action == 'exec':
+                success = self.exec_container(name, config)
+            else:
+                success = self.manage_container(name, config)
+
+            if success or retries <= 0:
+                break
+            else:
+                self.module.warn(f'Remaining retries for {name}: {retries}')
+                retries -= 1
+                time.sleep(retry_sleep)
+
         return (name, success)
 
     def check_failures(self, results):
