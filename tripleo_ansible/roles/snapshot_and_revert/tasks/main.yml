@@ -91,8 +91,23 @@
       command: lvremove -f /dev/vg/ss_audit
       when: ansible_facts.lvm.lvs.ss_audit is defined
   tags:
-    - create_snapshots
     - remove_snapshots
+
+- name: Check existing snapshots
+  block:
+    - name: Find snapshot files
+      find:
+        path: /dev/vg
+        patterns: ['ss_home','ss_log','ss_root','ss_srv','ss_var','ss_audit']
+        file_type: "link"
+      register: snapshots_found
+
+    - name: Evaluate result
+      fail: msg="Snapshot {{ item['path'] }} already exist in the filesystem"
+      loop: "{{ snapshots_found.files }}"
+      when: snapshots_found.matched > 0
+  tags:
+    - create_snapshots
 
 - name: Read Services running on the host
   command: puppet lookup --explain 'service_names'
