@@ -65,6 +65,14 @@ changed:
 """
 
 
+def run_locale_safe(module, *args, **kwargs):
+    if isinstance(*args, str):
+        cmd = 'env LANG=C.UTF-8' + str(*args)
+    else:
+        cmd = ['env', 'LANG=C.UTF-8'] + list(*args)
+    return module.run_command(cmd, **kwargs)
+
+
 def pkg_manager(module, downloader=False):
     dnf = module.get_bin_path('dnf')
     if dnf:
@@ -83,7 +91,7 @@ def pkg_manager(module, downloader=False):
 # return stuff like openvswitch2.11 in original yaml.
 def get_current_ovs_pkg_name(module):
     cmd = ['rpm', '-qa']
-    _, output, _ = module.run_command(cmd, check_rc=True)
+    _, output, _ = run_locale_safe(module, cmd, check_rc=True)
     ovs_re = re.compile(r"""
     ^(openvswitch[0-9]+\.[0-9]+-[0-9]+\.[0-9]+\.[0-9]+ # layered
     |                                                  # or
@@ -104,7 +112,7 @@ def get_version(module, pkg, new=True):
     else:
         cmd = ['rpm', '-qi', pkg]
     # This may fail if the package is not around for non-lp product.
-    _, output, _ = module.run_command(cmd, check_rc=False)
+    _, output, _ = run_locale_safe(module, cmd, check_rc=False)
     versions = re.findall(r'Version[^:]*:[^0-9]*([0-9.]+)', output)
     found = []
     for version in versions:
@@ -122,7 +130,7 @@ def flatten_version(versions, join_str=''):
     flatten_str = ""
     if not isinstance(versions, list):
         versions = [versions]
-    if isinstance(versions[0], list):
+    if len(versions) >= 1 and isinstance(versions[0], list):
         for version in versions:
             flatten_str += join_str.join(version)
     else:
@@ -132,7 +140,7 @@ def flatten_version(versions, join_str=''):
 
 def get_current_ovs_pkg_names(module, pkg):
     cmd = ['rpm', '-qa', pkg]
-    _, output, _ = module.run_command(cmd, check_rc=True)
+    _, output, _ = run_locale_safe(module, cmd, check_rc=True)
     # Make sure we remove empty element.
     return [pkg for pkg in output.split("\n") if pkg]
 
@@ -145,13 +153,13 @@ def remove_package_noaction(module, pkgs, excludes=[]):
         for exclude in excludes:
             if not re.match(r'{}'.format(exclude), pkg):
                 pkgs_to_remove.append(pkg)
-    _, output, _ = module.run_command(cmd + pkgs_to_remove, check_rc=True)
+    _, output, _ = run_locale_safe(module, cmd + pkgs_to_remove, check_rc=True)
     return output
 
 
 def upgrade_pkg(module, pkg):
     cmd = [pkg_manager(module), 'upgrade', '-y', pkg]
-    _, output, _ = module.run_command(cmd, check_rc=True)
+    _, output, _ = run_locale_safe(module, cmd, check_rc=True)
     return output
 
 
@@ -161,7 +169,7 @@ def set_openflow_version_on_bridges(module, bridges=None):
     for bridge in bridges:
         cmd = ['ovs-vsctl', 'set', 'bridge', bridge,
                'protocols=OpenFlow10,OpenFlow13,OpenFlow15']
-        rc, out, err = module.run_command(cmd)
+        rc, out, err = run_locale_safe(module, cmd)
         if rc != 0:
             module.warn('Cannot set new OpenFlow protocols on a bridge: '
                         '%s: %s.' %
@@ -178,8 +186,16 @@ def layer_product_upgrade(module, result, ovs_pkg, lp_ovs_current_version):
 
     pkg_base_name = 'openvswitch{}*'.format(pkg_suffix)
 
-    if flatten_version(lp_ovs_coming_versions) \
-       != flatten_version(ovs_current_version):
+    if len(lp_ovs_coming_versions) == 0:
+        result['msg'] += "Couldn't get the version of rhosp-openvswitch, " + \
+            "check dnf info -q rhosp-openvswitch on this host."
+        result['failed'] = True
+    elif len(ovs_current_version) == 0:
+        result['msg'] += "Couldn't get the current version of the ovs-package, " + \
+            f"check rpm -qi {ovs_pkg} on this host."
+        result['failed'] = True
+    elif flatten_version(lp_ovs_coming_versions) \
+            != flatten_version(ovs_current_version):
         # NOTE(mjozefcz): Workaround for bz1863024.
         if '2.11' == flatten_version(ovs_current_version, join_str='.'):
             set_openflow_version_on_bridges(module)
@@ -199,8 +215,8 @@ def pkg_has_restart(module):
     cmd = """rpm -q --scripts openvswitch | \\
              awk '/postuninstall/,/*/' | \\
              grep -q 'systemctl.*try-restart'"""
-    rc, _, _ = module.run_command(cmd, check_rc=False,
-                                  use_unsafe_shell=True)
+    rc, _, _ = run_locale_safe(cmd, check_rc=False,
+                               use_unsafe_shell=True)
 
     return rc == 0
 
@@ -214,7 +230,7 @@ def upgrade_non_layered_ovs(module, result):
         pkg_manager(module, downloader=True)
         + ['--destdir', tmp_dir, '--resolve', 'openvswitch']]
     for cmd in cmds:
-        module.run_command(cmd, check_rc=True)
+        run_locale_safe(module, cmd, check_rc=True)
 
     for pkg in glob.glob(tmp_dir + '/*.rpm'):
         cmd = ['rpm', '-U',
@@ -222,7 +238,7 @@ def upgrade_non_layered_ovs(module, result):
                '--notriggerun',
                '--nopostun',
                pkg]
-        module.run_command(cmd, check_rc=True)
+        run_locale_safe(module, cmd, check_rc=True)
         result['msg'] += " {} handled".format(pkg)
         result['changed'] = True
 
