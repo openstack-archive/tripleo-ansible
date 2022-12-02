@@ -165,24 +165,42 @@ SERVICE_MAP = {
 
 
 def get_inventory_hosts_to_ips(inventory, roles, fqdn=False):
-    """Return a map of hostnames to IP addresses, e.g.
+    """Returns map of hostnames to IP addresses for groups in roles list
          {'oc0-ceph-0': '192.168.24.13',
           'oc0-compute-0': '192.168.24.21',
           'oc0-controller-0': '192.168.24.23',
           'oc0-controller-1': '192.168.24.15',
           'oc0-controller-2': '192.168.24.7'}
-    Uses ansible inventory as source
+    Uses the ansible inventory as source. If the inventory has:
+
+      CephStorage:
+        children:
+          overcloud_CephStorage: {}
+      overcloud_CephStorage:
+        hosts:
+          ceph-0:
+            ansible_host: 192.168.24.13
+
+    Then the hosts of the CephStorage group (from the roles list)
+    are ['ceph-0'] because overcloud_CephStorage is a child group.
+    Does not handle if one group has both children and hosts, but only
+    needs to handle the types of groups generated in tripleo inventory.
     """
     hosts_to_ips = {}
     for key in inventory:
         if key in roles:
-            for host in inventory[key]['hosts']:
-                ip = inventory[key]['hosts'][host]['ansible_host']
-                if fqdn:
-                    hostname = inventory[key]['hosts'][host]['canonical_hostname']
-                else:
-                    hostname = host
-                hosts_to_ips[hostname] = ip
+            if 'children' in inventory[key] and 'hosts' not in inventory[key]:
+                # e.g. if CephStorage has children (e.g. overcloud_CephStorage)
+                # then set the key to overcloud_CephStorage so we get its hosts
+                key = [k for k, v in inventory[key]['children'].items()][0]
+            if 'hosts' in inventory[key]:
+                for host in inventory[key]['hosts']:
+                    ip = inventory[key]['hosts'][host]['ansible_host']
+                    if fqdn:
+                        hostname = inventory[key]['hosts'][host]['canonical_hostname']
+                    else:
+                        hostname = host
+                    hosts_to_ips[hostname] = ip
     return hosts_to_ips
 
 
