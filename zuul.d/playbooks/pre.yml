@@ -85,7 +85,7 @@
       become: true
     - name: Get Ansible Galaxy roles
       command: >-
-        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy install
+        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy install --timeout 300
         -fr
         {{ tripleo_ansible_project_path }}/tripleo_ansible/requirements.yml
       environment:
@@ -93,7 +93,7 @@
 
     - name: Get Ansible Galaxy collections
       command: >-
-        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy collection install
+        {{ ansible_user_dir }}/test-python/bin/ansible-galaxy collection install --timeout 300
         -fr
         {{ tripleo_ansible_project_path }}/tripleo_ansible/requirements.yml
       environment:
