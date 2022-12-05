@@ -215,7 +215,8 @@ def pkg_has_restart(module):
     cmd = """rpm -q --scripts openvswitch | \\
              awk '/postuninstall/,/*/' | \\
              grep -q 'systemctl.*try-restart'"""
-    rc, _, _ = run_locale_safe(cmd, check_rc=False,
+    rc, _, _ = run_locale_safe(module,
+                               cmd, check_rc=False,
                                use_unsafe_shell=True)
 
     return rc == 0
