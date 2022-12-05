@@ -239,7 +239,8 @@ def pkg_has_disruption(module):
     rc = 1
     for awk in awk_cmds:
         cmd = "rpm -q --scripts openvswitch | {}".format(awk)
-        rc, _, _ = run_locale_safe(cmd, check_rc=False,
+        rc, _, _ = run_locale_safe(module,
+                                   cmd, check_rc=False,
                                    use_unsafe_shell=True)
         if rc == 0:
             break
