@@ -59,3 +59,65 @@
       register: sensubility_sudoers
       failed_when:
         - 'not "collectd ALL = NOPASSWD: ALL" in sensubility_sudoers.content | b64decode'
+
+- name: "Verify collectd libpodstats plugin"
+  hosts: collectd-test
+  tasks:
+    - name: Check that the libpodstats conf file exists
+      stat:
+        path: '/etc/collectd.d/libpodstats.conf'
+      register: output
+      failed_when:
+        - not output.stat.exists
+
+    - name: Get contents of libpodstats.conf
+      slurp:
+        src: /etc/collectd.d/libpodstats.conf
+      register: libpodstats_conf
+      failed_when:
+        - not 'LoadPlugin "libpodstats"' in libpodstats_conf.content | b64decode
+        - not '<Plugin "libpodstats">' in libpodstats_conf.content | b64decode
+        - not '</Plugin>' in libpodstats_conf.content | b64decode
+
+    - name: "Check that the TypesDB has been updated"
+      slurp:
+        src: /etc/collectd.conf
+      register: output
+      failed_when:
+        - not "TypesDB \"/etc/collectd.d//types.db.libpodstats\"" in output.content | b64decode
+
+    - name: "Check that the contents of types.db.libpodstats are as expected"
+      slurp:
+        src: /etc/collectd.d/types.db.libpodstats
+      register: typesdb
+      failed_when:
+        - not "pod_cpu    percent:GAUGE:0:100.1, time:DERIVE:0:U" in typesdb.content | b64decode
+        - not "pod_memory value:GAUGE:0:281474976710656" in typesdb.content | b64decode
+
+- name: Verify collectd sqlalchemy plugin
+  hosts: collectd-test
+  tasks:
+    - name: "Make sure python.conf exists"
+      stat:
+        path: "{{ collectd_conf_output_dir }}/python.conf"
+      register: python_conf
+      failed_when:
+        - not python_conf.stat.exists
+
+    - name: "Get contents of python.conf"
+      slurp:
+        path: "{{ collectd_conf_output_dir }}/python.conf"
+      register: python_conf
+
+    - name: "Check that the config imports sqlalchemy"
+      assert:
+        that:
+          - '"Import \"sqlalchemy_collectd.server.plugin\"" in python_conf.content | b64decode'
+        fail_msg: "SQLAlchemy is not imported by python config"
+
+    - name: "Check that collectd_sqlalchemy is configured as expected"
+      assert:
+        that:
+          - '"<Module \"sqlalchemy_collectd.server.plugin\">" in python_conf.content | b64decode'
+          - '"listen \"localhost\" 25827" in python_conf.content | b64decode'
+          - '"loglevel \"info\"" in python_conf.content | b64decode'
