@@ -16,19 +16,18 @@
 
 - name: Set IP options
   set_fact:
-    _sed_opts: "'s/.*dev \\([^ ]*\\).*/\\1/') "
     _ping_cmd: "{{ (':' in controller) | ternary('ping6', 'ping') }}"
 - name: Lookup interface information
   register: _nic_mtu
   shell: |
     set -o pipefail
-    INT=$(ip ro get {{ controller }} | head -1 | sed '{{ _sed_opts }}')
+    INT=$(ip ro get {{ controller }} | head -1 | sed -nr "s/.* dev (\w+) .*/\1/p")
     MTU=$(cat /sys/class/net/${INT}/mtu 2>/dev/null || echo "0")
     echo "$INT $MTU"
 - name: Set interface vars
   set_fact:
-    _nic: "{{ _nic_mtu.get('stdout', '').split(' ')[0] | default('lo') }}"
-    _mtu: "{{ _nic_mtu.get('stdout', '').split(' ')[1] | default(0) | int - 28 }}"
+    _nic: "{{ _nic_mtu.stdout.split()[0] | default('lo') }}"
+    _mtu: "{{ _nic_mtu.stdout.split()[1] | default(0) | int - 28 }}"
 - name: Network availability validation block
   block:
     - name: Check IP responsiveness
