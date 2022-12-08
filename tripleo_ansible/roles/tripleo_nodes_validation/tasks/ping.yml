@@ -28,6 +28,9 @@
     _nic: "{{ _nic_mtu.stdout.split()[0] | default('lo') }}"
     _mtu: "{{ _nic_mtu.stdout.split()[1] | default(0) | int - 28 }}"
 - name: Network availability validation block
+  when:
+    - not ansible_check_mode|bool
+    - _nic != 'lo'
   block:
   - name: Check IP responsiveness
     command: "{{ _ping_cmd }} -w 10 -c 5 {{ controller }}"
@@ -45,4 +48,3 @@
     register: mtu_ping
     until: mtu_ping.rc == 0
     when: _mtu | int > 0
-  when: _nic != 'lo'
