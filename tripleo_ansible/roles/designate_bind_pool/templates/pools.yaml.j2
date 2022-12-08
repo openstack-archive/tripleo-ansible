@@ -10,8 +10,12 @@
   # This should be a record that is created outside of designate, that
   # points to the public IP of the controller node.
   ns_records:
-    {% for nameserver in designate_bind_node_ips -%}
-    - hostname: ns{{ loop.index }}.{{ pool_zone_domain }}.
+    {% for ns_record in designate_bind_pool_ns_records -%}
+      {% if ns_record.endswith('.') -%}
+    - hostname: {{ ns_record }}
+      {% else -%}
+    - hostname: {{ ns_record }}.
+      {% endif -%}
       priority: {{ loop.index }}
     {% endfor %}
 
