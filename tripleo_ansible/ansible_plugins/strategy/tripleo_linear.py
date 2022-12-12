@@ -19,7 +19,6 @@ import time
 
 from ansible import constants as C
 from ansible.errors import AnsibleAssertionError
-from ansible.executor.play_iterator import PlayIterator
 from ansible.module_utils.six import iteritems
 from ansible.playbook.block import Block
 from ansible.playbook.task import Task
@@ -40,6 +39,26 @@ except ImportError:
         'tripleo_base',
         os.path.join(os.path.dirname(__file__), 'tripleo_base.py')
     )
+
+# NOTE(tkajinam) Ansible 2.13+ uses enum
+# https://github.com/ansible/ansible/pull/74511
+try:
+    from ansible.executor.play_iterator import FailedStates
+    from ansible.executor.play_iterator import IteratingStates
+    FAILED_RESCUE = FailedStates.RESCUE
+    ITERATING_ALWAYS = IteratingStates.ALWAYS
+    ITERATING_COMPLETE = IteratingStates.COMPLETE
+    ITERATING_SETUP = IteratingStates.SETUP
+    ITERATING_TASKS = IteratingStates.TASKS
+    ITERATING_RESCUE = IteratingStates.RESCUE
+except ImportError:
+    from ansible.executor.play_iterator import PlayIterator
+    FAILED_RESCUE = PlayIterator.FAILED_RESCUE
+    ITERATING_ALWAYS = PlayIterator.ITERATING_ALWAYS
+    ITERATING_COMPLETE = PlayIterator.ITERATING_COMPLETE
+    ITERATING_SETUP = PlayIterator.ITERATING_SETUP
+    ITERATING_TASKS = PlayIterator.ITERATING_TASKS
+    ITERATING_RESCUE = PlayIterator.ITERATING_RESCUE
 
 DOCUMENTATION = '''
     strategy: tripleo_linear
@@ -127,7 +146,7 @@ class StrategyModule(BASE.TripleoBase):
                 lowest_cur_block = min(
                     (self._iterator.get_active_state(s).cur_block
                      for h, (s, t) in host_tasks_to_run
-                     if s.run_state != PlayIterator.ITERATING_COMPLETE))
+                     if s.run_state != ITERATING_COMPLETE))
             except ValueError:
                 lowest_cur_block = None
         else:
@@ -141,10 +160,10 @@ class StrategyModule(BASE.TripleoBase):
                 continue
 
             # count up tasks based on state, we only care about:
-            # PlayIterator.ITERATING_SETUP
-            # PlayIterator.ITERATING_TASKS
-            # PlayIterator.ITERATING_RESCUE
-            # PlayIterator.ITERATING_ALWAYS
+            # IteratingStates.SETUP
+            # IteratingStates.TASKS
+            # IteratingStates.RESCUE
+            # IteratingStates.ALWAYS
             if not task_counts.get(s.run_state):
                 task_counts[s.run_state] = 1
             else:
@@ -154,10 +173,10 @@ class StrategyModule(BASE.TripleoBase):
         # to execute them in a specific order. If there are tasks
         # in that state, we run all those tasks and then noop the
         # rest of the hosts with tasks not currently in that state
-        for state_type in [PlayIterator.ITERATING_SETUP,
-                           PlayIterator.ITERATING_TASKS,
-                           PlayIterator.ITERATING_RESCUE,
-                           PlayIterator.ITERATING_ALWAYS]:
+        for state_type in [ITERATING_SETUP,
+                           ITERATING_TASKS,
+                           ITERATING_RESCUE,
+                           ITERATING_ALWAYS]:
             if state_type in task_counts:
                 return self._advance_hosts(hosts,
                                            host_tasks,
@@ -262,15 +281,15 @@ class StrategyModule(BASE.TripleoBase):
     def _process_failures(self):
         """Handle failures"""
         self._debug('_process_failures...')
-        non_fail_states = frozenset([self._iterator.ITERATING_RESCUE,
-                                     self._iterator.ITERATING_ALWAYS])
+        non_fail_states = frozenset([ITERATING_RESCUE,
+                                     ITERATING_ALWAYS])
         result = self._tqm.RUN_OK
         for host in self._hosts_left:
             (s, _) = self._iterator.get_next_task_for_host(host, peek=True)
             s = self._iterator.get_active_state(s)
             if ((s.run_state not in non_fail_states)
-                    or (s.run_state == self._iterator.ITERATING_RESCUE
-                        and s.fail_state & self._iterator.FAILED_RESCUE != 0)):
+                    or (s.run_state == ITERATING_RESCUE
+                        and s.fail_state & FAILED_RESCUE != 0)):
                 self._tqm._failed_hosts[host.name] = True
                 result |= self._tqm.RUN_FAILED_BREAK_PLAY
         return result

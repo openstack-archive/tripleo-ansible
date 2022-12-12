@@ -39,8 +39,6 @@
 
         - name: Remove previous fernet keys
           shell: rm -rf /var/lib/config-data/puppet-generated/keystone/etc/keystone/fernet-keys/*
-          args:
-            warn: false
 
         - name: Persist fernet keys to repository
           copy:
@@ -71,8 +69,6 @@
       block:
         - name: Remove previous fernet keys
           shell: rm -rf /etc/keystone/fernet-keys/*
-          args:
-            warn: false
 
         - name: Persist fernet keys to repository
           copy:
