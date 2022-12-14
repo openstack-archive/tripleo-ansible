@@ -244,6 +244,7 @@ def get_subnet_info(conn, subnet_id):
 
 
 def parse_net_resource(conn, net_resource, indexed_networks, net_entry):
+    idx = None
     for res in net_resource:
         if net_resource[res][n_utils.RES_TYPE] == n_utils.TYPE_NET:
             idx, net_dict = get_network_info(
@@ -253,7 +254,8 @@ def parse_net_resource(conn, net_resource, indexed_networks, net_entry):
             subnet_name, subnet_dict = get_subnet_info(
                 conn, net_resource[res][n_utils.RES_ID])
             net_entry['subnets'].update({subnet_name: subnet_dict})
-    indexed_networks[idx] = net_entry
+    if idx is not None:
+        indexed_networks[idx] = net_entry
 
 
 def parse_net_resources(conn, net_resources):
