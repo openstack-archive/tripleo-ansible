@@ -81,7 +81,6 @@ tripleo_container_default_pids_limit: 4096
 tripleo_container_events_logger_mechanism: journald
 tripleo_container_default_runtime: runc
 tripleo_container_default_network_backend: "cni"
-tripleo_container_default_infra_image: "registry.access.redhat.com/ubi8/pause"
 
 # tell the tripleo_container_manage to inject
 # additional ordering dependencies for the systemd
