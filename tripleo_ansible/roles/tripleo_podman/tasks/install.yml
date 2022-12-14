@@ -121,9 +121,6 @@
         - section: engine
           option: runtime
           value:  "\"{{ tripleo_container_default_runtime }}\""
-        - section: engine
-          option: infra_image
-          value:  "\"{{ tripleo_container_default_infra_image }}\""
         - section: network
           option: network_backend
           value:  "\"{{ tripleo_container_default_network_backend }}\""
