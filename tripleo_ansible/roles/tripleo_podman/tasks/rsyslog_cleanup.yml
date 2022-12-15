@@ -9,8 +9,8 @@
   ansible.builtin.file:
     path: /etc/rsyslog.d/openstack-healthcheck.conf
     state: absent
-    ignore_errors: yes
-    register: rmcfg
+  ignore_errors: yes
+  register: rmcfg
 - when: rmcfg is changed
   service:
     name: rsyslog
