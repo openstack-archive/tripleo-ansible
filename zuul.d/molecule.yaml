@@ -17,6 +17,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
+      - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client_files
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_distribute_keys
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
@@ -95,6 +96,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
+      - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client_files
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_distribute_keys
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
@@ -173,6 +175,7 @@
       - tripleo-ansible-centos-stream-molecule-tripleo_bootstrap
       - tripleo-ansible-centos-stream-molecule-tripleo_cellv2
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client
+      - tripleo-ansible-centos-stream-molecule-tripleo_ceph_client_files
       - tripleo-ansible-centos-stream-molecule-tripleo_ceph_distribute_keys
       - tripleo-ansible-centos-stream-molecule-tripleo_cephadm
       - tripleo-ansible-centos-stream-molecule-tripleo_clients_install
@@ -346,6 +349,14 @@
     vars:
       tripleo_job_ansible_args: --skip-tags=ceph_client_rsync,clean_fetch_dir
       tripleo_role_name: tripleo_ceph_client
+- job:
+    files:
+    - ^molecule-requirements.txt
+    - ^tripleo_ansible/roles/tripleo_ceph_client_files/(?!meta).*
+    name: tripleo-ansible-centos-stream-molecule-tripleo_ceph_client_files
+    parent: tripleo-ansible-centos-stream-base
+    vars:
+      tripleo_role_name: tripleo_ceph_client_files
 - job:
     files:
     - ^molecule-requirements.txt
