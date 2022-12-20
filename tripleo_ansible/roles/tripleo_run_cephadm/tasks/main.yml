@@ -34,6 +34,15 @@
       - '-e @{{ playbook_dir }}/cephadm/cephadm-extra-vars-ansible.yml'
       - '-e @{{ playbook_dir }}/global_vars.yaml'
 
+- name: rotate cephadm_command.log
+  become: true
+  shell: |
+      if [[ -e cephadm_command.log ]]; then
+        mv cephadm_command.log cephadm_command.log-$(date "+%Y-%m-%dT%H:%M:%S");
+      fi
+  args:
+    chdir: "{{ playbook_dir }}/cephadm/"
+
 - name: save cephadm playbook command to shell script
   copy:
     dest: "{{ playbook_dir }}/cephadm/cephadm_command.sh"
