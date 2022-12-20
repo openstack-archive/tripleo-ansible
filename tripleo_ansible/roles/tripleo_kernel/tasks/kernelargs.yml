@@ -169,6 +169,21 @@
         dest: "{{ item.stat.path }}/grubenv"
       when: item.stat.exists|bool
       loop: "{{ grub_stat.results }}"
+
+    - name: Check for active tuned profile
+      stat:
+        path: "/etc/tuned/active_profile"
+      register: tuned_active_profile
+
+    - name: Ensure $tuned_params is restored to /boot/loader/entries files
+      shell: >-
+        tuned-adm profile $(cat /etc/tuned/active_profile)
+      environment:
+        PATH: "/bin:/usr/bin:/sbin:/usr/sbin"
+      when:
+      - tuned_active_profile.stat.exists
+      - tuned_active_profile.stat.size | int > 0
+
     - name: Set reboot required fact
       set_fact:
         reboot_required: true
