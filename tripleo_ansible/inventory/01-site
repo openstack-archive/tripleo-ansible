@@ -1,11 +1,14 @@
-# allovercloud group is needed by tripleo_ssh_known_hosts
-[allovercloud:children]
-overcloud
-
-# primary_role_name used by some plays to target the primary role first
-[primary_role_name:children]
-
-[overcloud:children]
-Compute
-
-[Compute]
+---
+all:
+  children:
+    # allovercloud group is needed by tripleo_ssh_known_hosts
+    allovercloud:
+      children:
+        overcloud:
+    # primary_role_name used by some plays to target the primary role first
+    primary_role_name:
+      children:
+    overcloud:
+      children:
+        Compute:
+    Compute:
