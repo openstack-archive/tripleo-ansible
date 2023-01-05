@@ -99,7 +99,6 @@
     path: "{{ tripleo_cephadm_spec_ansible_host }}"
   register: tripleo_cephadm_spec_stat_host
   delegate_to: localhost
-  become: true
 
 - name: push tripleo_cephadm_spec to bootstrap node if spec file exsits
   copy:
