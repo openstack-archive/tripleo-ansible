@@ -22,6 +22,9 @@
         name: tripleo_container_manage
         tasks_from: shutdown.yml
 
+    - name: Init logs for nova_virtqemud container
+      import_tasks: logging-run.yml
+
     - name: Run nova_libvirt containers
       include_role:
         name: tripleo_container_standalone
