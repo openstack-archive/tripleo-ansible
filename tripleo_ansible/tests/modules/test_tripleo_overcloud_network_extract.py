@@ -239,8 +239,8 @@ class TestTripleoOvercloudNetworkExtract(tests_base.TestCase):
         self.assertEqual(name, 'public_subnet')
         self.assertEqual(expected, subnet)
 
-    @mock.patch.object(plugin, 'get_subnet_info', auto_spec=True)
-    @mock.patch.object(plugin, 'get_network_info', auto_spec=True)
+    @mock.patch.object(plugin, 'get_subnet_info', autospec=True)
+    @mock.patch.object(plugin, 'get_network_info', autospec=True)
     @mock.patch.object(openstack.connection, 'Connection', autospec=True)
     def test_parse_net_resources(self, conn_mock, mock_get_network,
                                  mock_get_subnet):
