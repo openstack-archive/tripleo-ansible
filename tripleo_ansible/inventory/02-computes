@@ -3,6 +3,7 @@ Compute:
     # Add additional computes here, and optionally drop localhost.
     # Add host vars under the host_vars dir.
     localhost:
+      ansible_connection: local
   vars:
     service_net_map:
       nova_api_network: internal_api
