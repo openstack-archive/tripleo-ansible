@@ -103,7 +103,7 @@ def run_module():
     )
 
     try:
-        roles_path = module.params[ROLES_PATH_DEFAULT]
+        roles_path = module.params['roles_path']
 
         result['role_list'] = rolesutils.get_roles_list_from_directory(roles_path)
 
@@ -113,7 +113,7 @@ def run_module():
 
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error getting role list: %{error}".format(error=err))
+        result['msg'] = ("Error getting role list: {error}".format(error=err))
         module.fail_json(**result)
 
 
