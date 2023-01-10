@@ -16,7 +16,7 @@ netaddr
 jinja2
 cryptography
 
-ansible-core<2.12.0
+ansible-core
 
 # Upstream requirements from constraints.txt
 tripleo-common
