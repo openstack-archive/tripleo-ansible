@@ -96,54 +96,25 @@ EXAMPLES = '''
 '''
 
 
-def update_vip_data(conn, network, vip_ports, vip_data):
-    try:
-        vip = next(vip_ports)
-    except StopIteration:
-        return
-
-    if not vip.fixed_ips:
-        return
-
-    subnet = conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])
-    if (vip.dns_name is not None):
-        vip_data.append(dict(name=vip.name,
-                        network=network.name,
-                        subnet=subnet.name,
-                        ip_address=vip.fixed_ips[0]['ip_address'],
-                        dns_name=vip.dns_name))
-    else:
-        vip_data.append(dict(name=vip.name,
-                        network=network.name,
-                        subnet=subnet.name,
-                        ip_address=vip.fixed_ips[0]['ip_address']))
-
-
-def find_net_vips(conn, net_resrcs, vip_data):
-    for net in net_resrcs:
-        for res in net_resrcs[net]:
-            if not net_resrcs[net][res]['resource_type'] == n_utils.TYPE_NET:
-                continue
-
-            network = conn.network.get_network(
-                net_resrcs[net][res][n_utils.RES_ID])
-            vip_ports = conn.network.ports(
-                network_id=network.id,
-                tags='tripleo_vip_net={}'.format(network.name))
-
-            update_vip_data(conn, network, vip_ports, vip_data)
-
-
-def find_ctlplane_vip(conn, vip_data):
-    network = conn.network.find_network('ctlplane')
-    vip_ports = conn.network.ports(
-        network_id=network.id,
-        name='control{}'.format(n_utils.NET_VIP_SUFFIX))
-
-    update_vip_data(conn, network, vip_ports, vip_data)
+def find_net_vips(conn, stack):
+    return [
+        (dict(name=vip.name,
+              network=conn.network.get_network(vip['network_id'])['name'],
+              subnet=conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])['name'],
+              ip_address=vip.fixed_ips[0]['ip_address'],
+              dns_name=vip.dns_name))
+        if vip.dns_name is not None else
+        (dict(name=vip.name,
+              network=conn.network.get_network(vip['network_id'])['name'],
+              subnet=conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])['name'],
+              ip_address=vip.fixed_ips[0]['ip_address']))
+        for vip in conn.network.ports(tags='tripleo_stack_name={}'.format(stack))
+        if [x for x in vip['tags'] if x.startswith('tripleo_vip_net=')]
+    ]
 
 
 def run_module():
+
     result = dict(
         success=False,
         changed=False,
@@ -165,10 +136,8 @@ def run_module():
 
     try:
         _, conn = openstack_cloud_from_module(module)
-        net_resources = n_utils.get_overcloud_network_resources(conn, stack)
-        find_net_vips(conn, net_resources, result['vip_data'])
-        find_ctlplane_vip(conn, result['vip_data'])
 
+        result['vip_data'] = find_net_vips(conn, stack)
         result['changed'] = True if result['vip_data'] else False
         result['success'] = True if result['vip_data'] else False
         module.exit_json(**result)

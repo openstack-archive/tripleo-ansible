@@ -37,16 +37,6 @@ class TestTripleoOvercloudVipExtract(tests_base.TestCase):
         self.a2g = lambda x: (n for n in x)
 
     def test_find_net_vips(self, mock_conn):
-        fake_net_resources = {
-            'StorageNetwork': {
-                'InternalApiNetwork': {'physical_resource_id': 'fake-id',
-                                       'resource_type': n_utils.TYPE_NET},
-                'StorageSubnet': {'physical_resource_id': 'fake-id',
-                                  'resource_type': n_utils.TYPE_SUBNET},
-                'StorageSubnet_leaf1': {'physical_resource_id': 'fake-id',
-                                        'resource_type': n_utils.TYPE_SUBNET}
-            }
-        }
         fake_network = stubs.FakeNeutronNetwork(
             id='internal_api_id',
             name='internal_api')
@@ -55,47 +45,21 @@ class TestTripleoOvercloudVipExtract(tests_base.TestCase):
             name='internal_api_subnet')
         fake_vip_port = stubs.FakeNeutronPort(
             id='internal_api_vip_id',
+            network_id='internal_api_id',
             name='internal_api_virtual_ip',
             fixed_ips=[{'subnet_id': 'internal_api_subnet_id',
                         'ip_address': '1.2.3.4'}],
+            tags=['tripleo_stack_name=overcloud', 'tripleo_vip_net=internal_api'],
             dns_name='internalapi.localdomain'
         )
         mock_conn.network.get_network.return_value = fake_network
         mock_conn.network.get_subnet.return_value = fake_subnet
         mock_conn.network.ports.return_value = self.a2g([fake_vip_port])
 
-        vip_data = list()
-        plugin.find_net_vips(mock_conn, fake_net_resources, vip_data)
+        vip_data = plugin.find_net_vips(mock_conn, 'overcloud')
         self.assertEqual([{'name': 'internal_api_virtual_ip',
                            'network': 'internal_api',
                            'subnet': 'internal_api_subnet',
                            'ip_address': '1.2.3.4',
                            'dns_name': 'internalapi.localdomain'}],
-                         vip_data)
-
-    def test_find_ctlplane_vip(self, mock_conn):
-        fake_network = stubs.FakeNeutronNetwork(
-            id='ctlplane_id',
-            name='ctlplane')
-        fake_subnet = stubs.FakeNeutronSubnet(
-            id='ctlplane_subnet_id',
-            name='ctlplane-subnet')
-        fake_vip_port = stubs.FakeNeutronPort(
-            id='ctlplane_vip_id',
-            name='control_virtual_ip',
-            fixed_ips=[{'subnet_id': 'ctlplane_subnet_id',
-                        'ip_address': '4.3.2.1'}],
-            dns_name='ctlplane.localdomain'
-        )
-        mock_conn.network.find_network.return_value = fake_network
-        mock_conn.network.get_subnet.return_value = fake_subnet
-        mock_conn.network.ports.return_value = self.a2g([fake_vip_port])
-
-        vip_data = list()
-        plugin.find_ctlplane_vip(mock_conn, vip_data)
-        self.assertEqual([{'name': 'control_virtual_ip',
-                           'network': 'ctlplane',
-                           'subnet': 'ctlplane-subnet',
-                           'ip_address': '4.3.2.1',
-                           'dns_name': 'ctlplane.localdomain'}],
                          vip_data)
