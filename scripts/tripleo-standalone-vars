@@ -38,6 +38,32 @@ STANDALONE_VARS = {
         'section': 'DEFAULT',
         'option': 'transport_url'
     },
+    'tripleo_ovn_metadata_agent_DEFAULT_transport_url': {
+        'template':
+            'rabbit://'
+            '{% for node in oslo_messaging_rpc_node_names %}'
+            '{% if not loop.first %},{% endif %}'
+            '{{oslo_messaging_rpc_user_name}}:{{oslo_messaging_rpc_password}}'
+            '@{{node}}:5672'
+            '{% endfor %}'
+            '/?ssl={% if oslo_messaging_rpc_use_ssl=="True" %}1'
+            '{% else %}0{% endif %}',
+        'section': 'DEFAULT',
+        'option': 'transport_url'
+    },
+    'tripleo_ovn_metadata_agent_oslo_messaging_notifications_transport_url': {
+        'template':
+            'rabbit://'
+            '{% for node in oslo_messaging_rpc_node_names %}'
+            '{% if not loop.first %},{% endif %}'
+            '{{oslo_messaging_rpc_user_name}}:{{oslo_messaging_rpc_password}}'
+            '@{{node}}:5672'
+            '{% endfor %}'
+            '/?ssl={% if oslo_messaging_rpc_use_ssl=="True" %}1'
+            '{% else %}0{% endif %}',
+        'section': 'oslo_messaging_notifications',
+        'option': 'transport_url'
+    },
     'tripleo_nova_compute_oslo_messaging_notifications_transport_url': {
         'template':
             'rabbit://'
@@ -184,6 +210,57 @@ STANDALONE_VARS = {
     'tripleo_ovn_dbs': {
         'template': '{{ ovn_dbs }}',
     },
+    'tripleo_ovn_metadata_agent_database_connection': {
+        'template': '{{ neutron_database_connection }}',
+        'section': 'database',
+        'option': 'connection'
+    },
+    'tripleo_ovn_metadata_agent_keystone_www_authenticate_uri': {
+        'template': '{{ neutron_keystone_auth_uri }}',
+        'section': 'keystone_authtoken',
+        'option': 'www_authenticate_uri'
+    },
+    'tripleo_ovn_metadata_agent_keystone_auth_url': {
+        'template': '{{ neutron_keystone_auth_url }}',
+        'section': 'keystone_authtoken',
+        'option': 'auth_url'
+    },
+    'tripleo_ovn_metadata_agent_keystone_password': {
+        'template': '{{ neutron_keystone_password }}',
+        'section': 'keystone_authtoken',
+        'option': 'password'
+    },
+    'tripleo_ovn_metadata_agent_placement_password': {
+        'template': '{{ neutron_placement_password }}',
+        'section': 'placement',
+        'option': 'password'
+    },
+    'tripleo_ovn_metadata_agent_nova_auth_url': {
+        'template': '{{ neutron_nova_auth_url }}',
+        'section': 'nova',
+        'option': 'auth_url'
+    },
+    'tripleo_ovn_metadata_agent_nova_password': {
+        'template': '{{ neutron_nova_password }}',
+        'section': 'nova',
+        'option': 'password'
+    },
+    'tripleo_ovn_metadata_agent_placement_auth_url': {
+        'template': '{{ neutron_placement_auth_url }}',
+        'section': 'placement',
+        'option': 'auth_url'
+    },
+    'tripleo_ovn_metadata_agent_metadata_agent_DEFAULT_nova_metadata_host': {
+        'template': '{{ neutron_metadata_host }}',
+        'section': 'DEFAULT',
+        'option': 'nova_metadata_host'
+    },
+    'tripleo_ovn_metadata_agent_metadata_agent_DEFAULT_metadata_proxy_shared_secret': {
+        'template': '{{ neutron_metadata_shared_secret }}',
+        'section': 'DEFAULT',
+        'option': 'metadata_proxy_shared_secret'
+    },
+
 }
 
 # TEMPLATE_VARS is a dict with keys jinja2 variables names that will be passed
@@ -288,10 +365,6 @@ TEMPLATE_VARS = {
         'file': 'group_vars/{role}',
         'key': 'service_configs.nova::placement::project_name'
     },
-    'placement_region_name': {
-        'file': 'group_vars/{role}',
-        'key': 'service_configs.nova::placement::region_name'
-    },
     'placement_valid_interfaces': {
         'file': 'group_vars/{role}',
         'key': 'service_configs.nova::placement::valid_interfaces'
@@ -299,6 +372,54 @@ TEMPLATE_VARS = {
     'ovn_dbs': {
         'file': 'group_vars/overcloud.json',
         'key': 'ovn_dbs_node_ips'
+    },
+    'placement_region_name': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.nova::placement::region_name'
+    },
+    'neutron_database_connection': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::db::database_connection'
+    },
+    'neutron_keystone_auth_uri': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::keystone::authtoken::www_authenticate_uri'
+    },
+    #'neutron_keystone_memcached_servers': {
+    #    'file': 'group_vars/{role}',
+    #    'key': 'service_configs.neutron::keystone::authtoken::memc'
+    #},
+    'neutron_keystone_auth_url': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::keystone::authtoken::auth_url'
+    },
+    'neutron_keystone_password': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::keystone::authtoken::password'
+    },
+    'neutron_placement_password': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::server::placement::password'
+    },
+    'neutron_placement_auth_url': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::server::placement::auth_url'
+    },
+    'neutron_nova_password': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::server::notifications::nova::password'
+    },
+    'neutron_nova_auth_url': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::server::notifications::nova::auth_url'
+    },
+    'neutron_metadata_host': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::agents::ovn_metadata::metadata_host'
+    },
+    'neutron_metadata_shared_secret': {
+        'file': 'group_vars/{role}',
+        'key': 'service_configs.neutron::agents::ovn_metadata::shared_secret'
     },
 }
 
