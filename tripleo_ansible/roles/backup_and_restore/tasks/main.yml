@@ -75,7 +75,7 @@
 
 - name: Backup the database
   import_tasks: db_backup.yml
-  when: tripleo_backup_and_restore_enabled_services.stdout is search('mysql^')
+  when: "'mysql' in tripleo_backup_and_restore_enabled_services.stdout"
 
 - name: Backup pacemaker configuration
   import_tasks: pacemaker_backup.yml
