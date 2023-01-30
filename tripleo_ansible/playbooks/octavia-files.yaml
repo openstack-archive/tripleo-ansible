@@ -113,5 +113,7 @@
     octavia_confd_prefix: "/var/lib/config-data/puppet-generated/octavia"
     container_cli: "{{ container_cli }}"
     enable_log_offloading: "{{ enable_log_offloading }}"
+    admin_log_targets: "{{ octavia_admin_log_targets | default([]) }}"
+    tenant_log_targets: "{{ octavia_tenant_log_targets | default([]) }}"
   roles:
     - octavia-controller-post-config
