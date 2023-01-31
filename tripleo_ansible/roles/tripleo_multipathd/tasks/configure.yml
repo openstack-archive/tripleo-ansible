@@ -61,25 +61,30 @@
     path: /etc/multipath.conf
     setype: container_file_t
 
-- name: Ensure a blacklist section is present
-  lineinfile:
-    path: /etc/multipath.conf
-    regexp: '^blacklist'
-    line: 'blacklist {'
+- name: Check if a blacklist section is present
+  shell: grep -q '^blacklist\s*{' /etc/multipath.conf
+  failed_when: false
+  changed_when: false
   register: blacklist_section
 
-- name: Terminate the blacklist section if one was added
-  replace:
-    path: /etc/multipath.conf
-    regexp: '^(blacklist {)'
-    replace: '\1\n}'
+- name: Add a blacklist section if it's missing
+  block:
+    - name: Start the blacklist section
+      lineinfile:
+        path: /etc/multipath.conf
+        line: 'blacklist {'
+    - name: Terminate the blacklist section
+      replace:
+        path: /etc/multipath.conf
+        regexp: '^(blacklist {)'
+        replace: '\1\n}'
   when:
-    - blacklist_section.changed
+    - blacklist_section.rc|int == 1
 
 - name: Remove global blacklist if multipathd is enabled
   replace:
     path: /etc/multipath.conf
-    regexp: '^blacklist {\n[\s]+devnode \"\.\*\"'
+    regexp: '^blacklist\s*{\n[\s]+devnode \"\.\*\"'
     replace: 'blacklist {'
   when:
     - tripleo_multipathd_enable | bool
@@ -87,7 +92,7 @@
 - name: Add global blacklist if multipathd is disabled
   lineinfile:
     path: /etc/multipath.conf
-    insertafter: '^blacklist'
+    insertafter: '^blacklist\s*{'
     regexp: '^[\s]+devnode \"\.\*\"'
     line: '        devnode ".*"'
   when:
