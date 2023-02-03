@@ -6,7 +6,10 @@ BOOTPROTO=static
 IPV6_AUTOCONF=no
 DEVICE={{ mgmt_port_dev }}
 IPADDR={{ mgmt_port_ip }}
-NETMASK={{ mgmt_port_netmask }}
+PREFIX={{ mgmt_port_prefix }}
+{% if lb_mgmt_net_ip_version == 6 -%}
+IPV6INIT=yes
+{% endif -%}
 NM_CONTROLLED=no
 MACADDR={{ mgmt_port_mac }}
 MTU={{ mgmt_port_mtu }}
