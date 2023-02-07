@@ -81,7 +81,6 @@ tripleo_container_default_pids_limit: 4096
 tripleo_container_events_logger_mechanism: journald
 tripleo_container_default_runtime: runc
 tripleo_container_default_network_backend: "cni"
-tripleo_container_default_infra_image: "registry.access.redhat.com/ubi8/pause"
 
 tripleo_podman_service_unit_name: "tripleo_podman.service"
 tripleo_podman_service_unit_description: "Podman API service for TripleO purposes"
