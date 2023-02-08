@@ -99,8 +99,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
     def test_pre_provisioned_ports(self, mock_conn):
         result = {'changed': False}
         inst_ports = []
-        tags = set(['tripleo_stack_name=overcloud',
-                    'tripleo_ironic_uuid=ironic_uuid'])
+        tags = set(['tripleo_stack_name=overcloud'])
         fake_instance = copy.deepcopy(FAKE_INSTANCE)
         fake_instance['networks'] = [{'network': 'foo', 'port': 'some_port'}]
         some_port = stubs.FakeNeutronPort(name='some_port',
@@ -267,8 +266,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         result = {'changed': False}
         inst_ports = []
         network_config = {'default_route_network': ['foo']}
-        tags = set(['tripleo_stack_name=overcloud',
-                    'tripleo_ironic_uuid=ironic_uuid'])
+        tags = set(['tripleo_stack_name=overcloud'])
         expected_tags = copy.deepcopy(tags)
         port_foo = stubs.FakeNeutronPort(
             name='instance0_foo', network_id='foo_id',
@@ -314,8 +312,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
         result = {'changed': False}
         network_config = {'default_route_network': ['foo']}
         tags = set(['tripleo_hostname=instance0',
-                    'tripleo_stack_name=overcloud',
-                    'tripleo_ironic_uuid=ironic_uuid'])
+                    'tripleo_stack_name=overcloud'])
         expected_tags = copy.deepcopy(tags)
         port_foo = stubs.FakeNeutronPort(
             id='port_foo_id', name='instance0_foo', network_id='foo_id',
@@ -365,13 +362,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                  network_id='bar_id',
                  fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
         ]
-        mock_conn.network.ports.return_value = self.a2g([])
-        expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
-                         'tripleo_role=role',
+        expected_tags = {'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
         network_config = FAKE_INSTANCE['network_config']
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
-                                FAKE_MAPS, {}, 'ironic_uuid', 'role')
+                                FAKE_MAPS, {}, 'role', self.a2g([]))
         mock_pre_provisioned.assert_called_with(mock.ANY, mock_conn, FAKE_MAPS,
                                                 FAKE_INSTANCE, mock.ANY,
                                                 expected_tags)
@@ -409,13 +404,12 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                  network_id='bar_id',
                  fixed_ips=[{'subnet_id': 'bar_subnet_id'}]),
         ]
-        expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
-                         'tripleo_role=role',
+        expected_tags = {'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
         network_config = FAKE_INSTANCE['network_config']
-        mock_conn.network.ports.return_value = self.a2g([port_foo, port_bar])
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
-                                FAKE_MAPS, {}, 'ironic_uuid', 'role')
+                                FAKE_MAPS, {}, 'role',
+                                self.a2g([port_foo, port_bar]))
         mock_pre_provisioned.assert_called_with(mock.ANY, mock_conn,
                                                 FAKE_MAPS, FAKE_INSTANCE,
                                                 mock.ANY, expected_tags)
@@ -452,13 +446,11 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                  network_id='foo_id',
                  fixed_ips=[{'subnet_id': 'foo_subnet_id'}]),
         ]
-        mock_conn.network.ports.return_value = self.a2g([port_foo])
-        expected_tags = {'tripleo_ironic_uuid=ironic_uuid',
-                         'tripleo_role=role',
+        expected_tags = {'tripleo_role=role',
                          'tripleo_stack_name=overcloud'}
         network_config = FAKE_INSTANCE['network_config']
         plugin._provision_ports({}, mock_conn, STACK, FAKE_INSTANCE,
-                                FAKE_MAPS, {}, 'ironic_uuid', 'role')
+                                FAKE_MAPS, {}, 'role', self.a2g([port_foo]))
         mock_pre_provisioned.assert_called_with(mock.ANY, mock_conn,
                                                 FAKE_MAPS, FAKE_INSTANCE,
                                                 mock.ANY, expected_tags)
@@ -485,9 +477,8 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
             dns_name='instance0',
             network_id='bar_id',
             fixed_ips=[{'subnet_id': 'bar_subnet_id'}])
-        mock_conn.network.ports.return_value = self.a2g([port_foo, port_bar])
         plugin._unprovision_ports(result, mock_conn, STACK, FAKE_INSTANCE,
-                                  None)
+                                  self.a2g([port_foo, port_bar]))
         mock_delete_ports.assert_called_with(mock_conn, [port_foo, port_bar])
         self.assertTrue(result['changed'])
 
@@ -544,7 +535,6 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
     def test__tag_metalsmith_instance_ports(self, mock_provisioner, mock_conn):
         result = {'changed': False}
         tags = {'tripleo_stack_name={}'.format(STACK),
-                'tripleo_ironic_uuid=ironic_uuid',
                 'tripleo_role=role',
                 'tripleo_ironic_vif_port=true'}
         expected_tags = copy.deepcopy(tags)
@@ -574,14 +564,12 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
             self, mock_provisioner, mock_conn):
         result = {'changed': False}
         tags = {'tripleo_stack_name={}'.format(STACK),
-                'tripleo_ironic_uuid=ironic_uuid',
                 'tripleo_role=role',
                 'tripleo_ironic_vif_port=true'}
         fake_nic = stubs.FakeNeutronPort(
             name='hostname-ctlplane', dns_name='hostname', id='port_uuid',
             network_id='ctlplane_id',
             tags=['tripleo_stack_name={}'.format(STACK),
-                  'tripleo_ironic_uuid=ironic_uuid',
                   'tripleo_role=role',
                   'tripleo_ironic_vif_port=true',
                   'tripleo_default_route=true'])
@@ -614,8 +602,7 @@ class TestTripleoOvercloudNetworkPorts(tests_base.TestCase):
                                             instances_by_hostname, FAKE_MAPS)
         expected_tags = {'tripleo_role=fake_role',
                          'tripleo_ironic_vif_port=true',
-                         'tripleo_stack_name=overcloud',
-                         'tripleo_ironic_uuid=fake_uuid'}
+                         'tripleo_stack_name=overcloud'}
         mock_tag_msmith_ports.assert_called_with(
             result, mock_conn, mock.ANY, 'fake_uuid',
             FAKE_INSTANCE['hostname'], expected_tags,

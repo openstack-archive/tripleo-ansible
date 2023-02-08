@@ -14,7 +14,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 from concurrent import futures
 import metalsmith
 import re
@@ -376,22 +375,16 @@ def delete_removed_nets(result, conn, instance, net_maps, inst_ports):
 
 
 def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
-                     ironic_uuid, role):
+                     role, inst_ports):
     hostname = instance['hostname']
     network_config = instance.get('network_config', {})
     tags = ['tripleo_stack_name={}'.format(stack)]
-    # TODO(hjensas): This can be moved below the ironic_uuid condition in
-    # later release when all upgraded deployments has had the
-    # tripleo_ironic_uuid tag added
-    inst_ports = conn.network.ports(tags=tags)
     # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
     # have to do it manually.
     inst_ports = [port for port in inst_ports
                   if port.dns_name == hostname.lower()]
 
     tags.append('tripleo_role={}'.format(role))
-    if ironic_uuid:
-        tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
 
     tags = set(tags)
 
@@ -411,24 +404,13 @@ def _provision_ports(result, conn, stack, instance, net_maps, ports_by_node,
     ports_by_node[hostname] = inst_ports
 
 
-def _unprovision_ports(result, conn, stack, instance, ironic_uuid):
+def _unprovision_ports(result, conn, stack, instance, inst_ports):
     hostname = instance['hostname']
     tags = ['tripleo_stack_name={}'.format(stack)]
-    if ironic_uuid:
-        tags.append('tripleo_ironic_uuid={}'.format(ironic_uuid))
-    inst_ports = conn.network.ports(tags=tags)
     # NOTE(hjensas): 'dns_name' is not a valid attribute for filtering, so we
     # have to do it manually.
     inst_ports = [port for port in inst_ports
                   if port.dns_name == hostname.lower()]
-
-    # TODO(hjensas): This can be removed in later release when all upgraded
-    # deployments has had the tripleo_ironic_uuid tag added.
-    if not inst_ports:
-        tags = ['tripleo_stack_name={}'.format(stack)]
-        inst_ports = conn.network.ports(tags=tags)
-        inst_ports = [port for port in inst_ports
-                      if port.dns_name == hostname.lower()]
 
     if inst_ports:
         delete_ports(conn, inst_ports)
@@ -475,12 +457,13 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
 
     validate_instance_nets_in_net_map(instances, net_maps)
     ports_by_node = dict()
+    tags = ['tripleo_stack_name={}'.format(stack)]
+    inst_ports = list(conn.network.ports(tags=tags))
 
     provision_jobs = []
     exceptions = []
     with futures.ThreadPoolExecutor(max_workers=concurrency) as p:
         for instance in instances:
-            ironic_uuid = uuid_by_hostname.get(instance['hostname'])
             if state == 'present':
                 role = hostname_role_map[instance['hostname']]
                 provision_jobs.append(
@@ -491,8 +474,8 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
                              instance,
                              net_maps,
                              ports_by_node,
-                             ironic_uuid,
-                             role)
+                             role,
+                             inst_ports)
                 )
             elif state == 'absent':
                 provision_jobs.append(
@@ -501,7 +484,7 @@ def manage_instances_ports(result, conn, stack, instances, concurrency, state,
                              conn,
                              stack,
                              instance,
-                             ironic_uuid)
+                             inst_ports)
                 )
 
     for job in futures.as_completed(provision_jobs):
@@ -554,7 +537,6 @@ def tag_metalsmith_managed_ports(result, conn, concurrency, stack,
                 'default_route_network', ['ctlplane'])
 
             tags = {'tripleo_stack_name={}'.format(stack),
-                    'tripleo_ironic_uuid={}'.format(uuid),
                     'tripleo_role={}'.format(role),
                     'tripleo_ironic_vif_port=true'}
             provision_jobs.append(
