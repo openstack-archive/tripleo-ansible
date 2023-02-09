@@ -14,15 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# Exclude ansible until https://github.com/ansible/ansible/issues/56636
-# is available
+# Exclude ansible-core due to bz https://bugs.launchpad.net/tripleo/+bug/1998501
 - name: Update all packages
   when:
     - not skip_package_update|bool
   ansible.builtin.dnf:
     name: '*'
     state: latest
-    exclude: ansible
+    exclude: ansible-core
 # This is failsafe unless openvswitch package does something
 # to the systemd service state.
 - name: Ensure openvswitch is running after update
