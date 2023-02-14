@@ -325,11 +325,10 @@
       failed_when: os_net_config_upgrade.rc not in [0,2]
       changed_when: os_net_config_upgrade.rc == 2
 
-# Ansbile cannot upgrade itself as it will cause the current execution to fail.
-# https://github.com/ansible/ansible/issues/56636
+# Exclude ansible-core due to bz https://bugs.launchpad.net/tripleo/+bug/1998501
 - name: Update all packages
   when: (step | int) == 3
   yum:
     name: '*'
     state: latest
-    exclude: ansible
+    exclude: ansible-core
