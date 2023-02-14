@@ -70,4 +70,3 @@ tripleo_container_standalone_volumes: "{{
 
 tripleo_debug: False
 tripleo_deploy_identifier: ''
-tripleo_iscsid_config_volume: /var/lib/config-data/ansible-generated/iscsid

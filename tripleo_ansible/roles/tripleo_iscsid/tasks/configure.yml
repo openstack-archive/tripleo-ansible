@@ -14,8 +14,45 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Ensure {{ tripleo_iscsid_config_dir }}/etc/iscsi  exists
-  file:
-    path: "{{ tripleo_iscsid_config_dir }}/etc/iscsi"
-    state: directory
-    recurse: true
+
+- name: Check if the iSCSI initiator name (IQN) has been reset
+  ansible.builtin.stat:
+    path: /etc/iscsi/.initiator_reset
+  register: initiator_reset_state
+
+# NOTE: Each overcloud node must have its own, unique iSCSI Qualified Name
+# (IQN) but it has to be reset once, and only once as all the services on the
+# node must use the same IQN. It is reset based on the existence of
+# .initiator_reset sentinel file.
+
+- name: Ensure the system has a unique IQN
+  when: initiator_reset_state.stat.exists == False
+  block:
+
+  - name: Generate a unique IQN
+    ansible.builtin.command: podman run -ti --rm --name iscsid_config {{ tripleo_iscsid_config_image }} /usr/sbin/iscsi-iname
+    register: iscsi_iname
+
+  - name: Save the new IQN
+    ansible.builtin.copy:
+      dest: /etc/iscsi/initiatorname.iscsi
+      content: "InitiatorName={{ iscsi_iname.stdout }}"
+
+  - name: Record the IQN has been reset
+    ansible.builtin.file:
+      path: /etc/iscsi/.initiator_reset
+      state: touch
+
+- name: Write CHAP algorithms
+  ansible.builtin.lineinfile:
+    path: "/etc/iscsi/iscsid.conf"
+    line: "node.session.auth.chap_algs = {{ tripleo_iscsid_chap_algs }}"
+    regexp: "^node.session.auth.chap_algs"
+    insertafter: "^#node.session.auth.chap.algs"
+  register: modify_stat
+
+- name: Record the iscsid container restart is required
+  when : modify_stat.changed
+  ansible.builtin.file:
+   path: /etc/iscsi/.iscsid_restart_required
+   state: touch
