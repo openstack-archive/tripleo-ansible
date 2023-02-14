@@ -27,7 +27,6 @@ from ansible_collections.openstack.cloud.plugins.module_utils.openstack import o
 from tripleo_common import constants
 from tripleo_common.image import image_uploader
 from tripleo_common.image import kolla_builder
-from tripleo_common.utils.locks import processlock
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -144,10 +143,8 @@ def run_module():
     roles_data = module.params.get('roles_data')
     env = module.params.get('environment')
     try:
-        lock = processlock.ProcessLock()
         params = kolla_builder.container_images_prepare_multi(
-            env, roles_data, cleanup=cleanup, dry_run=dry_run,
-            lock=lock)
+            env, roles_data, cleanup=cleanup, dry_run=dry_run)
 
         for role in roles_data:
             # NOTE(tkajinam): If a role-specific container image prepare
@@ -164,8 +161,7 @@ def run_module():
                 #                 parameters
                 params['%sParameters' % role['name']] = (
                     kolla_builder.container_images_prepare_multi(
-                        tmp_env, [role], cleanup=cleanup, dry_run=dry_run,
-                        lock=lock)
+                        tmp_env, [role], cleanup=cleanup, dry_run=dry_run)
                 )
 
         if not module.no_log:
