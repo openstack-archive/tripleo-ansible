@@ -11,13 +11,6 @@ config_files:
     dest: "/"
     merge: true
     preserve_properties: true
-  # (TODO: slagle) This must be commented out until files exist at this path
-  # otherwise kolla-start fails. This can be enabled once the tripleo_iscsid
-  # role is actually generating configuration.
-  # - source: "/var/lib/kolla/config_files/src-iscsid/*"
-  #   dest: "/etc/iscsi/"
-  #   merge: true
-  #   preserve_properties: true
   - source: "/var/lib/kolla/config_files/src-ceph/"
     dest: "/etc/ceph/"
     merge: true

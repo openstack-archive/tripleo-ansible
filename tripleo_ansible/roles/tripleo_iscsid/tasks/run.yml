@@ -24,3 +24,29 @@
       iscsid: "{{ lookup('template', 'iscsid.yaml.j2') | from_yaml }}"
     tripleo_container_standalone_kolla_config_files:
       iscsid: "{{ lookup('file', 'files/iscsid.yaml') | from_yaml }}"
+  register: manage_iscsid_stat
+
+- name: Check if the iscsid container restart is required
+  ansible.builtin.stat:
+    path: /etc/iscsi/.iscsid_restart_required
+  register: iscsi_restart_stat
+
+# Existence of sentinel file (.iscsid_restart_required) on the host
+# indicates that restart of the iscisd container is needed to refresh
+# /etc/iscsid.conf
+# sentinel file will exist on an initial deployment, but the restart is
+# actually needed only if the service is already running, so we check if
+# the manage_iscsid_stat changed.
+
+- name: Restart iscsid container to refresh /etcd/iscsid.conf
+  when:
+    - not manage_iscsid_stat.changed|bool
+    - iscsi_restart_stat.stat.exists|bool
+  systemd:
+    name: tripleo_iscsid
+    state: restarted
+
+- name: Remove iscsid container restart sentinel file
+  ansible.builtin.file:
+    path: /etc/iscsi/.iscsid_restart_required
+    state: absent

@@ -23,13 +23,15 @@ tripleo_iscsid_debug: "{{ (ansible_verbosity | int) >= 2 | bool }}"
 tripleo_iscsid_hide_sensitive_logs: true
 
 tripleo_iscsid_image: "quay.io/tripleomastercentos9/openstack-iscsid:current-tripleo"
-tripleo_iscsid_config_dir: /var/lib/config-data/ansible-generated/iscsid
+tripleo_iscsid_config_image: "{{ tripleo_iscsid_image }}"
 tripleo_iscsid_volumes:
   - /var/lib/kolla/config_files/iscsid.json:/var/lib/kolla/config_files/config.json:ro
   - /dev:/dev
   - /run:/run
   - /sys:/sys
   - /lib/modules:/lib/modules:ro
-  - "{{ tripleo_iscsid_config_dir }}/etc/iscsi:/var/lib/kolla/config_files/src-iscsid:ro"
+  - /etc/iscsi:/etc/iscsi:z
   - /etc/target:/etc/target:z
   - /var/lib/iscsi:/var/lib/iscsi:z
+
+tripleo_iscsid_chap_algs: 'SHA3-256,SHA256,SHA1,MD5'
