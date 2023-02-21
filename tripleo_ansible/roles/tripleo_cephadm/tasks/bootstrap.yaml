@@ -48,6 +48,7 @@
         {% if not tripleo_cephadm_default_container %}--image {{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag|string }} \{% endif %}
         bootstrap \
         --skip-firewalld \
+        --skip-prepare-host \
         --ssh-private-key /home/{{ tripleo_cephadm_ssh_user }}/.ssh/id_rsa \
         --ssh-public-key /home/{{ tripleo_cephadm_ssh_user }}/.ssh/id_rsa.pub \
         --ssh-user {{ tripleo_cephadm_ssh_user }} \
