@@ -43,6 +43,26 @@
       path: /etc/iscsi/.initiator_reset
       state: touch
 
+- name: Check if /etc/iscsi/iscsid.conf exists
+  ansible.builtin.stat:
+    path: /etc/iscsi/iscsid.conf
+  register: result
+
+- name: Create /etc/iscsi/iscsid.conf if necessary
+  when: result.stat.exists == False
+  block:
+
+  - name: Fetch iscsid.conf from the iscsid container
+    ansible.builtin.command: podman run -ti --rm --name iscsid_config {{ tripleo_iscsid_config_image }} cat /etc/iscsi/iscsid.conf
+    register: iscsid_conf
+
+  - name: Create a local copy of iscsid.conf
+    copy:
+      dest: /etc/iscsi/iscsid.conf
+      content: "{{ iscsid_conf.stdout }}"
+      mode: 0600
+    check_mode: false
+
 - name: Write CHAP algorithms
   ansible.builtin.lineinfile:
     path: "/etc/iscsi/iscsid.conf"
