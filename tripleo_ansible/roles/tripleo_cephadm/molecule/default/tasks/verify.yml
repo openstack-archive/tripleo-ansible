@@ -67,7 +67,7 @@
       - tripleo_cephadm_ceph_cli | regex_search('-c ' + tripleo_cephadm_conf)
       - tripleo_cephadm_ceph_cli | regex_search('-k ' + tripleo_cephadm_admin_keyring)
   vars:
-    ceph_vol: "--volume {{ tripleo_cephadm_config_home }}:{{ tripleo_cephadm_config_home }}:z"
+    ceph_vol: "--volume {{ tripleo_cephadm_config_home_container }}:{{ tripleo_cephadm_config_home }}:z"
     spec_vol: "--volume {{ tripleo_cephadm_spec }}:{{ tripleo_cephadm_container_spec }}:z"
     image: "{{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}"
 

@@ -17,7 +17,7 @@
 # Assumes the following module is in ANSIBLE_LIBRARY=/usr/share/ansible/library/
 #   https://github.com/ceph/ceph-ansible/blob/master/library/ceph_key.py
 
-- name: create cephx key(s)
+- name: Create cephx key(s)
   ceph_key:
     import_key: true
     name: "{{ item.name }}"
@@ -25,14 +25,37 @@
     mode: "{{ item.mode }}"
     secret: "{{ item.key | default('') }}"
     cluster: "{{ tripleo_cephadm_cluster }}"
-    dest: "{{ tripleo_cephadm_config_home }}"
+    dest: "{{ tripleo_cephadm_config_home_container }}"
     owner: "{{ tripleo_cephadm_uid  }}"
     group: "{{ tripleo_cephadm_uid  }}"
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
   become: true
   loop: "{{ tripleo_cephadm_keys }}"
   when:
     - tripleo_cephadm_keys is defined
     - tripleo_cephadm_keys | length > 0
+
+- name: Find the generated key(s)
+  ansible.builtin.find:
+    paths: "{{ tripleo_cephadm_config_home_container }}"
+    patterns: "*.{{ item.name }}.*"
+  register: keyring_files
+  become: true
+  loop: "{{ tripleo_cephadm_keys }}"
+  when:
+    - tripleo_cephadm_keys is defined
+    - tripleo_cephadm_keys | length > 0
+
+- name: Copy key(s) to /etc/ceph
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "{{ tripleo_cephadm_config_home }}"
+    owner: "{{ tripleo_cephadm_uid }}"
+    group: "{{ tripleo_cephadm_uid }}"
+    mode: '0644'
+  become: true
+  with_items: "{{ keyring_files.results | map(attribute='files') | list }}"
