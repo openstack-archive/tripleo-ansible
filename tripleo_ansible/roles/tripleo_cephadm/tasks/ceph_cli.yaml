@@ -24,7 +24,7 @@
       {% if sensitive_data|default(false) %}
       --interactive
       {% endif %}
-      --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
+      --volume {{ tripleo_cephadm_config_home_container }}:/etc/ceph:z
       {% if not external_cluster|default(false) -%}
       --volume {{ tripleo_cephadm_assimilate_conf }}:{{ tripleo_cephadm_assimilate_conf_container }}:z
       {% endif %}

@@ -34,6 +34,7 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
   become: true
   with_items: "{{ tripleo_cephadm_pools }}"
   when:

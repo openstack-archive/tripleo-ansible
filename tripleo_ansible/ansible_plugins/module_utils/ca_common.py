@@ -52,12 +52,20 @@ def container_exec(binary, container_image, spec_path=None, interactive=False):
     container_binary = os.getenv('CEPH_CONTAINER_BINARY')
     command_exec = [container_binary, 'run']
 
+    fsid = ''
     if interactive:
         command_exec.extend(['--interactive'])
 
+    if 'CEPH_FSID' in os.environ:
+        fsid = os.getenv('CEPH_FSID')
+    ceph_config_path = '/etc/ceph'
+    if fsid:
+        path = '/var/lib/ceph/{}/config'.format(fsid)
+        if os.path.exists(path):
+            ceph_config_path = path
     command_exec.extend(['--rm',
                          '--net=host',
-                         '-v', '/etc/ceph:/etc/ceph:z',
+                         '-v', '{}:/etc/ceph:z'.format(ceph_config_path),
                          '-v', '/var/lib/ceph/:/var/lib/ceph/:z',
                          '-v', '/var/log/ceph/:/var/log/ceph/:z'])
 
