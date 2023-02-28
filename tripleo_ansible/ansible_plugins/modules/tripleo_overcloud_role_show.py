@@ -70,6 +70,7 @@ options:
       - Used only when the keys aren't already defined within the role.
     required: false
     type: dict
+    default: {{}}
 author:
   - Jiri Podivin <jpodivin@redhat.com>
 '''
@@ -160,7 +161,7 @@ def run_module():
     try:
         roles_path = module.params['roles_path']
         environment_path = module.params['environment_path']
-        default_values = module.params.get('default_values', {})
+        default_values = module.params['default_values']
         role_name = module.params['role_name']
 
         roles_path = os.path.join(roles_path, '{}.yaml'.format(role_name))
