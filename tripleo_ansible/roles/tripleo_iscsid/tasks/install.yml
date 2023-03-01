@@ -33,6 +33,7 @@
     - { 'path': /etc/iscsi, 'setype': container_file_t }
     - { 'path': /etc/target, 'setype': container_file_t }
     - { 'path': /var/lib/iscsi, 'setype': container_file_t }
+  when: ansible_facts.selinux.status == "enabled"
 
 - name: Stat /lib/systemd/system/iscsid.socket
   ansible.builtin.stat:
