@@ -29,6 +29,26 @@
     else
       openstack subnet set --gateway none {{ lb_mgmt_subnet_name }}
     fi
+  when: lb_mgmt_net_ip_version == "4"
+  register: lb_mgmt_subnet_result
+  changed_when: (lb_mgmt_subnet_result.stdout | length) > 0
+
+- name: create IPv6 subnet and router for SLAAC
+  shell: |
+    set -o pipefail
+    if [[ $(openstack subnet show {{ lb_mgmt_subnet_name }} > /dev/null; echo $?) -eq 1 ]]; then
+      openstack subnet create {{ lb_mgmt_subnet_name }} \
+        --allocation-pool=start={{ lb_mgmt_subnet_pool_start }},end={{ lb_mgmt_subnet_pool_end }} \
+        --ip-version 6 --ipv6-address-mode slaac --ipv6-ra-mode slaac \
+        --network {{ lb_mgmt_net_id }} \
+        --subnet-range {{ lb_mgmt_subnet_cidr }}
+      # SLAAC needs a router on the subnet to advertise the prefix.
+      openstack router create lb-mgmt-router
+      openstack router add subnet lb-mgmt-router lb-mgmt-subnet
+    else
+      openstack subnet set {{ lb_mgmt_subnet_name }}
+    fi
+  when: lb_mgmt_net_ip_version == "6"
   register: lb_mgmt_subnet_result
   changed_when: (lb_mgmt_subnet_result.stdout | length) > 0
 
@@ -51,9 +71,10 @@
   shell: |-
     set -o pipefail
     SECGROUP="$(openstack security group rule list {{ lb_mgmt_sec_grp_name }} --protocol tcp \
-                                                                              --ingress -f value 2>&1 | grep "0.0.0.0/0 22:22")"
+                                                                              --ingress -f value 2>&1 | grep "{{ ip_all_range }} 22:22")"
     if [[ -z "${SECGROUP}" ]]; then
-      openstack security group rule create --protocol tcp --dst-port 22 {{ lb_mgmt_sec_grp_name }}
+      openstack security group rule create --protocol tcp --dst-port 22 \
+        --ethertype IPv{{ lb_mgmt_net_ip_version }} {{ lb_mgmt_sec_grp_name }}
     fi
   register: sec_group_rule_one
   changed_when: (sec_group_rule_one.stdout | length) > 0
@@ -66,9 +87,10 @@
   shell: |-
     set -o pipefail
     SECGROUP="$(openstack security group rule list {{ lb_mgmt_sec_grp_name }} --protocol tcp \
-                                                                              --ingress -f value 2>&1 | grep "0.0.0.0/0 9443:9443")"
+                                                                              --ingress -f value 2>&1 | grep "{{ ip_all_range }} 9443:9443")"
     if [[ -z "${SECGROUP}" ]]; then
-      openstack security group rule create --protocol tcp --dst-port 9443 {{ lb_mgmt_sec_grp_name }}
+      openstack security group rule create --protocol tcp --dst-port 9443 \
+        --ethertype IPv{{ lb_mgmt_net_ip_version }} {{ lb_mgmt_sec_grp_name }}
     fi
   register: sec_group_rule_two
   changed_when: (sec_group_rule_two.stdout | length) > 0
@@ -93,9 +115,10 @@
     set -o pipefail
     SECGROUP="$(openstack security group rule list {{ lb_health_mgr_sec_grp_name }} \
                   --protocol udp \
-                  --ingress -f value 2>&1 | grep "0.0.0.0/0 5555:5555")"
+                  --ingress -f value 2>&1 | grep "{{ ip_all_range }} 5555:5555")"
     if [[ -z "${SECGROUP}" ]]; then
-      openstack security group rule create --protocol udp --dst-port 5555 {{ lb_health_mgr_sec_grp_name }}
+      openstack security group rule create --protocol udp --dst-port 5555 \
+        --ethertype IPv{{ lb_mgmt_net_ip_version }} {{ lb_health_mgr_sec_grp_name }}
     fi
   register: health_mgr_sec_grp_rule
   changed_when: (health_mgr_sec_grp_rule.stdout | length) > 0
@@ -110,7 +133,8 @@
     protocol: "{{ log_offload_protocol }}"
     port_range_min: 514
     port_range_max: 514
-    remote_ip_prefix: 0.0.0.0/0
+    remote_ip_prefix: "{{ ip_all_range }}"
+    ethertype: "IPv{{ lb_mgmt_net_ip_version }}"
   environment:
     OS_USERNAME: "{{ auth_username }}"
     OS_PASSWORD: "{{ auth_password }}"
