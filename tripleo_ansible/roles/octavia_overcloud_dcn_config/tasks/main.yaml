@@ -40,6 +40,22 @@
   changed_when: "'created_at' in result.stdout"
   loop: "{{ ['backbone'] | union(octavia_availability_zones | list) }}"
 
+- name: Get main lb-mgmt subnet
+  shell: |
+    openstack subnet show -f json {{ subnet_name }}
+  vars:
+    subnet_name: "{{ lb_mgmt_prefix }}-subnet"
+  register: subnet_output
+
+- name: Ensure that lb-mgmt-subnet has a gateway
+  shell: |
+    openstack subnet set --gateway {{ subnet.cidr | ipaddr('next_usable') }} {{ subnet_name }}
+  vars:
+    subnet_name: "{{ lb_mgmt_prefix }}-subnet"
+    subnet: "{{ subnet_output.stdout | from_json }}"
+  when:
+    - subnet.gateway_ip == None
+
 - name: Create lb-mgmt routers
   shell: |
     if ! openstack router show {{ router_name }} > /dev/null 2>&1; then
