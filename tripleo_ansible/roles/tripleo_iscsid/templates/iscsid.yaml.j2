@@ -3,7 +3,7 @@ net: host
 privileged: true
 restart: always
 healthcheck:
-test: /openstack/healthcheck
+  test: /openstack/healthcheck
 volumes:
   {{ tripleo_container_standalone_common_volumes | default([]) + tripleo_iscsid_volumes }}
 environment:
