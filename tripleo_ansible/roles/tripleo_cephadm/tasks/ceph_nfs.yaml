@@ -44,6 +44,7 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
 
 - name: Create the ingress Daemon spec definition for nfs
   when: tripleo_cephadm_ingress | default(true)
@@ -63,3 +64,4 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
