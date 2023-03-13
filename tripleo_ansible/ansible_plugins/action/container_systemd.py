@@ -267,8 +267,8 @@ class ActionModule(ActionBase):
 
     @tenacity.retry(
         reraise=True,
-        stop=tenacity.stop_after_attempt(5),
-        wait=tenacity.wait_fixed(5)
+        stop=tenacity.stop_after_attempt(6),
+        wait=tenacity.wait_fixed(10)
     )
     def _manage_service(self, name, state, task_vars):
         """Manage a systemd service with retries and delay.
