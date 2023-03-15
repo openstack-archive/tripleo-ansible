@@ -47,19 +47,6 @@
   tags:
     - revert_snapshots
 
-- name: Delete the lv_snapshot volume if it exists
-  command: lvremove -f /dev/vg/lv_snapshot
-  when:
-    - ansible_facts.lvm is defined
-    - ansible_facts.lvm.lvs is defined
-    - ansible_facts.lvm.vgs is defined
-    - ansible_facts.lvm.vgs.vg is defined
-    - ansible_facts.lvm.lvs.lv_snapshot is defined
-    - ansible_facts.lvm.lvs.lv_snapshot.size_g|float >= 8.00
-  tags:
-    - create_snapshots
-    - remove_lv_snapshot
-
 - name: Remove LVM snapshots
   when:
     - ansible_facts.lvm is defined
@@ -93,22 +80,6 @@
   tags:
     - remove_snapshots
 
-- name: Check existing snapshots
-  block:
-    - name: Find snapshot files
-      find:
-        path: /dev/vg
-        patterns: ['ss_home','ss_log','ss_root','ss_srv','ss_var','ss_audit']
-        file_type: "link"
-      register: snapshots_found
-
-    - name: Evaluate result
-      fail: msg="Snapshot {{ item['path'] }} already exist in the filesystem"
-      loop: "{{ snapshots_found.files }}"
-      when: snapshots_found.matched > 0
-  tags:
-    - create_snapshots
-
 - name: Read Services running on the host
   command: puppet lookup --explain 'service_names'
   when: tripleo_snapshot_revert_snapshot_inactive_nodes|bool
@@ -127,37 +98,47 @@
   tags:
     - create_snapshots
 
-- name: Create lvm snapshot if there are at least 8GB of free space in the vg volumegroup
+- name: Create lvm snapshot using the lv_thinpool
   when:
     - ansible_facts.lvm is defined
     - ansible_facts.lvm.lvs is defined
-    - ansible_facts.lvm.vgs is defined
-    - ansible_facts.lvm.vgs.vg is defined
-    - ansible_facts.lvm.vgs.vg.free_g|float >= 8.00
+    - ansible_facts.lvm.lvs.lv_thinpool is defined
   block:
     - name: Create audit snapshot volume
-      command: lvcreate -s -n ss_audit -L {{ tripleo_snapshot_revert_audit_size }} /dev/vg/lv_audit
-      when: ansible_facts.lvm.lvs.lv_audit is defined
+      command: lvcreate -s -n ss_audit --thinpool lv_thinpool /dev/vg/lv_audit
+      when:
+        - ansible_facts.lvm.lvs.lv_audit is defined
+        - ansible_facts.lvm.lvs.ss_audit is not defined
 
     - name: Create home snapshot volume
-      command: lvcreate -s -n ss_home -L {{ tripleo_snapshot_revert_home_size }} /dev/vg/lv_home
-      when: ansible_facts.lvm.lvs.lv_home is defined
+      command: lvcreate -s -n ss_home --thinpool lv_thinpool /dev/vg/lv_home
+      when:
+        - ansible_facts.lvm.lvs.lv_home is defined
+        - ansible_facts.lvm.lvs.ss_home is not defined
 
     - name: Create log snapshot volume
-      command: lvcreate -s -n ss_log -L {{ tripleo_snapshot_revert_log_size }} /dev/vg/lv_log
-      when: ansible_facts.lvm.lvs.lv_log is defined
+      command: lvcreate -s -n ss_log --thinpool lv_thinpool /dev/vg/lv_log
+      when:
+        - ansible_facts.lvm.lvs.lv_log is defined
+        - ansible_facts.lvm.lvs.ss_log is not defined
 
     - name: Create root snapshot volume
-      command: lvcreate -s -n ss_root -L {{ tripleo_snapshot_revert_root_size }} /dev/vg/lv_root
-      when: ansible_facts.lvm.lvs.lv_root is defined
+      command: lvcreate -s -n ss_root --thinpool lv_thinpool /dev/vg/lv_root
+      when:
+        - ansible_facts.lvm.lvs.lv_root is defined
+        - ansible_facts.lvm.lvs.ss_root is not defined
 
     - name: Create srv snapshot volume
-      command: lvcreate -s -n ss_srv -L {{ tripleo_snapshot_revert_srv_size }} /dev/vg/lv_srv
-      when: ansible_facts.lvm.lvs.lv_srv is defined
+      command: lvcreate -s -n ss_srv --thinpool lv_thinpool /dev/vg/lv_srv
+      when:
+        - ansible_facts.lvm.lvs.lv_srv is defined
+        - ansible_facts.lvm.lvs.ss_srv is not defined
 
     - name: Create var snapshot volume
-      command: lvcreate -s -n ss_var -L {{ tripleo_snapshot_revert_var_size }} /dev/vg/lv_var
-      when: ansible_facts.lvm.lvs.lv_var is defined
+      command: lvcreate -s -n ss_var --thinpool lv_thinpool /dev/vg/lv_var
+      when:
+        - ansible_facts.lvm.lvs.lv_var is defined
+        - ansible_facts.lvm.lvs.ss_var is not defined
   tags:
     - create_snapshots
 
