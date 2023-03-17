@@ -51,6 +51,7 @@ _NETWORK_CONFIG_SCHEMA = {
     'type': 'object',
     'properties': {
         'template': {'type': 'string'},
+        'nmstate': {'type': 'boolean'},
         'physical_bridge_name': {'type': 'string'},
         'public_interface_name': {'type': 'string'},
         'network_config_update': {'type': 'boolean'},
