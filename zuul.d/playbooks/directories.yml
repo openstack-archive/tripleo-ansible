@@ -23,11 +23,3 @@
         dest: /opt/
         remote_src: true
         mode: "0777"
-
-  # FIXME(chandankumar): Downgrade ontainers-common due to
-  # https://bugs.launchpad.net/tripleo/+bug/1988500 and
-  # https://bugzilla.redhat.com/show_bug.cgi?id=2123611
-- name: Downgrade containers-common
-  shell: |
-    if [ -n "$(rpm -qa containers-common)" ];then dnf -y downgrade containers-common-1-40.el9; fi
-  become: true
