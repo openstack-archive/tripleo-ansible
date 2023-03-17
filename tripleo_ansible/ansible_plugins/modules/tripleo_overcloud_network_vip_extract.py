@@ -97,20 +97,23 @@ EXAMPLES = '''
 
 
 def find_net_vips(conn, stack):
-    return [
-        (dict(name=vip.name,
-              network=conn.network.get_network(vip['network_id'])['name'],
-              subnet=conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])['name'],
-              ip_address=vip.fixed_ips[0]['ip_address'],
-              dns_name=vip.dns_name))
-        if vip.dns_name is not None else
-        (dict(name=vip.name,
-              network=conn.network.get_network(vip['network_id'])['name'],
-              subnet=conn.network.get_subnet(vip.fixed_ips[0]['subnet_id'])['name'],
-              ip_address=vip.fixed_ips[0]['ip_address']))
-        for vip in conn.network.ports(tags='tripleo_stack_name={}'.format(stack))
-        if [x for x in vip['tags'] if x.startswith('tripleo_vip_net=')]
-    ]
+    vip_data = []
+
+    for vip in conn.network.ports(tags='tripleo_stack_name={}'.format(stack)):
+        if [x for x in vip['tags'] if x.startswith('tripleo_vip_net=')]:
+            vip_dict = dict(
+                name=vip.name,
+                network=conn.network.get_network(vip['network_id'])['name'],
+                subnet=conn.network.get_subnet(
+                vip.fixed_ips[0]['subnet_id'])['name'],
+                ip_address=vip.fixed_ips[0]['ip_address']
+            )
+            if vip.dns_name is not None:
+                vip_dict['dns_name'] = vip.dns_name
+
+            vip_data.append(vip_dict)
+
+    return vip_data
 
 
 def run_module():
