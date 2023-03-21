@@ -21,6 +21,7 @@
     osd_spec:
       data_devices:
         all: true
+    tld_option: ""
   tasks:
     - name: Fail if tripleo_cephadm_first_mon_ip is undefined
       fail:
@@ -50,3 +51,4 @@
         osd_spec: "{{ osd_spec }}"
         mon_ip: "{{ tripleo_cephadm_first_mon_ip }}"
         standalone: True
+        tld: "{{ tld_option }}"

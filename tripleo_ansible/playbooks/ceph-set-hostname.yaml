@@ -1,0 +1,19 @@
+---
+- name: Set hostname with tld
+  hosts: allovercloud
+  become: true
+  tasks:
+    - name: Set hostname with tld
+      when:
+        - tld_option is defined
+        - tld_option | length > 0
+        - tld_option not in inventory_hostname
+      block:
+        - name: Prepare hostname
+          set_fact:
+            hostname_with_tld: "{{ inventory_hostname }}.{{ tld_option }}"
+
+        - name: Update the new hostname with tld
+          become: true
+          hostname:
+            name: "{{ hostname_with_tld }}"

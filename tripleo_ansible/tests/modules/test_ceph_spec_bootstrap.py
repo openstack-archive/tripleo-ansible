@@ -33,6 +33,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         ceph_service_types = ['mon', 'mgr', 'osd']
         metal = "roles/tripleo_cephadm/molecule/default/mock/mock_deployed_metal.yaml"
         tripleo_roles = "roles/tripleo_cephadm/molecule/default/mock/mock_overcloud_roles.yaml"
+        tld = ""
         roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_roles(tripleo_roles)
         expected = {
             'Compute': [],
@@ -41,7 +42,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         self.assertEqual(roles_to_svcs, expected)
 
         roles = roles_to_svcs.keys()
-        roles_to_hosts = ceph_spec_bootstrap.get_deployed_roles_to_hosts(metal, roles)
+        roles_to_hosts = ceph_spec_bootstrap.get_deployed_roles_to_hosts(metal, roles, tld)
         expected = {
             'Controller': ['oc0-controller-0', 'oc0-controller-1', 'oc0-controller-2'],
             'Compute': ['oc0-compute-0'],
@@ -49,7 +50,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         }
         self.assertEqual(roles_to_hosts, expected)
 
-        hosts_to_ips = ceph_spec_bootstrap.get_deployed_hosts_to_ips(metal)
+        hosts_to_ips = ceph_spec_bootstrap.get_deployed_hosts_to_ips(metal, tld)
         expected = {'oc0-ceph-0': '192.168.24.13',
                     'oc0-ceph-1': '192.168.24.11',
                     'oc0-ceph-2': '192.168.24.14',
@@ -117,12 +118,105 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
         self.assertEqual(specs, expected)
 
+    def test_metal_roles_based_spec_with_tld(self):
+        """verify we can build a ceph spec with tld and supporting data
+           structures from a mealsmith and tripleo roles file
+        """
+        ceph_service_types = ['mon', 'mgr', 'osd']
+        metal = "roles/tripleo_cephadm/molecule/default/mock/mock_deployed_metal.yaml"
+        tripleo_roles = "roles/tripleo_cephadm/molecule/default/mock/mock_overcloud_roles.yaml"
+        tld = "abc.local"
+        roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_roles(tripleo_roles)
+        expected = {
+            'Compute': [],
+            'CephStorage': ['CephOSD'],
+            'Controller': ['CephMgr', 'CephMon']}
+        self.assertEqual(roles_to_svcs, expected)
+
+        roles = roles_to_svcs.keys()
+        roles_to_hosts = ceph_spec_bootstrap.get_deployed_roles_to_hosts(metal, roles, tld)
+        expected = {
+            'Controller': ['oc0-controller-0.abc.local', 'oc0-controller-1.abc.local', 'oc0-controller-2.abc.local'],
+            'Compute': ['oc0-compute-0.abc.local'],
+            'CephStorage': ['oc0-ceph-0.abc.local', 'oc0-ceph-1.abc.local', 'oc0-ceph-2.abc.local']
+        }
+        self.assertEqual(roles_to_hosts, expected)
+
+        hosts_to_ips = ceph_spec_bootstrap.get_deployed_hosts_to_ips(metal, tld)
+        expected = {'oc0-ceph-0.abc.local': '192.168.24.13',
+                    'oc0-ceph-1.abc.local': '192.168.24.11',
+                    'oc0-ceph-2.abc.local': '192.168.24.14',
+                    'oc0-compute-0.abc.local': '192.168.24.21',
+                    'oc0-controller-0.abc.local': '192.168.24.23',
+                    'oc0-controller-1.abc.local': '192.168.24.15',
+                    'oc0-controller-2.abc.local': '192.168.24.7'}
+        self.assertEqual(hosts_to_ips, expected)
+
+        label_map = ceph_spec_bootstrap.get_label_map(hosts_to_ips, roles_to_svcs,
+                                                      roles_to_hosts, ceph_service_types)
+        expected = {'oc0-ceph-0.abc.local': ['osd'],
+                    'oc0-ceph-1.abc.local': ['osd'],
+                    'oc0-ceph-2.abc.local': ['osd'],
+                    'oc0-compute-0.abc.local': [],
+                    'oc0-controller-0.abc.local': ['mgr', 'mon', '_admin'],
+                    'oc0-controller-1.abc.local': ['mgr', 'mon', '_admin'],
+                    'oc0-controller-2.abc.local': ['mgr', 'mon', '_admin']}
+        self.assertEqual(label_map, expected)
+
+        specs = ceph_spec_bootstrap.get_specs(hosts_to_ips, label_map, ceph_service_types)
+        expected = [
+            {'service_type': 'host', 'addr': '192.168.24.13',
+             'hostname': 'oc0-ceph-0.abc.local', 'labels': ['osd']},
+            {'service_type': 'host', 'addr': '192.168.24.11',
+             'hostname': 'oc0-ceph-1.abc.local', 'labels': ['osd']},
+            {'service_type': 'host', 'addr': '192.168.24.14',
+             'hostname': 'oc0-ceph-2.abc.local', 'labels': ['osd']},
+            {'service_type': 'host', 'addr': '192.168.24.23',
+             'hostname': 'oc0-controller-0.abc.local', 'labels': ['mgr', 'mon', '_admin']},
+            {'service_type': 'host', 'addr': '192.168.24.15',
+             'hostname': 'oc0-controller-1.abc.local', 'labels': ['mgr', 'mon', '_admin']},
+            {'service_type': 'host', 'addr': '192.168.24.7',
+             'hostname': 'oc0-controller-2.abc.local', 'labels': ['mgr', 'mon', '_admin']},
+            {
+                'service_type': 'mon',
+                'service_name': 'mon',
+                'service_id': 'mon',
+                'placement': {
+                    'hosts': ['oc0-controller-0.abc.local', 'oc0-controller-1.abc.local', 'oc0-controller-2.abc.local']
+                }
+            },
+            {
+                'service_type': 'mgr',
+                'service_name': 'mgr',
+                'service_id': 'mgr',
+                'placement': {
+                    'hosts': ['oc0-controller-0.abc.local', 'oc0-controller-1.abc.local', 'oc0-controller-2.abc.local']
+                }
+            },
+            {
+                'service_type': 'osd',
+                'service_name': 'osd.default_drive_group',
+                'service_id': 'default_drive_group',
+                'placement': {
+                    'hosts': ['oc0-ceph-0.abc.local', 'oc0-ceph-1.abc.local', 'oc0-ceph-2.abc.local']
+                },
+                'data_devices': {'all': True}
+            }
+        ]
+        for index in range(0, len(expected)):
+            if expected[index].get('service_type', '') == 'host':
+                expected[index].get('labels', {}).sort()
+                specs[index].get('labels', {}).sort()
+
+        self.assertEqual(specs, expected)
+
     def test_inventory_based_spec(self):
         """verify we can build a ceph spec and supporting data
            structures from from a tripleo-ansible inventory
         """
         ceph_service_types = ['mon', 'mgr', 'osd']
         inventory_file = "roles/tripleo_cephadm/molecule/default/mock/mock_inventory.yml"
+        tld = ""
         with open(inventory_file, 'r') as stream:
             inventory = yaml.safe_load(stream)
         roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_inventory(inventory)
@@ -130,11 +224,11 @@ class TestCephSpecBootstrap(tests_base.TestCase):
         self.assertEqual(roles_to_svcs, expected)
 
         roles = roles_to_svcs.keys()
-        hosts_to_ips = ceph_spec_bootstrap.get_inventory_hosts_to_ips(inventory, roles)
+        hosts_to_ips = ceph_spec_bootstrap.get_inventory_hosts_to_ips(inventory, roles, tld)
         expected = {'standalone': '192.168.24.1'}
         self.assertEqual(hosts_to_ips, expected)
 
-        roles_to_hosts = ceph_spec_bootstrap.get_inventory_roles_to_hosts(inventory, roles)
+        roles_to_hosts = ceph_spec_bootstrap.get_inventory_roles_to_hosts(inventory, roles, tld)
         expected = {'Standalone': ['standalone']}
         self.assertEqual(roles_to_hosts, expected)
 
@@ -170,6 +264,35 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
         self.assertEqual(len(specs), len(expected))
         self.assertEqual(specs, expected)
+
+    def test_inventory_based_spec_with_tld(self):
+        """verify we can build a ceph spec and supporting data
+           structures from from a tripleo-ansible inventory
+        """
+        ceph_service_types = ['mon', 'mgr', 'osd']
+        inventory_file = "roles/tripleo_cephadm/molecule/default/mock/mock_inventory.yml"
+        tld = "abc.local"
+        with open(inventory_file, 'r') as stream:
+            inventory = yaml.safe_load(stream)
+        roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_inventory(inventory)
+        expected = {'Standalone': ['CephOSD', 'CephMgr', 'CephMon']}
+        self.assertEqual(roles_to_svcs, expected)
+
+        roles = roles_to_svcs.keys()
+        hosts_to_ips = ceph_spec_bootstrap.get_inventory_hosts_to_ips(inventory, roles, tld)
+        expected = {'standalone.abc.local': '192.168.24.1'}
+        self.assertEqual(hosts_to_ips, expected)
+
+        roles_to_hosts = ceph_spec_bootstrap.get_inventory_roles_to_hosts(inventory, roles, tld)
+        expected = {'Standalone': ['standalone.abc.local']}
+
+        label_map = ceph_spec_bootstrap.get_label_map(hosts_to_ips, roles_to_svcs,
+                                                      roles_to_hosts, ceph_service_types)
+        expected = {'standalone.abc.local': ['osd', 'mgr', '_admin', 'mon']}
+        # the order of the labels does not matter, sort them for consistency
+        label_map['standalone.abc.local'].sort()
+        expected['standalone.abc.local'].sort()
+        self.assertEqual(label_map, expected)
 
     def test_standalone_spec(self):
         hostname = socket.gethostname()
@@ -222,7 +345,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
         my_spec = tempfile.NamedTemporaryFile()
         ceph_spec_bootstrap.ceph_spec_standalone(my_spec.name,
-                                                 mon_ip='192.168.122.252')
+                                                 mon_ip='192.168.122.252', tld="")
         self.assertCountEqual(
             list(io.open(expected_spec.name)),
             list(io.open(my_spec.name)))
