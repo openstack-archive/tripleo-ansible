@@ -5,6 +5,7 @@ tripleo_cephadm_ssh_user: ceph-admin
 tripleo_cephadm_bin: /usr/sbin/cephadm
 tripleo_cephadm_cluster: ceph
 tripleo_cephadm_config_home: /etc/ceph
+tripleo_cephadm_config_home_container: "/var/lib/ceph/{{ tripleo_cephadm_fsid }}/config/"
 tripleo_cephadm_verbose: false
 tripleo_cephadm_container_ns: "quay.io/ceph"
 tripleo_cephadm_container_image: "ceph"

@@ -42,6 +42,7 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
 
 - name: create filesystem pools
   ceph_pool:
@@ -59,6 +60,7 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
   with_items: "{{ cephfs_pools }}"
   become: true
   vars:
@@ -76,3 +78,4 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"

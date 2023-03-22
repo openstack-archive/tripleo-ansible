@@ -14,6 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Stat cephadm config home container directory
+  stat:
+    path: "{{ tripleo_cephadm_config_home_container }}"
+  register: tripleo_cephadm_config_home_container_stat
+  become: true
+
 - name: Set ceph CLI
   set_fact:
     tripleo_cephadm_ceph_cli: >-
@@ -24,7 +30,11 @@
       {% if sensitive_data|default(false) %}
       --interactive
       {% endif %}
+      {% if tripleo_cephadm_config_home_container_stat.stat.exists %}
+      --volume {{ tripleo_cephadm_config_home_container }}:/etc/ceph:z
+      {% else %}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
+      {% endif %}
       {% if not external_cluster|default(false) -%}
       --volume {{ tripleo_cephadm_assimilate_conf }}:{{ tripleo_cephadm_assimilate_conf_container }}:z
       {% endif %}
