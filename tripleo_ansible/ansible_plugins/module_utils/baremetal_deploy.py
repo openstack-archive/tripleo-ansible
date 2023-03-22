@@ -639,13 +639,19 @@ def get_source(instance):
                           checksum=image.get('checksum'))
 
 
+_subnets_cache = dict()
+
+
 def nics_to_port_map(nics, connection):
     """Build a port map from a metalsmith instance."""
     port_map = {}
     for nic in nics:
         for ip in nic.fixed_ips:
             net_name = getattr(nic.network, 'name', None) or nic.network.id
-            subnet = connection.network.get_subnet(ip['subnet_id'])
+            if not ip['subnet_id'] in _subnets_cache:
+                _subnets_cache[ip['subnet_id']] = (
+                    connection.network.get_subnet(ip['subnet_id']))
+            subnet = _subnets_cache[ip['subnet_id']]
             net_info = port_map.setdefault(
                 net_name, {'network': nic.network.to_dict(),
                            'fixed_ips': [], 'subnets': []})
