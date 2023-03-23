@@ -25,14 +25,3 @@
         delay: 10
   roles:
     - role: tripleo_network_config
-      vars:
-        # The conditions here are when we want to apply the
-        # NetworkConfig. They are:
-        # - If tripleo_network_config_update is True
-        # - Or the previous run of NetworkConfig failed.
-        # - Or it has never run
-        # This will match the prior behavior of when a Heat
-        # SoftwareDeployment was used.
-        # It also ensures the script does exist as a sine qua non
-        # condition
-        tripleo_network_config_update: True
