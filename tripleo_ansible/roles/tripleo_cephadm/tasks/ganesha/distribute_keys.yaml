@@ -27,6 +27,7 @@
     - "/var/log/ceph"
     - "/var/run/ceph"
     - "/var/lib/ceph/bootstrap-rgw"
+    - "/var/lib/nfs/rpc_pipefs/nfs"
     - "/var/lib/ceph/radosgw/ceph-rgw.{{ tripleo_cephadm_ceph_nfs_ceph_user }}"
     - "/var/lib/ceph/radosgw/{{ tripleo_cephadm_cluster }}-rgw.{{ nfs_node }}"
 
