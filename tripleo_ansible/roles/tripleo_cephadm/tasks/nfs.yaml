@@ -94,11 +94,18 @@
   changed_when: false
   delegate_to: "{{ groups['ceph_nfs'][0] }}"
 
+- name: Get Ceph version
+  command: "{{ tripleo_cephadm_container_cli }} run --rm --entrypoint=ceph {{ ceph_container }} -v"
+  register: ceph_version
+  vars:
+    ceph_container: "{{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}"
+
 - name: Render Ganesha templates and files
   include_tasks: ganesha/start_nfs.yaml
   vars:
     nfs_node: "{{ node }}"
     dbus_ganesha_file: "{{ _dbus_ganesha }}"
+    tripleo_cephadm_ceph_version: "{{ ceph_version.stdout.split(' ')[2] }}"
   loop: "{{ groups['ceph_nfs'] }}"
   loop_control:
     loop_var: node

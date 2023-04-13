@@ -72,3 +72,4 @@ tripleo_cephadm_standalone: false
 tripleo_cephadm_default_container: false
 tripleo_cephadm_single_host_defaults: false
 tripleo_cephadm_extra_args: ""
+tripleo_cephadm_pacific_filter: "16.*"
