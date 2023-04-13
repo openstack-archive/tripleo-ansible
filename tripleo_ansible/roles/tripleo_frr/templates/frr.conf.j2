@@ -10,7 +10,7 @@ line vty
 {{ tripleo_frr_conf_custom_globals }}
 
 router bgp {{ tripleo_frr_bgp_asn }}
-  bgp router-id {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
+  bgp router-id {{ tripleo_frr_router_id if tripleo_frr_router_id != '' else hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
   bgp log-neighbor-changes
   bgp graceful-shutdown
   no bgp default ipv4-unicast
@@ -81,7 +81,7 @@ ip prefix-list only-host-prefixes permit 0.0.0.0/0 ge 32
 
 route-map rm-only-default permit 10
   match ip address prefix-list only-default
-  set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
+  set src {{ tripleo_frr_ipv4_src_ip if tripleo_frr_ipv4_src_ip != '' else hostvars[inventory_hostname][tripleo_frr_bgp_ipv4_src_network ~ '_ip'] }}
 
 ip protocol bgp route-map rm-only-default
 {{ tripleo_frr_conf_custom_ipv4 }}
@@ -93,7 +93,8 @@ ipv6 prefix-list only-host-prefixes permit ::/0 ge 128
 
 route-map rm-only-default permit 11
   match ipv6 address prefix-list only-default
-  set src {{ hostvars[inventory_hostname][tripleo_frr_bgp_ipv6_src_network ~ '_ip'] }}
+  set src {{ tripleo_frr_ipv6_src_ip if tripleo_frr_ipv6_src_ip != '' else hostvars[inventory_hostname][tripleo_frr_bgp_ipv6_src_network ~ '_ip'] }}
+
 
 ipv6 protocol bgp route-map rm-only-default
 {{ tripleo_frr_conf_custom_ipv6 }}

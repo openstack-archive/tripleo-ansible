@@ -61,6 +61,9 @@ tripleo_frr_conf_custom_globals: ''
 tripleo_frr_conf_custom_router_bgp: ''
 tripleo_frr_conf_custom_ipv4: ''
 tripleo_frr_conf_custom_ipv6: ''
+tripleo_frr_router_id: ''
+tripleo_frr_ipv4_src_ip: ''
+tripleo_frr_ipv6_src_ip: ''
 
 # BGP agent
 tripleo_frr_ovn_bgp_agent_enable: true
