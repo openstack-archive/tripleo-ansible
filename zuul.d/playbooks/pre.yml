@@ -93,6 +93,13 @@
             remote_src: true
             mode: "0777"
 
+        # FIXME(Chandan): https://bugs.launchpad.net/tripleo/+bug/2015309
+        - name: Downgrade gnupg2 to 2.3.3-2.el9.x86_64
+          become: true
+          ansible.builtin.shell: |
+            sudo dnf -y downgrade gnupg2-2.3.3-2.el9.x86_64
+          failed_when: false
+
         - name: Reset ssh connection
           meta: reset_connection
   tasks:
