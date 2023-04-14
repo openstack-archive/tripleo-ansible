@@ -75,6 +75,10 @@ options:
         description: Create a spec file for a standalone deployment. Used for single server development or testing environments.
         required: False
         type: bool
+    tld:
+        description: Top Level Domain suffix to be added to the short hostname to represent the fully qualified domain name.
+        required: False
+        type: str
     mon_ip:
         description: The desired IP address of the first Ceph monitor. Required when standalone is true, otherwise ignored.
     method:
@@ -164,7 +168,7 @@ SERVICE_MAP = {
 #   'CephGrafana': ['alertmanager', 'grafana', 'node-exporter'],
 
 
-def get_inventory_hosts_to_ips(inventory, roles, fqdn=False):
+def get_inventory_hosts_to_ips(inventory, roles, tld, fqdn=False):
     """Returns map of hostnames to IP addresses for groups in roles list
          {'oc0-ceph-0': '192.168.24.13',
           'oc0-compute-0': '192.168.24.21',
@@ -200,11 +204,13 @@ def get_inventory_hosts_to_ips(inventory, roles, fqdn=False):
                         hostname = inventory[key]['hosts'][host]['canonical_hostname']
                     else:
                         hostname = host
+                        if tld:
+                            hostname += "." + tld
                     hosts_to_ips[hostname] = ip
     return hosts_to_ips
 
 
-def get_deployed_hosts_to_ips(metalsmith_data_file):
+def get_deployed_hosts_to_ips(metalsmith_data_file, tld):
     """Return a map of hostnames to IP addresses, e.g.
          {'oc0-ceph-0': '192.168.24.13',
           'oc0-compute-0': '192.168.24.21',
@@ -229,7 +235,10 @@ def get_deployed_hosts_to_ips(metalsmith_data_file):
                         'The DeployedServerPortMap is missing the first '
                         'fixed_ip in the data file: {metalsmith_data_file}'.format(
                             metalsmith_data_file=metalsmith_data_file))
-                hosts_to_ips[host.replace('-ctlplane', '')] = ip
+                hostname = host.replace('-ctlplane', '')
+                if tld:
+                    hostname += "." + tld
+                hosts_to_ips[hostname] = ip
         except Exception:
             raise RuntimeError(
                 'The DeployedServerPortMap is not defined in '
@@ -238,7 +247,7 @@ def get_deployed_hosts_to_ips(metalsmith_data_file):
     return hosts_to_ips
 
 
-def get_inventory_roles_to_hosts(inventory, roles, fqdn=False):
+def get_inventory_roles_to_hosts(inventory, roles, tld, fqdn=False):
     """Return a map of roles to host lists, e.g.
          roles_to_hosts['CephStorage'] = ['oc0-ceph-0', 'oc0-ceph-1']
          roles_to_hosts['Controller'] = ['oc0-controller-0']
@@ -254,11 +263,13 @@ def get_inventory_roles_to_hosts(inventory, roles, fqdn=False):
                     hostname = inventory[key]['hosts'][host]['canonical_hostname']
                 else:
                     hostname = host
+                    if tld:
+                        hostname += "." + tld
                 roles_to_hosts[key].append(hostname)
     return roles_to_hosts
 
 
-def get_deployed_roles_to_hosts(metalsmith_data_file, roles):
+def get_deployed_roles_to_hosts(metalsmith_data_file, roles, tld):
     """Return a map of roles to host lists, e.g.
          roles_to_hosts['CephStorage'] = ['oc0-ceph-0', 'oc0-ceph-1']
          roles_to_hosts['Controller'] = ['oc0-controller-0']
@@ -282,7 +293,10 @@ def get_deployed_roles_to_hosts(metalsmith_data_file, roles):
                         matching_hosts = []
                         for host in name_map:
                             if reg.match(host):
-                                matching_hosts.append(name_map[host])
+                                hostname = name_map[host]
+                                if tld:
+                                    hostname += "." + tld
+                                matching_hosts.append(hostname)
                 roles_to_hosts[role] = matching_hosts
         except Exception:
             raise RuntimeError(
@@ -423,7 +437,7 @@ def flatten(t):
     return [item for sublist in t for item in sublist]
 
 
-def ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec={}):
+def ceph_spec_standalone(new_ceph_spec, mon_ip, tld, osd_spec={}):
     """Write ceph_spec_path file for a standalone ceph host
     :param new_ceph_spec: the path to a ceph_spec.yaml file
     :param mon_ip: the ip address of the ceph monitor
@@ -431,6 +445,8 @@ def ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec={}):
     :return dictionary of ceph specs
     """
     hostname = socket.gethostname()
+    if tld:
+        hostname += "." + tld
     hosts_to_ips = dict()
     hosts_to_ips[hostname] = mon_ip
     svcs = ['osd', 'mon', 'mgr']
@@ -470,6 +486,7 @@ def main():
     standalone = module.params.get('standalone')
     mon_ip = module.params.get('mon_ip')
     method = module.params.get('method')
+    tld = module.params.get('tld')
 
     # Set defaults
     if ceph_service_types is None:
@@ -488,10 +505,12 @@ def main():
         standalone = False
     if mon_ip is None:
         mon_ip = ""
+    if tld is None:
+        tld = ""
 
     # Handle standalone scenario and exit module early ...
     if standalone:
-        result['specs'] = ceph_spec_standalone(new_ceph_spec, mon_ip, osd_spec)
+        result['specs'] = ceph_spec_standalone(new_ceph_spec, mon_ip, tld, osd_spec)
         module.exit_json(**result)
     # ... otherwise validate the inputs to build a multinode spec
     # 0. Are they using metalsmith or an inventory as their method?
@@ -553,27 +572,27 @@ def main():
         if method == 'deployed_metalsmith':
             roles_to_svcs = get_roles_to_svcs_from_roles(tripleo_roles)
             roles_to_hosts = get_deployed_roles_to_hosts(deployed_metalsmith,
-                                                         roles_to_svcs.keys())
-            hosts_to_ips = get_deployed_hosts_to_ips(deployed_metalsmith)
+                                                         roles_to_svcs.keys(), tld)
+            hosts_to_ips = get_deployed_hosts_to_ips(deployed_metalsmith, tld)
         elif method == 'tripleo_ansible_inventory':
             with open(tripleo_ansible_inventory, 'r') as stream:
                 inventory = yaml.safe_load(stream)
             roles_to_svcs = get_roles_to_svcs_from_inventory(inventory)
             roles_to_hosts = get_inventory_roles_to_hosts(inventory,
                                                           roles_to_svcs.keys(),
-                                                          fqdn)
+                                                          tld, fqdn)
             hosts_to_ips = get_inventory_hosts_to_ips(inventory,
                                                       roles_to_svcs.keys(),
-                                                      fqdn)
+                                                      tld, fqdn)
         elif method == 'both':
             roles_to_svcs = get_roles_to_svcs_from_roles(tripleo_roles)
             roles_to_hosts = get_deployed_roles_to_hosts(deployed_metalsmith,
-                                                         roles_to_svcs.keys())
+                                                         roles_to_svcs.keys(), tld)
             with open(tripleo_ansible_inventory, 'r') as stream:
                 inventory = yaml.safe_load(stream)
             hosts_to_ips = get_inventory_hosts_to_ips(inventory,
                                                       roles_to_svcs.keys(),
-                                                      fqdn)
+                                                      tld, fqdn)
         # regardless of how we built our maps, assign the correct labels
         label_map = get_label_map(hosts_to_ips, roles_to_svcs,
                                   roles_to_hosts, ceph_service_types)

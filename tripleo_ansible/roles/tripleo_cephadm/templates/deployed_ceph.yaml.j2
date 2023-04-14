@@ -3,7 +3,7 @@ parameter_defaults:
   CephClusterFSID: {{ tripleo_cephadm_fsid }}
   CephDynamicSpec: false
   DeployedCeph: true
-  {% if tripleo_cephadm_standalone -%}
+  {% if tripleo_cephadm_standalone or (tripleo_cephadm_tld | default('') | length > 0) -%}
   CephSpecFqdn: true
   {% endif -%}
   CephadmDefaultContainer: {{ tripleo_cephadm_default_container }}

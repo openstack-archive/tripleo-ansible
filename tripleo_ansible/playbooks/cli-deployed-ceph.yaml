@@ -25,6 +25,7 @@
     dynamic_ceph_spec: true
     cephadm_admin_hosts: []
     cephadm_non_admin_hosts: []
+    tld_option: ""
   pre_tasks:
     - name: Ensure required inputs if using dynamic_ceph_spec
       when:
@@ -82,6 +83,7 @@
         deployed_metalsmith: "{{ baremetal_deployed_path }}"
         tripleo_ansible_inventory: "{{ inventory_file }}"
         method: 'both'
+        tld: "{{ tld_option }}"
       when:
         - dynamic_ceph_spec | bool
       tags:
@@ -233,3 +235,4 @@
         tasks_from: make_deployed_ceph_tht
       vars:
         tripleo_cephadm_deployed_ceph_tht_path: "{{ deployed_ceph_tht_path }}"
+        tripleo_cephadm_tld : "{{ tld_option }}"
