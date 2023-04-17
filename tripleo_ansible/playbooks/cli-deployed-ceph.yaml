@@ -95,7 +95,7 @@
       block:
         - name: Add hosts with mon label to the cephadm_admin_hosts list
           set_fact:
-            cephadm_admin_hosts: "{{ cephadm_admin_hosts + [ item.hostname ] }}"
+            cephadm_admin_hosts: "{{ cephadm_admin_hosts + [ item.hostname.split('.')[0] ] }}"
           loop: "{{ cephadm_spec_content | from_yaml_all | list }}"
           when:
             - item | length > 0
@@ -107,7 +107,7 @@
 
         - name: Add hosts with osd label to the cephadm_non_admin_hosts list
           set_fact:
-            cephadm_non_admin_hosts: "{{ cephadm_non_admin_hosts + [ item.hostname ] }}"
+            cephadm_non_admin_hosts: "{{ cephadm_non_admin_hosts + [ item.hostname.split('.')[0] ] }}"
           loop: "{{ cephadm_spec_content | from_yaml_all | list }}"
           when:
             - item | length > 0
