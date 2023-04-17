@@ -270,6 +270,9 @@ class ContainerPuppetManager:
             'user': 0,
             # container-puppet shouldn't detach
             'detach': False,
+            # force recreating the container so that detach: False always takes
+            # effect.
+            'recreate': True,
             'entrypoint': CONTAINER_ENTRYPOINT,
             'environment': self._get_environment_config()
         }
