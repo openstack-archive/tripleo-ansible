@@ -77,3 +77,4 @@ tripleo_cephadm_nfs_ingress_frontend_port: 2049
 tripleo_cephadm_nfs_ingress_monitor_port: 8999
 tripleo_cephadm_ceph_vips: {}
 tripleo_cephadm_extra_args: ""
+tripleo_cephadm_pacific_filter: "16.*"
