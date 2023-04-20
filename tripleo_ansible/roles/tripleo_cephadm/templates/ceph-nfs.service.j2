@@ -21,16 +21,25 @@ ExecStart=/usr/bin/{{ container_cli }} run --rm --net=host \
   -v /var/run/ceph:/var/run/ceph:z \
   -v /var/log/ceph:/var/log/ceph:z \
   -v /var/log/ganesha:/var/log/ganesha:z \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /var/lib/nfs/rpc_pipefs/nfs:/var/lib/nfs/rpc_pipefs/nfs \
+  --name=ceph-nfs-{{ tripleo_cephadm_ceph_nfs_service_suffix | default(ansible_facts['hostname']) }} \
   {% if tripleo_cephadm_ceph_nfs_dynamic_exports | bool %}
   --privileged \
   -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket \
   {% endif -%}
-  -v /etc/localtime:/etc/localtime:ro \
+  {# Ceph Pacific is defined in the form "v16.x.y": filtering "16.*" is enough #}
+  {% if (tripleo_cephadm_ceph_version is defined) and
+        (tripleo_cephadm_ceph_version is match(tripleo_cephadm_pacific_filter)) %}
   -e CLUSTER={{ tripleo_cephadm_cluster }} \
   -e CEPH_DAEMON=NFS \
   -e CONTAINER_IMAGE={{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }} \
-  --name=ceph-nfs-{{ tripleo_cephadm_ceph_nfs_service_suffix | default(ansible_facts['hostname']) }} \
   {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
+  {% else %}
+  --entrypoint=/bin/sh \
+  {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }} \
+  -c 'rpcbind && rpc.statd -L && rpc.idmapd && /usr/bin/ganesha.nfsd -F -L STDOUT'
+  {% endif -%}
 ExecStop=-/usr/bin/sh -c "/usr/bin/{{ container_cli }} rm -f `cat /%t/%n-cid`"
 KillMode=none
 Restart=always
