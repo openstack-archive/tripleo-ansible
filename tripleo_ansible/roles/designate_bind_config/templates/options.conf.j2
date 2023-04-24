@@ -22,7 +22,7 @@ options {
 
 	minimal-responses yes;
 	multi-master yes;
-	querylog no;
+	querylog {{ designate_bind_enable_query_logging }};
 	recursion no;
 	version none;
 	allow-query-cache { none; };
