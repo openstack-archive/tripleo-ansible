@@ -33,14 +33,25 @@
     insertbefore: BOF
     mode: 0755
 
+- name: Set the var suffix for the cidr
+  set_fact:
+    _public_api_cidr_suffix: '_cidr'
+
+- name: If the bind network is ctlplane the cidr var has a different name
+  set_fact:
+    _public_api_cidr_suffix: '_subnet_cidr'
+  when:
+    - tripleo_designate_bind_network == "ctlplane"
+
 # The following two blocks set the IP on the interface and add a line to
 # ifup-local to make sure the IP persists through reboots or ifup/ifdown
 # cycles. The comment at the end of the line in ifup-local serves as an anchor
 # to the regexp parameter to lineinfile. These will have to be modified when
 # moving to NetworkManager only environments.
-- name: If specified, have the dns service listen on a different IP (version 4)
+- name: If specified, have the dns service listen on a different IP
+  vars:
+    _public_api_netmask: "{{ lookup('vars', tripleo_designate_bind_network + _public_api_cidr_suffix) }}"
   when:
-    - tripleo_dns_listen_interfaces[0]|ipv4
     - (_public_api_interface.interface is defined) and (_public_api_interface.interface|length > 0)
   become: true
   block:
@@ -50,42 +61,15 @@
       register:
         _current_addr_search
 
-    - name: Set the unbound additional IPv4 address on the required device.
-      command: "ip addr add {{ tripleo_dns_listen_interfaces[0] }}/32 dev {{ _public_api_interface.interface }}"
+    - name: Set the unbound additional address on the required device.
+      command: "ip addr add {{ tripleo_dns_listen_interfaces[0] }}/{{ _public_api_netmask }} dev {{ _public_api_interface.interface }}"
       when:
         _current_addr_search.rc == 1
 
-    - name: Add line to ifup-local to make sure unbound's listen IPv4 address is set on restart
+    - name: Add line to ifup-local to make sure unbound's listen address is set on restart
       become: true
       lineinfile:
         path: "/sbin/ifup-local"
-        line: '[ "{{ _public_api_interface.interface }}" == "$1" ] && ip addr add {{ tripleo_dns_listen_interfaces[0] }}/32 dev {{ _public_api_interface.interface }} # Designate collocated DNS services'
-        regexp: 'collocated_unbound_bind'
-        state: present
-
-
-- name: If specified, have the dns service listen on a different IP (version 6)
-  when:
-    - tripleo_dns_listen_interfaces[0]|ipv6
-    - (_public_api_interface.interface is defined) and (_public_api_interface.interface|length > 0)
-  become: true
-  block:
-    - name: Check if the address is already on the device.
-      shell: "ip -o addr show dev {{ _public_api_interface.interface }} | grep {{ tripleo_dns_listen_interfaces[0] }}"
-      failed_when: false
-      register:
-        _current_addr_search
-
-    - name: Set the unbound additional IPv6 address on the required device.
-      command: "ip addr add {{ tripleo_dns_listen_interfaces[0] }}/128 dev {{ _public_api_interface.interface }}"
-      when:
-        _current_addr_search.rc == 1
-
-
-    - name: Add line to ifup-local to make sure unbound's listen IPv6 address is set on restart
-      become: true
-      lineinfile:
-        path: "/sbin/ifup-local"
-        line: '[ "{{ _public_api_interface.interface }}" == "$1" ] && ip addr add {{ tripleo_dns_listen_interfaces[0] }}/128 dev {{ _public_api_interface.interface }} # Designate collocated DNS services'
+        line: '[ "{{ _public_api_interface.interface }}" == "$1" ] && ip addr add {{ tripleo_dns_listen_interfaces[0] }}/{{ _public_api_netmask }} dev {{ _public_api_interface.interface }} # Designate collocated DNS services'
         regexp: 'collocated_unbound_bind'
         state: present
