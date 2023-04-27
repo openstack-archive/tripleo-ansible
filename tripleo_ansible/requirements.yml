@@ -28,6 +28,12 @@ roles:
     version: master
     trackbranch: master
 
+  - name: chrony
+    scm: git
+    src: https://opendev.org/openstack/ansible-role-chrony
+    version: master
+    trackbranch: master
+
 collections:
   - ansible.netcommon
   - ansible.posix
