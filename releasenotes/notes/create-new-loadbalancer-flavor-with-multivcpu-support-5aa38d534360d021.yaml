@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    TripleO creates a new load-balancer flavor for vertical
+    scaling using multiple vCPUs and more RAM now.
