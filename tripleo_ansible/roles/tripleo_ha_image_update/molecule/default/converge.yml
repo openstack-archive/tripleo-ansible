@@ -1,0 +1,50 @@
+---
+# Copyright 2022 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+- name: Converge
+  hosts: all
+  tasks:
+    - name: Update for 'foo-bundle'
+      import_role:
+        name: tripleo_ha_image_update
+      vars:
+        tripleo_ha_image_update_node_names: [centos]
+        tripleo_ha_image_update_bundle: foo-bundle
+        tripleo_ha_image_update_new_image: foo-new:latest
+        tripleo_ha_image_update_old_image: foo:latest
+
+    - name: No-op update for 'bar-bundle'
+      import_role:
+        name: tripleo_ha_image_update
+      vars:
+        tripleo_ha_image_update_node_names: [centos]
+        tripleo_ha_image_update_bundle: bar-bundle
+        tripleo_ha_image_update_new_image: bar:latest
+        tripleo_ha_image_update_old_image: bar:latest
+
+    - name: No-op update for 'gee-bundle' if no hosts are specified
+      import_role:
+        name: tripleo_ha_image_update
+      vars:
+        tripleo_ha_image_update_node_names: []
+        tripleo_ha_image_update_bundle: gee-bundle
+        tripleo_ha_image_update_new_image: gee-new:latest
+        tripleo_ha_image_update_old_image: gee:latest
+
+    - name: Error not detected
+      fail:
+        msg: "Play didn't detect the error properly"
