@@ -21,8 +21,10 @@
   trackbranch: master
 
 # ansible-config_template action plugin
+# Pin config_template for Ansible 2.9 compatibility,
+# details in https://bugs.launchpad.net/tripleo/+bug/2018588
 - name: config_template
   scm: git
   src: https://opendev.org/openstack/ansible-config_template
-  version: master
+  version: 795122864bb33aacac33d71360990b252185eff1
   trackbranch: master
