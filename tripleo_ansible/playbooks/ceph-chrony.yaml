@@ -3,33 +3,14 @@
   hosts: allovercloud
   become: true
   tasks:
-    - name: Configure chrony
+    - name: Load chrony related vars
       import_role:
         name: chrony
-        tasks_from: config.yml
       tags:
         - chrony
       when:
         - chrony_ntp_servers is defined
         - chrony_ntp_servers | length > 0
-    - name: Run chrony
-      import_role:
-        name: chrony
-        tasks_from: run.yml
-      tags:
-        - chrony
-    - name: Run chrony (online)
-      import_role:
-        name: chrony
-        tasks_from: online.yml
-      tags:
-        - chrony
-    - name: Run chrony (sync)
-      import_role:
-        name: chrony
-        tasks_from: sync.yml
-      tags:
-        - chrony
     - name: Run tripleo_timezone
       import_role:
         name: tripleo_timezone
