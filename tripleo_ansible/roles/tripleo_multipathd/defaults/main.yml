@@ -22,5 +22,6 @@ tripleo_container_cli: "{{ container_cli | default('podman') }}"
 tripleo_multipathd_custom_config_file: ''
 tripleo_multipathd_enable: true
 tripleo_multipathd_find_multipaths: true
+tripleo_multipathd_recheck_wwid: true
 tripleo_multipathd_skip_kpartx: true
 tripleo_multipathd_user_friendly_names: false
