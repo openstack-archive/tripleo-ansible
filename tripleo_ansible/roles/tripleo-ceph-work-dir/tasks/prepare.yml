@@ -56,9 +56,8 @@
       vars:
         dashboard_vip: |-
           {% set dashboard_vip = control_virtual_ip %}
-          {% if 'StorageDashboard' in enabled_networks %}
-          {%     set dashboard_vip = net_vip_map.get('storage_dashboard') %}
-          {% endif %}
+          {% set dashboard_net = service_net_map.get('ceph_dashboard_network', 'ctlplane') %}
+          {% set dashboard_vip = net_vip_map.get(dashboard_net) %}
           {{ dashboard_vip }}
         monitoring_stack_vip: |-
           {% set monitoring_vip = control_virtual_ip %}
