@@ -107,6 +107,7 @@
     line: "        {{ item.var }} {{ (item.value|bool) | ternary('yes', 'no') }}"
   loop:
     - {var: find_multipaths, value: "{{tripleo_multipathd_find_multipaths}}"}
+    - {var: recheck_wwid, value: "{{tripleo_multipathd_recheck_wwid}}"}
     - {var: skip_kpartx, value: "{{tripleo_multipathd_skip_kpartx}}"}
     - {var: user_friendly_names, value: "{{tripleo_multipathd_user_friendly_names}}"}
   loop_control:
