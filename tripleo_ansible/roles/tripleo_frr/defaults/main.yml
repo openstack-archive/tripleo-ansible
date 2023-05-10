@@ -68,7 +68,7 @@ tripleo_frr_ipv6_src_ip: ''
 # BGP agent
 tripleo_frr_ovn_bgp_agent_enable: false
 tripleo_frr_ovn_bgp_agent_debug: true
-tripleo_frr_ovn_bgp_agent_reconcile_interval: 120
+tripleo_frr_ovn_bgp_agent_reconcile_interval: 300
 tripleo_frr_ovn_bgp_agent_expose_tenant_networks: false
 tripleo_frr_ovn_bgp_agent_expose_ipv6_gua_tenant_networks: false
 tripleo_frr_ovn_bgp_agent_driver: ovn_bgp_driver
