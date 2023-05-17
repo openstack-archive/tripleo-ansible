@@ -71,6 +71,23 @@
       debug:
         msg: "{{ cephadm_bootstrap }}"
       when: tripleo_cephadm_verbose | bool
+    - name: Ensure tripleo_cephadm_ceph_cli is set
+      include_tasks: ceph_cli.yaml
+      when:
+        - tripleo_cephadm_ceph_cli is not defined
+    - name: Ensure cephadm uses image tags instead of digests
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set mgr mgr/cephadm/use_repo_digest false
+      changed_when: false
+      become: true
+    - name: Set the default container image in ceph configuration
+      command: |
+        {{ tripleo_cephadm_ceph_cli }} config set global container_image \
+        {{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag|string }}
+      changed_when: false
+      become: true
+      when:
+        - not (tripleo_cephadm_default_container | default(false) | bool)
   when:
     - cephadm_ls is defined
     - cephadm_ls.stdout == '[]'

@@ -26,15 +26,6 @@
   become: true
   when: tripleo_cephadm_debug | bool
 
-- name: set default container image in ceph configuration
-  command: |
-    {{ tripleo_cephadm_ceph_cli }} config set global container_image \
-    {{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}
-  changed_when: false
-  become: true
-  when:
-    - not (tripleo_cephadm_default_container | default(false) | bool)
-
 - name: enforce minimum ceph clients version
   command: |
     {{ tripleo_cephadm_ceph_cli }} osd set-require-min-compat-client \
