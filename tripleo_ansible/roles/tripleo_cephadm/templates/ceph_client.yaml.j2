@@ -3,13 +3,11 @@ tripleo_ceph_client_fsid: {{ tripleo_cephadm_fsid }}
 tripleo_ceph_client_cluster: {{ tripleo_cephadm_cluster }}
 external_cluster_mon_ips: "{{ external_cluster_mon_ips }}"
 keys:
-{% for ceph_key_cmd in tripleo_cephadm_client_keys.results %}
-{%   for cephx in (ceph_key_cmd.stdout | from_json) %}
-- name: {{ cephx.entity }}
+{% for cephx in tripleo_cephadm_keys %}
+- name: {{ cephx.name }}
   key: {{ cephx.key }}
   caps:
-{%     for key, value in cephx.caps.items() %}
+{%  for key, value in cephx.caps.items() %}
     {{ key }}: {{ value }}
-{%     endfor %}
-{%   endfor %}
+{%  endfor %}
 {% endfor %}

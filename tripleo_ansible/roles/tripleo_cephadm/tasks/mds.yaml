@@ -42,31 +42,23 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
 
-- name: create filesystem pools
-  ceph_pool:
-    name: "{{ item.name }}"
-    cluster: "{{ tripleo_cephadm_cluster }}"
-    pg_num: "{{ item.pg_num | default(omit) }}"
-    pgp_num: "{{ item.pgp_num | default(omit) }}"
-    size: "{{ item.size | default(omit) }}"
-    min_size: "{{ item.min_size | default(omit) }}"
-    pool_type: "{{ item.type | default('replicated') }}"
-    rule_name: "{{ item.rule_name | default(omit) }}"
-    erasure_profile: "{{ item.erasure_profile | default(omit) }}"
-    pg_autoscale_mode: "{{ item.pg_autoscale_mode | default(omit) }}"
-    target_size_ratio: "{{ item.target_size_ratio | default(omit) }}"
-  environment:
-    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
-    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
-  with_items: "{{ cephfs_pools }}"
+- name: Create filesystem Pools
   become: true
+  block:
+    - name: Get ceph_cli
+      include_tasks: ceph_cli.yaml
+
+    - name: Create cephfs pools
+      command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
+      loop: "{{ cephfs_pools | default([]) }}"
   vars:
     cephfs_pools:
       - "{{ cephfs_data_pool }}"
       - "{{ cephfs_metadata_pool }}"
+  when:
+    - cephfs_data_pool is defined
+    - cephfs_metadata_pool is defined
 
 - name: create ceph filesystem
   ceph_fs:
@@ -78,4 +70,3 @@
   environment:
     CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
     CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"

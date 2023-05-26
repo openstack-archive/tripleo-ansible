@@ -13,5 +13,20 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-mock_ceph_keys: [{'name': 'client.openstack', 'key': 'AQATZBBgAAAAABAAUl/GZvcldk6G74AoZ2v2rg==', 'mode': '0600', 'caps': {'mgr': 'allow *', 'mon': 'profile rbd', 'osd': 'profile rbd pool=vms, profile rbd pool=volumes, profile rbd pool=images'}}]
+#
+- name: Selinux context
+  block:
+    - name: Set fcontext on ceph config and admin keyring
+      become: true
+      sefcontext:
+        target: "{{ item }}"
+        setype: etc_t
+        state: present
+      with_items:
+        - "{{ tripleo_cephadm_conf }}"
+        - "{{ tripleo_cephadm_admin_keyring }}"
+      when:
+        - ansible_facts.selinux.status == "enabled"
+    - name: Restorecon on config directory
+      become: true
+      command: "restorecon -R -v {{ tripleo_cephadm_config_home }}"

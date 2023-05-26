@@ -41,3 +41,6 @@
   changed_when: false
   become: true
   loop: "{{ tripleo_cephadm_toggle_cmds }}"
+
+- name: Selinux
+  include_tasks: selinux.yaml

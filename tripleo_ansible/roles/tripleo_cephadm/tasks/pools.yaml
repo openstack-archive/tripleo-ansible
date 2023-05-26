@@ -17,26 +17,22 @@
 # Assumes the following module is in ANSIBLE_LIBRARY=/usr/share/ansible/library/
 #   https://github.com/ceph/ceph-ansible/blob/master/library/ceph_pool.py
 
-- name: Create pool(s)
-  ceph_pool:
-    name: "{{ item.name }}"
-    cluster: "{{ tripleo_cephadm_cluster }}"
-    pg_num: "{{ item.pg_num | default(omit) }}"
-    pgp_num: "{{ item.pgp_num | default(omit) }}"
-    pg_autoscale_mode: "{{ item.pg_autoscale_mode | default(omit) }}"
-    target_size_ratio: "{{ item.target_size_ratio | default(omit) }}"
-    size: "{{ item.size | default(omit) }}"
-    min_size: "{{ item.min_size | default(omit) }}"
-    pool_type: "{{ item.type | default('replicated') }}"
-    rule_name: "{{ item.rule_name | default(omit) }}"
-    erasure_profile: "{{ item.erasure_profile | default(omit) }}"
-    application: "{{ item.application | default(omit) }}"
-  environment:
-    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
-    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-    CEPH_FSID: "{{ tripleo_cephadm_fsid }}"
+
+- name: Create Ceph Pools
   become: true
-  with_items: "{{ tripleo_cephadm_pools }}"
+  block:
+    - name: Get ceph_cli
+      include_tasks: ceph_cli.yaml
+
+    - name: Create pool
+      command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
+      loop: "{{ tripleo_cephadm_pools | default([]) }}"
+      changed_when: false
+
+    - name: Enable application on Ceph pools
+      command: "{{ tripleo_cephadm_ceph_cli }} osd pool application enable {{ item.name }} {{ item.application }}"
+      loop: "{{ tripleo_cephadm_pools | default([]) }}"
+      changed_when: false
   when:
     - tripleo_cephadm_pools is defined
     - tripleo_cephadm_pools | length > 0

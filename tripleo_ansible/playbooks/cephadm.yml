@@ -28,6 +28,11 @@
       when:
         - not tripleo_cephadm_deployed_ceph | bool
 
+    - name: Selinux
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: selinux
+
     - name: Apply ceph_conf_overrides on update
       import_role:
         name: tripleo_cephadm
@@ -116,3 +121,8 @@
       vars:
         tripleo_ceph_distribute_keys_config_home: "{{ tripleo_cephadm_config_home | default('/etc/ceph') }}"
         tripleo_ceph_distribute_keys_cluster: "{{ tripleo_cephadm_cluster | default('ceph') }}"
+
+    - name: Selinux
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: selinux

@@ -46,7 +46,7 @@
         tasks_from: export
       vars:
         ceph_mon_dump: "{{ ceph_mon_mock_dump }}"
-        tripleo_cephadm_client_keys: "{{ mock_ceph_keys }}"
+        tripleo_cephadm_keys: "{{ mock_ceph_keys }}"
 
     - name: Run verify tasks
       include_tasks: tasks/verify.yml
