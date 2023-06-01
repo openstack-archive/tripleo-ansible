@@ -25,7 +25,7 @@
       include_tasks: ceph_cli.yaml
 
     - name: Create pool
-      command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
+      command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name | default('replicated_rule') }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
       loop: "{{ tripleo_cephadm_pools | default([]) }}"
       changed_when: false
 

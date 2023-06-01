@@ -25,7 +25,7 @@
       --interactive
       {% endif %}
       --volume {{ tripleo_cephadm_config_home }}:/etc/ceph:z
-      {% if not external_cluster|default(false) -%}
+      {% if not (external_cluster|default(false) or crush_rules|default(false)) -%}
       --volume {{ tripleo_cephadm_assimilate_conf }}:{{ tripleo_cephadm_assimilate_conf_container }}:z
       {% endif %}
       {% if mount_spec|default(false) %}
