@@ -66,7 +66,7 @@
   block:
     - name: Fetch latest repo version
       uri:
-        url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}/current/delorean.repo
+        url: https://trunk.rdoproject.org/centos{{ ansible_facts['distribution_major_version'] }}-wallaby/current/delorean.repo
         return_content: true
       register: tripleo_packages
 
