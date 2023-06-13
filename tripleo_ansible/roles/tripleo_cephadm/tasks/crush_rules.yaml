@@ -21,8 +21,10 @@
   include_tasks: ceph_cli.yaml
   vars:
     admin_daemon: true
+    crush_rules: true
 
 - name: create configured crush rules
+  become: true
   ceph_crush_rule:
     name: "{{ item.name }}"
     cluster: "{{ tripleo_cephadm_cluster }}"
@@ -37,6 +39,7 @@
   run_once: true
 
 - name: get id for new default crush rule
+  become: true
   ceph_crush_rule:
     name: "{{ item.name }}"
     cluster: "{{ tripleo_cephadm_cluster }}"
@@ -57,13 +60,10 @@
   run_once: true
   when: not item.get('skipped', false)
 
-- name: insert new default crush rule into daemon to prevent restart
-  command: |
-    {{ tripleo_cephadm_ceph_cli }} --admin-daemon /var/run/ceph/{{ tripleo_cephadm_cluster }}-mon.{{ hostvars[item].canonical_hostname }}.asok \
-    config set osd_pool_default_crush_rule {{ info_ceph_default_crush_rule_yaml.rule_id }}
-  changed_when: false
-  delegate_to: "{{ item }}"
+- name: Set default crush rule
+  include_tasks: crush/default_crush_rule.yaml
   with_items: "{{ groups['ceph_mon'] }}"
-  run_once: true
+  vars:
+    mon_instance: '{{ item }}'
   when:
     - info_ceph_default_crush_rule_yaml | default('') | length > 0
