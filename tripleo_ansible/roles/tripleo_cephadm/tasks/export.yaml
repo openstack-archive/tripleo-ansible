@@ -57,6 +57,17 @@
   set_fact:
     external_cluster_mon_ips: "{{ tripleo_cephadm_mons_list | join(',') }}"
 
+- name: Verify the keyring
+  include_tasks: check_keyring.yaml
+  vars:
+    current_key: "{{ item.name }}"
+  loop: "{{ tripleo_cephadm_keys| default([]) }}"
+  when:
+    - tripleo_cephadm_keys is defined
+    - tripleo_cephadm_keys | length > 0
+  tags:
+    - cephadm_extract_keys
+
 - name: Ensure tripleo_ceph_client_vars path exists
   file:
     path: "{{ tripleo_ceph_client_vars | dirname }}"
