@@ -1,0 +1,270 @@
+---
+# Copyright 2023 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Initialize undercloud facts
+  hosts: undercloud
+  gather_facts: true
+  tasks:
+    - name: Register undercloud variabled
+      set_fact:
+        backup_folder_path: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
+        keys_folder_path: "/home/{{ ansible_user_id }}/.ssh"
+        key_name: "{{ key_name | default('id_rsa') }}"
+        key_size: "{{ key_size | default('4096') }}"
+        tripleo_key_name: "{{ tripleo_key_name | default('id_rsa_tripleo') }}"
+        keep_old_key_authorized_keys: "{{ keep_old_key_authorized_keys | default(true) }}"
+    - debug: var=ansible_user_id
+    - debug: var=backup_folder_path
+    - debug: var=keys_folder_path
+    - debug: var=tripleo_key_name
+
+- name: Initialize tripleo-admin overcloud facts
+  hosts: allovercloud
+  gather_facts: true
+  vars:
+    ansible_ssh_user: tripleo-admin
+  tasks:
+    - name: Register overcloud variabled
+      set_fact:
+        tripleo_backup_folder_path: "/home/tripleo-admin/backup_keys/{{ ansible_date_time.epoch }}"
+    - debug: var=tripleo_backup_folder_path
+
+- name: Initialize overcloud facts
+  hosts: allovercloud
+  gather_facts: true
+  tasks:
+    - name: Register overcloud variabled
+      set_fact:
+        backup_folder_path: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
+        keep_old_key_authorized_keys: "{{ keep_old_key_authorized_keys | default(true) }}"
+    - debug: var=backup_folder_path
+
+- name: Create temporary directory
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Register undercloud public key path
+      set_fact:
+        original_public_key_path: "{{ backup_folder_path }}/{{ key_name }}.pub"
+    - name: Create temp folder
+      tempfile:
+        state: directory
+      register: temp_folder
+    - debug: var=temp_folder
+    - name: Register undercloud new keys temp path
+      set_fact:
+        temp_folder_path: "{{ temp_folder.path }}"
+    - name: Register undercloud new private key path
+      set_fact:
+        temp_private_key_path: "{{ temp_folder_path }}/{{ key_name }}"
+    - name: Register undercloud new public key path
+      set_fact:
+        temp_public_key_path: "{{ temp_private_key_path }}.pub"
+
+- name: Backup stack undercloud keys
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Check if tripleo key exists
+      stat:
+        path: "{{ keys_folder_path }}/{{ tripleo_key_name }}"
+      register: tripleo_key_exists
+    - debug: var=tripleo_key_exists
+    - name: Copy private key
+      copy:
+        backup: true
+        src: "{{ keys_folder_path }}/{{ key_name }}"
+        dest: "{{ backup_folder_path }}/"
+    - name: Copy public key
+      copy:
+        backup: true
+        src: "{{ keys_folder_path }}/{{ key_name }}.pub"
+        dest: "{{ backup_folder_path }}/"
+    - name: Copy tripleo private key
+      copy:
+        backup: true
+        src: "{{ keys_folder_path }}/{{ tripleo_key_name }}"
+        dest: "{{ backup_folder_path }}/"
+      when: tripleo_key_exists.stat.exists
+    - name: Copy tripleo public key
+      copy:
+        backup: true
+        src: "{{ keys_folder_path }}/{{ tripleo_key_name }}.pub"
+        dest: "{{ backup_folder_path }}/"
+      when: tripleo_key_exists.stat.exists
+
+- name: Create overcloud backup directory
+  hosts: allovercloud
+  gather_facts: false
+  tasks:
+    - name: Create backup folder
+      file:
+        path: "{{ backup_folder_path }}"
+        state: directory
+        mode: '700'
+
+- name: Create overcloud tripleo-admin backup directory
+  hosts: allovercloud
+  gather_facts: false
+  vars:
+    ansible_ssh_user: tripleo-admin
+  tasks:
+    - name: Create backup folder
+      file:
+        path: "{{ tripleo_backup_folder_path }}"
+        state: directory
+        mode: '700'
+
+- name: Backup overcloud keys
+  hosts: allovercloud
+  gather_facts: false
+  tasks:
+  - name: Backup .ssh folder
+    copy:
+      backup: true
+      src: /home/{{ ansible_user_id }}/.ssh/
+      dest: "{{ backup_folder_path }}/"
+      remote_src: true
+
+- name: Backup overcloud tripleo-admin keys
+  hosts: allovercloud
+  gather_facts: false
+  vars:
+    ansible_ssh_user: tripleo-admin
+  tasks:
+  - name: Backup .ssh folder
+    copy:
+      backup: true
+      src: /home/tripleo-admin/.ssh/
+      dest: "{{ tripleo_backup_folder_path }}/"
+      remote_src: true
+
+- name: Generate new stack keys in temporary directory
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Register base command for generating the new key
+      set_fact:
+        generate_key_command: "ssh-keygen -q -f {{ temp_private_key_path }} -N ''"
+    - name: Add key_size option to key generation command if requested
+      set_fact:
+        generate_key_command: "{{ generate_key_command }} -b {{ key_size }}"
+      when: key_size is defined
+    - name: Generate private key
+      shell: "{{ generate_key_command }}"
+      register: ssh_output
+    - debug: var=ssh_output
+
+- name: Add stack key to overcloud authorized_keys
+  hosts: allovercloud
+  gather_facts: false
+  tasks:
+    - name: Add generated key to authorized_keys
+      authorized_key:
+        user: "{{ ansible_user_id }}"
+        state: present
+        key: "{{ lookup('file', hostvars['undercloud']['temp_public_key_path']) }}"
+
+- name: Add stack key to overcloud tripleo-admin authorized_keys
+  hosts: allovercloud
+  gather_facts: false
+  vars:
+    ansible_ssh_user: tripleo-admin
+  tasks:
+    - name: Add generated key to authorized_keys
+      authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: present
+        key: "{{ lookup('file', hostvars['undercloud']['temp_public_key_path']) }}"
+
+- name: Replace old public and private keys for the deployment user on undercloud
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Add generated key to authorized_keys
+      authorized_key:
+        user: "{{ ansible_user_id }}"
+        state: present
+        key: "{{ lookup('file', '{{ temp_public_key_path }}') }}"
+    - name: Copy private key to .ssh/
+      copy:
+        src: "{{ temp_private_key_path }}"
+        dest: "{{ keys_folder_path }}/"
+    - name: Copy public key to .ssh/
+      copy:
+        src: "{{ temp_public_key_path }}"
+        dest: "{{ keys_folder_path }}/"
+    - name: Copy private key to .ssh/ for tripleo
+      copy:
+        src: "{{ temp_private_key_path }}"
+        dest: "{{ keys_folder_path }}/{{ tripleo_key_name }}"
+    - name: Copy public key to .ssh/ for tripleo
+      copy:
+        src: "{{ temp_public_key_path }}"
+        dest: "{{ keys_folder_path }}/{{ tripleo_key_name }}.pub"
+
+- name: Remove old stack key from overcloud authorized_keys
+  hosts: allovercloud
+  gather_facts: false
+  tasks:
+    - name: Remove old keys from authorized_keys
+      authorized_key:
+        user: "{{ ansible_user_id }}"
+        state: absent
+        key: "{{ lookup('file', hostvars['undercloud']['original_public_key_path']) }}"
+      when: not keep_old_key_authorized_keys
+
+- name: Remove old stack key from tripleo-admin overcloud authorized_keys
+  hosts: allovercloud
+  gather_facts: false
+  vars:
+    ansible_ssh_user: tripleo-admin
+  tasks:
+    - name: Remove old keys from authorized_keys
+      authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: absent
+        key: "{{ lookup('file', hostvars['undercloud']['original_public_key_path']) }}"
+      when: not keep_old_key_authorized_keys
+
+- name: Remove old stack key from undercloud authorized_keys
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Remove old keys from authorized_keys
+      authorized_key:
+        user: "{{ ansible_user_id }}"
+        state: absent
+        key: "{{ lookup('file', '{{ original_public_key_path }}') }}"
+      when: not keep_old_key_authorized_keys
+
+- name: Remove undercloud temporary directory
+  hosts: undercloud
+  gather_facts: false
+  tasks:
+    - name: Remove temp folder
+      become: true
+      file:
+        path: "{{ temp_folder_path }}"
+        state: absent
+
+- name: Test overcloud is reacheable
+  hosts: allovercloud
+  gather_facts: false
+  tasks:
+    - name: ssh to overcloud nodes from undercloud
+      shell: ssh heat-admin@{{ ansible_host }} exit
+      delegate_to: undercloud
