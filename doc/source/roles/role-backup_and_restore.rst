@@ -70,6 +70,37 @@ in which we will like to install ReaR.
     - role: backup_and_restore
   EOF
 
+There are cases where the default configuration of ReaR must be customized
+for adding extra parameters. These parameters can help to fix restore problems
+in the source environments. For instance, if a source environment with an LVM
+filesystem has issues in the geometry of the volumes, it is possible to override
+how MKFS will behave when formatting the partitions and forcing the tool
+to recalculate all the volumes geometry.
+
+In this case, if the `MKFS_XFS_OPTIONS` option is set to `'" "'` it will force
+mkfs.xfs to recalculate all the geometry instead of using the data from the
+source images.
+
+::
+
+  cat <<'EOF' > ~/bar_rear_setup_custom_configuration.yaml
+  # Playbook
+  # We install and configure ReaR in the control plane nodes
+  # As they are the only nodes we will like to backup now.
+  - become: true
+    hosts: Controller
+    name: Install ReaR
+    vars:
+      tripleo_backup_and_restore_local_config:
+        MKFS_XFS_OPTIONS: '" "'
+    roles:
+    - role: backup_and_restore
+  EOF
+
+Make sure that if you override the `tripleo_backup_and_restore_local_config`
+variable you include all the default options and values for all the mandatory
+parameters that must be in the local ReaR configuration.
+
 Now we create the playbook to create the actual backup.
 
 ::
