@@ -266,5 +266,5 @@
   gather_facts: false
   tasks:
     - name: ssh to overcloud nodes from undercloud
-      shell: ssh heat-admin@{{ ansible_host }} exit
+      shell: ssh tripleo-admin@{{ ansible_host }} exit
       delegate_to: undercloud
