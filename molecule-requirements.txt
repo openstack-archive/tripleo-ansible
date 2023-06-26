@@ -9,7 +9,7 @@ pytest-cov
 pytest-html
 pytest-xdist
 mock
-molecule>=3.3.4
+molecule<5.0.0
 molecule-podman>=1.0.0a1
 ruamel.yaml
 testinfra
@@ -30,6 +30,3 @@ jsonschema  # MIT
 # Upstream requirements from constraints.txt
 tripleo-common
 os-net-config  # Apache-2.0
-# LP#2018311 workaround
-# More: https://github.com/ansible-community/molecule/issues/3903
-ansible-compat<=4.0.0
