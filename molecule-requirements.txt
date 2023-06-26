@@ -2,6 +2,7 @@
 ansi2html
 # https://github.com/sqlalchemy/dogpile.cache/issues/178 (openstacksdk)
 dogpile.cache>=0.6.5,!=0.9.1  # MIT
+openstacksdk<1.3.0;python_version<"3.7"
 openstacksdk
 pytest
 pytest-cov
