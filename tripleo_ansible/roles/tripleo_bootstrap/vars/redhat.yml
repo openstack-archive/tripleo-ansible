@@ -28,3 +28,4 @@ _tripleo_bootstrap_packages_bootstrap:
   - rsync
   - tmpwatch
   - sysstat
+  - iproute-tc
