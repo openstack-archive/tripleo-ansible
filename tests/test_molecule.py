@@ -17,6 +17,8 @@ import subprocess
 import pytest
 import yaml
 
+BASECMD = ['python', '-m', 'molecule']
+
 
 def set_proper_molecule_config(role_path):
     mol_config_file = "config.yml"
@@ -33,10 +35,10 @@ def set_proper_molecule_config(role_path):
 
 
 def test_molecule(pytestconfig):
-    cmd = ['python', '-m', 'molecule']
+    cmd = BASECMD
+    cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
     scenario = pytestconfig.getoption("scenario")
     ansible_args = pytestconfig.getoption("ansible_args")
-    cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
 
     if ansible_args:
         cmd.append('converge')
@@ -55,8 +57,9 @@ def test_molecule(pytestconfig):
         assert subprocess.call(cmd) == 0
     finally:
         if ansible_args:
-            cmd = ['python', '-m', 'molecule', 'destroy']
+            cmd = BASECMD
             cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
+            cmd.append('destroy')
             if scenario:
                 cmd.extend(['--scenario-name', scenario])
             subprocess.call(cmd)
