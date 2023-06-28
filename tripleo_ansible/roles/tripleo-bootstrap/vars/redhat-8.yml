@@ -27,6 +27,7 @@ _tripleo_bootstrap_packages_bootstrap:
   - puppet-tripleo
   - rsync
   - tmpwatch
+  - iproute-tc
 
 _tripleo_bootstrap_legacy_network_packages:
   - network-scripts
