@@ -7,12 +7,12 @@ openstacksdk
 pytest
 pytest-cov
 pytest-html
+pytest-testinfra
 pytest-xdist
 mock
 molecule<5.0.0
 molecule-podman>=1.0.0a1
 ruamel.yaml
-testinfra
 netaddr
 jinja2
 cryptography

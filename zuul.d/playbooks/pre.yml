@@ -30,7 +30,7 @@
 
     - name: Ensure a recent version of pip is installed in virtualenv
       pip:
-        name: "pip<20.3.0"
+        name: "pip"
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         state: latest
@@ -42,7 +42,7 @@
         virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
         extra_args: >-
-          --constraint "{{ tripleo_ansible_project_path }}/ansible-requirements.txt"
+          -r "{{ tripleo_ansible_project_path }}/ansible-requirements.txt"
 
     - name: Display test-python virtualenv package versions
       shell: |-

@@ -58,8 +58,7 @@ def test_molecule(pytestconfig):
     finally:
         if ansible_args:
             cmd = BASECMD
-            cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd())])
-            cmd.append('destroy')
+            cmd.extend(['--base-config', set_proper_molecule_config(os.getcwd()), 'destroy'])
             if scenario:
                 cmd.extend(['--scenario-name', scenario])
             subprocess.call(cmd)
