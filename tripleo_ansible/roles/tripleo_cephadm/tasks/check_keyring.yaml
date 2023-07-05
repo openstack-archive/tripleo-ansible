@@ -1,5 +1,5 @@
 ---
-# Copyright 2021 Red Hat, Inc.
+# Copyright 2023 Red Hat, Inc.
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,20 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-- name: Selinux context
-  block:
-    - name: Set fcontext on ceph config and admin keyring
-      become: true
-      sefcontext:
-        seuser: system_u
-        target: "{{ item }}"
-        setype: etc_t
-        state: present
-      with_items:
-        - "{{ tripleo_cephadm_conf }}"
-        - "{{ tripleo_cephadm_admin_keyring }}"
-      when:
-        - ansible_facts.selinux.status == "enabled"
-    - name: Restorecon on config directory
-      become: true
-      command: "restorecon -R -v {{ tripleo_cephadm_config_home }}"
+- name: Get the keyring {{ current_key }} in ceph cluster
+  command: "{{ tripleo_cephadm_ceph_cli }} auth get {{ current_key }}"
+  become: true
+  register: result
+  failed_when: false
+  changed_when: false
+
+- name: Fail if keyring {{ current_key }} is not available
+  fail:
+    msg: "couldn't find keyring {{ current_key }}"
+  when: result.rc != 0
