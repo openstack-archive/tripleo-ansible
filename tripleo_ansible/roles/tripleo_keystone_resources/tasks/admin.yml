@@ -68,6 +68,7 @@
     user: admin
     project: admin
     role: admin
+    domain: default
 
 - name: Assign _member_ role to admin project for admin user
   openstack.cloud.role_assignment:
@@ -75,6 +76,7 @@
     user: admin
     project: admin
     role: '_member_'
+    domain: default
   when:
     - keystone_enable_member | default(tripleo_keystone_resources_member_role_enabled)
 
