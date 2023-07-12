@@ -8,13 +8,22 @@
     no_security_groups: True
     name: "designate-{{ item }}-integration-port"
   register: _dns_designate_ports
-  with_items:
-    - "{{ hosts_for_ports }}"
+  loop: "{{ hosts_for_ports }}"
 
-- name: Set the unbound host ip fact
+- name: Record the new IP as a host fact
   set_fact:
     tripleo_dns_listen_interfaces: "[ '{{ item.port.fixed_ips[0].ip_address }}' ]"
   delegate_to: "{{ item.item }}"
   delegate_facts: true
-  with_items:
-    - "{{ _dns_designate_ports.results }}"
+  loop: "{{ _dns_designate_ports.results }}"
+
+- name: Generate list of extra IPs for allow_notify
+  set_fact:
+    gather_tripleo_other_allow_notify: "{% for bind_node in (hosts_for_ports) %}{{ hostvars[bind_node].tripleo_dns_listen_interfaces[0] }}, {%endfor%}"
+
+- name: distribute other host IPs for configuring allow lists
+  set_fact:
+    tripleo_other_allow_notify: "{{ gather_tripleo_other_allow_notify[:-2].split(',') | list }}"
+  delegate_facts: true
+  delegate_to: "{{ item }}"
+  loop: "{{ hosts_for_ports }}"

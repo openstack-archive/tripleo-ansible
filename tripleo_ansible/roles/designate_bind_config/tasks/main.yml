@@ -12,26 +12,48 @@
     dest: "{{ designate_named_conf_path }}/named/options.conf"
   vars:
     notify_sources: "{{ designate_worker_node_ips }}"
+  register: _options_result
 
 - name: generate named/rndc.conf
   become: true
   template:
     src: rndc.conf.j2
     dest: "{{ designate_named_conf_path}}/named/rndc.conf"
+  register: _rndc_result
 
 - name: generate named/logging.conf
   become: true
   template:
     src: logging.conf.j2
     dest: "{{ designate_named_conf_path}}/named/logging.conf"
+  register: _logging_result
 
 - name: generate named.conf
   become: true
   template:
     src: named.conf.j2
     dest: "{{ designate_named_conf_path}}/named.conf"
+  register: _named_conf_result
 
 - include_tasks: configure_interfaces.yml
   when:
     - tripleo_designate_bind_network is defined
     - tripleo_dns_listen_interfaces is defined
+
+- name: Restart bind server
+  when:
+    - _options_result.changed or _rndc_result.changed or _logging_result.changed or _named_conf_result.changed
+  block:
+    - name: check if tripleo_designate_backend_bind9 is active
+      become: true
+      shell: systemctl is-active --quiet tripleo_designate_backend_bind9
+      failed_when: false
+      register: bind_active_service
+
+    - name: Restart the bind backend
+      become: true
+      systemd:
+        name: tripleo_designate_backend_bind9
+        state: restarted
+      when:
+        - bind_active_service.rc == 0
