@@ -21,6 +21,8 @@ import jsonschema
 import os
 import yaml
 
+from openstack.exceptions import ResourceNotFound
+
 RES_ID = 'physical_resource_id'
 TYPE_NET = 'OS::Neutron::Net'
 TYPE_SUBNET = 'OS::Neutron::Subnet'
@@ -460,14 +462,16 @@ def get_overcloud_network_resources(conn, stack_name):
         if net.name == 'NetworkExtraConfig':
             continue
         network_resource_dict[net.name] = dict()
-        for res in conn.orchestration.resources(net.physical_resource_id):
-            if res.resource_type == TYPE_SEGMENT:
-                continue
-            network_resource_dict[net.name][res.name] = {
-                RES_ID: res.physical_resource_id,
-                RES_TYPE: res.resource_type
-            }
-
+        try:
+            for res in conn.orchestration.resources(net.physical_resource_id):
+                if res.resource_type == TYPE_SEGMENT:
+                    continue
+                network_resource_dict[net.name][res.name] = {
+                    RES_ID: res.physical_resource_id,
+                    RES_TYPE: res.resource_type
+                }
+        except ResourceNotFound:
+            continue
     return network_resource_dict
 
 
