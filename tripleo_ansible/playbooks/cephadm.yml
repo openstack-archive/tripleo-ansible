@@ -107,6 +107,11 @@
         name: tripleo_cephadm
         tasks_from: export
 
+    - name: Ensure that Ceph orchestrator is responsive
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: monitor_ceph_orch
+
     - name: Show the Ceph cluster status
       import_role:
         name: tripleo_cephadm
