@@ -35,9 +35,10 @@ roles:
     trackbranch: master
 
 collections:
-  - ansible.netcommon
-  - ansible.posix
-  - community.general
-  - openstack.cloud
-  - containers.podman
-  - community.crypto
+  - name: ansible.netcommon
+  - name: ansible.posix
+  - name: community.general
+  - name: openstack.cloud
+    version: 1.9.1
+  - name: containers.podman
+  - name: community.crypto
