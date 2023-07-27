@@ -32,7 +32,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
     def test_metal_roles_based_spec(self):
         """verify we can build a ceph spec and supporting data
-           structures from a mealsmith and tripleo roles file
+           structures from a metalsmith and tripleo roles file
         """
         ceph_service_types = ['mon', 'mgr', 'osd']
         metal = "roles/tripleo_cephadm/molecule/default/mock/mock_deployed_metal.yaml"
@@ -124,7 +124,7 @@ class TestCephSpecBootstrap(tests_base.TestCase):
 
     def test_metal_roles_based_spec_with_tld(self):
         """verify we can build a ceph spec with tld and supporting data
-           structures from a mealsmith and tripleo roles file
+           structures from a metalsmith and tripleo roles file
         """
         ceph_service_types = ['mon', 'mgr', 'osd']
         metal = "roles/tripleo_cephadm/molecule/default/mock/mock_deployed_metal.yaml"
@@ -203,6 +203,90 @@ class TestCephSpecBootstrap(tests_base.TestCase):
                 'service_id': 'default_drive_group',
                 'placement': {
                     'hosts': ['oc0-ceph-0.abc.local', 'oc0-ceph-1.abc.local', 'oc0-ceph-2.abc.local']
+                },
+                'data_devices': {'all': True}
+            }
+        ]
+        for index in range(0, len(expected)):
+            if expected[index].get('service_type', '') == 'host':
+                expected[index].get('labels', {}).sort()
+                specs[index].get('labels', {}).sort()
+
+        self.assertEqual(specs, expected)
+
+    def test_metal_roles_based_spec_edge_site(self):
+        """verify we can build a ceph spec and supporting data
+           structures from a metalsmith and tripleo roles file for edge sites
+        """
+        ceph_service_types = ['mon', 'mgr', 'osd']
+        metal = "roles/tripleo_cephadm/molecule/default/mock/mock_deployed_metal_edge_site.yaml"
+        tripleo_roles = "roles/tripleo_cephadm/molecule/default/mock/mock_overcloud_roles_edge_site.yaml"
+        tld = ""
+        roles_to_svcs = ceph_spec_bootstrap.get_roles_to_svcs_from_roles(tripleo_roles)
+        expected = {
+            'DistributedComputeHCI': ['CephMgr', 'CephMon', 'CephOSD'],
+            'DistributedComputeHCIScaleOut': ['CephOSD'],
+            'DistributedComputeScaleOut': []}
+        self.assertEqual(roles_to_svcs, expected)
+
+        roles = roles_to_svcs.keys()
+        roles_to_hosts = ceph_spec_bootstrap.get_deployed_roles_to_hosts(metal, roles, tld)
+        expected = {
+            'DistributedComputeHCI': ['oc0-distributedcomputehci-0', 'oc0-distributedcomputehci-1', 'oc0-distributedcomputehci-2'],
+            'DistributedComputeHCIScaleOut': ['oc0-distributedcomputehciscaleout-0'],
+            'DistributedComputeScaleOut': ['oc0-distributedcomputescaleout-0'],
+        }
+        self.assertEqual(roles_to_hosts, expected)
+
+        hosts_to_ips = ceph_spec_bootstrap.get_deployed_hosts_to_ips(metal, tld)
+        expected = {'oc0-distributedcomputehci-0': '192.168.24.13',
+                    'oc0-distributedcomputehci-1': '192.168.24.11',
+                    'oc0-distributedcomputehci-2': '192.168.24.14',
+                    'oc0-distributedcomputehciscaleout-0': '192.168.24.21',
+                    'oc0-distributedcomputescaleout-0': '192.168.24.23'}
+        self.assertEqual(hosts_to_ips, expected)
+
+        label_map = ceph_spec_bootstrap.get_label_map(hosts_to_ips, roles_to_svcs,
+                                                      roles_to_hosts, ceph_service_types)
+        expected = {'oc0-distributedcomputehci-0': ['mgr', 'mon', '_admin', 'osd'],
+                    'oc0-distributedcomputehci-1': ['mgr', 'mon', '_admin', 'osd'],
+                    'oc0-distributedcomputehci-2': ['mgr', 'mon', '_admin', 'osd'],
+                    'oc0-distributedcomputehciscaleout-0': ['osd'],
+                    'oc0-distributedcomputescaleout-0': []}
+        self.assertEqual(label_map, expected)
+
+        specs = ceph_spec_bootstrap.get_specs(hosts_to_ips, label_map, ceph_service_types)
+        expected = [
+            {'service_type': 'host', 'addr': '192.168.24.13',
+             'hostname': 'oc0-distributedcomputehci-0', 'labels': ['mgr', 'mon', '_admin', 'osd']},
+            {'service_type': 'host', 'addr': '192.168.24.11',
+             'hostname': 'oc0-distributedcomputehci-1', 'labels': ['mgr', 'mon', '_admin', 'osd']},
+            {'service_type': 'host', 'addr': '192.168.24.14',
+             'hostname': 'oc0-distributedcomputehci-2', 'labels': ['mgr', 'mon', '_admin', 'osd']},
+            {'service_type': 'host', 'addr': '192.168.24.21',
+             'hostname': 'oc0-distributedcomputehciscaleout-0', 'labels': ['osd']},
+            {
+                'service_type': 'mon',
+                'service_name': 'mon',
+                'service_id': 'mon',
+                'placement': {
+                    'hosts': ['oc0-distributedcomputehci-0', 'oc0-distributedcomputehci-1', 'oc0-distributedcomputehci-2']
+                }
+            },
+            {
+                'service_type': 'mgr',
+                'service_name': 'mgr',
+                'service_id': 'mgr',
+                'placement': {
+                    'hosts': ['oc0-distributedcomputehci-0', 'oc0-distributedcomputehci-1', 'oc0-distributedcomputehci-2']
+                }
+            },
+            {
+                'service_type': 'osd',
+                'service_name': 'osd.default_drive_group',
+                'service_id': 'default_drive_group',
+                'placement': {
+                    'hosts': ['oc0-distributedcomputehci-0', 'oc0-distributedcomputehci-1', 'oc0-distributedcomputehci-2', 'oc0-distributedcomputehciscaleout-0']
                 },
                 'data_devices': {'all': True}
             }

@@ -286,7 +286,7 @@ def get_deployed_roles_to_hosts(metalsmith_data_file, roles, tld):
                 for item in metal['parameter_defaults']:
                     if item == role + 'HostnameFormat':
                         host_fmt = metal['parameter_defaults'][item]
-                        pat = host_fmt.replace('%stackname%', '.*').replace('-%index%', '')
+                        pat = host_fmt.replace('%stackname%', '.*').replace('%index%', r'\d+') + '$'
                         reg = re.compile(pat)
                         matching_hosts = []
                         for host in name_map:
