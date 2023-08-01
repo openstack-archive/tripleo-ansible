@@ -14,6 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Check if monitoring stack services exists
+  include_tasks: check_service.yaml
+  vars:
+    service: "{{ item }}"
+  with_items:
+    - "grafana"
+    - "prometheus"
+    - "alertmanager"
+  when: tripleo_cephadm_dashboard_enabled | bool
+
 - name: Build and apply the monitoring stack daemons
   block:
     # Using two tasks with a boolean due to the ansible bug: https://github.com/ansible/ansible/issues/68364
@@ -82,7 +92,16 @@
         - {"daemon": "grafana", "port": "{{ tripleo_cephadm_grafana_port | default(3100) }}"}
         - {"daemon": "prometheus", "port": "{{ tripleo_cephadm_prometheus_port | default(9092) }}"}
         - {"daemon": "alertmanager", "port": "{{ tripleo_cephadm_alertmanager_port | default(9093) }}"}
-  when: tripleo_cephadm_dashboard_enabled | bool
+  when:
+    - tripleo_cephadm_dashboard_enabled | bool
+    - '"grafana" not in ceph_orch_ls_grafana.stdout or
+      "prometheus" not in ceph_orch_ls_prometheus.stdout or
+      "alertmanager" not in ceph_orch_ls_alertmanager.stdout'
+
+- name: Capture ceph mgr modules stat
+  include_tasks: check_mgr_modules_stat.yaml
 
 - include_tasks: dashboard/dashboard.yaml
-  when: tripleo_cephadm_dashboard_enabled | bool
+  when:
+    - tripleo_cephadm_dashboard_enabled | bool
+    - '"dashboard" not in (ceph_mgr_modules_stat.stdout | from_json).enabled_modules'

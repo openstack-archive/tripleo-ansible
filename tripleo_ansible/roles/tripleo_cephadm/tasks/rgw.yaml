@@ -14,6 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+- name: Check if rgw service exists
+  include_tasks: check_service.yaml
+  vars:
+    service: rgw
+
 - name: Deploy the RGW daemon
   block:
     # Using two tasks with a boolean due to the ansible bug: https://github.com/ansible/ansible/issues/68364
@@ -60,3 +65,4 @@
         rgw_frontend_cert: "{{ slurp_cert.get('content', '') | b64decode }}"
   when:
     - tripleo_enabled_services | intersect(['ceph_rgw'])
+    - '"rgw" not in ceph_orch_ls_rgw.stdout'
