@@ -114,9 +114,13 @@ class ActionModule(ActionBase):
         if self.all_nodes_extra_map_data.get(
                 service + '_short_bootstrap_node_name', None):
             v = service + '_short_bootstrap_node_name'
-            service_hosts += self.all_nodes_extra_map_data[v]
+            if self.all_nodes_extra_map_data[v] not in service_hosts:
+                service_hosts.append(self.all_nodes_extra_map_data[v])
+            else:
+                all_nodes[v] = self.all_nodes_extra_map_data[v]
         service_hosts.sort()
-        if service_hosts:
+        if service_hosts and not all_nodes.get(
+                service + '_short_bootstrap_node_name', None):
             all_nodes[service + '_short_bootstrap_node_name'] = \
                 service_hosts[0]
 
@@ -125,13 +129,14 @@ class ActionModule(ActionBase):
         if self.all_nodes_extra_map_data.get(
                 service + '_bootstrap_node_ip', None):
             v = service + '_bootstrap_node_ip'
-            service_bootstrap_node_ips = \
+            if self.all_nodes_extra_map_data[v] not in service_node_ips:
                 service_node_ips.append(self.all_nodes_extra_map_data[v])
-        else:
-            service_bootstrap_node_ips = service_node_ips
-        if service_bootstrap_node_ips:
+            else:
+                all_nodes[v] = self.all_nodes_extra_map_data[v]
+        if service_node_ips and not all_nodes.get(
+                service + '_bootstrap_node_ip', None):
             all_nodes[service + '_bootstrap_node_ip'] = \
-                service_bootstrap_node_ips[0]
+                service_node_ips[0]
 
     def process_services(self, enabled_services, all_nodes, forks):
         # This breaks up the enabled_services list into smaller lists with
