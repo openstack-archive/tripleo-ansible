@@ -29,6 +29,7 @@ _tripleo_bootstrap_packages_bootstrap:
   - rsync
   - tmpwatch
   - sysstat
+  - iproute-tc
 
 _tripleo_bootstrap_legacy_network_packages:
   - openstack-network-scripts
