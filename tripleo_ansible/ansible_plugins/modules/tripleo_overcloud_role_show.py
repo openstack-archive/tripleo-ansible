@@ -184,7 +184,7 @@ def run_module():
         module.exit_json(**result)
     except Exception as err:
         result['error'] = str(err)
-        result['msg'] = ("Error getting role information: %{error}".format(
+        result['msg'] = ("Error getting role information: {error}".format(
                                                          error=err))
         module.fail_json(**result)
 

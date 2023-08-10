@@ -147,8 +147,8 @@ def run_module():
     except Exception as err:
         result['error'] = str(err)
         result['msg'] = ("Error getting Virtual IPs data from overcloud stack "
-                         "{stack_name}: %{error}".format(stack_name=stack,
-                                                         error=err))
+                         "{stack_name}: {error}".format(stack_name=stack,
+                                                        error=err))
         module.fail_json(**result)
 
 
