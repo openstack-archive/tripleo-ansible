@@ -14,11 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-- name: Create default domain
-  openstack.cloud.identity_domain:
-    cloud: "{{ tripleo_keystone_resources_cloud_name }}"
-    name: default
-
 - name: Create admin and service projects
   include_tasks: projects.yml
   vars:
