@@ -1,0 +1,32 @@
+---
+parameter_defaults:
+  DistributedComputeHCICount: 3
+  DistributedComputeHCIHostnameFormat: '%stackname%-distributedcomputehci-%index%'
+  DistributedComputeHCIScaleOutCount: 1
+  DistributedComputeHCIScaleOutHostnameFormat: '%stackname%-distributedcomputehciscaleout-%index%'
+  DistributedComputeScaleOutCount: 1
+  DistributedComputeScaleOutHostnameFormat: '%stackname%-distributedcomputescaleout-%index%'
+  DeployedServerPortMap:
+    oc0-distributedcomputehci-0-ctlplane:
+      fixed_ips:
+        - ip_address: 192.168.24.13
+    oc0-distributedcomputehci-1-ctlplane:
+      fixed_ips:
+        - ip_address: 192.168.24.11
+    oc0-distributedcomputehci-2-ctlplane:
+      fixed_ips:
+        - ip_address: 192.168.24.14
+    oc0-distributedcomputehciscaleout-0-ctlplane:
+      fixed_ips:
+        - ip_address: 192.168.24.21
+    oc0-distributedcomputescaleout-0-ctlplane:
+      fixed_ips:
+        - ip_address: 192.168.24.23
+  HostnameMap:
+    oc0-distributedcomputehci-0: oc0-distributedcomputehci-0
+    oc0-distributedcomputehci-1: oc0-distributedcomputehci-1
+    oc0-distributedcomputehci-2: oc0-distributedcomputehci-2
+    oc0-distributedcomputehciscaleout-0: oc0-distributedcomputehciscaleout-0
+    oc0-distributedcomputescaleout-0: oc0-distributedcomputescaleout-0
+resource_registry:
+  OS::TripleO::DeployedServer::ControlPlanePort: /usr/share/openstack-tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
