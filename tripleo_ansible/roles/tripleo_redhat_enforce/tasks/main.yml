@@ -31,6 +31,14 @@
   tags:
     - always
 
+- name: Support multi-rhel override
+  when:
+    tripleo_redhat_enforce_multios is defined
+  set_fact:
+    tripleo_redhat_enforce_os: "{{tripleo_redhat_enforce_multios|string}}"
+  tags:
+    - always
+
 - include_tasks: enforce_release.yml
   name: Enforce RHEL/OSP version pair
   when:
