@@ -2,8 +2,6 @@
 # We don't want to get false positive on subscription manager network
 # issues, hence the logic in the retries/until.
 - name: get current release settings
-  environment:
-    SMDEV_CONTAINER_OFF: True
   command: 'subscription-manager release --show'
   register: subscribed_release
   ignore_errors: true
