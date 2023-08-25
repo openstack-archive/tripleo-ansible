@@ -18,55 +18,64 @@
 #   https://github.com/ceph/ceph-ansible/blob/master/library/ceph_pool.py
 
 # Using two tasks with a boolean due to the ansible bug: https://github.com/ansible/ansible/issues/68364
-- name: Collect the host and build the resulting host list
-  set_fact:
-    _hosts: "{{ _hosts|default([]) + [ hostvars[item].canonical_hostname ] }}"
-  with_items: "{{ groups['ceph_mds'] }}"
-  when: tripleo_cephadm_fqdn | bool
 
-- name: Collect the host and build the resulting host list
-  set_fact:
-    _hosts: "{{ _hosts|default([]) + [ hostvars[item].inventory_hostname ] }}"
-  with_items: "{{ groups['ceph_mds'] }}"
-  when: not tripleo_cephadm_fqdn | bool
-
-- name: Create the mds Daemon spec definition
-  become: true
-  ceph_mkspec:
-    service_type: mds
-    cluster: "{{ tripleo_cephadm_cluster }}"
-    apply: true
-    hosts: "{{ _hosts | unique }}"
-    render_path: "{{ tripleo_cephadm_spec_home }}"
-  register: spc
-  environment:
-    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
-    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
-
-- name: Create filesystem Pools
-  become: true
-  block:
-    - name: Get ceph_cli
-      include_tasks: ceph_cli.yaml
-
-    - name: Create cephfs pools
-      command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
-      loop: "{{ cephfs_pools | default([]) }}"
+- name: Check if mds service exists
+  include_tasks: check_service.yaml
   vars:
-    cephfs_pools:
-      - "{{ cephfs_data_pool }}"
-      - "{{ cephfs_metadata_pool }}"
-  when:
-    - cephfs_data_pool is defined
-    - cephfs_metadata_pool is defined
+    service: mds
 
-- name: create ceph filesystem
-  ceph_fs:
-    name: "{{ cephfs|default('cephfs') }}"
-    cluster: "{{ tripleo_cephadm_cluster }}"
-    data: "{{ cephfs_data_pool.name }}"
-    metadata: "{{ cephfs_metadata_pool.name }}"
-  become: true
-  environment:
-    CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
-    CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+- name: Deploy the mds daemon
+  block:
+    - name: Collect the host and build the resulting host list
+      set_fact:
+        _hosts: "{{ _hosts|default([]) + [ hostvars[item].canonical_hostname ] }}"
+      with_items: "{{ groups['ceph_mds'] }}"
+      when: tripleo_cephadm_fqdn | bool
+
+    - name: Collect the host and build the resulting host list
+      set_fact:
+        _hosts: "{{ _hosts|default([]) + [ hostvars[item].inventory_hostname ] }}"
+      with_items: "{{ groups['ceph_mds'] }}"
+      when: not tripleo_cephadm_fqdn | bool
+
+    - name: Create the mds Daemon spec definition
+      become: true
+      ceph_mkspec:
+        service_type: mds
+        cluster: "{{ tripleo_cephadm_cluster }}"
+        apply: true
+        hosts: "{{ _hosts | unique }}"
+        render_path: "{{ tripleo_cephadm_spec_home }}"
+      register: spc
+      environment:
+        CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
+        CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+
+    - name: Create filesystem Pools
+      become: true
+      block:
+        - name: Get ceph_cli
+          include_tasks: ceph_cli.yaml
+
+        - name: Create cephfs pools
+          command: "{{ tripleo_cephadm_ceph_cli }} osd pool create {{ item.name }} {{ item.pg_num | default('') }} {{ item.rule_name }} --autoscale-mode {{ item.pg_autoscale | default('on') }}"
+          loop: "{{ cephfs_pools | default([]) }}"
+      vars:
+        cephfs_pools:
+          - "{{ cephfs_data_pool }}"
+          - "{{ cephfs_metadata_pool }}"
+      when:
+        - cephfs_data_pool is defined
+        - cephfs_metadata_pool is defined
+
+    - name: create ceph filesystem
+      ceph_fs:
+        name: "{{ cephfs|default('cephfs') }}"
+        cluster: "{{ tripleo_cephadm_cluster }}"
+        data: "{{ cephfs_data_pool.name }}"
+        metadata: "{{ cephfs_metadata_pool.name }}"
+      become: true
+      environment:
+        CEPH_CONTAINER_IMAGE: "{{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }}"
+        CEPH_CONTAINER_BINARY: "{{ tripleo_cephadm_container_cli }}"
+  when: '"mds" not in ceph_orch_ls_mds.stdout'
