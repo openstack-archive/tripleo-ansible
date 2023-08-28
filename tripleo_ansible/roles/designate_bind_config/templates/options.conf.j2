@@ -14,7 +14,7 @@ options {
 	listen-on { none; };
 	{% endif %}
 
-	allow-notify { {{ tripleo_dns_listen_interfaces[0] }};{{ notify_sources|join(';') }}; };
+	allow-notify { {{ tripleo_other_allow_notify|join('; ') }}; {{ notify_sources|join('; ') }}; };
 
 	{% if bind_lmdb_mapsize is defined %}
 	lmdb-mapsize {{ bind_lmdb_mapsize }};
