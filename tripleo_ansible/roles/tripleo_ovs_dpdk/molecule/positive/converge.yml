@@ -34,3 +34,4 @@
         tripleo_ovs_dpdk_pmd_load_threshold: 50
         tripleo_ovs_dpdk_pmd_improvement_threshold: 10
         tripleo_ovs_dpdk_pmd_rebal_interval: 5
+        tripleo_ovs_dpdk_pmd_sleep_max: 50

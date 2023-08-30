@@ -267,3 +267,21 @@
     col: other_config
     key: pmd-auto-lb-rebal-interval
   when: not tripleo_ovs_dpdk_pmd_rebal_interval|string
+
+- name: Set PMD maximum sleep time
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-maxsleep
+    value: "{{ tripleo_ovs_dpdk_pmd_sleep_max }}"
+  when: tripleo_ovs_dpdk_pmd_sleep_max|string
+
+- name: Remove PMD maximum sleep time
+  openvswitch_db:
+    state: absent
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-maxsleep
+  when: not tripleo_ovs_dpdk_pmd_sleep_max|string

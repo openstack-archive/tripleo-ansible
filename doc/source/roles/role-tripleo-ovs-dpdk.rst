@@ -123,6 +123,17 @@ Role Defaults
   - **Default**: ``''``
   - **Examples**: ``'5'``
 
+- ``tripleo_ovs_dpdk_pmd_sleep_max``
+
+  - **Description**: (*Optional*) PMD maximum sleep time, in range 0 to 10,000.
+    Its a string with a number, specifies the maximum sleep time that will be
+    requested in microseconds per iteration for a PMD thread which has received
+    zero or a small amount of packets from the Rx queues it is polling. The
+    actual sleep time requested is based on the load of the Rx queues that the
+    PMD polls and may be less than the maximum value.
+  - **Default**: ``''``
+  - **Examples**: ``'50'``
+
 Modules
 -------
 

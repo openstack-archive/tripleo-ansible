@@ -90,3 +90,8 @@ def test_positive_pmd_improvement_threshold(host):
 def test_positive_pmd_rebal_interval(host):
     other_config = get_config(host)
     assert 'pmd-auto-lb-rebal-interval' not in other_config
+
+
+def test_positive_pmd_sleep_max(host):
+    other_config = get_config(host)
+    assert 'pmd-maxsleep' not in other_config

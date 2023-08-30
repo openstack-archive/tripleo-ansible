@@ -100,3 +100,9 @@ def test_positive_pmd_rebal_interval(host):
     other_config = get_config(host)
     pmd_rebal_interval = other_config['pmd-auto-lb-rebal-interval'].replace('"', '')
     assert pmd_rebal_interval == "5"
+
+
+def test_positive_pmd_sleep_max(host):
+    other_config = get_config(host)
+    pmd_sleep_max = other_config['pmd-maxsleep'].replace('"', '')
+    assert pmd_sleep_max == "50"
