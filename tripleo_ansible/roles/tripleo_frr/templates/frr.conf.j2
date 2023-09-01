@@ -36,7 +36,6 @@ router bgp {{ tripleo_frr_bgp_asn }}
   neighbor {{ iface }} interface peer-group uplink
 {% endfor %}
 {% endif %}
-
 {% if tripleo_frr_bgp_neighbor_ttl_security_hops | int > 0 %}
   neighbor uplink ttl-security hops {{ tripleo_frr_bgp_neighbor_ttl_security_hops }}
 {% endif %}
