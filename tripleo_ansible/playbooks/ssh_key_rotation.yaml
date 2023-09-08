@@ -78,6 +78,9 @@
         backup_folder: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
         tripleo_backup_folder: "/home/tripleo-admin/backup_keys/{{ ansible_date_time.epoch }}"
         keep_old_key_authorized_keys: true
+    - name: Check overcloud users
+      getent:
+        database: passwd
     - name: Debug overcloud variables
       debug:
         msg:
@@ -139,13 +142,13 @@
         backup: true
         src: "{{ keys_folder }}/{{ tripleo_key_name }}"
         dest: "{{ backup_folder }}/"
-      when: tripleo_key_exists.stat
+      when: tripleo_key_exists.stat.exists
     - name: Copy tripleo public key
       copy:
         backup: true
         src: "{{ keys_folder }}/{{ tripleo_key_name }}.pub"
         dest: "{{ backup_folder }}/"
-      when: tripleo_key_exists.stat
+      when: tripleo_key_exists.stat.exists
 
 - name: Create overcloud backup directory
   hosts: "{{ overcloud_group | default('allovercloud') }}"
@@ -161,6 +164,9 @@
         path: "{{ tripleo_backup_folder }}"
         state: directory
         mode: '700'
+      become: yes
+      become_user: tripleo-admin
+      when: ( "tripleo-admin" in getent_passwd.keys() )
 
 - name: Backup overcloud keys
   hosts: "{{ overcloud_group | default('allovercloud') }}"
@@ -178,6 +184,9 @@
         src: /home/tripleo-admin/.ssh/
         dest: "{{ tripleo_backup_folder }}/"
         remote_src: true
+      become: yes
+      become_user: tripleo-admin
+      when: ( "tripleo-admin" in getent_passwd.keys() )
 
 - name: Generate new stack keys in temporary directory
   hosts: undercloud
@@ -211,6 +220,9 @@
         user: "tripleo-admin"
         state: present
         key: "{{ lookup('file', hostvars['undercloud']['temp_public_key']) }}"
+      become: yes
+      become_user: tripleo-admin
+      when: ( "tripleo-admin" in getent_passwd.keys() )
 
 - name: Replace old public and private keys for the deployment user on undercloud
   hosts: undercloud
@@ -235,10 +247,12 @@
           copy:
             src: "{{ temp_private_key }}"
             dest: "{{ keys_folder }}/{{ tripleo_key_name }}"
+          when: tripleo_key_exists.stat.exists
         - name: Copy public key to .ssh/ for tripleo
           copy:
             src: "{{ temp_public_key }}"
             dest: "{{ keys_folder }}/{{ tripleo_key_name }}.pub"
+          when: tripleo_key_exists.stat.exists
       when: rotate_undercloud_key|bool
 
 - name: Remove old stack key from overcloud authorized_keys
@@ -257,6 +271,9 @@
             user: "tripleo-admin"
             state: absent
             key: "{{ lookup('file', hostvars['undercloud']['old_public_key']) }}"
+          become: yes
+          become_user: tripleo-admin
+          when: ( "tripleo-admin" in getent_passwd.keys() )
       when: not keep_old_key_authorized_keys
 
 - name: Remove old stack key from undercloud authorized_keys
