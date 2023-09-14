@@ -18,6 +18,9 @@ ExecStop=-/usr/bin/podman exec {{ lookup('dict', container_data_unit).key }} {{ 
 {% endif %}
 ExecStop=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int }} {{ lookup('dict', container_data_unit).key }}
 ExecStopPost=/usr/bin/podman stop -t {{ lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int }} {{ lookup('dict', container_data_unit).key }}
+{% if lookup('dict', container_data_unit).value.post_stop_exec is defined %}
+ExecStopPost={{lookup('dict', container_data_unit).value.post_stop_exec}}
+{% endif %}
 SuccessExitStatus=137 142 143
 TimeoutStopSec={{ 2*(lookup('dict', container_data_unit).value.stop_grace_period | default(42) | int) }}
 KillMode={{ lookup('dict', container_data_unit).value.kill_mode | default('control-group') }}
