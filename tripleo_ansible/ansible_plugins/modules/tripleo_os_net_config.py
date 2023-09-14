@@ -67,6 +67,12 @@ options:
         case of failuring while applying the provided net config.
     type: bool
     default: false
+  use_nmstate:
+    description:
+      - If enabled, use nmstate and network manager for network configuration.
+    type: bool
+    default: false
+
 """
 
 EXAMPLES = """
@@ -96,7 +102,8 @@ DEFAULT_CFG = '/etc/os-net-config/dhcp_all_interfaces.yaml'
 
 
 def _run_os_net_config(config_file, cleanup=False, debug=False,
-                       detailed_exit_codes=False, noop=False):
+                       detailed_exit_codes=False, noop=False,
+                       use_nmstate=False):
     # Build os-net-config command
     argv = ['os-net-config --config-file {}'.format(config_file)]
     if cleanup:
@@ -107,6 +114,8 @@ def _run_os_net_config(config_file, cleanup=False, debug=False,
         argv.append('--detailed-exit-codes')
     if noop:
         argv.append('--noop')
+    if use_nmstate:
+        argv.append('--provider nmstate')
     cmd = " ".join(argv)
 
     # Apply the provided network configuration
@@ -198,6 +207,7 @@ def main():
     debug = args['debug']
     detailed_exit_codes = args['detailed_exit_codes']
     safe_defaults = args['safe_defaults']
+    use_nmsate = args['use_nmstate']
     return_codes = [0]
     if detailed_exit_codes:
         return_codes.append(2)
@@ -205,7 +215,7 @@ def main():
     # Apply the provided network configuration
     cmd, run = _run_os_net_config(config_file, cleanup, debug,
                                   detailed_exit_codes,
-                                  module.check_mode)
+                                  module.check_mode, use_nmsate)
     results['stderr'] = run.stderr
     results['stdout'] = run.stdout
     if run.returncode not in return_codes and not module.check_mode:

@@ -128,6 +128,7 @@
         enabled: true
       when:
         - tripleo_network_config_manage_service
+        - not tripleo_network_config_nmstate|bool
         - not ansible_check_mode|bool
 
   # The conditions here are when we want to apply the
