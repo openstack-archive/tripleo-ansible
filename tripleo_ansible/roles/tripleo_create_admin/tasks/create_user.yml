@@ -64,7 +64,7 @@
 - name: append {{ tripleo_admin_user }} public key to authorized_keys
   lineinfile:
     path: /home/{{ tripleo_admin_user }}/.ssh/authorized_keys
-    line: "{{ key['content'] | b64decode }}"
+    line: "{{ key['content'] | b64decode | trim }}"
     state: present
     owner: '{{ tripleo_admin_user }}'
     group: '{{ tripleo_admin_user }}'
