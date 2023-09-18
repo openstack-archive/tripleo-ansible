@@ -98,6 +98,7 @@
   register: ceph_version
   vars:
     ceph_container: "{{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}"
+  delegate_to: "{{ groups['ceph_nfs'][0] }}"
 
 - name: Render Ganesha templates and files
   include_tasks: ganesha/start_nfs.yaml
