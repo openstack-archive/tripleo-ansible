@@ -1,5 +1,8 @@
 ---
 designate_pool_config_file_path: '/var/lib/config-data/puppet-generated/designate/etc/designate/pools.yaml'
 designate_bind_pool_key_file_path: '/var/lib/config-data/puppet-generated/designate/etc/designate/private'
-pool_zone_domain: 'example.org'
+designate_bind_pool_ns_records:
+  - 'ns1.example.org.'
+  - 'ns2.example.org.'
+  - 'ns3.example.org.'
 tripleo_external_bind_servers: []
