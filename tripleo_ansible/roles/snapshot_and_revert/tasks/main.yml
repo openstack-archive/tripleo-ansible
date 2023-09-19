@@ -98,6 +98,20 @@
   tags:
     - create_snapshots
 
+- name: Check existing snapshots
+  assert:
+    that: '{{ item }} is not defined'
+    fail_msg: "Snapshot {{ item.split('.')[3] }} already exists. Please remove it before creating a new one."
+  with_items:
+    - ansible_facts.lvm.lvs.ss_audit
+    - ansible_facts.lvm.lvs.ss_home
+    - ansible_facts.lvm.lvs.ss_log
+    - ansible_facts.lvm.lvs.ss_root
+    - ansible_facts.lvm.lvs.ss_srv
+    - ansible_facts.lvm.lvs.ss_var
+  tags:
+    - create_snapshots
+
 - name: Create lvm snapshot using the lv_thinpool
   when:
     - ansible_facts.lvm is defined
