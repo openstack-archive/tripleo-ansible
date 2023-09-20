@@ -45,6 +45,11 @@
         name: tripleo_cephadm
         tasks_from: cephadm_config_set.yaml
 
+    - name: Ensure that Ceph orchestrator is responsive
+      import_role:
+        name: tripleo_cephadm
+        tasks_from: monitor_ceph_orch
+
     - name: Apply Ceph spec
       import_role:
         name: tripleo_cephadm
