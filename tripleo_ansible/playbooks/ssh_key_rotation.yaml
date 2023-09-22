@@ -14,34 +14,34 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# backup_folder: Folder path where the current keys should be saved as backup.
+# undercloud_backup_folder: Folder path where the current keys should be saved as backup.
 # keys_folder: Folder path where the current keys are (default: ~/.ssh).
 # key_name: Current key name (default: id_rsa).
 # key_size: Key size for the new generated key (default: 4096).
 # tripleo_key_name: Current key name for tripleo (default: id_rsa_tripleo).
 # keep_old_key_authorized_keys: Preserve old key access to the servers (default: true).
 # rotate_undercloud_key: flag to generate new keys or just update the overcloud with the current
-# 	key. Used with 'undercloud_public_key' (default: true).
+#       key. Used with 'undercloud_public_key' (default: true).
 # undercloud_public_key: When not generating new keys (rotate_undercloud_key = false), indicates
-# 	which public key to use to give access to the overcloud (default: ~/.ssh/id_rsa.pub).
+#       which public key to use to give access to the overcloud (default: ~/.ssh/id_rsa.pub).
 #
 # Usage examples:
 # Simple environment:
-# 	ansible-playbook -i tripleo-ansible-inventory.yaml \
-# 	tripleo_ansible/playbooks/ssh_key_rotation.yaml
-# Specifying the backup folder:
-# 	ansible-playbook -i tripleo-ansible-inventory.yaml -e \
-# 	backup_folder=/tmp/backup_keys tripleo_ansible/playbooks/ssh_key_rotation.yaml
+#       ansible-playbook -i tripleo-ansible-inventory.yaml \
+#       tripleo_ansible/playbooks/ssh_key_rotation.yaml
+# Specifying the undercloud backup folder:
+#       ansible-playbook -i tripleo-ansible-inventory.yaml -e \
+#       undercloud_backup_folder=/tmp/backup_keys tripleo_ansible/playbooks/ssh_key_rotation.yaml
 # Multicell environment:
 # Description: First run will rotate the key on the main cell, and save the original key to
 #              /tmp/backup_keys, the second run will use the original key as the ansible key to
 #              access the second cell, and update its authorized_keys to accept the keys under
 #              undercloud_public_key (by default: ~/.ssh).
-# 	ansible-playbook -i tripleo-ansible-inventory.yaml -e backup_folder=/tmp/backup_keys \
-# 	tripleo_ansible/playbooks/ssh_key_rotation.yaml
-# 	ansible-playbook -i second_cell_tripleo-ansible-inventory.yaml -e
-# 	rotate_undercloud_key=false -e ansible_ssh_private_key_file=/tmp/backup_keys/id_rsa \
-# 	tripleo_ansible/playbooks/ssh_key_rotation.yaml
+#       ansible-playbook -i tripleo-ansible-inventory.yaml -e undercloud_backup_folder=/tmp/backup_keys \
+#       tripleo_ansible/playbooks/ssh_key_rotation.yaml
+#       ansible-playbook -i second_cell_tripleo-ansible-inventory.yaml -e
+#       rotate_undercloud_key=false -e ansible_ssh_private_key_file=/tmp/backup_keys/id_rsa \
+#       tripleo_ansible/playbooks/ssh_key_rotation.yaml
 
 - name: Initialize undercloud facts
   hosts: undercloud
@@ -49,7 +49,7 @@
   tasks:
     - name: Register undercloud variables
       set_fact:
-        backup_folder: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
+        undercloud_backup_folder: "/home/stack/backup_keys/{{ ansible_date_time.epoch }}"
         keys_folder: "/home/{{ ansible_user_id }}/.ssh"
         key_name: "id_rsa"
         key_size: "4096"
@@ -60,7 +60,7 @@
     - name: Debug udercloud variables
       debug:
         msg:
-        - "{{ backup_folder }}"
+        - "{{ undercloud_backup_folder }}"
         - "{{ keys_folder }}"
         - "{{ key_name }}"
         - "{{ key_size }}"
@@ -75,7 +75,7 @@
   tasks:
     - name: Register overcloud variables
       set_fact:
-        backup_folder: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
+        overcloud_backup_folder: "/home/{{ ansible_user_id }}/backup_keys/{{ ansible_date_time.epoch }}"
         tripleo_backup_folder: "/home/tripleo-admin/backup_keys/{{ ansible_date_time.epoch }}"
         keep_old_key_authorized_keys: true
     - name: Check overcloud users
@@ -84,7 +84,7 @@
     - name: Debug overcloud variables
       debug:
         msg:
-        - "{{ backup_folder }}"
+        - "{{ overcloud_backup_folder }}"
         - "{{ tripleo_backup_folder }}"
 
 - name: Create temporary directory
@@ -111,7 +111,7 @@
       when: not rotate_undercloud_key|bool
     - name: Register undercloud old public key path
       set_fact:
-        old_public_key: "{{ backup_folder }}/{{ key_name }}.pub"
+        old_public_key: "{{ undercloud_backup_folder }}/{{ key_name }}.pub"
     - debug: var=temp_public_key
 
 - name: Backup stack undercloud keys
@@ -125,29 +125,29 @@
     - debug: var=tripleo_key_exists
     - name: Create backup folder
       file:
-        path: "{{ backup_folder }}"
+        path: "{{ undercloud_backup_folder }}"
         state: directory
     - name: Copy private key
       copy:
         backup: true
         src: "{{ keys_folder }}/{{ key_name }}"
-        dest: "{{ backup_folder }}/"
+        dest: "{{ undercloud_backup_folder }}/"
     - name: Copy public key
       copy:
         backup: true
         src: "{{ keys_folder }}/{{ key_name }}.pub"
-        dest: "{{ backup_folder }}/"
+        dest: "{{ undercloud_backup_folder }}/"
     - name: Copy tripleo private key
       copy:
         backup: true
         src: "{{ keys_folder }}/{{ tripleo_key_name }}"
-        dest: "{{ backup_folder }}/"
+        dest: "{{ undercloud_backup_folder }}/"
       when: tripleo_key_exists.stat.exists
     - name: Copy tripleo public key
       copy:
         backup: true
         src: "{{ keys_folder }}/{{ tripleo_key_name }}.pub"
-        dest: "{{ backup_folder }}/"
+        dest: "{{ undercloud_backup_folder }}/"
       when: tripleo_key_exists.stat.exists
 
 - name: Create overcloud backup directory
@@ -156,7 +156,7 @@
   tasks:
     - name: Create backup folder
       file:
-        path: "{{ backup_folder }}"
+        path: "{{ overcloud_backup_folder }}"
         state: directory
         mode: '700'
     - name: Create tripleo admin backup folder
@@ -176,7 +176,7 @@
       copy:
         backup: true
         src: /home/{{ ansible_user_id }}/.ssh/
-        dest: "{{ backup_folder }}/"
+        dest: "{{ overcloud_backup_folder }}/"
         remote_src: true
     - name: Backup tripleo admin .ssh folder
       copy:
@@ -303,7 +303,7 @@
   tasks:
     - name: Change backup folder permission to 600
       file:
-        path: "{{ backup_folder }}/{{ key_name }}"
+        path: "{{ undercloud_backup_folder }}/{{ key_name }}"
         mode: '600'
 
 - name: Test overcloud is reacheable
