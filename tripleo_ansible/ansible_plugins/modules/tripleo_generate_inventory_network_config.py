@@ -113,6 +113,12 @@ options:
               - Number of Rx Queues required for DPDK bond or DPDK ports
             type: int
             default: 1
+          role_tags:
+            description:
+              - Role tags used in jinja2 NIC config templates. For example
+                the tag 'external_bridge' is used in multiple NIC's templates.
+            type: list
+            default: []
   hostname_role_map:
     description:
       - Mapping of instance hostnames to role name

@@ -65,7 +65,11 @@ _NETWORK_CONFIG_SCHEMA = {
         },
         'dns_search_domains': {'type': 'string'},
         'bond_interface_ovs_options': {'type': 'string'},
-        'num_dpdk_interface_rx_queues': {'type': 'integer'}
+        'num_dpdk_interface_rx_queues': {'type': 'integer'},
+        'role_tags': {
+            'type': 'array',
+            'items': {'type': 'string'}
+        }
     },
     'additionalProperties': False
 }
