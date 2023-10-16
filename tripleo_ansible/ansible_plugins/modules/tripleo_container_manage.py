@@ -20,6 +20,7 @@ from ansible.module_utils.parsing.convert_bool import boolean
 
 import glob
 import os
+import re
 import time
 import yaml
 import json
@@ -154,12 +155,15 @@ class TripleoContainerManage:
         # handle overrides similar to container_config_data
         if self.config_overrides:
             for k in self.config_overrides.keys():
-                if k in configs:
+                r = re.compile(k)
+                overrides = list(filter(r.match, configs))
+                if overrides:
                     for mk, mv in self.config_overrides[k].items():
                         if self.debug:
                             self.module.debug(f'Override found for {k}: {mk} '
                                               f'will be set to {mv}')
-                        configs[k][mk] = mv
+                        for override_config in overrides:
+                            configs[override_config][mk] = mv
         return configs
 
     def _get_version(self):
