@@ -36,8 +36,11 @@ roles:
 
 collections:
   - name: ansible.netcommon
+    source: https://old-galaxy.ansible.com/
   - name: ansible.posix
+    source: https://old-galaxy.ansible.com/
   - name: community.general
+    source: https://old-galaxy.ansible.com/
   - name: openstack.cloud
     version: 1.9.1
   - name: containers.podman
