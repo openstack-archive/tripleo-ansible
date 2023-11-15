@@ -89,6 +89,7 @@
     {{ tripleo_cephadm_container_ns + '/' + tripleo_cephadm_container_image + ':' + tripleo_cephadm_container_tag }} \
     /etc/dbus-1/system.d/org.ganesha.nfsd.conf
   register: _dbus_ganesha
+  become: true
   run_once: true
   changed_when: false
   delegate_to: "{{ groups['ceph_nfs'][0] }}"
@@ -96,6 +97,7 @@
 - name: Get Ceph version
   command: "{{ tripleo_cephadm_container_cli }} run --rm --entrypoint=ceph {{ ceph_container }} -v"
   register: ceph_version
+  become: true
   vars:
     ceph_container: "{{ tripleo_cephadm_container_ns }}/{{ tripleo_cephadm_container_image }}:{{ tripleo_cephadm_container_tag }}"
   delegate_to: "{{ groups['ceph_nfs'][0] }}"
