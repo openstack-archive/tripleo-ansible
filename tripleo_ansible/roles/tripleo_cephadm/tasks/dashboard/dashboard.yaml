@@ -82,12 +82,9 @@
 - name: Configure Monitoring Stack
   become: true
   block:
-    - name: get Grafana instance(s) addresses
+    - name: Get Prometheus VIP
       set_fact:
-        grafana_server_addrs: "{{ (grafana_server_addr | default([])) | union([hostvars[item][tripleo_ceph_dashboard_net]]) }}"
-      loop: "{{ groups['ceph_mgr'] | list }}"
-      vars:
-        tripleo_ceph_dashboard_net: "{{ service_net_map['ceph_dashboard_network'] + '_ip' }}"
+        prometheus_vip: "{{ net_vip_map[service_net_map['ceph_grafana_network']] }}"
     - name: set grafana api user
       command: "{{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-username {{ tripleo_cephadm_grafana_admin_user }}"
     - name: set grafana api password
@@ -102,11 +99,11 @@
         - tripleo_cephadm_dashboard_protocol == "https"
     - name: set alertmanager host
       command: |
-        {{ tripleo_cephadm_ceph_cli }} dashboard set-alertmanager-api-host http://{{ grafana_server_addrs | first }}:9093
+        {{ tripleo_cephadm_ceph_cli }} dashboard set-alertmanager-api-host http://{{ prometheus_vip }}:9093
     - name: set prometheus host
       command: |
         {{ tripleo_cephadm_ceph_cli }} dashboard set-prometheus-api-host \
-        http://{{ grafana_server_addrs | first }}:{{ tripleo_cephadm_prometheus_port }}
+        http://{{ prometheus_vip }}:{{ tripleo_cephadm_prometheus_port }}
     - name: config grafana api url vip
       command: |
         {{ tripleo_cephadm_ceph_cli }} dashboard set-grafana-api-url \
