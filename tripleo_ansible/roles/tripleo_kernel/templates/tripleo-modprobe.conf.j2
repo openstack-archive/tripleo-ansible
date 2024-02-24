@@ -1,5 +1,0 @@
-# {{ ansible_managed }}
-
-{% for item in tripleo_kernel_modules | combine(tripleo_kernel_extra_modules) | dict2items(key_name='key', value_name='opt') %}
-{{ item.key }}
-{% endfor %}

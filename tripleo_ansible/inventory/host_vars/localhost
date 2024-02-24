@@ -1,5 +1,0 @@
----
-ctlplane_ip: 192.168.24.100
-internal_api_ip: 192.168.24.2
-tenant_ip: 192.168.24.2
-fqdn_internal_api: '{{ ansible_fqdn }}'

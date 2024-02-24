@@ -1,9 +1,0 @@
-
-collections:
-  - name: https://opendev.org/openstack/ansible-collections-openstack.git
-    type: git
-    version: ed36d82a0c60a841d2f30c61a50d60531481b2cc
-  - containers.podman
-  - community.general
-  - ansible.posix
-  - community.crypto

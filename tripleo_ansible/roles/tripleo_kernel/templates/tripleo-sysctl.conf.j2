@@ -1,5 +1,0 @@
-# {{ ansible_managed }}
-
-{% for item in tripleo_kernel_sysctl_settings | dict2items(key_name='key', value_name='opt') %}
-{{ item.key }} = {{ item.opt.value }}
-{% endfor %}

@@ -1,8 +1,0 @@
-command: "/usr/bin/ovn-controller --pidfile --log-file unix:/run/openvswitch/db.sock {% if tripleo_enable_internal_tls | bool %} -p /etc/pki/tls/private/ovn_controller.key -c /etc/pki/tls/certs/ovn_controller.crt -C {{ tripleo_internal_tls_ca_file }} {% endif %}"
-permissions:
-  - path: /var/log/openvswitch
-    owner: root:root
-    recurse: true
-  - path: /var/log/ovn
-    owner: root:root
-    recurse: true

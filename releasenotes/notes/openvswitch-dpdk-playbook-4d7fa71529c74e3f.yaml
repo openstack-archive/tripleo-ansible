@@ -1,7 +1,0 @@
----
-features:
-  - |
-    Standalone playbook ``cli-overcloud-openvswitch-dpdk.yaml`` allows ovs-dpdk
-    role specific config parameters to be set. When overcloud node provision is done,
-    this playbook has to be run before the network configuration and after setting
-    kernelargs, to support features such as DPDK.

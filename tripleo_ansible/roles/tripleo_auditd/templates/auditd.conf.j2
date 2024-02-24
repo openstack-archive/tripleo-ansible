@@ -1,7 +1,0 @@
-# File managed by tripleo_ansible
-{% set merged_config = tripleo_auditd_config_default | combine(tripleo_auditd_config) %}
-{% for key, value in merged_config.items() %}
-{% if value != '' %}
-{{ key }} = {{ value }}
-{% endif %}
-{% endfor %}

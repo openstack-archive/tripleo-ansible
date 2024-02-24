@@ -1,7 +1,0 @@
----
-# TODO: Mirror these someplace cacheable outside of github
-roles:
-  - src: git+https://github.com/infrawatch/functional-tests
-    name: functional_tests
-  - src: git+https://github.com/infrawatch/qdr-config-ansible-role
-    name: qdr_config

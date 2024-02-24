@@ -1,6 +1,0 @@
----
-other:
-  - |
-    Remove iptables management from tripleo-ansible, since we're now using
-    nftables by default. Therefore, tripleo_iptables isn't needed anymore,
-    nor is the switch in tripleo_firewall allowing to chose the engine.

@@ -1,5 +1,0 @@
----
-other:
-  - Zuul jobs can now run docker workloads using the VFS storage driver.
-    More on the VFS storage driver can be seen here
-    https://docs.docker.com/storage/storagedriver/vfs-driver

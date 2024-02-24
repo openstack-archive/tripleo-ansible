@@ -1,4 +1,0 @@
-{% set service_names_data = {} %}
-{% set _ = service_names_data.__setitem__('service_names', service_names | default([])) %}
-{# RENDER #}
-{{ service_names_data | to_nice_json }}

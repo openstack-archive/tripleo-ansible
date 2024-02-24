@@ -1,4 +1,0 @@
----
-designate_named_conf_path: '/var/lib/config-data/ansible-generated/designate/etc'
-designate_worker_node_ips: []
-designate_bind_enable_query_logging: false

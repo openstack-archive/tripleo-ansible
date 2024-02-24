@@ -1,9 +1,0 @@
----
-- name: Distribute unique designate bind/unbound IPs across hosts
-  set_fact:
-    tripleo_extra_dns_interface: "[ '{{ item.0 }}' ]"
-  delegate_to: "{{ item.1 }}"
-  delegate_facts: true
-  with_together:
-    - "{{ designate_collocate_ips }}"
-    - "{{ hosts_for_ports }}"

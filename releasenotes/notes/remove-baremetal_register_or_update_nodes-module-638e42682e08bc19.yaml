@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    The ``baremetal_register_or_update_nodes`` module has been removed,
-    because it is useless since Glance was removed from Undercloud.

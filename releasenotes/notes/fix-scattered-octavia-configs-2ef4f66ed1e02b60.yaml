@@ -1,5 +1,0 @@
----
-fixes:
-  - |
-    Fixed a configuration issue where required settings for Octavia services
-    were missing.

@@ -1,3 +1,0 @@
-overcloud:
-    vars:
-        tripleo_ovn_controller_image: quay.io/tripleomastercentos9/openstack-ovn-controller:current-tripleo

@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    Due to the use of a folding block operator instead of the literal block
-    operator the check for existing namespaces does not work correct and
-    namespaces get created on subsequent deploy runs even if they already
-    exist. Now namespaces won't get created if the are already there.

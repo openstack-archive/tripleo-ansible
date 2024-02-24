@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    An incorrect lookup issue with respect to the StorageNFS network has
-    been fixed. See `Launchpad bug 1849393
-    <https://bugs.launchpad.net/tripleo/+bug/1849393>`_ for more details.

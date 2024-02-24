@@ -1,6 +1,0 @@
-# File managed by tripleo_ansible
-{% set rules = tripleo_auditd_rules|dict2items|sort(attribute='value.order') %}
-{% for rule in rules %}
-# {{ rule['value']['order'] }} {{ rule['key'] }}
-{{ rule['value']['content'] }}
-{% endfor %}

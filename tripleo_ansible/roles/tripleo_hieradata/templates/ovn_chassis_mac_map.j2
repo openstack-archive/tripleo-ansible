@@ -1,7 +1,0 @@
-{% set ovn_chassis_mac_map_data = {} %}
-{% if ovn_bridge_mac_address_vars is defined %}
-{% set _ = ovn_chassis_mac_map_data.__setitem__('ovn_chassis_mac_map', ovn_bridge_mac_address_vars[inventory_hostname] | default({})) %}
-{% else %}
-{% set _ = ovn_chassis_mac_map_data.__setitem__('ovn_chassis_mac_map', hostvars[inventory_hostname].get('ovn_chassis_mac_map', {})) %}
-{% endif %}
-{{ ovn_chassis_mac_map_data | to_nice_json }}

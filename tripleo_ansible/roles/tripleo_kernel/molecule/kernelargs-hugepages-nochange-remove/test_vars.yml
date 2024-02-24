@@ -1,9 +1,0 @@
-expected_line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS="  default_hugepagesz=2048 hugepagesz=2048 hugepages=10 hugepagesz=4096 hugepages=10 "'
-_mocked_cmdline: default_hugepagesz=2M hugepagesz=2048 hugepages=10 hugepagesz=4096 hugepages=10 hugepagesz=10240 hugepages=10
-tripleo_kernel_hugepages_remove: true
-tripleo_kernel_hugepages:
-  "2048":
-    count: "10"
-    default: true
-  "4096":
-    count: "10"

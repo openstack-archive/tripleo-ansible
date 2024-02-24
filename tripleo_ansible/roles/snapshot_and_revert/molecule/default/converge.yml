@@ -1,8 +1,0 @@
----
-- name: Converge
-  become: true
-  hosts: all
-  tasks:
-    - name: "Include snapshot_and_revert"
-      include_role:
-        name: "snapshot_and_revert"

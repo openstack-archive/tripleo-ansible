@@ -1,7 +1,0 @@
-{%- if 'state' in rule %}
-{%-   if rule['state']|length > 0 %}
- ct state {{ rule['state'] |join(',')|lower }}
-{%-   endif %}
-{%- else %}
- ct state new
-{%- endif %}

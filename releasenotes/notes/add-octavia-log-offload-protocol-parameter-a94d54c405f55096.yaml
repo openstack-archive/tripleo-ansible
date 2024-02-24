@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added new log_offload_protocol parameter that sets the
-    [amphora_agent]/log_protocol setting in Octavia's configuration.

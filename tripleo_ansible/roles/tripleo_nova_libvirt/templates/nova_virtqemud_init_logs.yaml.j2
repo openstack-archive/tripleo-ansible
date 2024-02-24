@@ -1,9 +1,0 @@
-image: {{ tripleo_nova_libvirt_container_image }}
-net: none
-privileged: false
-user: root
-volumes:
-  - /var/log/containers/libvirt/swtpm:/var/log/swtpm:shared,z
-command: ['/bin/bash', '-c', 'chown -R tss:tss /var/log/swtpm']
-environment:
-  TRIPLEO_DEPLOY_IDENTIFIER: "{{ tripleo_deploy_identifier | default('') }}"

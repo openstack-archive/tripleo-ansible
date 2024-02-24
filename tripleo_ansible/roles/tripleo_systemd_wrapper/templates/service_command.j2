@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-#
-# We wrap the command in a bash script so we can do complex logic
-# to make the command dynamic based on the internals of the container.
-# This is necessary for backwards compatibily when commands change their
-# args based on version (I'm looking at you haproxy).
-#
-{{ tripleo_systemd_wrapper_cmd }} $@

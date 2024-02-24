@@ -1,7 +1,0 @@
----
-features:
-  - |
-    Standalone playbook ``cli-overcloud-node-kernelargs.yaml`` allows tuned and
-    kernel arguments to be set, followed by a reboot. This allows that overcloud
-    node provision command to run this playbook before the network configuration
-    to support features such as DPDK.

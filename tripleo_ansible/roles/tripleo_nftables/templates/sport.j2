@@ -1,3 +1,0 @@
-{%- if 'sport' in rule %}
- {{ rule.get('proto', false)|ternary('', 'tcp ') }}sport {{ rule['sport'] }}
-{%- endif %}

@@ -1,4 +1,0 @@
----
-deprecations:
-  - |
-    This change removes unused stack_action/stack_update_type hieras.

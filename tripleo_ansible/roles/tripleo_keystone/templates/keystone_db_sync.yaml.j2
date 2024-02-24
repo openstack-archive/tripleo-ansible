@@ -1,9 +1,0 @@
-image: "{{ tripleo_keystone_image }}"
-net: host
-user: root
-privileged: false
-detach: false
-volumes:
-  {{ tripleo_container_standalone_volumes | default([]) + tripleo_keystone_volumes + tripleo_keystone_logging_volumes }}
-environment: {{ tripleo_keystone_db_sync_environment | combine(tripleo_keystone_logging_environment | default({}, true)) }}
-command: ['/usr/bin/bootstrap_host_exec', 'keystone', '/usr/local/bin/kolla_start']

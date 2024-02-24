@@ -1,4 +1,0 @@
-{% set cloud_domain_data = {} %}
-{% set _ = cloud_domain_data.__setitem__('tripleo::clouddomain', cloud_domain) %}
-{# RENDER #}
-{{ cloud_domain_data | to_nice_json }}

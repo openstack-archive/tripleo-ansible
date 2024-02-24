@@ -1,8 +1,0 @@
----
-- name: Create host dirs for QDR
-  hosts: centos
-  tasks:
-    - name: Set defaults for testing
-      set_fact:
-        tripleo_metrics_qdr_conf_output_dir: /etc/qpid-dispatch/
-        tripleo_metrics_qdr_log_output: /var/log/qdrouterd/metrics_qdr.log

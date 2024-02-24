@@ -1,5 +1,0 @@
-  # Proxy configuration
-  ProxyRequests {{ tripleo_httpd_vhost_proxy_requests }}
-  ProxyPreserveHost {{ tripleo_httpd_vhost_proxy_preserve_host }}
-  ProxyPass {{ tripleo_httpd_vhost_proxy_path }} http://{{ tripleo_httpd_vhost_proxy_host }}:{{ tripleo_httpd_vhost_proxy_port }}/ {{ tripleo_httpd_vhost_proxy_params.items() | map('join', '=') | join(' ') }}
-  ProxyPassReverse / http://{{ tripleo_httpd_vhost_proxy_host }}:{{ tripleo_httpd_vhost_proxy_port }}/

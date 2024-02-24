@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed an issue which caused RoleNetIpMap to have missing overcloud node IP
-    addresses when overcloud node hostname contain uppercase characters.
-    See bug: `1978362 <https://bugs.launchpad.net/tripleo/+bug/1978362>`_.

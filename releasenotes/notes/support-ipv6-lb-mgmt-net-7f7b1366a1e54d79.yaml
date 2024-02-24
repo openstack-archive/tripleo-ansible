@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added support for load balancer management network with IPv6 subnet for
-    Octavia. Using a private IPv6 subnet may simplify edge deployments.

@@ -1,7 +1,0 @@
----
-features:
-  - |
-    Stop using systemd to manage container healthchecks and use native podman
-    healthchecks which are easier to consume than systemd.
-    The tripleo_container_manage role will take care of cleaning up the old
-    systemd healthchecks if they exist.

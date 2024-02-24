@@ -1,4 +1,0 @@
-{% set boostrap_node = {} %}
-{% set _ = boostrap_node.__setitem__('boostrap_node_id', groups[tripleo_role_name] | sort | first) %}
-{# RENDER #}
-{{ boostrap_node | to_nice_json }}

@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added ``designate_bind_config`` to configure bind9 backend containers to
-    work with designate worker services.

@@ -1,7 +1,0 @@
----
-# XXX (beagles) which permissions?
-- name: create bind pool configuration for designate with framework IPS
-  become: true
-  template:
-      src: pools.yaml.j2
-      dest: "{{ designate_pool_config_file_path }}"

@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Add ``designate_rndc_config`` role for distributing rndc key information
-    where necessary for designate.

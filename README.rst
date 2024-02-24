@@ -1,30 +1,10 @@
-========================
-Team and repository tags
-========================
+This project is no longer maintained.
 
-.. image:: https://governance.openstack.org/tc/badges/tripleo-ansible.svg
-    :target: https://governance.openstack.org/tc/reference/tags/index.html
+The contents of this repository are still available in the Git
+source code management system.  To see the contents of this
+repository before it reached its end of life, please check out the
+previous commit with "git checkout HEAD^1".
 
-.. Change things from this point on
-
-===============
-TripleO Ansible
-===============
-
-TripleO Ansible project repository. Contains Ansible playbooks, roles, and
-plugins for use with TripleO.
-
-Documentation for the project can be found at:
-`<https://docs.openstack.org/tripleo-ansible/latest/>`_
-
-Release notes for the project can be found at:
-`<https://docs.openstack.org/releasenotes/tripleo-ansible/>`_
-
-The project source code repository is located at:
-`<https://opendev.org/openstack/tripleo-ansible/>`_
-
-The project home is at:
-`<https://launchpad.net/tripleo>`_
-
-The project bug tracker is located at:
-`<https://bugs.launchpad.net/tripleo>`_
+For any further questions, please email
+openstack-discuss@lists.openstack.org or join #openstack-dev on
+OFTC.

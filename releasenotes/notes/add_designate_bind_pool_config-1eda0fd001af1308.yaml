@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added new role ``designate_bind_pool`` to generate a bind pool configuration
-    using information from the existing deployment.

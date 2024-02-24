@@ -1,5 +1,0 @@
----
-features:
-  - |
-    tripleo-podman now has the ability to enable podman.socket service when
-    tripleo_podman_enable_socket is enabled.

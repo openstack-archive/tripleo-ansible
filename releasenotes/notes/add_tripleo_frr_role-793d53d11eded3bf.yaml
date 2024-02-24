@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added a new role ``tripleo_frr`` to configure FRR service instances.
-    FRR daemons ``zebra``, ``watchfrr``, ``bgpd`` and ``bfdd`` can be enabled.

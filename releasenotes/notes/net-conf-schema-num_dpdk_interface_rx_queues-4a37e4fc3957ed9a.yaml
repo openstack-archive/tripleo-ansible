@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    It is now possible to set the Number of Rx Queues required for DPDK bond
-    or DPDK ports in the baremetal deployment definition. See bug:
-    `1989593 <https://bugs.launchpad.net/tripleo/+bug/1989593>`_.

@@ -1,9 +1,0 @@
-# Specific locations
-{% for location, options in tripleo_httpd_vhost_locations.items() %}
-<Location {{ location }}>
-{%   for option, value in options.items() %}
-  {{ option }} {{ value }}
-{%   endfor %}
-</Location>
-{% endfor %}
-# End of specific locations

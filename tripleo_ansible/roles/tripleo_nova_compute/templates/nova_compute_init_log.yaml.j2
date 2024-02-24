@@ -1,9 +1,0 @@
-image: {{ tripleo_nova_compute_container_image }}
-net: none
-privileged: false
-user: root
-volumes:
-  - /var/log/containers/nova:/var/log/nova:z
-command: ['/bin/bash', '-c', 'chown -R nova:nova /var/log/nova']
-environment:
-  TRIPLEO_DEPLOY_IDENTIFIER: {{ tripleo_nova_compute_deploy_identifier }}

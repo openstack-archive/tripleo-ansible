@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed an issue where the generated ansible inventory would be incomplete
-    if any uppercase characters was used in overcloud node hostnames.
-    See bug: `1978356 <https://bugs.launchpad.net/tripleo/+bug/1978356>`_.

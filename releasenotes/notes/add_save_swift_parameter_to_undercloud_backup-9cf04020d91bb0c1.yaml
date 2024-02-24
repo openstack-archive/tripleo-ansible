@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Adds a new --save-swift parameter to undercloud-backup. This is due to the
-    fact that in the past the backup would be always saved on swift and the
-    next backup would contain the previous backup thus increasing exponentially

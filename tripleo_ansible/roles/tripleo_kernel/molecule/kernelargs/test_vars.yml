@@ -1,3 +1,0 @@
-expected_line: 'GRUB_TRIPLEO_HEAT_TEMPLATE_KERNEL_ARGS=" test=1 "'
-tripleo_kernel_args: test=1
-_mocked_cmdline: ""

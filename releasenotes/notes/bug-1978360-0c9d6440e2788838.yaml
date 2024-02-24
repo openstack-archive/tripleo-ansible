@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed idempotency issue with overcloud node port management when node
-    hostname contain uppercase characters.
-    See bug: `1978360 <https://bugs.launchpad.net/tripleo/+bug/1978360>`_.

@@ -1,9 +1,0 @@
-export TRIPLEO_ANSIBLE_MOLECULE_COMMAND="/bin/sleep infinity"
-export TRIPLEO_ANSIBLE_MOLECULE_VOLUMES="[]"
-export TRIPLEO_ANSIBLE_MOLECULE_IMAGE="centos/centos:stream9"
-export TRIPLEO_ANSIBLE_MOLECULE_REGISTRY="quay.io"
-
-# Role specific vars
-export TRIPLEO_ANSIBLE_SSHD_MOLECULE_VOLUMES="['/sys/fs/cgroup:/sys/fs/cgroup:rw']"
-export TRIPLEO_ANSIBLE_OVN_MOLECULE_VOLUMES="['/sys/fs/cgroup:/sys/fs/cgroup:rw']"
-export TRIPLEO_ANSIBLE_COMPUTE_NODE_MOLECULE_VOLUMES="['$HOME/.cache/tripleo-ansible/containers:/var/lib/containers:rw','/sys/fs/cgroup:/sys/fs/cgroup:rw']"

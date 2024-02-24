@@ -1,8 +1,0 @@
-key "rndc-key" {
-        algorithm hmac-sha256;
-        secret "{{ designate_rndc_key }}";
-};
-
-controls {
-	inet {{ tripleo_dns_listen_interfaces[0] }} allow { {{ rndc_allowed_addresses|join(';') }}; } keys { "rndc-key"; };
-};

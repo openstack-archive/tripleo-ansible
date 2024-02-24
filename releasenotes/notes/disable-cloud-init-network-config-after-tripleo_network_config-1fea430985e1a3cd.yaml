@@ -1,8 +1,0 @@
----
-fixes:
-  - |
-    The tripleo_network_config role will now disable network config in
-    cloud-init after succesfully applying network configuration. In some rare
-    cases cloud-init would re-configure networking after a reboot. Breaking
-    the configuration written by tripleo_network_config.
-    See bug: `1958332 <https://bugs.launchpad.net/tripleo/+bug/1958332>`_.
